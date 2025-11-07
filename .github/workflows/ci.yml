@@ -6,7 +6,7 @@ on:
     branches:
       - main
 
-  # Allow manual workflow dispatch
+  # Allow manual workflow dispatchs
   workflow_dispatch:
 
 jobs:
