@@ -15,9 +15,9 @@ const Index = () => {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
     "name": "Agustin Gonzalez Nicolini - Leadership & Engineering Coaching",
-    "image": "https://yourdomain.com/profile.jpg",
+    "image": "https://agusgonzaleznic.com/profile.jpg",
     "description": "Executive coaching for CTOs, VPs, and engineering leaders. Scale teams, ship faster, and lead with confidence.",
-    "url": "https://yourdomain.com",
+    "url": "https://agusgonzaleznic.com",
     "telephone": "+49-173-5347929",
     "email": "agustingonzaleznicolini@gmail.com",
     "address": {
