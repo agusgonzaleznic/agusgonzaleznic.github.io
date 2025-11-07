@@ -32,5 +32,5 @@ jobs:
       install-command: 'npm ci'
       lint-command: 'npm run lint'
       build-command: 'npm run build'
-      artifact-path: './dist'
+      artifact-path: 'dist'
       run-lint: true
