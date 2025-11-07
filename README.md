@@ -1,109 +1,205 @@
 # Agustin Gonzalez Nicolini — Leadership & Engineering Coaching
 
+A modern, conversion-focused single-page portfolio for engineering leadership coaching.
+
 **Live Site**: https://agusgonzaleznic.github.io
 
-## About This Project
-
-A modern, conversion-focused single-page portfolio for engineering leadership coaching. Built with React, TypeScript, Tailwind CSS, and shadcn/ui, featuring:
+## Features
 
 - 🎨 **Premium Design System**: Minimal grayscale palette with electric coral accent
-- ⚡ **Performance Optimized**: Lighthouse-friendly with optimized assets and animations
-- 🔍 **SEO-Ready**: Complete meta tags, JSON-LD schema, and Open Graph
-- 📱 **Fully Responsive**: Mobile-first design with sticky CTAs
-- ♿ **Accessible**: WCAG 2.1 AA compliant with semantic HTML
-- 🎭 **Tasteful Animations**: Subtle parallax, fade-ins, and hover effects
+- ⚡ **Performance Optimized**: Vite-powered builds with optimized assets
+- 🔍 **SEO-Ready**: Complete meta tags, JSON-LD schema, sitemap, and robots.txt
+- 📱 **Fully Responsive**: Mobile-first design with adaptive layouts
+- ♿ **Accessible**: WCAG 2.1 AA compliant with semantic HTML and Radix UI primitives
+- 🎭 **Smooth Animations**: Tasteful transitions with reduced-motion support
+- 🔒 **Type-Safe**: Built with TypeScript for reliability
+- ✅ **Quality Assured**: ESLint with pre-commit hooks via Husky
+- 🚀 **CI/CD Ready**: Automated deployments with GitHub Actions
 
-## Sections
+## Tech Stack
 
-1. **Hero** — Attention-grabbing introduction with profile image and trust indicators
-2. **About** — Professional background and core values
-3. **Philosophy** — Three coaching pillars: Clarity, Systems, and Empathy
-4. **Services** — Three coaching programs (Executive, Team/Manager, Career Transition)
-5. **Impact** — Quantified achievements and experience timeline
-6. **Testimonials** — Social proof from engineering leaders
-7. **Contact** — Lead capture form with social links
-8. **Footer** — Quick navigation and branding
+### Core
+- **[Vite](https://vitejs.dev/)** 5.4.19 - Build tool and dev server
+- **[React](https://react.dev/)** 18.3.1 - UI library
+- **[TypeScript](https://www.typescriptlang.org/)** 5.8.3 - Type safety
+- **[React Router](https://reactrouter.com/)** 6.30.1 - Client-side routing
 
-## Key Features
+### Styling & UI
+- **[Tailwind CSS](https://tailwindcss.com/)** 3.4.17 - Utility-first CSS framework
+- **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React components
+- **[Radix UI](https://www.radix-ui.com/)** - Accessible component primitives
+- **[Lucide React](https://lucide.dev/)** - Icon library
 
-- Persistent "Book a Session" CTA in navigation
-- Sticky mobile CTA bar
-- Animated stats and impact metrics
-- Professional testimonials with avatars
-- Email-based contact form
-- Smooth scroll navigation
-- Reduced-motion support
+### Forms & Validation
+- **[React Hook Form](https://react-hook-form.com/)** 7.61.1 - Form state management
+- **[Zod](https://zod.dev/)** 3.25.76 - Schema validation
 
-## Development Setup
+### Development Tools
+- **[ESLint](https://eslint.org/)** 9.32.0 - Code linting
+- **[Husky](https://typicode.github.io/husky/)** 9.1.7 - Git hooks
+- **[lint-staged](https://github.com/lint-staged/lint-staged)** 16.2.6 - Pre-commit linting
+- **[SWC](https://swc.rs/)** - Fast TypeScript/JavaScript compiler
 
-To work on this project locally, you'll need Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Getting Started
 
-Follow these steps:
+### Prerequisites
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Node.js** 20.x or higher
+- **npm** (comes with Node.js)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Install Node.js via [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) (recommended):
+```bash
+nvm install 20
+nvm use 20
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Installation
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+# Clone the repository
+git clone git@github.com:agusgonzaleznic/agusgonzaleznic.github.io.git
+
+# Navigate to project directory
+cd agusgonzaleznic.github.io
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The site will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Available Scripts
 
-**Use GitHub Codespaces**
+```bash
+npm run dev          # Start development server (port 8080)
+npm run build        # Build for production
+npm run build:dev    # Build in development mode
+npm run preview      # Preview production build locally
+npm run lint         # Run ESLint
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Pre-commit Hooks
 
-## What technologies are used for this project?
+This project uses [Husky](https://typicode.github.io/husky/) to automatically run linting on staged files before each commit:
 
-This project is built with:
+- **Auto-configured**: Hooks are set up automatically when you run `npm install`
+- **What runs**: ESLint on all staged `.ts`, `.tsx`, `.js`, `.jsx` files
+- **Auto-fix**: Fixable issues are automatically corrected
+- **Blocks commits**: Commits are blocked if there are unfixable linting errors
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+To bypass hooks (not recommended):
+```bash
+git commit --no-verify
+```
 
 ## Deployment
 
-This project is automatically deployed to GitHub Pages using GitHub Actions.
+### Automatic Deployment (GitHub Actions)
 
-**Setup:**
+This project uses **reusable GitHub Actions workflows** for automated CI/CD:
 
-1. Go to Repository → Settings → Pages
-2. Set Source to "GitHub Actions"
-3. Push to the `main` branch to trigger automatic deployment
+- **Deploy Workflow** (`.github/workflows/deploy.yml`)
+  - Triggers on push to `main` branch
+  - Runs linting and build
+  - Deploys to GitHub Pages automatically
+  - Uses reusable workflow from [`agusgonzaleznic/github-reusable-workflows`](https://github.com/agusgonzaleznic/github-reusable-workflows)
 
-**Manual Deployment:**
+- **CI Workflow** (`.github/workflows/ci.yml`)
+  - Runs on pull requests to `main`
+  - Validates code quality with ESLint
+  - Ensures build succeeds
 
-You can also build and deploy manually:
+### GitHub Pages Setup
 
-```sh
-# Build the project
+1. Go to **Repository → Settings → Pages**
+2. Under "Source", select **GitHub Actions**
+3. Push to `main` branch to trigger deployment
+4. Site will be live at: `https://agusgonzaleznic.github.io`
+
+### Manual Deployment
+
+Build and deploy to any static hosting service:
+
+```bash
+# Build for production
 npm run build
 
-# The dist/ folder contains the production build
-# Deploy the dist/ folder to any static hosting service
+# The dist/ directory contains the production build
+# Upload dist/ to your hosting provider
 ```
 
-## Custom Domain
+### Custom Domain
 
-To use a custom domain with GitHub Pages:
+To use a custom domain:
 
-1. Add a `CNAME` file to the `public/` directory with your domain name
-2. Configure your domain's DNS settings to point to GitHub Pages
-3. Read more: [GitHub Pages Custom Domain Documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site)
+1. Add a `CNAME` file to `public/` with your domain:
+   ```bash
+   echo "yourdomain.com" > public/CNAME
+   ```
+
+2. Configure DNS:
+   - For apex domain (`example.com`):
+     - Add A records pointing to GitHub Pages IPs
+   - For subdomain (`www.example.com`):
+     - Add CNAME record pointing to `agusgonzaleznic.github.io`
+
+3. See: [GitHub Pages Custom Domain Documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site)
+
+## Project Structure
+
+```
+.
+├── .github/
+│   └── workflows/          # GitHub Actions CI/CD
+├── .husky/                 # Git hooks
+├── public/                 # Static assets
+│   ├── .nojekyll          # Disable Jekyll processing
+│   ├── favicon.ico
+│   ├── robots.txt
+│   └── sitemap.xml
+├── src/
+│   ├── components/         # React components
+│   │   └── ui/            # shadcn/ui components
+│   ├── hooks/             # Custom React hooks
+│   ├── lib/               # Utility functions
+│   ├── pages/             # Page components
+│   ├── assets/            # Images and media
+│   ├── App.tsx            # Root component
+│   ├── main.tsx           # Entry point
+│   └── index.css          # Global styles
+├── index.html             # HTML template (Vite entry point)
+├── vite.config.ts         # Vite configuration
+├── tailwind.config.ts     # Tailwind CSS configuration
+├── tsconfig.json          # TypeScript configuration
+└── package.json           # Dependencies and scripts
+```
+
+## Code Quality
+
+- **Linting**: ESLint with TypeScript support
+- **Type Checking**: Strict TypeScript configuration
+- **Pre-commit Hooks**: Automatic linting via Husky + lint-staged
+- **CI/CD**: Automated checks on every PR and push
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Make your changes
+4. Run linting: `npm run lint`
+5. Commit your changes (pre-commit hooks will run automatically)
+6. Push to your fork: `git push origin feature/your-feature`
+7. Open a Pull Request
+
+## License
+
+This project is private and proprietary.
+
+## Contact
+
+**Agustin Gonzalez Nicolini**
+- Website: https://agusgonzaleznic.github.io
+- GitHub: [@agusgonzaleznic](https://github.com/agusgonzaleznic)
