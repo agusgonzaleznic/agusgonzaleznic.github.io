@@ -29,6 +29,7 @@ A modern, conversion-focused single-page portfolio for engineering leadership co
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React components
 - **[Radix UI](https://www.radix-ui.com/)** - Accessible component primitives
 - **[Lucide React](https://lucide.dev/)** - Icon library
+- **[React Icons](https://react-icons.github.io/react-icons/)** 5.5.0 - Simple Icons for brand logos (LinkedIn, GitHub)
 
 ### Forms & Validation
 - **[React Hook Form](https://react-hook-form.com/)** 7.61.1 - Form state management

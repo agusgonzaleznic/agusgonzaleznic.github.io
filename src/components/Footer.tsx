@@ -1,4 +1,5 @@
-import { Linkedin, Github, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
+import { SiLinkedin, SiGithub } from "react-icons/si";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -19,7 +20,7 @@ export const Footer = () => {
                 Empowering engineering leaders to build resilient teams, ship faster, and lead with confidence.
               </p>
               <p className="text-primary-foreground/70 text-xs">
-                Based in Berlin, Germany • Coaching globally
+                Based in Berlin, from Haedo • Coaching globally
               </p>
             </div>
 
@@ -67,22 +68,22 @@ export const Footer = () => {
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">Connect</h4>
               <div className="flex gap-3">
                 <a
-                  href="https://www.linkedin.com/in/agustingonzaleznicolini"
+                  href="https://www.linkedin.com/in/agusgonzaleznic"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-lg bg-primary-foreground/10 hover:bg-accent flex items-center justify-center transition-colors group"
                   aria-label="LinkedIn Profile"
                 >
-                  <Linkedin className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
+                  <SiLinkedin className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
                 </a>
                 <a
-                  href="https://github.com/agustingonzaleznicolini"
+                  href="https://github.com/agusgonzaleznic"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-lg bg-primary-foreground/10 hover:bg-accent flex items-center justify-center transition-colors group"
                   aria-label="GitHub Profile"
                 >
-                  <Github className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
+                  <SiGithub className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
                 </a>
                 <a
                   href="mailto:agustingonzaleznicolini@gmail.com"
