@@ -21,22 +21,22 @@ A modern, conversion-focused single-page portfolio for engineering leadership co
 ### Core
 - **[Vite](https://vitejs.dev/)** 7.2.2 - Next-generation build tool and dev server
 - **[React](https://react.dev/)** 18.3.1 - UI library
-- **[TypeScript](https://www.typescriptlang.org/)** 5.8.3 - Type safety
+- **[TypeScript](https://www.typescriptlang.org/)** 5.9.3 - Type safety
 - **[React Router](https://reactrouter.com/)** 6.30.1 - Client-side routing
 
 ### Styling & UI
-- **[Tailwind CSS](https://tailwindcss.com/)** 3.4.17 - Utility-first CSS framework
+- **[Tailwind CSS](https://tailwindcss.com/)** 3.4.18 - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React components
 - **[Radix UI](https://www.radix-ui.com/)** - Accessible component primitives
-- **[Lucide React](https://lucide.dev/)** - Icon library
+- **[Lucide React](https://lucide.dev/)** 0.553.0 - Icon library
 - **[React Icons](https://react-icons.github.io/react-icons/)** 5.5.0 - Simple Icons for brand logos (LinkedIn, GitHub)
 
 ### Forms & Validation
-- **[React Hook Form](https://react-hook-form.com/)** 7.61.1 - Form state management
+- **[React Hook Form](https://react-hook-form.com/)** 7.66.0 - Form state management
 - **[Zod](https://zod.dev/)** 3.25.76 - Schema validation
 
 ### Development Tools
-- **[ESLint](https://eslint.org/)** 9.32.0 - Code linting
+- **[ESLint](https://eslint.org/)** 9.39.1 - Code linting
 - **[Husky](https://typicode.github.io/husky/)** 9.1.7 - Git hooks
 - **[lint-staged](https://github.com/lint-staged/lint-staged)** 16.2.6 - Pre-commit linting
 - **[SWC](https://swc.rs/)** - Fast TypeScript/JavaScript compiler
