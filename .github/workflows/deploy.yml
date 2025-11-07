@@ -1,0 +1,36 @@
+name: Deploy to GitHub Pages
+
+on:
+  # Trigger on push to main branch
+  push:
+    branches:
+      - main
+
+  # Allow manual workflow dispatch
+  workflow_dispatch:
+
+# Set permissions for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    uses: agusgonzaleznic/github-reusable-workflows/.github/workflows/vite-build-deploy.yml@main
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    with:
+      node-version: '20'
+      install-command: 'npm ci'
+      lint-command: 'npm run lint'
+      build-command: 'npm run build'
+      artifact-path: './dist'
+      run-lint: true

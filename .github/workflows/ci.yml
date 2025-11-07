@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  # Trigger on pull requests to main
+  pull_request:
+    branches:
+      - main
+
+  # Allow manual workflow dispatch
+  workflow_dispatch:
+
+jobs:
+  ci:
+    uses: agusgonzaleznic/github-reusable-workflows/.github/workflows/vite-ci.yml@main
+    with:
+      node-version: '20'
+      install-command: 'npm ci'
+      lint-command: 'npm run lint'
+      build-command: 'npm run build'
+      artifact-path: 'dist'
+      verify-build-output: true
