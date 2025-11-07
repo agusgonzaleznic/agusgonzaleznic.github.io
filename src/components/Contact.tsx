@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Mail, Linkedin, Github, Send } from "lucide-react";
+import { Mail, Send } from "lucide-react";
+import { SiLinkedin, SiGithub } from "react-icons/si";
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -71,7 +72,7 @@ export const Contact = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="your.email@company.com"
+                    placeholder="you@yourcompany.com"
                     required
                     className="mt-2"
                   />
@@ -131,25 +132,25 @@ export const Contact = () => {
                   </a>
 
                   <a
-                    href="https://www.linkedin.com/in/agustingonzaleznicolini"
+                    href="https://www.linkedin.com/in/agusgonzaleznic/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 text-muted-foreground hover:text-accent transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                      <Linkedin className="w-5 h-5" />
+                      <SiLinkedin className="w-5 h-5" />
                     </div>
                     <span className="text-sm">LinkedIn Profile</span>
                   </a>
 
                   <a
-                    href="https://github.com/agustingonzaleznicolini"
+                    href="https://github.com/agusgonzaleznic"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 text-muted-foreground hover:text-accent transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                      <Github className="w-5 h-5" />
+                      <SiGithub className="w-5 h-5" />
                     </div>
                     <span className="text-sm">GitHub Profile</span>
                   </a>

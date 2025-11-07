@@ -57,7 +57,7 @@ export const Hero = () => {
               </h1>
 
               <p className="text-fluid-lg text-muted-foreground leading-relaxed">
-                I coach CTOs, VPs, managers, and tech leads to scale teams, ship faster, and lead with confidence across fintech, gaming, and e-mobility.
+                I coach CTOs, VPs, managers, and tech leads to scale teams, ship faster, and lead with confidence across multiple busniesses.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">

@@ -35,10 +35,10 @@ export const About = () => {
               Your Trusted Advisor for Engineering Leadership
             </h2>
             <p className="text-fluid-lg text-muted-foreground leading-relaxed mb-6">
-              As a VP of Engineering with over 15 years of experience, I've led multi-disciplinary teams across fintech, gaming, e-mobility, and media — delivering core banking systems, serverless threat detection, and EV charging infrastructure.
+              As a VP of Engineering with over 15 years of experience, I've led multi-disciplinary teams across media, fintech, gaming, EV charging infrastructure and Web3 MultiSig Wallets delivering REST and GraphQL software architectures running on serverless and containerized cloud-native architectures core banking systems.
             </p>
             <p className="text-fluid-lg text-muted-foreground leading-relaxed">
-              I'm a trusted advisor to C-suite leaders, specializing in cloud infrastructure, DevOps transformation, and security. Whether you're scaling from startup to scale-up or optimizing enterprise operations, I help you build systems and cultures that deliver results while empowering your team.
+              I'm a trusted advisor to C-suite leaders, specializing in cloud-native systems, DevOps transformation, and security. Whether you're scaling from startup to scale-up or optimizing enterprise operations, I help you build systems and cultures that deliver results while empowering your team.
             </p>
           </div>
 

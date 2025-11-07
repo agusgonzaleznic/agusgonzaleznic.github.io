@@ -18,7 +18,7 @@ const testimonials = [
   },
   {
     quote:
-      "As a VP scaling from 20 to 100+ engineers, Agustin's guidance on org design, metrics, and stakeholder management was invaluable. His experience shows in every conversation.",
+      "As a VP scaling from 5 to 25+ engineers, Agustin's guidance on org design, metrics, and stakeholder management was invaluable. His experience shows in every conversation.",
     author: "VP of Engineering",
     role: "B2B SaaS Company",
     initials: "VP",
