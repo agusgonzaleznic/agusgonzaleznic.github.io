@@ -19,7 +19,7 @@ A modern, conversion-focused single-page portfolio for engineering leadership co
 ## Tech Stack
 
 ### Core
-- **[Vite](https://vitejs.dev/)** 5.4.19 - Build tool and dev server
+- **[Vite](https://vitejs.dev/)** 7.2.2 - Next-generation build tool and dev server
 - **[React](https://react.dev/)** 18.3.1 - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** 5.8.3 - Type safety
 - **[React Router](https://reactrouter.com/)** 6.30.1 - Client-side routing
