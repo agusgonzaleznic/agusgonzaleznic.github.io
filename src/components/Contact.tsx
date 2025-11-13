@@ -15,26 +15,64 @@ export const Contact = () => {
     role: "",
     message: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (!formData.name || !formData.email || !formData.message) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    // Create mailto link
-    const subject = encodeURIComponent(`Coaching Inquiry from ${formData.name}`);
-    const body = encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\nRole: ${formData.role || "Not specified"}\n\nMessage:\n${formData.message}`
-    );
-    const mailtoLink = `mailto:agustingonzaleznicolini@gmail.com?subject=${subject}&body=${body}`;
-    
-    window.location.href = mailtoLink;
-    
-    toast.success("Opening your email client...");
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const scriptUrl = import.meta.env.VITE_GOOGLE_APPS_SCRIPT_URL;
+
+      if (!scriptUrl) {
+        throw new Error("Email service not configured. Please contact directly at agustingonzaleznicolini@gmail.com");
+      }
+
+      const response = await fetch(scriptUrl, {
+        method: "POST",
+        mode: "no-cors", // Google Apps Script requires no-cors mode
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      // Note: With no-cors mode, we can't read the response
+      // We assume success if no error was thrown
+      toast.success("Message sent successfully! I'll get back to you within 24 hours.");
+
+      // Clear form
+      setFormData({
+        name: "",
+        email: "",
+        role: "",
+        message: "",
+      });
+
+    } catch (error) {
+      console.error("Form submission error:", error);
+      toast.error(
+        error instanceof Error && error.message.includes("not configured")
+          ? error.message
+          : "Failed to send message. Please try again or email me directly."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -105,8 +143,9 @@ export const Contact = () => {
                   type="submit"
                   size="lg"
                   className="w-full bg-accent hover:bg-accent-hover text-accent-foreground shadow-accent"
+                  disabled={isSubmitting}
                 >
-                  Send Message
+                  {isSubmitting ? "Sending..." : "Send Message"}
                   <Send className="ml-2 h-5 w-5" />
                 </Button>
 
