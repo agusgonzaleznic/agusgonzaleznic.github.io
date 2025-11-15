@@ -39,7 +39,7 @@ export const Contact = () => {
       const scriptUrl = import.meta.env.VITE_GOOGLE_APPS_SCRIPT_URL;
 
       if (!scriptUrl) {
-        throw new Error("Email service not configured. Please contact directly at agustingonzaleznicolini@gmail.com");
+        throw new Error("Email service not configured. Please contact directly at info@agusgonzaleznic.com");
       }
 
       const response = await fetch(scriptUrl, {
@@ -161,13 +161,13 @@ export const Contact = () => {
                 <h3 className="font-semibold mb-4">Get in Touch</h3>
                 <div className="space-y-4">
                   <a
-                    href="mailto:agustingonzaleznicolini@gmail.com"
+                    href="mailto:info@agusgonzaleznic.com"
                     className="flex items-center gap-3 text-muted-foreground hover:text-accent transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
                       <Mail className="w-5 h-5" />
                     </div>
-                    <span className="text-sm break-all">agustingonzaleznicolini@gmail.com</span>
+                    <span className="text-sm break-all">info@agusgonzaleznic.com</span>
                   </a>
 
                   <a

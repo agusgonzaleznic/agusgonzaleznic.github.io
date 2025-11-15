@@ -20,7 +20,7 @@ const Index = () => {
     "description": "Executive coaching for CTOs, VPs, and engineering leaders. Scale teams, ship faster, and lead with confidence. Specializing in DevOps, cloud infrastructure, FinOps, and DORA metrics.",
     "url": "https://agusgonzaleznic.com",
     "telephone": "+49-173-5347929",
-    "email": "agustingonzaleznicolini@gmail.com",
+    "email": "info@agusgonzaleznic.com",
     "priceRange": "$$",
     "address": {
       "@type": "PostalAddress",
@@ -109,7 +109,7 @@ const Index = () => {
       "name": "JUCR GmbH"
     },
     "description": "VP of Engineering and Leadership Coach with 15+ years of experience across fintech, gaming, and e-mobility industries. Specializes in helping engineering leaders scale teams and improve delivery.",
-    "email": "agustingonzaleznicolini@gmail.com",
+    "email": "info@agusgonzaleznic.com",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Berlin",
