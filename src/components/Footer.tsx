@@ -86,7 +86,7 @@ export const Footer = () => {
                   <SiGithub className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
                 </a>
                 <a
-                  href="mailto:agustingonzaleznicolini@gmail.com"
+                  href="mailto:info@agusgonzaleznic.com"
                   className="w-10 h-10 rounded-lg bg-primary-foreground/10 hover:bg-accent flex items-center justify-center transition-colors group"
                   aria-label="Email"
                 >

@@ -34,3 +34,6 @@ jobs:
       build-command: 'npm run build'
       artifact-path: 'dist'
       run-lint: true
+    secrets:
+      build-env-vars: |
+        VITE_GOOGLE_APPS_SCRIPT_URL=${{ secrets.VITE_GOOGLE_APPS_SCRIPT_URL }}
