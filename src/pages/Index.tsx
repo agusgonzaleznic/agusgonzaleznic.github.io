@@ -1,13 +1,16 @@
+import { lazy, Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
-import { About } from "@/components/About";
-import { Philosophy } from "@/components/Philosophy";
-import { Services } from "@/components/Services";
-import { Impact } from "@/components/Impact";
-import { Testimonials } from "@/components/Testimonials";
-import { Contact } from "@/components/Contact";
-import { Footer } from "@/components/Footer";
+
+// Lazy load below-the-fold components for better initial load performance
+const About = lazy(() => import("@/components/About").then(m => ({ default: m.About })));
+const Philosophy = lazy(() => import("@/components/Philosophy").then(m => ({ default: m.Philosophy })));
+const Services = lazy(() => import("@/components/Services").then(m => ({ default: m.Services })));
+const Impact = lazy(() => import("@/components/Impact").then(m => ({ default: m.Impact })));
+const Testimonials = lazy(() => import("@/components/Testimonials").then(m => ({ default: m.Testimonials })));
+const Contact = lazy(() => import("@/components/Contact").then(m => ({ default: m.Contact })));
+const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.Footer })));
 
 const Index = () => {
   // JSON-LD Schema for SEO - Professional Service
@@ -154,14 +157,18 @@ const Index = () => {
         <Navigation />
         <main>
           <Hero />
-          <About />
-          <Philosophy />
-          <Services />
-          <Impact />
-          <Testimonials />
-          <Contact />
+          <Suspense fallback={<div className="min-h-screen" />}>
+            <About />
+            <Philosophy />
+            <Services />
+            <Impact />
+            <Testimonials />
+            <Contact />
+          </Suspense>
         </main>
-        <Footer />
+        <Suspense fallback={<div />}>
+          <Footer />
+        </Suspense>
       </div>
     </>
   );

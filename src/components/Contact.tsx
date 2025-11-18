@@ -44,35 +44,39 @@ export const Contact = () => {
 
       const response = await fetch(scriptUrl, {
         method: "POST",
+        mode: "no-cors", // Required for Google Apps Script
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
-      const result = await response.json();
+      // With no-cors mode, we can't read the response
+      // but if no error was thrown, the request was sent successfully
+      toast.success("Message sent successfully! I'll get back to you within 24 hours.");
 
-      if (result.success) {
-        toast.success("Message sent successfully! I'll get back to you within 24 hours.");
-
-        // Clear form
-        setFormData({
-          name: "",
-          email: "",
-          role: "",
-          message: "",
-        });
-      } else {
-        throw new Error(result.error || "Failed to send message");
-      }
+      // Clear form
+      setFormData({
+        name: "",
+        email: "",
+        role: "",
+        message: "",
+      });
 
     } catch (error) {
       console.error("Form submission error:", error);
-      toast.error(
-        error instanceof Error && error.message.includes("not configured")
-          ? error.message
-          : "Failed to send message. Please try again or email me directly."
-      );
+
+      let errorMessage = "Failed to send message. Please try again or email me directly.";
+
+      if (error instanceof Error) {
+        if (error.message.includes("not configured")) {
+          errorMessage = error.message;
+        } else if (error.message.includes("429") || error.message.includes("Too Many Requests")) {
+          errorMessage = "Too many requests. Please wait a moment and try again, or email me directly.";
+        }
+      }
+
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

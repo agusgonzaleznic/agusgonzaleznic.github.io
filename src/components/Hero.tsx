@@ -81,7 +81,7 @@ export const Hero = () => {
 
               <div className="pt-8 border-t border-border">
                 <p className="text-sm text-muted-foreground mb-3">Trusted by engineering leaders at:</p>
-                <div className="flex flex-wrap gap-4 text-sm font-medium text-foreground/60">
+                <div className="flex flex-wrap gap-4 text-sm font-medium text-muted-foreground">
                   <span>Fintech</span>
                   <span>•</span>
                   <span>Gaming</span>
@@ -106,6 +106,8 @@ export const Hero = () => {
                     alt="Agustin Gonzalez Nicolini - Engineering Leadership Coach"
                     className="w-full h-full object-cover"
                     loading="eager"
+                    width="512"
+                    height="512"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
                 </div>
