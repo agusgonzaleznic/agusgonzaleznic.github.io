@@ -102,6 +102,8 @@ export const Contact = () => {
                   <Label htmlFor="name">Name *</Label>
                   <Input
                     id="name"
+                    name="name"
+                    autoComplete="name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Your full name"
@@ -114,7 +116,9 @@ export const Contact = () => {
                   <Label htmlFor="email">Email *</Label>
                   <Input
                     id="email"
+                    name="email"
                     type="email"
+                    autoComplete="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="you@yourcompany.com"
@@ -127,6 +131,8 @@ export const Contact = () => {
                   <Label htmlFor="role">Current Role</Label>
                   <Input
                     id="role"
+                    name="role"
+                    autoComplete="organization-title"
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     placeholder="e.g., Engineering Manager, VP of Engineering"
