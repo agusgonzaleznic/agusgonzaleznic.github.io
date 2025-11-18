@@ -137,7 +137,7 @@ export const Impact = () => {
                               <h4 className="text-lg font-bold text-foreground">{item.role}</h4>
                               <p className="text-sm text-muted-foreground">{item.company}</p>
                             </div>
-                            <p className="text-sm text-foreground/80 leading-relaxed">
+                            <p className="text-sm text-muted-foreground leading-relaxed">
                               {item.achievement}
                             </p>
                           </div>

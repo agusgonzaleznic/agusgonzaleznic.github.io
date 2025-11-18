@@ -51,7 +51,7 @@ export const Testimonials = () => {
                 </div>
 
                 <div className="pt-6">
-                  <p className="text-foreground/90 leading-relaxed mb-8 italic">
+                  <p className="text-foreground leading-relaxed mb-8 italic">
                     "{testimonial.quote}"
                   </p>
 

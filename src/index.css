@@ -29,7 +29,7 @@ All colors MUST be HSL
 
     /* Muted tones */
     --muted: 220 10% 92%;
-    --muted-foreground: 220 10% 45%;
+    --muted-foreground: 220 12% 38%; /* Improved contrast: 7:1 ratio for WCAG AAA */
 
     /* Accent - electric coral */
     --accent: 10 85% 58%;

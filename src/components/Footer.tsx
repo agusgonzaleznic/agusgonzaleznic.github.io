@@ -16,10 +16,10 @@ export const Footer = () => {
             {/* Brand */}
             <div className="md:col-span-2">
               <h3 className="text-2xl font-serif font-bold mb-3">Agustin Gonzalez Nicolini</h3>
-              <p className="text-primary-foreground/80 text-sm leading-relaxed mb-4">
+              <p className="text-primary-foreground/90 text-sm leading-relaxed mb-4">
                 Empowering engineering leaders to build resilient teams, ship faster, and lead with confidence.
               </p>
-              <p className="text-primary-foreground/70 text-xs">
+              <p className="text-primary-foreground/80 text-xs">
                 Based in Berlin, from Haedo • Coaching globally
               </p>
             </div>
@@ -31,7 +31,7 @@ export const Footer = () => {
                 <li>
                   <button
                     onClick={() => scrollToSection("about")}
-                    className="text-primary-foreground/80 hover:text-accent transition-colors"
+                    className="text-primary-foreground/90 hover:text-accent transition-colors"
                   >
                     About
                   </button>
@@ -39,7 +39,7 @@ export const Footer = () => {
                 <li>
                   <button
                     onClick={() => scrollToSection("services")}
-                    className="text-primary-foreground/80 hover:text-accent transition-colors"
+                    className="text-primary-foreground/90 hover:text-accent transition-colors"
                   >
                     Services
                   </button>
@@ -47,7 +47,7 @@ export const Footer = () => {
                 <li>
                   <button
                     onClick={() => scrollToSection("impact")}
-                    className="text-primary-foreground/80 hover:text-accent transition-colors"
+                    className="text-primary-foreground/90 hover:text-accent transition-colors"
                   >
                     Impact
                   </button>
@@ -55,7 +55,7 @@ export const Footer = () => {
                 <li>
                   <button
                     onClick={() => scrollToSection("contact")}
-                    className="text-primary-foreground/80 hover:text-accent transition-colors"
+                    className="text-primary-foreground/90 hover:text-accent transition-colors"
                   >
                     Contact
                   </button>
@@ -98,7 +98,7 @@ export const Footer = () => {
 
           {/* Bottom bar */}
           <div className="pt-8 border-t border-primary-foreground/10">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-primary-foreground/70">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-primary-foreground/80">
               <p>
                 © {currentYear} Agustin Gonzalez Nicolini. All rights reserved.
               </p>
