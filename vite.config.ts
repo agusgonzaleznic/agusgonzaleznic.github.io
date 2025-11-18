@@ -42,9 +42,10 @@ export default defineConfig(({ mode }) => ({
       name: 'inject-csp',
       apply: 'build',
       transformIndexHtml(html) {
+        // Inject CSP after viewport meta tag
         return html.replace(
-          '<!-- VITE_CSP_PLACEHOLDER -->',
-          `<meta http-equiv="Content-Security-Policy" content="${cspContent}" />`
+          '<meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+          `<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <meta http-equiv="Content-Security-Policy" content="${cspContent}" />`
         );
       },
     },
