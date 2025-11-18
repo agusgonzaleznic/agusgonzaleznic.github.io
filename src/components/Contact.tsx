@@ -44,24 +44,27 @@ export const Contact = () => {
 
       const response = await fetch(scriptUrl, {
         method: "POST",
-        mode: "no-cors", // Google Apps Script requires no-cors mode
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
-      // Note: With no-cors mode, we can't read the response
-      // We assume success if no error was thrown
-      toast.success("Message sent successfully! I'll get back to you within 24 hours.");
+      const result = await response.json();
 
-      // Clear form
-      setFormData({
-        name: "",
-        email: "",
-        role: "",
-        message: "",
-      });
+      if (result.success) {
+        toast.success("Message sent successfully! I'll get back to you within 24 hours.");
+
+        // Clear form
+        setFormData({
+          name: "",
+          email: "",
+          role: "",
+          message: "",
+        });
+      } else {
+        throw new Error(result.error || "Failed to send message");
+      }
 
     } catch (error) {
       console.error("Form submission error:", error);
