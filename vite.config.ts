@@ -4,6 +4,8 @@ import path from "path";
 import viteCompression from "vite-plugin-compression";
 
 // Content Security Policy for production
+// Strict CSP without unsafe-eval to prevent script injection attacks
+// The production build doesn't use eval() or Function() constructors
 const cspContent = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com;
@@ -18,7 +20,7 @@ const cspContent = `
 `.replace(/\s+/g, ' ').trim();
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
