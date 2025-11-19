@@ -3,6 +3,22 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import viteCompression from "vite-plugin-compression";
 
+// Content Security Policy for production
+// Strict CSP without unsafe-eval to prevent script injection attacks
+// The production build doesn't use eval() or Function() constructors
+const cspContent = `
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: https:;
+  connect-src 'self' https://script.google.com https://script.googleusercontent.com;
+  frame-src https://calendar.google.com https://calendar.app.google;
+  form-action 'self';
+  base-uri 'self';
+  object-src 'none';
+`.replace(/\s+/g, ' ').trim();
+
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
   server: {
@@ -23,6 +39,18 @@ export default defineConfig(() => ({
       ext: ".br",
       threshold: 1024,
     }),
+    // CSP injection plugin (production only)
+    {
+      name: 'inject-csp',
+      apply: 'build',
+      transformIndexHtml(html) {
+        // Inject CSP after viewport meta tag
+        return html.replace(
+          '<meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+          `<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <meta http-equiv="Content-Security-Policy" content="${cspContent}" />`
+        );
+      },
+    },
   ],
   resolve: {
     alias: {
