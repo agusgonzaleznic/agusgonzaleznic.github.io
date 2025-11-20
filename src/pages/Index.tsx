@@ -71,31 +71,6 @@ const Index = () => {
           }
         }
       ]
-    },
-    "provider": {
-      "@type": "Person",
-      "name": "Agustin Gonzalez Nicolini",
-      "jobTitle": "VP of Engineering & Leadership Coach",
-      "url": "https://agusgonzaleznic.com",
-      "image": "https://agusgonzaleznic.com/profile.jpg",
-      "sameAs": [
-        "https://www.linkedin.com/in/agusgonzaleznic/",
-        "https://github.com/agusgonzaleznic"
-      ],
-      "knowsAbout": [
-        "Leadership Coaching",
-        "Engineering Management",
-        "DevOps",
-        "Cloud Infrastructure",
-        "FinOps",
-        "Security",
-        "DORA Metrics",
-        "Team Scaling",
-        "Site Reliability Engineering"
-      ],
-      "knowsLanguage": ["en", "es", "de"],
-      "alumniOf": "Universidad Tecnológica Nacional",
-      "nationality": "Argentina"
     }
   };
 
@@ -104,7 +79,7 @@ const Index = () => {
     "@context": "https://schema.org",
     "@type": "Person",
     "name": "Agustin Gonzalez Nicolini",
-    "alternateName": "Agus Gonzalez",
+    "alternateName": "Agus",
     "url": "https://agusgonzaleznic.com",
     "image": "https://agusgonzaleznic.com/profile.jpg",
     "jobTitle": "VP of Engineering & Leadership Coach",
