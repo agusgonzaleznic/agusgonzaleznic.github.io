@@ -13,21 +13,23 @@ const Contact = lazy(() => import("@/components/Contact").then(m => ({ default: 
 const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.Footer })));
 
 const Index = () => {
-  // JSON-LD Schema for SEO - Professional Service
-  const professionalServiceSchema = {
+  // JSON-LD Schema for SEO - Local Business
+  const localBusinessSchema = {
     "@context": "https://schema.org",
-    "@type": "ProfessionalService",
+    "@type": "LocalBusiness",
     "name": "Agustin Gonzalez Nicolini - Leadership & Engineering Coaching",
     "image": "https://agusgonzaleznic.com/profile.jpg",
     "logo": "https://agusgonzaleznic.com/profile.jpg",
     "description": "Executive coaching for CTOs, VPs, and engineering leaders. Scale teams, ship faster, and lead with confidence. Specializing in DevOps, cloud infrastructure, FinOps, and DORA metrics.",
     "url": "https://agusgonzaleznic.com",
-    "telephone": "+49-173-5347929",
+    "telephone": "+00-000-0000000",
     "email": "info@agusgonzaleznic.com",
     "priceRange": "$$",
     "address": {
       "@type": "PostalAddress",
+      "streetAddress": "",
       "addressLocality": "Berlin",
+      "postalCode": "",
       "addressCountry": "DE"
     },
     "areaServed": [
@@ -40,8 +42,6 @@ const Index = () => {
         "name": "Remote"
       }
     ],
-    "serviceType": ["Leadership Coaching", "Executive Coaching", "Engineering Management Coaching"],
-    "availableLanguage": ["English", "Spanish", "German"],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": "Coaching Services",
@@ -93,6 +93,7 @@ const Index = () => {
         "Team Scaling",
         "Site Reliability Engineering"
       ],
+      "knowsLanguage": ["en", "es", "de"],
       "alumniOf": "Universidad Tecnológica Nacional",
       "nationality": "Argentina"
     }
@@ -143,7 +144,7 @@ const Index = () => {
     <>
       <Helmet>
         <script type="application/ld+json">
-          {JSON.stringify(professionalServiceSchema)}
+          {JSON.stringify(localBusinessSchema)}
         </script>
         <script type="application/ld+json">
           {JSON.stringify(personSchema)}
