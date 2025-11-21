@@ -2,31 +2,40 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import viteCompression from "vite-plugin-compression";
+import mkcert from "vite-plugin-mkcert";
 
 // Content Security Policy for production
 // Strict CSP without unsafe-eval to prevent script injection attacks
 // The production build doesn't use eval() or Function() constructors
+// Includes Storyblok domains for CMS integration and Visual Editor
 const cspContent = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com;
+  script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com https://app.storyblok.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
-  img-src 'self' data: https:;
-  connect-src 'self' https://script.google.com https://script.googleusercontent.com;
-  frame-src https://calendar.google.com https://calendar.app.google;
+  img-src 'self' data: https: blob:;
+  connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.storyblok.com https://api-us.storyblok.com;
+  frame-src https://calendar.google.com https://calendar.app.google https://app.storyblok.com;
   form-action 'self';
   base-uri 'self';
   object-src 'none';
 `.replace(/\s+/g, ' ').trim();
 
 // https://vitejs.dev/config/
-export default defineConfig(() => ({
+export default defineConfig(({ mode }) => {
+  // Enable HTTPS only when VITE_HTTPS=true or in Storyblok mode
+  const useHttps = process.env.VITE_HTTPS === 'true' || mode === 'storyblok';
+
+  return {
   server: {
     host: "::",
     port: 8080,
+    https: useHttps, // Enable HTTPS for Storyblok Visual Editor (set VITE_HTTPS=true)
   },
   plugins: [
     react(),
+    // Only use mkcert when HTTPS is enabled
+    ...(useHttps ? [mkcert()] : []),
     // Gzip compression
     viteCompression({
       algorithm: "gzip",
@@ -77,6 +86,7 @@ export default defineConfig(() => ({
         manualChunks: {
           // Split vendor chunks for better caching
           "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "storyblok": ["@storyblok/react"], // Separate Storyblok bundle
           "radix-ui": [
             "@radix-ui/react-accordion",
             "@radix-ui/react-dialog",
@@ -110,6 +120,8 @@ export default defineConfig(() => ({
       "react-dom",
       "react-router-dom",
       "lucide-react",
+      "@storyblok/react", // Pre-bundle Storyblok for faster dev server startup
     ],
   },
-}));
+};
+});

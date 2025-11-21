@@ -1,0 +1,10 @@
+# Storyblok Space ID
+#
+# Get your space ID from the Storyblok Dashboard URL
+# Example: https://app.storyblok.com/#/me/spaces/123456
+#          The space ID is: 123456
+#
+# Copy this file to terraform.tfvars and replace with your actual space ID:
+# cp terraform.tfvars.example terraform.tfvars
+
+space_id = 123456  # Replace with your actual space ID
