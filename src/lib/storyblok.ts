@@ -1,4 +1,18 @@
 import { storyblokInit, apiPlugin } from "@storyblok/react";
+import {
+  Page,
+  HeroBlock,
+  AboutBlock,
+  StatItem,
+  ServicesBlock,
+  ServiceItem,
+  TestimonialsBlock,
+  TestimonialItem,
+  PhilosophyBlock,
+  PrincipleItem,
+  ImpactBlock,
+  MetricItem,
+} from "@/components/storyblok";
 
 /**
  * Initialize Storyblok SDK
@@ -23,19 +37,35 @@ const initStoryblok = () => {
     return null;
   }
 
+  // Get API region from environment
+  const region = getStoryblokRegion();
+
   // Initialize Storyblok with configuration
   return storyblokInit({
     accessToken,
     use: [apiPlugin], // Enable API plugin for content fetching
     apiOptions: {
-      region: "eu", // Change to "us" if your Storyblok space is in US region
+      region, // Use region from environment or default to EU
       cache: {
         clear: "auto", // Automatically clear cache when content changes
         type: "memory", // Use in-memory cache for better performance
       },
     },
-    // Components will be registered here later (Phase 4)
-    // components: {},
+    // Register all Storyblok components
+    components: {
+      page: Page,
+      hero_block: HeroBlock,
+      about_block: AboutBlock,
+      stat_item: StatItem,
+      services_block: ServicesBlock,
+      service_item: ServiceItem,
+      testimonials_block: TestimonialsBlock,
+      testimonial_item: TestimonialItem,
+      philosophy_block: PhilosophyBlock,
+      principle_item: PrincipleItem,
+      impact_block: ImpactBlock,
+      metric_item: MetricItem,
+    },
   });
 };
 
