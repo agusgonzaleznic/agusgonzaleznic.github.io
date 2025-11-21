@@ -9,12 +9,13 @@ interface StoryblokPageProps {
 }
 
 export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
-  const [story, setStory] = useState<StoryblokStory | null>(null);
+  const [initialStory, setInitialStory] = useState<StoryblokStory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const storyblokApi = useStoryblokApi();
 
+  // Fetch initial story
   useEffect(() => {
     const fetchStory = async () => {
       if (!storyblokApi) {
@@ -30,7 +31,7 @@ export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
           resolve_relations: [],
         });
 
-        setStory(data.story);
+        setInitialStory(data.story);
         setError(null);
       } catch (err) {
         console.error("Error fetching story:", err);
@@ -43,8 +44,8 @@ export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
     fetchStory();
   }, [slug, storyblokApi]);
 
-  // Enable live editing in Storyblok Visual Editor
-  const liveStory = useStoryblokState(story);
+  // Use bridge for live updates in Visual Editor
+  const story = useStoryblokState(initialStory);
 
   if (loading) {
     return (
@@ -57,7 +58,7 @@ export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
     );
   }
 
-  if (error || !liveStory) {
+  if (error || !story) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center max-w-md px-6">
@@ -76,7 +77,7 @@ export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
   return (
     <>
       <Navigation />
-      <StoryblokComponent blok={liveStory.content} />
+      <StoryblokComponent blok={story.content} />
       <Footer />
     </>
   );
