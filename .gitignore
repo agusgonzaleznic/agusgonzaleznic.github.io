@@ -28,3 +28,5 @@ bun.lockb
 *.sln
 *.sw?
 node_modules
+localhost-key.pem
+localhost.pem
