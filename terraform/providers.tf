@@ -2,6 +2,10 @@ terraform {
   required_version = ">= 1.14.0"
 
   required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
     storyblok = {
       source  = "labd/storyblok"
       version = "~> 1.5"
@@ -9,9 +13,12 @@ terraform {
   }
 }
 
+provider "aws" {
+  region  = var.aws_region
+  profile = var.aws_profile
+}
+
 provider "storyblok" {
-  # Token will be provided via STORYBLOK_OAUTH_TOKEN environment variable
-  # or STORYBLOK_MANAGEMENT_TOKEN for personal access tokens
   url   = "https://mapi.storyblok.com"
   token = var.token
 }

@@ -5,7 +5,7 @@
 
 # Terraform directories
 .terraform/
-.terraform.lock.hcl
+# Note: .terraform.lock.hcl is intentionally committed for reproducible builds
 
 # Crash log files
 crash.log
