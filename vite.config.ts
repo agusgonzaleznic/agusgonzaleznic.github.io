@@ -4,25 +4,8 @@ import path from "path";
 import viteCompression from "vite-plugin-compression";
 import mkcert from "vite-plugin-mkcert";
 
-// Content Security Policy for production
-// Strict CSP without unsafe-eval to prevent script injection attacks
-// The production build doesn't use eval() or Function() constructors
-// Includes Storyblok domains for CMS integration and Visual Editor
-const cspContent = `
-  default-src 'self';
-  script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com https://app.storyblok.com;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  font-src 'self' https://fonts.gstatic.com;
-  img-src 'self' data: https: blob:;
-  connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.storyblok.com https://api-us.storyblok.com;
-  frame-src https://calendar.google.com https://calendar.app.google https://app.storyblok.com;
-  form-action 'self';
-  base-uri 'self';
-  object-src 'none';
-  upgrade-insecure-requests;
-`.replace(/\s+/g, ' ').trim();
-
 // https://vitejs.dev/config/
+// CSP is set via CloudFront response headers policy (terraform/cdn.tf)
 export default defineConfig(({ mode }) => {
   // Enable HTTPS only when VITE_HTTPS=true or in Storyblok mode
   const useHttps = process.env.VITE_HTTPS === 'true' || mode === 'storyblok';
@@ -49,18 +32,6 @@ export default defineConfig(({ mode }) => {
       ext: ".br",
       threshold: 1024,
     }),
-    // CSP injection plugin (production only)
-    {
-      name: 'inject-csp',
-      apply: 'build',
-      transformIndexHtml(html) {
-        // Inject CSP after viewport meta tag
-        return html.replace(
-          '<meta name="viewport" content="width=device-width, initial-scale=1.0" />',
-          `<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <meta http-equiv="Content-Security-Policy" content="${cspContent}" />`
-        );
-      },
-    },
   ],
   resolve: {
     alias: {
