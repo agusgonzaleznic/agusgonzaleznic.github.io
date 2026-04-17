@@ -5,8 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Mail, Send } from "lucide-react";
-import { SiLinkedin, SiGithub } from "react-icons/si";
+import { Mail, Send, Linkedin, Github } from "lucide-react";
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -190,7 +189,7 @@ export const Contact = () => {
                     className="flex items-center gap-3 text-muted-foreground hover:text-accent transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                      <SiLinkedin className="w-5 h-5" />
+                      <Linkedin className="w-5 h-5" />
                     </div>
                     <span className="text-sm">LinkedIn Profile</span>
                   </a>
@@ -202,7 +201,7 @@ export const Contact = () => {
                     className="flex items-center gap-3 text-muted-foreground hover:text-accent transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                      <SiGithub className="w-5 h-5" />
+                      <Github className="w-5 h-5" />
                     </div>
                     <span className="text-sm">GitHub Profile</span>
                   </a>

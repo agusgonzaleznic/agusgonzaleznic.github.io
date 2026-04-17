@@ -13,7 +13,7 @@ jobs:
   ci:
     uses: agusgonzaleznic/github-reusable-workflows/.github/workflows/vite-ci.yml@main
     with:
-      node-version: '20'
+      node-version: '22'
       install-command: 'npm ci'
       lint-command: 'npm run lint'
       build-command: 'npm run build'

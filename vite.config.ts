@@ -19,6 +19,7 @@ const cspContent = `
   form-action 'self';
   base-uri 'self';
   object-src 'none';
+  upgrade-insecure-requests;
 `.replace(/\s+/g, ' ').trim();
 
 // https://vitejs.dev/config/

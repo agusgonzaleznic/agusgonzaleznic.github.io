@@ -1,5 +1,4 @@
-import { Mail } from "lucide-react";
-import { SiLinkedin, SiGithub } from "react-icons/si";
+import { Mail, Linkedin, Github } from "lucide-react";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -74,7 +73,7 @@ export const Footer = () => {
                   className="w-10 h-10 rounded-lg bg-primary-foreground/10 hover:bg-accent flex items-center justify-center transition-colors group"
                   aria-label="LinkedIn Profile"
                 >
-                  <SiLinkedin className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
+                  <Linkedin className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
                 </a>
                 <a
                   href="https://github.com/agusgonzaleznic"
@@ -83,7 +82,7 @@ export const Footer = () => {
                   className="w-10 h-10 rounded-lg bg-primary-foreground/10 hover:bg-accent flex items-center justify-center transition-colors group"
                   aria-label="GitHub Profile"
                 >
-                  <SiGithub className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
+                  <Github className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
                 </a>
                 <a
                   href="mailto:info@agusgonzaleznic.com"
