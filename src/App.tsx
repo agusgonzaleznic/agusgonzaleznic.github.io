@@ -15,23 +15,37 @@ const StoryblokPageWrapper = () => {
   return <StoryblokPage slug={slug || "home"} />;
 };
 
-const App = () => (
+// Shared providers/shell. Rendered identically on the server (prerender) and the
+// client (hydration), so the markup matches and React can hydrate cleanly.
+export const AppProviders = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* Storyblok preview routes */}
-          <Route path="/preview" element={<StoryblokPage slug="home" />} />
-          <Route path="/preview/:slug" element={<StoryblokPageWrapper />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      {children}
     </TooltipProvider>
   </QueryClientProvider>
+);
+
+// Route table, router-agnostic so it can sit under BrowserRouter (client) or
+// StaticRouter (server prerender).
+export const AppRoutes = () => (
+  <Routes>
+    <Route path="/" element={<Index />} />
+    {/* Storyblok preview routes */}
+    <Route path="/preview" element={<StoryblokPage slug="home" />} />
+    <Route path="/preview/:slug" element={<StoryblokPageWrapper />} />
+    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+);
+
+const App = () => (
+  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <AppProviders>
+      <AppRoutes />
+    </AppProviders>
+  </BrowserRouter>
 );
 
 export default App;

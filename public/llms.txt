@@ -1,0 +1,75 @@
+# Agustin Gonzalez Nicolini — Leadership & Engineering Coaching
+
+> Agustin Gonzalez Nicolini is a VP of Engineering and leadership coach based in
+> Berlin, Germany, with 15+ years of experience leading engineering teams across
+> fintech, gaming, e-mobility, and healthtech. He coaches CTOs, VPs, engineering
+> managers, and tech leads to scale teams, ship faster, and lead with confidence.
+
+Website: https://agusgonzaleznic.com
+Contact: info@agusgonzaleznic.com
+Location: Berlin, Germany (coaching clients worldwide, remote)
+Languages: English, Spanish, German
+Book a session: https://calendar.app.google/kFaanhSae5WefLnD7
+
+## Who he coaches
+
+- CTOs and VPs of Engineering
+- Engineering directors and managers
+- Tech leads
+- Individual contributors transitioning into leadership
+
+## Coaching services
+
+- **Executive Leadership Coaching (CTO & VP level)**: organization design and
+  scaling, stakeholder and C-suite communication, technology roadmap alignment,
+  board presentations, and executive presence. Format: bi-weekly 60-minute sessions.
+- **Team & Manager Coaching (manager & director level)**: DORA metrics and
+  deployment velocity, team rituals and retrospectives, hiring and performance
+  frameworks, incident readiness and on-call culture, and DevOps/GitOps workflows
+  with trunk-based development. Format: weekly or bi-weekly 45-minute sessions.
+- **Career Transition Coaching (IC to leadership and beyond)**: IC to manager,
+  manager to director, and director to VP transitions, plus career clarity and
+  interview prep for leadership roles. Format: 8–12 week programs with weekly check-ins.
+
+Every engagement starts with a complimentary 30-minute discovery call.
+
+## Coaching philosophy
+
+- **Growth through clarity**: clear goals, feedback loops, and OKRs that align
+  individual growth with organizational success.
+- **Empowerment through systems**: DevOps/GitOps workflows, DORA metrics, and
+  decision frameworks that let teams move fast with autonomy.
+- **Leadership through empathy**: psychological safety, intentional mentoring,
+  and cultures where people thrive.
+
+## Areas of expertise
+
+Engineering leadership, executive coaching, team scaling, DevOps and GitOps,
+DORA metrics, cloud-native architecture, FinOps and cloud cost optimization,
+platform engineering, site reliability and incident management, organizational
+design, and career transitions into leadership.
+
+## Representative results
+
+- 40% cloud cost reduction through FinOps best practices.
+- 99.99% system uptime via DR/HA playbooks and multi-region failover.
+- 3× faster releases with trunk-based DevOps, CI/CD, and GitOps.
+- 75% reduced lead time after migrating to multi-account AWS.
+- 50% team velocity boost through OKRs and DORA metrics.
+- 60% faster onboarding with standardized processes and documentation.
+
+## Experience
+
+- 2022–2025 — VP of Engineering, JUCR GmbH (EV charging). Led migration to
+  multi-account AWS across 5+ SaaS services; achieved 99.99% uptime.
+- 2020–2022 — Cloud Security Manager, Wildlife Studios (gaming). Balanced rapid
+  feature delivery with stringent security controls.
+- 2018–2021 — DevOps Lead, Ualá (fintech). Core banking delivery, PCI-DSS
+  compliance, and full serverless architecture.
+- 2014–2018 — Infrastructure & Security Lead, Bdev (healthtech). Migrated
+  on-premise to AWS; implemented SOC 2 and ISO 27001 compliance.
+
+## Links
+
+- LinkedIn: https://www.linkedin.com/in/agusgonzaleznic/
+- GitHub: https://github.com/agusgonzaleznic
