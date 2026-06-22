@@ -49,6 +49,168 @@
     <meta name="geo.position" content="52.520008;13.404954" />
     <meta name="ICBM" content="52.520008, 13.404954" />
 
+    <!-- AI / LLM discovery (GEO) -->
+    <link rel="llms" type="text/markdown" href="https://agusgonzaleznic.com/llms.txt" />
+
+    <!--
+      Structured data (JSON-LD) lives in the STATIC HTML so AI crawlers that do
+      not execute JavaScript (GPTBot, ClaudeBot, PerplexityBot, OAI-SearchBot,
+      Google-Extended, Bing, etc.) can read and cite it. A single @graph links
+      the Person, the coaching service, the website, and the FAQ via @id.
+    -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://agusgonzaleznic.com/#website",
+          "url": "https://agusgonzaleznic.com/",
+          "name": "Agustin Gonzalez Nicolini — Leadership & Engineering Coaching",
+          "description": "Executive and engineering leadership coaching for CTOs, VPs, engineering managers, and tech leads.",
+          "inLanguage": "en",
+          "publisher": { "@id": "https://agusgonzaleznic.com/#person" }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://agusgonzaleznic.com/#person",
+          "name": "Agustin Gonzalez Nicolini",
+          "alternateName": "Agus Gonzalez Nicolini",
+          "url": "https://agusgonzaleznic.com/",
+          "image": "https://agusgonzaleznic.com/profile.jpg",
+          "jobTitle": "VP of Engineering & Leadership Coach",
+          "description": "Agustin Gonzalez Nicolini is a VP of Engineering and leadership coach with 15+ years of experience leading engineering teams across fintech, gaming, e-mobility, and healthtech. He coaches CTOs, VPs, engineering managers, and tech leads on scaling teams, improving delivery, and leading with confidence.",
+          "worksFor": { "@type": "Organization", "name": "JUCR GmbH" },
+          "homeLocation": { "@type": "Place", "name": "Berlin, Germany" },
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Berlin",
+            "addressCountry": "DE"
+          },
+          "email": "info@agusgonzaleznic.com",
+          "knowsLanguage": ["en", "es", "de"],
+          "knowsAbout": [
+            "Engineering leadership",
+            "Executive coaching",
+            "Team scaling",
+            "DevOps and GitOps",
+            "DORA metrics",
+            "Cloud-native architecture",
+            "FinOps and cloud cost optimization",
+            "Platform engineering",
+            "Site reliability and incident management",
+            "Organizational design",
+            "Engineering management",
+            "Career transitions into leadership"
+          ],
+          "sameAs": [
+            "https://www.linkedin.com/in/agusgonzaleznic/",
+            "https://github.com/agusgonzaleznic"
+          ]
+        },
+        {
+          "@type": "ProfessionalService",
+          "@id": "https://agusgonzaleznic.com/#service",
+          "name": "Agustin Gonzalez Nicolini — Leadership & Engineering Coaching",
+          "url": "https://agusgonzaleznic.com/",
+          "image": "https://agusgonzaleznic.com/profile.jpg",
+          "description": "One-on-one coaching for engineering leaders: executive leadership coaching for CTOs and VPs, team and manager coaching, and career-transition coaching. Specializing in DevOps, cloud-native systems, DORA metrics, and FinOps.",
+          "provider": { "@id": "https://agusgonzaleznic.com/#person" },
+          "founder": { "@id": "https://agusgonzaleznic.com/#person" },
+          "priceRange": "$$",
+          "email": "info@agusgonzaleznic.com",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Berlin",
+            "addressCountry": "DE"
+          },
+          "areaServed": [
+            { "@type": "Place", "name": "Worldwide (remote)" },
+            { "@type": "Place", "name": "European Union" },
+            { "@type": "Place", "name": "Berlin, Germany" }
+          ],
+          "availableLanguage": ["English", "Spanish", "German"],
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Coaching Services",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Executive Leadership Coaching",
+                  "description": "For CTOs, VPs, and Directors: strategic leadership, organization design, stakeholder influence, and executive presence."
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Team & Manager Coaching",
+                  "description": "For engineering managers, directors, and tech leads: DORA metrics, deployment velocity, team rituals, and DevOps/GitOps workflows."
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Career Transition Coaching",
+                  "description": "For engineers moving into leadership: IC to manager, manager to director, and director to VP transitions."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://agusgonzaleznic.com/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Who is Agustin Gonzalez Nicolini?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Agustin Gonzalez Nicolini is a VP of Engineering and leadership coach based in Berlin, Germany, with 15+ years of experience leading engineering teams across fintech, gaming, e-mobility, and healthtech. He coaches CTOs, VPs, engineering managers, and tech leads."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Who does Agustin coach?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "He coaches engineering leaders at every stage: CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors transitioning into leadership roles."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What does engineering leadership coaching cover?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Topics include scaling teams, organization design, stakeholder and C-suite communication, DORA metrics and delivery velocity, DevOps/GitOps workflows, hiring and performance frameworks, incident readiness, and executive presence."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Does Agustin coach remotely?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Agustin is based in Berlin and coaches engineering leaders remotely worldwide, in English, Spanish, or German."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I start working with Agustin?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Every engagement starts with a complimentary 30-minute discovery call to make sure it's a good fit. You can book a session at agusgonzaleznic.com or email info@agusgonzaleznic.com."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/profile.jpg" />
@@ -74,6 +236,7 @@
   </head>
 
   <body>
+    <!-- #root is filled with prerendered static HTML at build time (scripts/prerender.mjs) -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

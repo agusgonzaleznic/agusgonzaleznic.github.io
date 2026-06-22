@@ -6,7 +6,7 @@ import mkcert from "vite-plugin-mkcert";
 
 // https://vitejs.dev/config/
 // CSP is set via CloudFront response headers policy (terraform/cdn.tf)
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, isSsrBuild }) => {
   // Enable HTTPS only when VITE_HTTPS=true or in Storyblok mode
   const useHttps = process.env.VITE_HTTPS === 'true' || mode === 'storyblok';
 
@@ -52,33 +52,36 @@ export default defineConfig(({ mode }) => {
         safari10: true, // Fix Safari 10 issues
       },
     },
-    // Optimize chunk splitting
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Split vendor chunks for better caching
-          "react-vendor": ["react", "react-dom", "react-router-dom"],
-          "storyblok": ["@storyblok/react"], // Separate Storyblok bundle
-          "radix-ui": [
-            "@radix-ui/react-accordion",
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-label",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-select",
-            "@radix-ui/react-separator",
-            "@radix-ui/react-slot",
-            "@radix-ui/react-tabs",
-            "@radix-ui/react-toast",
-            "@radix-ui/react-tooltip",
-          ],
+    // Optimize chunk splitting (client build only — manual chunks don't apply
+    // to the SSR build used for prerendering).
+    rollupOptions: isSsrBuild
+      ? {}
+      : {
+          output: {
+            manualChunks: {
+              // Split vendor chunks for better caching
+              "react-vendor": ["react", "react-dom", "react-router-dom"],
+              "storyblok": ["@storyblok/react"], // Separate Storyblok bundle
+              "radix-ui": [
+                "@radix-ui/react-accordion",
+                "@radix-ui/react-dialog",
+                "@radix-ui/react-dropdown-menu",
+                "@radix-ui/react-label",
+                "@radix-ui/react-popover",
+                "@radix-ui/react-select",
+                "@radix-ui/react-separator",
+                "@radix-ui/react-slot",
+                "@radix-ui/react-tabs",
+                "@radix-ui/react-toast",
+                "@radix-ui/react-tooltip",
+              ],
+            },
+            // Add content hashing for better caching
+            entryFileNames: "assets/[name]-[hash].js",
+            chunkFileNames: "assets/[name]-[hash].js",
+            assetFileNames: "assets/[name]-[hash].[ext]",
+          },
         },
-        // Add content hashing for better caching
-        entryFileNames: "assets/[name]-[hash].js",
-        chunkFileNames: "assets/[name]-[hash].js",
-        assetFileNames: "assets/[name]-[hash].[ext]",
-      },
-    },
     // Optimize asset handling
     assetsInlineLimit: 4096, // Inline assets smaller than 4kb
     chunkSizeWarningLimit: 1000,

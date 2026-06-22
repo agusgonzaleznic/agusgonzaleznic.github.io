@@ -34,6 +34,7 @@ export const Navigation = () => {
     { label: "Philosophy", id: "philosophy" },
     { label: "Services", id: "services" },
     { label: "Impact", id: "impact" },
+    { label: "FAQ", id: "faq" },
     { label: "Contact", id: "contact" },
   ];
 
