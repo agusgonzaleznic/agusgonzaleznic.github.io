@@ -22,7 +22,10 @@ concurrency:
 
 jobs:
   build-and-deploy:
-    uses: agusgonzaleznic/github-reusable-workflows/.github/workflows/vite-build-deploy.yml@main
+    # Pinned to a commit SHA (not @main) so a mutable branch ref can't be used to
+    # inject malicious steps into a deploy that holds secrets + Pages write access.
+    # Update the SHA deliberately on upgrade.
+    uses: agusgonzaleznic/github-reusable-workflows/.github/workflows/vite-build-deploy.yml@0dcde1cbb882b676efe6b1ab98194213912e53d6 # v1.0.0
     permissions:
       contents: read
       pages: write
