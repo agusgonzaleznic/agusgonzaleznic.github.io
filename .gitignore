@@ -34,3 +34,4 @@ localhost.pem
 # AI generated files
 **/.claude-flow/
 .claude/*
+dist-server
