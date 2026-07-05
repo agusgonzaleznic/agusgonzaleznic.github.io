@@ -41,3 +41,4 @@ jobs:
       build-env-vars: |
         VITE_GOOGLE_APPS_SCRIPT_URL=${{ secrets.VITE_GOOGLE_APPS_SCRIPT_URL }}
         STORYBLOK_PUBLIC_TOKEN=${{ secrets.STORYBLOK_PUBLIC_TOKEN }}
+        STORYBLOK_REQUIRE_TOKEN=1

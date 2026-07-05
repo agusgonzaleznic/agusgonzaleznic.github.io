@@ -19,7 +19,11 @@ const PER_PAGE = 100; // CDA max
 const token = process.env.STORYBLOK_PUBLIC_TOKEN;
 // draft override is for local preview builds only (requires a preview token).
 const version = process.env.STORYBLOK_VERSION === "draft" ? "draft" : "published";
-const isCI = Boolean(process.env.CI || process.env.GITHUB_ACTIONS);
+// The PR CI workflow (reusable vite-ci.yml) cannot receive secrets, so a
+// missing token only fails builds that opt in — deploy.yml sets
+// STORYBLOK_REQUIRE_TOKEN=1 so production can never ship an empty blog by
+// accident, while PR CI validates the empty-blog code path.
+const requireToken = process.env.STORYBLOK_REQUIRE_TOKEN === "1";
 
 function writeOutput(posts) {
   mkdirSync(dirname(outFile), { recursive: true });
@@ -27,16 +31,16 @@ function writeOutput(posts) {
 }
 
 if (!token) {
-  if (isCI) {
+  if (requireToken) {
     console.error(
-      "fetch-blog: STORYBLOK_PUBLIC_TOKEN is not set. CI builds must provide it " +
-        "(repo secret STORYBLOK_PUBLIC_TOKEN via the build-env-vars block in deploy.yml).",
+      "fetch-blog: STORYBLOK_PUBLIC_TOKEN is not set but STORYBLOK_REQUIRE_TOKEN=1 " +
+        "(deploy builds must provide the repo secret via deploy.yml build-env-vars).",
     );
     process.exit(1);
   }
   console.warn(
     "\n⚠ fetch-blog: STORYBLOK_PUBLIC_TOKEN not set — writing empty blog data.\n" +
-      "  The blog will be EMPTY in this local build/dev session.\n",
+      "  The blog will be EMPTY in this build (expected for PR CI and tokenless local builds).\n",
   );
   writeOutput([]);
   process.exit(0);
