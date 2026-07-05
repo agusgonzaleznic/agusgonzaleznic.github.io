@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { Impressum, Privacy } from "./pages/Legal";
 import { StoryblokPage } from "./pages/StoryblokPage";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,9 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => (
 export const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Index />} />
+    {/* Legal pages */}
+    <Route path="/impressum" element={<Impressum />} />
+    <Route path="/privacy" element={<Privacy />} />
     {/* Storyblok preview routes */}
     <Route path="/preview" element={<StoryblokPage slug="home" />} />
     <Route path="/preview/:slug" element={<StoryblokPageWrapper />} />

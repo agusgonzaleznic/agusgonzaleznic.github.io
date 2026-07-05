@@ -5,21 +5,21 @@ const pillars = [
     icon: Lightbulb,
     title: "Growth through Clarity",
     description:
-      "Set clear goals, establish feedback loops, and implement OKRs that align individual growth with organizational success. Cut through the noise to focus on what matters.",
+      "Clear goals, working feedback loops, and OKRs that tie each person's growth to business results — so your team knows exactly what winning looks like this quarter.",
     color: "from-accent/20 to-accent/5",
   },
   {
     icon: Cog,
     title: "Empowerment through Systems",
     description:
-      "Build DevOps/GitOps workflows, implement DORA metrics, and create decision frameworks that enable teams to move fast with confidence and autonomy.",
+      "DevOps/GitOps workflows, DORA metrics, and decision frameworks that let your team move fast without waiting on you.",
     color: "from-primary/20 to-primary/5",
   },
   {
     icon: Heart,
     title: "Leadership through Empathy",
     description:
-      "Foster psychological safety, mentor with intention, and build cultures where people thrive. Great engineering starts with great teams.",
+      "Psychological safety, deliberate mentoring, and a culture people choose to stay in. Retention is a leadership outcome, not an HR metric.",
     color: "from-accent/20 to-accent/5",
   },
 ];
@@ -33,7 +33,7 @@ export const Philosophy = () => {
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
             <h2 className="text-fluid-3xl font-bold mb-6">My Coaching Philosophy</h2>
             <p className="text-fluid-lg text-muted-foreground">
-              Three interconnected pillars that transform good leaders into exceptional ones
+              Three pillars behind every engagement — and what each one changes for your team
             </p>
           </div>
 

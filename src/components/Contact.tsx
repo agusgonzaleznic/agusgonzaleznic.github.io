@@ -52,7 +52,7 @@ export const Contact = () => {
 
       // With no-cors mode, we can't read the response
       // but if no error was thrown, the request was sent successfully
-      toast.success("Message sent successfully! I'll get back to you within 24 hours.");
+      toast.success("Message sent — I typically reply within 24 hours.");
 
       // Clear form
       setFormData({
@@ -87,9 +87,9 @@ export const Contact = () => {
         <div className="max-w-5xl mx-auto">
           {/* Section header */}
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
-            <h2 className="text-fluid-3xl font-bold mb-6">Ready to Grow as a Leader?</h2>
+            <h2 className="text-fluid-3xl font-bold mb-6">What's the Hardest Part of the Job Right Now?</h2>
             <p className="text-fluid-lg text-muted-foreground">
-              Let's discuss how coaching can help you achieve your goals
+              Tell me in a few lines — a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for.
             </p>
           </div>
 
@@ -218,7 +218,7 @@ export const Contact = () => {
               <Card className="p-6 bg-primary/5 border-primary/20">
                 <h3 className="font-semibold mb-3 text-foreground">Free Discovery Call</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Every engagement starts with a complimentary 30-minute discovery call to ensure we're a good fit.
+                  The first 30 minutes are on me: a working session on your situation, not a sales pitch. If I'm not the right coach for the problem, I'll say so.
                 </p>
               </Card>
             </div>

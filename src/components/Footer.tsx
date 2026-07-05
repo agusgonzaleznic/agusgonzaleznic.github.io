@@ -16,7 +16,7 @@ export const Footer = () => {
             <div className="md:col-span-2">
               <h3 className="text-2xl font-serif font-bold mb-3">Agustin Gonzalez Nicolini</h3>
               <p className="text-primary-foreground/90 text-sm leading-relaxed mb-4">
-                Empowering engineering leaders to build resilient teams, ship faster, and lead with confidence.
+                Coaching for engineering leaders, from someone who has held the pager.
               </p>
               <p className="text-primary-foreground/80 text-xs">
                 Based in Berlin, from Haedo • Coaching globally
@@ -102,11 +102,11 @@ export const Footer = () => {
                 © {currentYear} Agustin Gonzalez Nicolini. All rights reserved.
               </p>
               <div className="flex gap-6">
-                <a href="#" className="hover:text-accent transition-colors">
+                <a href="/privacy" className="hover:text-accent transition-colors">
                   Privacy Policy
                 </a>
-                <a href="#" className="hover:text-accent transition-colors">
-                  Terms of Service
+                <a href="/impressum" className="hover:text-accent transition-colors">
+                  Impressum
                 </a>
               </div>
             </div>
