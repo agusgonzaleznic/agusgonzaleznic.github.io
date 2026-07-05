@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
@@ -21,6 +22,18 @@ import { Footer } from "@/components/Footer";
 const Index = () => {
   return (
     <div className="min-h-screen">
+      {/* Restores the homepage head after client-side navigation away from a
+          blog route (react-helmet never resets titles on its own). Must stay
+          textually identical to the static head in index.html — prerender
+          keeps the template head for "/", so a mismatch would flash on
+          hydration. */}
+      <Helmet>
+        <title>Agustin Gonzalez Nicolini | Engineering Leadership Coach</title>
+        <meta
+          name="description"
+          content="Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably — 15+ years of engineering leadership. Berlin & remote."
+        />
+      </Helmet>
       <Navigation />
       <main>
         <Hero />

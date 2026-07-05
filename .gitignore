@@ -31,7 +31,13 @@ node_modules
 localhost-key.pem
 localhost.pem
 
+# Build-time generated data (scripts/fetch-blog.mjs)
+src/generated/blog-data.json
+
 # AI generated files
 **/.claude-flow/
 .claude/*
 dist-server
+
+# TypeScript incremental build info
+*.tsbuildinfo
