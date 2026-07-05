@@ -6,37 +6,37 @@ const stats = [
     icon: TrendingDown,
     value: "40%",
     label: "Cloud Cost Reduction",
-    description: "Through FinOps best practices and strategic vendor negotiations",
+    description: "FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap",
   },
   {
     icon: Shield,
     value: "99.99%",
     label: "System Uptime",
-    description: "Via DR/HA playbooks and multi-region failover strategies",
+    description: "Multi-region failover and DR/HA playbooks, built so a bad day in one region stays invisible to users",
   },
   {
     icon: Rocket,
     value: "3×",
     label: "Faster Releases",
-    description: "With trunk-based DevOps, CI/CD, and GitOps workflows",
+    description: "Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event",
   },
   {
     icon: Zap,
     value: "75%",
     label: "Reduced Lead Time",
-    description: "By migrating to multi-account AWS and automated deployments",
+    description: "A multi-account AWS migration with deployments automated end to end",
   },
   {
     icon: Users,
     value: "50%",
     label: "Team Velocity Boost",
-    description: "Through OKRs framework and DORA metrics implementation",
+    description: "OKRs paired with DORA metrics, used as working tools rather than dashboards",
   },
   {
     icon: Target,
     value: "60%",
     label: "Faster Onboarding",
-    description: "With standardized processes and comprehensive documentation",
+    description: "Standardized processes and documentation a new hire can follow on day one",
   },
 ];
 
@@ -45,25 +45,25 @@ const timeline = [
     period: "2022-2025",
     company: "JUCR GmbH (EV Charging)",
     role: "VP of Engineering",
-    achievement: "Led migration to multi-account AWS, orchestrated an architecture across 5+ SaaS Services, achieved 99.99% uptime",
+    achievement: "Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime.",
   },
   {
     period: "2020-2022",
     company: "Wildlife Studios (Gaming)",
     role: "Cloud Security Manager",
-    achievement: "Balancing rapid feature delivery with stringent security controls.",
+    achievement: "Kept security controls stringent while game teams shipped features at full speed.",
   },
   {
     period: "2018-2021",
     company: "Ualá (FinTech)",
     role: "DevOps Lead",
-    achievement: "Core banking system delivery; PCI-DSS compliance and security hardening, full serverless architecture",
+    achievement: "Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout.",
   },
   {
     period: "2014-2018",
     company: "Bdev (HealthTech)",
     role: "Infrastructure & Security Lead",
-    achievement: "Migrated on-premise to AWS; implemented SOC 2 & ISO 27001 compliance",
+    achievement: "Migrated on-premise infrastructure to AWS and implemented SOC 2 and ISO 27001 compliance.",
   },
 ];
 
@@ -74,9 +74,9 @@ export const Impact = () => {
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
-            <h2 className="text-fluid-3xl font-bold mb-6">Proven Impact & Results</h2>
+            <h2 className="text-fluid-3xl font-bold mb-6">Numbers I Stand Behind</h2>
             <p className="text-fluid-lg text-muted-foreground">
-              Measurable outcomes from 15+ years leading engineering teams
+              Results from teams I've led as an operator — the same playbooks we'll work from
             </p>
           </div>
 

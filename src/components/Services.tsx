@@ -7,7 +7,7 @@ const services = [
     title: "Executive Leadership Coaching",
     subtitle: "CTO & VP Level",
     description:
-      "Strategic partnership for C-suite leaders navigating complex technical and organizational challenges.",
+      "For leaders accountable to boards and founders: an org design that scales, stakeholders who trust you, and decisions you can defend under pressure.",
     features: [
       "Stakeholder influence & C-suite communication",
       "Organization design & scaling strategies",
@@ -22,7 +22,7 @@ const services = [
     title: "Team & Manager Coaching",
     subtitle: "Manager & Director Level",
     description:
-      "Build high-performing teams that ship reliably, move fast, and continuously improve.",
+      "For managers whose teams should be shipping more than they are: better delivery numbers, healthier rituals, and calmer on-call weeks.",
     features: [
       "DORA metrics & deployment velocity optimization",
       "Team rituals, retrospectives & continuous improvement",
@@ -38,7 +38,7 @@ const services = [
     title: "Career Transition Coaching",
     subtitle: "IC to Manager & Beyond",
     description:
-      "Navigate critical career transitions with confidence, clarity, and a clear roadmap.",
+      "For engineers and managers moving up a level: land the role, then grow into it faster than you would alone.",
     features: [
       "IC → Manager: First-time leadership transitions",
       "Manager → Director: Scaling impact through others",
@@ -64,7 +64,7 @@ export const Services = () => {
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
             <h2 className="text-fluid-3xl font-bold mb-6">Coaching Services</h2>
             <p className="text-fluid-lg text-muted-foreground">
-              Tailored coaching programs designed for engineering leaders at every stage of their journey
+              Three formats. Pick by the problem you have, not the title you hold.
             </p>
           </div>
 
@@ -136,10 +136,10 @@ export const Services = () => {
           {/* Bottom CTA */}
           <div className="mt-16 text-center">
             <p className="text-muted-foreground mb-4">
-              Not sure which program is right for you?
+              Not sure which format fits your situation?
             </p>
             <Button onClick={handleContact} size="lg" variant="outline">
-              Schedule a Free Discovery Call
+              Book an Intro Call
             </Button>
           </div>
         </div>

@@ -19,7 +19,11 @@ const serverEntry = resolve(projectRoot, "dist-server/entry-server.js");
 
 // Routes to prerender. Storyblok preview routes are intentionally excluded —
 // they fetch live CMS data at runtime and shouldn't be baked in.
-const routes = [{ path: "/", file: "index.html" }];
+const routes = [
+  { path: "/", file: "index.html" },
+  { path: "/impressum", file: "impressum/index.html" },
+  { path: "/privacy", file: "privacy/index.html" },
+];
 
 const { render } = await import(pathToFileURL(serverEntry).href);
 const template = readFileSync(resolve(distDir, "index.html"), "utf-8");

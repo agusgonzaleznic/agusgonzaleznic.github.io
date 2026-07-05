@@ -30,9 +30,9 @@ export const Hero = () => {
               </div>
 
               <h1 className="text-fluid-4xl font-bold leading-tight">
-                Empowering Engineering Leaders to{" "}
+                Lead an Engineering Org That{" "}
                 <span className="text-gradient-accent relative">
-                  Build, Grow, and Inspire
+                  Ships, Scales, and Lasts
                   <svg
                     className="absolute -bottom-2 left-0 w-full"
                     height="8"
@@ -57,7 +57,7 @@ export const Hero = () => {
               </h1>
 
               <p className="text-fluid-lg text-muted-foreground leading-relaxed">
-                I coach CTOs, VPs, managers, and tech leads to scale teams, ship faster, and lead with confidence across multiple businesses.
+                One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -80,7 +80,7 @@ export const Hero = () => {
               </div>
 
               <div className="pt-8 border-t border-border">
-                <p className="text-sm text-muted-foreground mb-3">Trusted by engineering leaders at:</p>
+                <p className="text-sm text-muted-foreground mb-3">Industries where I've led teams:</p>
                 <div className="flex flex-wrap gap-4 text-sm font-medium text-muted-foreground">
                   <span>Fintech</span>
                   <span>•</span>

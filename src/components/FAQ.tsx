@@ -11,27 +11,27 @@ const faqs = [
   {
     question: "Who is Agustin Gonzalez Nicolini?",
     answer:
-      "Agustin Gonzalez Nicolini is a VP of Engineering and leadership coach based in Berlin, Germany, with 15+ years of experience leading engineering teams across fintech, gaming, e-mobility, and healthtech. He coaches CTOs, VPs, engineering managers, and tech leads.",
+      "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev — most recently as VP of Engineering — and I now coach senior technology leaders one-on-one.",
   },
   {
     question: "Who does Agustin coach?",
     answer:
-      "Engineering leaders at every stage: CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors transitioning into leadership roles.",
+      "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role.",
   },
   {
     question: "What does engineering leadership coaching cover?",
     answer:
-      "Scaling teams, organization design, stakeholder and C-suite communication, DORA metrics and delivery velocity, DevOps/GitOps workflows, hiring and performance frameworks, incident readiness, and executive presence.",
+      "Whatever stands between you and a team that delivers: scaling and org design, stakeholder and C-suite communication, delivery speed and DORA metrics, DevOps and GitOps workflows, hiring and performance frameworks, incident readiness, and executive presence.",
   },
   {
     question: "Does Agustin coach remotely?",
     answer:
-      "Yes. Agustin is based in Berlin and coaches engineering leaders remotely worldwide, in English, Spanish, or German.",
+      "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English, Spanish, or German — whichever you think best in.",
   },
   {
     question: "How do I start working with Agustin?",
     answer:
-      "Every engagement starts with a complimentary 30-minute discovery call to make sure it's a good fit. You can book a session from this page or email info@agusgonzaleznic.com.",
+      "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way.",
   },
 ];
 
@@ -44,7 +44,7 @@ export const FAQ = () => {
           <div className="text-center mb-16 animate-fade-in-up">
             <h2 className="text-fluid-3xl font-bold mb-6">Frequently Asked Questions</h2>
             <p className="text-fluid-lg text-muted-foreground">
-              Everything you need to know about working with me
+              Practical answers on fit, format, and how we'd start
             </p>
           </div>
 

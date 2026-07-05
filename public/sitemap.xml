@@ -3,17 +3,29 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://agusgonzaleznic.com/</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-07-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
       <image:loc>https://agusgonzaleznic.com/profile.jpg</image:loc>
-      <image:title>Agustin Gonzalez Nicolini - Leadership Coach</image:title>
-      <image:caption>Executive coaching for engineering leaders</image:caption>
+      <image:title>Agustin Gonzalez Nicolini, engineering leadership coach in Berlin</image:title>
+      <image:caption>Portrait of Agustin Gonzalez Nicolini, coach to CTOs, VPs of Engineering, and engineering managers worldwide</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://agusgonzaleznic.com/og-image.webp</image:loc>
-      <image:title>Leadership &amp; Engineering Coaching Services</image:title>
+      <image:title>Engineering leadership and executive coaching — agusgonzaleznic.com preview</image:title>
     </image:image>
+  </url>
+  <url>
+    <loc>https://agusgonzaleznic.com/impressum</loc>
+    <lastmod>2026-07-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://agusgonzaleznic.com/privacy</loc>
+    <lastmod>2026-07-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>
