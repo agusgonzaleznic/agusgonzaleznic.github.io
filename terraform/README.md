@@ -206,3 +206,13 @@ cancelled.
 
 Bootstrap changes (state bucket, OIDC role/trust) stay human-applied:
 `AWS_PROFILE=root-admin terraform apply` inside `terraform/bootstrap/`.
+
+## Known CLI-managed drift
+
+- Lambda resource-policy statement `UrlPolicyInvokeFunction` on
+  `agusgonzaleznic-storyblok-rebuild` (`lambda:InvokeFunction`, principal `*`,
+  condition `lambda:InvokedViaFunctionUrl=true`). Required since October 2025
+  for ALL function URLs; aws provider 5.100.0 cannot express it (no
+  `invoked_via_function_url` argument). See the comment in `webhook.tf` for
+  the exact re-apply command. Invisible to plans; re-run after any
+  destroy/recreate of the function.

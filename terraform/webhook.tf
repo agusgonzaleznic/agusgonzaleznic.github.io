@@ -140,3 +140,14 @@ resource "aws_lambda_permission" "webhook_url" {
   principal              = "*"
   function_url_auth_type = "NONE"
 }
+
+# Since October 2025, function URLs ALSO require lambda:InvokeFunction with
+# the Bool condition lambda:InvokedViaFunctionUrl=true, or every URL request
+# gets 403 AccessDeniedException before reaching the handler. Provider 5.100.0
+# has no invoked_via_function_url argument on aws_lambda_permission, so that
+# statement is CLI-managed (invisible to TF's per-statement tracking — plans
+# stay clean). Fold into TF when the aws provider is bumped past 6.x:
+#   aws lambda add-permission --function-name agusgonzaleznic-storyblok-rebuild \
+#     --statement-id UrlPolicyInvokeFunction --action lambda:InvokeFunction \
+#     --principal "*" --invoked-via-function-url --region us-east-1
+# (applied 2026-07-05; delete/recreate of the function requires re-running it)
