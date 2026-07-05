@@ -3,9 +3,9 @@
 ################################################################################
 
 variable "aws_profile" {
-  description = "AWS CLI profile name"
+  description = "AWS CLI profile name (empty = use ambient credentials, e.g. CI OIDC)"
   type        = string
-  default     = "AGNAdministratorAccess"
+  default     = ""
 }
 
 variable "aws_region" {
@@ -27,11 +27,21 @@ variable "domain_name" {
 variable "space_id" {
   description = "Storyblok Space ID"
   type        = number
-  default     = 0
+  default     = 288632938663524
 }
 
+# No default — pass at runtime via op: TF_VAR_token=$STORYBLOK_MANAGEMENT_TOKEN
 variable "token" {
   description = "Storyblok OAuth or Management Token"
   type        = string
-  default     = ""
+  sensitive   = true
+}
+
+# Shared secret appended as ?token=... to the webhook Lambda function URL.
+# Value lives in SSM /agusgonzaleznic-site/webhook/url-token (managed outside
+# TF); no default — pass via op: TF_VAR_storyblok_webhook_url_token=...
+variable "storyblok_webhook_url_token" {
+  description = "Query-string token Storyblok sends to the rebuild webhook Lambda"
+  type        = string
+  sensitive   = true
 }
