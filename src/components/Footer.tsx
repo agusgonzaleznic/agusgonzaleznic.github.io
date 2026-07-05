@@ -1,11 +1,24 @@
 import { Mail, Linkedin, Github } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
+
+  // Section links scroll on the home page; elsewhere they become /#<id>
+  // anchors so they still work (scrollToSection would silently no-op there).
+  const quickLinks: { label: string; id?: string; to?: string }[] = [
+    { label: "About", id: "about" },
+    { label: "Services", id: "services" },
+    { label: "Impact", id: "impact" },
+    { label: "Blog", to: "/blog/" },
+    { label: "Contact", id: "contact" },
+  ];
 
   return (
     <footer className="bg-primary text-primary-foreground py-12 md:py-16">
@@ -27,38 +40,32 @@ export const Footer = () => {
             <div>
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
               <ul className="space-y-2 text-sm">
-                <li>
-                  <button
-                    onClick={() => scrollToSection("about")}
-                    className="text-primary-foreground/90 hover:text-accent transition-colors"
-                  >
-                    About
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => scrollToSection("services")}
-                    className="text-primary-foreground/90 hover:text-accent transition-colors"
-                  >
-                    Services
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => scrollToSection("impact")}
-                    className="text-primary-foreground/90 hover:text-accent transition-colors"
-                  >
-                    Impact
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => scrollToSection("contact")}
-                    className="text-primary-foreground/90 hover:text-accent transition-colors"
-                  >
-                    Contact
-                  </button>
-                </li>
+                {quickLinks.map((link) => (
+                  <li key={link.label}>
+                    {link.to ? (
+                      <Link
+                        to={link.to}
+                        className="text-primary-foreground/90 hover:text-accent transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    ) : isHome ? (
+                      <button
+                        onClick={() => scrollToSection(link.id!)}
+                        className="text-primary-foreground/90 hover:text-accent transition-colors"
+                      >
+                        {link.label}
+                      </button>
+                    ) : (
+                      <a
+                        href={`/#${link.id}`}
+                        className="text-primary-foreground/90 hover:text-accent transition-colors"
+                      >
+                        {link.label}
+                      </a>
+                    )}
+                  </li>
+                ))}
               </ul>
             </div>
 

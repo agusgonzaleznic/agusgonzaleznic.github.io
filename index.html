@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!--
+      route-head markers: scripts/prerender.mjs replaces everything between
+      start and end with react-helmet output for every prerendered route
+      EXCEPT "/". The block itself is the homepage head and doubles as the SPA
+      fallback shell — do not add route-agnostic tags inside the markers.
+    -->
+    <!-- route-head:start -->
     <!-- Primary Meta Tags -->
     <title>Agustin Gonzalez Nicolini | Engineering Leadership Coach</title>
     <meta name="title" content="Agustin Gonzalez Nicolini | Engineering Leadership Coach" />
@@ -40,15 +47,6 @@
     <meta name="twitter:image" content="https://agusgonzaleznic.com/og-image.webp" />
     <meta name="twitter:image:alt" content="Agustin Gonzalez Nicolini — Engineering Leadership Coach" />
     <meta name="twitter:creator" content="@agusgonzaleznic" />
-
-    <!-- Geo Tags -->
-    <meta name="geo.region" content="DE-BE" />
-    <meta name="geo.placename" content="Berlin" />
-    <meta name="geo.position" content="52.520008;13.404954" />
-    <meta name="ICBM" content="52.520008, 13.404954" />
-
-    <!-- AI / LLM discovery (GEO) -->
-    <link rel="llms" type="text/markdown" href="https://agusgonzaleznic.com/llms.txt" />
 
     <!--
       Structured data (JSON-LD) lives in the STATIC HTML so AI crawlers that do
@@ -207,6 +205,16 @@
       ]
     }
     </script>
+    <!-- route-head:end -->
+
+    <!-- Geo Tags -->
+    <meta name="geo.region" content="DE-BE" />
+    <meta name="geo.placename" content="Berlin" />
+    <meta name="geo.position" content="52.520008;13.404954" />
+    <meta name="ICBM" content="52.520008, 13.404954" />
+
+    <!-- AI / LLM discovery (GEO) -->
+    <link rel="llms" type="text/markdown" href="https://agusgonzaleznic.com/llms.txt" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
