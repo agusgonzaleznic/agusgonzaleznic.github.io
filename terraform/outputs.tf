@@ -17,3 +17,8 @@ output "website_url" {
   description = "Website URL"
   value       = "https://${local.domain_name}"
 }
+
+output "webhook_function_url" {
+  description = "Storyblok rebuild webhook Function URL (append ?token=...)"
+  value       = aws_lambda_function_url.webhook.function_url
+}
