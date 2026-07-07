@@ -42,3 +42,35 @@ jobs:
         VITE_GOOGLE_APPS_SCRIPT_URL=${{ secrets.VITE_GOOGLE_APPS_SCRIPT_URL }}
         STORYBLOK_PUBLIC_TOKEN=${{ secrets.STORYBLOK_PUBLIC_TOKEN }}
         STORYBLOK_REQUIRE_TOKEN=1
+
+  # GitHub Pages sends Cache-Control max-age=600, so CloudFront serves stale
+  # pages for up to 10 minutes after a deploy. Invalidate so new posts/pages
+  # are visible immediately. Uses a dedicated OIDC role that can ONLY create
+  # invalidations on the site distribution (NOT the terraform deploy role —
+  # its trust policy deliberately excludes the main-ref subject).
+  invalidate-cdn:
+    name: Invalidate CloudFront cache
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write # OIDC token for configure-aws-credentials
+
+    steps:
+      - uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
+        with:
+          role-to-assume: ${{ vars.AWS_CDN_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Create invalidation
+        env:
+          DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          id=$(aws cloudfront create-invalidation \
+            --distribution-id "$DISTRIBUTION_ID" \
+            --paths "/*" \
+            --query 'Invalidation.Id' --output text)
+          echo "Invalidation $id created"
+          aws cloudfront wait invalidation-completed \
+            --distribution-id "$DISTRIBUTION_ID" --id "$id"
+          echo "Invalidation $id completed"
