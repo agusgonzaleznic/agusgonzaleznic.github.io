@@ -12,3 +12,8 @@ output "state_bucket_name" {
   description = "Terraform remote state bucket name."
   value       = aws_s3_bucket.terraform_state.bucket
 }
+
+output "cdn_invalidation_role_arn" {
+  description = "IAM role ARN for post-deploy CloudFront invalidation — set as repo variable AWS_CDN_ROLE_ARN."
+  value       = aws_iam_role.cdn_invalidation.arn
+}

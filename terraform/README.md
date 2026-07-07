@@ -73,6 +73,9 @@ signed in.
    # still in terraform/bootstrap — output name per bootstrap/outputs.tf
    gh variable set AWS_TF_ROLE_ARN \
      --body "$(AWS_PROFILE=root-admin terraform output -raw deploy_role_arn)"
+   gh variable set AWS_CDN_ROLE_ARN \
+     --body "$(AWS_PROFILE=root-admin terraform output -raw cdn_invalidation_role_arn)"
+   gh variable set CLOUDFRONT_DISTRIBUTION_ID --body "E33TSNW29S4RDQ"
    gh variable set STORYBLOK_SPACE_ID --body "288632938663524"
    ```
 
