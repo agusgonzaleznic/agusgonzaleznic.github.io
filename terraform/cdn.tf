@@ -135,19 +135,43 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
 resource "aws_cloudfront_function" "www_redirect" {
   name    = "${replace(local.domain_name, ".", "-")}-www-redirect"
   runtime = "cloudfront-js-2.0"
-  comment = "Redirect www to apex domain"
+  comment = "Redirect www to apex; add trailing slash to extensionless paths"
   publish = true
 
+  # The trailing-slash 301 must happen HERE, not at the origin: CloudFront
+  # sends Host = agusgonzaleznic.github.io to GitHub Pages (see the cache
+  # behavior comment above), so any origin-generated directory redirect
+  # carries the github.io domain in its Location and teleports visitors off
+  # the apex. Prerendered routes are directories (/blog/<slug>/index.html),
+  # so every extensionless path needs the slash before it reaches Pages.
   code = <<-EOF
     function handler(event) {
       var request = event.request;
       var host = request.headers.host.value;
-      if (host.startsWith('www.')) {
+      var uri = request.uri;
+
+      var needsSlash =
+        !uri.endsWith('/') && !uri.split('/').pop().includes('.');
+      var isWww = host.startsWith('www.');
+
+      if (isWww || needsSlash) {
+        var qs = '';
+        for (var key in request.querystring) {
+          qs += (qs === '' ? '?' : '&') + key;
+          var v = request.querystring[key];
+          if (v.multiValue) {
+            qs += '=' + v.multiValue.map(function (m) { return m.value; }).join('&' + key + '=');
+          } else if (v.value !== '') {
+            qs += '=' + v.value;
+          }
+        }
         return {
           statusCode: 301,
           statusDescription: 'Moved Permanently',
           headers: {
-            location: { value: 'https://${local.domain_name}' + request.uri }
+            location: {
+              value: 'https://${local.domain_name}' + uri + (needsSlash ? '/' : '') + qs
+            }
           }
         };
       }
