@@ -160,10 +160,15 @@ signed in.
    sticky plan comment shows no unexpected changes, merge, and approve the
    `terraform-production` gate for the first CI apply.
 
-## Import execution order
+## Import execution order (disaster recovery)
 
-Import IDs were verified against live AWS (see the import blocks in this
-module). Run in this order — later resources reference earlier ones:
+All live resources were imported into the S3 remote state on 2026-07-05, so
+`imports.tf` was removed (import blocks are one-time; once state is populated
+they are inert no-ops). This section is the recovery record: if the remote
+state is ever lost, recreate `imports.tf` with these `import` blocks (address →
+live ID) and re-run in this order — later resources reference earlier ones.
+The S3 state bucket is versioned + `prevent_destroy`, so state loss should not
+recur; this is the backstop of last resort.
 
 1. Route53 hosted zone `agusgonzaleznic.com` (`Z01244412JIHKLB4766PS`).
 2. The 12 managed Route53 records (apex A/AAAA/MX/TXT/CAA, `www` CNAME,
