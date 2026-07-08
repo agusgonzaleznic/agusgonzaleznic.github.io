@@ -6,14 +6,68 @@ on:
     branches:
       - main
 
-  # Allow manual workflow dispatchs
+  # Allow manual workflow dispatch
   workflow_dispatch:
 
+# Skip-job pattern: the workflow ALWAYS runs (no top-level paths filter), so the
+# required status check "CI required" always reports. A cheap `changes` job
+# decides whether the site actually changed; the expensive build only runs when
+# it did; and the gate job passes when the build succeeded OR was skipped. This
+# gives path-based efficiency without the required-check deadlock that a
+# top-level `paths:` filter would cause (a skipped workflow never reports its
+# required check, blocking the PR forever).
+
+permissions:
+  contents: read
+
 jobs:
-  ci:
+  changes:
+    name: Detect site changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      site: ${{ steps.filter.outputs.site }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Decide whether the built site can be affected
+        id: filter
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # Denylist / fail-safe: site=true unless EVERY changed file matches an
+          # ignore pattern (infra, docs, CI-only config). Same set as deploy.yml's
+          # paths-ignore. On workflow_dispatch there is no PR diff → build.
+          if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
+            echo "site=true" >> "$GITHUB_OUTPUT"
+            echo "No PR diff (dispatch) → building."
+            exit 0
+          fi
+          changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          echo "Changed files:"; echo "$changed"
+          site=false
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              terraform/*|*.md|.env.example|.gitignore|LICENSE|.github/workflows/terraform.yml) : ;;
+              *) site=true ;;
+            esac
+          done <<< "$changed"
+          echo "site=$site" >> "$GITHUB_OUTPUT"
+          echo "site-affecting change: $site"
+
+  build:
+    name: Build
+    needs: changes
+    if: needs.changes.outputs.site == 'true'
     # Pinned to a commit SHA (not @main) so a mutable branch ref can't be used to
     # inject malicious workflow steps. Update the SHA deliberately on upgrade.
-    uses: agusgonzaleznic/github-reusable-workflows/.github/workflows/vite-ci.yml@b3e8728765f2bb200df209ba98587c6ab0ef2e71 # v1.0.0
+    uses: agusgonzaleznic/github-reusable-workflows/.github/workflows/vite-ci.yml@ee1cc3d04e2a1cf7998da955c0093c43c20fa199 # v1.1.0
     with:
       node-version: '22'
       install-command: 'npm ci'
@@ -21,3 +75,26 @@ jobs:
       build-command: 'npm run build'
       artifact-path: 'dist'
       verify-build-output: true
+
+  # The required status check. Always runs (needs + if: always()), so branch
+  # protection always gets a result. Green when the build passed OR was skipped
+  # (site unaffected); red only when the build actually ran and failed.
+  ci-required:
+    name: CI required
+    needs: [changes, build]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Gate
+        env:
+          SITE: ${{ needs.changes.outputs.site }}
+          BUILD_RESULT: ${{ needs.build.result }}
+        run: |
+          echo "site=${SITE} build=${BUILD_RESULT}"
+          if [ "$BUILD_RESULT" = "failure" ] || [ "$BUILD_RESULT" = "cancelled" ]; then
+            echo "::error::Site build failed."
+            exit 1
+          fi
+          echo "OK (build ${BUILD_RESULT:-skipped})"
