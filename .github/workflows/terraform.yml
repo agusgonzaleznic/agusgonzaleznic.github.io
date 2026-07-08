@@ -98,6 +98,26 @@ jobs:
           set -o pipefail
           terraform plan -no-color -input=false -lock-timeout=60s 2>&1 | tee plan.txt
 
+      - name: Scrub secrets from plan before it goes public
+        id: planscan
+        # Defense-in-depth. Sensitive TF vars already render as
+        # "(sensitive value)", but this plan is about to be posted to a
+        # world-readable PR comment. Redact any secret-shaped substring first,
+        # and flag it so the job fails and a human investigates. Redact-then-post
+        # (not block) guarantees a secret can never reach the comment even if the
+        # detector is imperfect.
+        run: |
+          before="$(sha256sum plan.txt | cut -d' ' -f1)"
+          sed -i -E \
+            -e 's/([?&](token|access_token|api_key|apikey|key|secret)=)[^ "'"'"'&]+/\1REDACTED/gI' \
+            -e 's/(github_pat_|ghp_|gho_|ghs_)[A-Za-z0-9_]+/\1REDACTED/g' \
+            plan.txt
+          after="$(sha256sum plan.txt | cut -d' ' -f1)"
+          if [ "$before" != "$after" ]; then
+            echo "leaked=true" >> "$GITHUB_OUTPUT"
+            echo "::error::Secret-shaped content found in terraform plan output and redacted before posting. Investigate before merging."
+          fi
+
       - name: Post sticky plan comment
         if: always() && (steps.plan.outcome == 'success' || steps.plan.outcome == 'failure')
         env:
@@ -138,6 +158,12 @@ jobs:
       - name: Fail job if plan failed
         if: steps.plan.outcome == 'failure'
         run: exit 1
+
+      - name: Fail job if a secret was found in the plan
+        if: always() && steps.planscan.outputs.leaked == 'true'
+        run: |
+          echo "::error::terraform plan output contained secret-shaped content (redacted in the posted comment). Do not merge until resolved."
+          exit 1
 
   apply:
     name: Apply (main)
@@ -189,12 +215,19 @@ jobs:
         run: terraform plan -no-color -input=false -lock-timeout=60s -out=tfplan
 
       - name: Publish plan to job summary
+        # The job summary is world-readable on a public repo. Scrub secret-shaped
+        # substrings from the rendered plan (defense-in-depth beyond sensitive=true).
         run: |
+          terraform show -no-color tfplan \
+            | sed -E \
+                -e 's/([?&](token|access_token|api_key|apikey|key|secret)=)[^ "'"'"'&]+/\1REDACTED/gI' \
+                -e 's/(github_pat_|ghp_|gho_|ghs_)[A-Za-z0-9_]+/\1REDACTED/g' \
+            | head -c 60000 > plan-summary.txt
           {
             echo "## Terraform plan (about to apply)"
             echo ""
             echo '```'
-            terraform show -no-color tfplan | head -c 60000
+            cat plan-summary.txt
             echo ""
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"

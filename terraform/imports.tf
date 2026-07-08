@@ -3,7 +3,7 @@
 # Addresses verified against pinned module sources:
 #   route53 v4.1.0, cloudfront v4.2.0, acm v5.2.0, s3-bucket v4.11.0
 # NOT imported (intentionally):
-#   - vpn.agusgonzaleznic.com A/AAAA records — manually managed, not in TF config
+#   - a manually-managed subdomain's A/AAAA records (out of TF scope) — never import
 #   - OAI E3LG1Y2B7NO5P2 — vestigial, referenced only as a string in the s3_main
 #     bucket policy; no aws_cloudfront_origin_access_identity resource declared
 #   - S3 versioning — not enabled live and not declared by the module config
