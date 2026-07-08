@@ -7,14 +7,15 @@
     "predev": "npm run fetch-blog",
     "dev": "vite",
     "fetch-blog": "node scripts/fetch-blog.mjs",
-    "build": "npm run fetch-blog && npm run build:client && npm run build:server && npm run prerender",
+    "build": "npm run assert-no-client-secrets && npm run fetch-blog && npm run build:client && npm run build:server && npm run prerender",
     "build:client": "vite build",
     "build:server": "vite build --ssr src/entry-server.tsx --outDir dist-server",
     "prerender": "node scripts/prerender.mjs",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepare": "husky"
+    "prepare": "husky",
+    "assert-no-client-secrets": "node scripts/assert-no-client-secrets.mjs"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "1.2.12",

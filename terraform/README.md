@@ -26,8 +26,8 @@ Two root modules with a strict trust boundary:
 
 Deliberately **not** managed here:
 
-- `vpn.agusgonzaleznic.com` A/AAAA records — manually managed; never import
-  or define them.
+- A manually-managed subdomain's A/AAAA records (a personal-network endpoint,
+  out of Terraform scope) — never import or define them.
 - SSM SecureStrings `/agusgonzaleznic-site/webhook/github-pat` and
   `/agusgonzaleznic-site/webhook/url-token` — referenced by name only; their
   values are never data-read into state. Rotating the url-token means:
@@ -167,8 +167,8 @@ module). Run in this order — later resources reference earlier ones:
 
 1. Route53 hosted zone `agusgonzaleznic.com` (`Z01244412JIHKLB4766PS`).
 2. The 12 managed Route53 records (apex A/AAAA/MX/TXT/CAA, `www` CNAME,
-   DMARC/DKIM/MTA-STS/TLS-RPT records). **Never** the `vpn.*` records,
-   NS/SOA, or the ACM validation CNAME (next step owns it).
+   DMARC/DKIM/MTA-STS/TLS-RPT records). **Never** the manually-managed
+   subdomain records, NS/SOA, or the ACM validation CNAME (next step owns it).
 3. ACM certificate (`arn:...:certificate/5252733a-e6e7-4161-bf9e-83b791bb885a`)
    plus its validation CNAME record; `aws_acm_certificate_validation` cannot
    be imported — first apply creates it.
