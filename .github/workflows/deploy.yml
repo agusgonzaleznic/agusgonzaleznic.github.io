@@ -1,12 +1,25 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Trigger on push to main branch
+  # Trigger on push to main — but only when files that affect the built site
+  # change. paths-ignore is a denylist (fail-safe: anything not listed still
+  # deploys, so a real content change is never silently skipped) covering the
+  # changes that produce identical dist output: infra, CI-only workflow, and
+  # docs. NOTE: paths filters apply ONLY to push/pull_request — the Storyblok
+  # webhook rebuild uses workflow_dispatch below and is unaffected.
   push:
     branches:
       - main
+    paths-ignore:
+      - "terraform/**"
+      - ".github/workflows/terraform.yml"
+      - "**.md"
+      - ".env.example"
+      - ".gitignore"
+      - "LICENSE"
 
-  # Allow manual workflow dispatch
+  # Allow manual workflow dispatch (also the Storyblok publish webhook target).
+  # Not subject to the paths-ignore filter above.
   workflow_dispatch:
 
 # Set permissions for GitHub Pages deployment
