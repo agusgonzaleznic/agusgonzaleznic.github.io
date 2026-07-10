@@ -9,6 +9,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import { Impressum, Privacy } from "./pages/Legal";
 import { StoryblokPage } from "./pages/StoryblokPage";
+import { CookieNotice } from "./components/CookieNotice";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => (
       <Toaster />
       <Sonner />
       {children}
+      <CookieNotice />
     </TooltipProvider>
   </QueryClientProvider>
 );
