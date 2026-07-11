@@ -45,3 +45,47 @@ variable "storyblok_webhook_url_token" {
   type        = string
   sensitive   = true
 }
+
+################################################################################
+# Cloudflare (Turnstile widget)
+################################################################################
+
+# API token scoped to Account > Turnstile > Edit. No default — pass via op:
+# TF_VAR_cloudflare_api_token=... (CI: secrets.CLOUDFLARE_API_TOKEN).
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token used to manage the Turnstile widget"
+  type        = string
+  sensitive   = true
+}
+
+# Non-secret; no default so the widget is never created against the wrong
+# account by accident (CI: vars.CLOUDFLARE_ACCOUNT_ID).
+variable "cloudflare_account_id" {
+  description = "Cloudflare account ID that owns the Turnstile widget"
+  type        = string
+}
+
+################################################################################
+# Contact form (server-side Lambda)
+################################################################################
+
+# Google Apps Script web-app URL the contact Lambda forwards sanitized
+# submissions to. Stored server-side (SSM SecureString) so it never ships in
+# the public bundle. No default — pass via op: TF_VAR_apps_script_url=...
+# (CI: secrets.VITE_GOOGLE_APPS_SCRIPT_URL — reuses the existing secret).
+variable "apps_script_url" {
+  description = "Google Apps Script web-app URL the contact Lambda posts to"
+  type        = string
+  sensitive   = true
+}
+
+# Server-only shared secret the contact Lambda injects into the forward payload
+# so the Apps Script can reject direct POSTs (its /exec URL is not a secret).
+# Must match the secret configured inside the Apps Script doPost(). No default —
+# pass via op: TF_VAR_apps_script_shared_secret=... (CI: a dedicated secret,
+# NOT the old public VITE_ value). See README runbook.
+variable "apps_script_shared_secret" {
+  description = "Shared secret the contact Lambda sends to the Apps Script"
+  type        = string
+  sensitive   = true
+}

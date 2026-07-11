@@ -14,6 +14,10 @@ locals {
   acm_certificate_arn         = "arn:aws:acm:us-east-1:${local.account_id}:certificate/5252733a-e6e7-4161-bf9e-83b791bb885a"
   lambda_function_arns        = ["arn:aws:lambda:us-east-1:${local.account_id}:function:agusgonzaleznic-*"]
   lambda_exec_role_arns       = ["arn:aws:iam::${local.account_id}:role/agusgonzaleznic-*"]
+  dynamodb_table_arns = [
+    "arn:aws:dynamodb:us-east-1:${local.account_id}:table/agusgonzaleznic-*",
+    "arn:aws:dynamodb:us-east-1:${local.account_id}:table/agusgonzaleznic-*/index/*",
+  ]
   lambda_log_group_arns = [
     "arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/agusgonzaleznic-*",
     "arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/agusgonzaleznic-*:*",
@@ -104,6 +108,32 @@ data "aws_iam_policy_document" "cloudfront" {
       "cloudfront:ListResponseHeadersPolicies",
       "cloudfront:ListCachePolicies",
       "cloudfront:GetCachePolicy",
+    ]
+    resources = ["*"]
+  }
+
+  # OAC + origin-request-policy management for the contact /api behavior.
+  # Create* actions don't accept resource ARNs, and the OAC/policy IDs don't
+  # exist until CI creates them, so Resource:* is unavoidable (single-tenant
+  # account; same documented tradeoff as the List* reads above). Deliberately
+  # NO distribution/*Config actions — those stay pinned to the site
+  # distribution ARN in ManageSiteDistribution.
+  statement {
+    sid    = "CloudFrontManageApiPolicies"
+    effect = "Allow"
+    actions = [
+      "cloudfront:CreateOriginAccessControl",
+      "cloudfront:GetOriginAccessControl",
+      "cloudfront:GetOriginAccessControlConfig",
+      "cloudfront:UpdateOriginAccessControl",
+      "cloudfront:DeleteOriginAccessControl",
+      "cloudfront:ListOriginAccessControls",
+      "cloudfront:CreateOriginRequestPolicy",
+      "cloudfront:GetOriginRequestPolicy",
+      "cloudfront:GetOriginRequestPolicyConfig",
+      "cloudfront:UpdateOriginRequestPolicy",
+      "cloudfront:DeleteOriginRequestPolicy",
+      "cloudfront:ListOriginRequestPolicies",
     ]
     resources = ["*"]
   }
@@ -296,6 +326,39 @@ data "aws_iam_policy_document" "lambda" {
   }
 }
 
+# --- DynamoDB (contact form state table) ------------------------------------
+# Deploy-time table management only. The runtime data-plane actions
+# (GetItem/PutItem/UpdateItem/DeleteItem) belong to the Lambda exec role, not
+# CI — they are granted by the boundary + the exec role's inline policy.
+
+data "aws_iam_policy_document" "dynamodb" {
+  statement {
+    sid    = "ManageContactTable"
+    effect = "Allow"
+    actions = [
+      "dynamodb:CreateTable",
+      "dynamodb:DeleteTable",
+      "dynamodb:DescribeTable",
+      "dynamodb:UpdateTable",
+      "dynamodb:DescribeTimeToLive",
+      "dynamodb:UpdateTimeToLive",
+      "dynamodb:DescribeContinuousBackups",
+      "dynamodb:ListTagsOfResource",
+      "dynamodb:TagResource",
+      "dynamodb:UntagResource",
+    ]
+    resources = local.dynamodb_table_arns
+  }
+
+  # ListTables is an account-level list and cannot be resource-scoped.
+  statement {
+    sid       = "ListTables"
+    effect    = "Allow"
+    actions   = ["dynamodb:ListTables"]
+    resources = ["*"]
+  }
+}
+
 # --- Permissions boundary for CI-created Lambda exec roles -------------------
 # Ceiling for any role CI creates under agusgonzaleznic-*: effective
 # permissions are the INTERSECTION of the role's policies and this document,
@@ -334,6 +397,20 @@ data "aws_iam_policy_document" "lambda_exec_boundary" {
       values   = ["ssm.us-east-1.amazonaws.com"]
     }
   }
+
+  # Ceiling for the contact Lambda's runtime table access. Data-plane only
+  # (no table management); scoped to agusgonzaleznic-* tables.
+  statement {
+    sid    = "ContactStateTable"
+    effect = "Allow"
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem",
+      "dynamodb:DeleteItem",
+    ]
+    resources = local.dynamodb_table_arns
+  }
 }
 
 resource "aws_iam_policy" "lambda_exec_boundary" {
@@ -349,6 +426,39 @@ data "aws_iam_policy_document" "ssm" {
     effect    = "Allow"
     actions   = ["ssm:GetParameter", "ssm:GetParameters", "ssm:ListTagsForResource"]
     resources = ["arn:aws:ssm:us-east-1:${local.account_id}:parameter/agusgonzaleznic-site/*"]
+  }
+
+  # The contact module MANAGES these params in Terraform (values from the
+  # Cloudflare widget secret + var.apps_script_url), unlike the webhook params
+  # which are human-managed and read-only. Write access is scoped to the
+  # contact/ prefix ONLY — CI must never write the human-managed secrets
+  # elsewhere under /agusgonzaleznic-site/*.
+  statement {
+    sid    = "ManageContactParameters"
+    effect = "Allow"
+    actions = [
+      "ssm:PutParameter",
+      "ssm:DeleteParameter",
+      "ssm:AddTagsToResource",
+      "ssm:RemoveTagsFromResource",
+    ]
+    resources = ["arn:aws:ssm:us-east-1:${local.account_id}:parameter/agusgonzaleznic-site/contact/*"]
+  }
+
+  # SecureString writes/reads for the contact params use the aws/ssm managed
+  # key; scoped by the ssm ViaService condition so the grant only works through
+  # SSM in this region.
+  statement {
+    sid       = "ContactParamsKms"
+    effect    = "Allow"
+    actions   = ["kms:Encrypt", "kms:Decrypt"]
+    resources = ["*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "kms:ViaService"
+      values   = ["ssm.us-east-1.amazonaws.com"]
+    }
   }
 
   # DescribeParameters cannot be resource-scoped (account-level list).
@@ -381,6 +491,7 @@ locals {
     acm          = data.aws_iam_policy_document.acm.json
     site-buckets = data.aws_iam_policy_document.site_buckets.json
     lambda       = data.aws_iam_policy_document.lambda.json
+    dynamodb     = data.aws_iam_policy_document.dynamodb.json
     ssm          = data.aws_iam_policy_document.ssm.json
   }
 }

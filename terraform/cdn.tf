@@ -25,7 +25,39 @@ module "cloudfront" {
         origin_ssl_protocols   = ["TLSv1.2"]
       }
     }
+
+    # Contact Lambda Function URL (private; reachable only through the OAC in
+    # contact.tf). domain_name is the URL host with no scheme/trailing slash.
+    "contact-lambda" = {
+      domain_name              = trimsuffix(trimprefix(aws_lambda_function_url.contact.function_url, "https://"), "/")
+      origin_access_control_id = aws_cloudfront_origin_access_control.contact.id
+      custom_origin_config = {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = "https-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
+    }
   }
+
+  # /api/* -> contact Lambda. CachingDisabled; POST/OPTIONS allowed. The custom
+  # origin request policy forwards the true client IP + Origin + Content-Type +
+  # payload hash but NOT Host (OAC SigV4 needs the Function-URL Host, which
+  # CloudFront supplies). The default (github-pages) behavior is untouched.
+  ordered_cache_behavior = [
+    {
+      path_pattern           = "/api/*"
+      target_origin_id       = "contact-lambda"
+      viewer_protocol_policy = "redirect-to-https"
+      allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+      cached_methods         = ["GET", "HEAD"]
+      compress               = true
+      use_forwarded_values   = false
+
+      cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
+      origin_request_policy_id = aws_cloudfront_origin_request_policy.api.id
+    }
+  ]
 
   default_cache_behavior = {
     target_origin_id       = "github-pages"
@@ -80,6 +112,41 @@ data "aws_cloudfront_cache_policy" "caching_optimized" {
   name = "Managed-CachingOptimized"
 }
 
+data "aws_cloudfront_cache_policy" "caching_disabled" {
+  name = "Managed-CachingDisabled"
+}
+
+# Origin request policy for /api/*. Forwards the true client IP
+# (CloudFront-Viewer-Address, cache-policy-forbidden — must live here), plus
+# Origin, Content-Type, and the POST payload hash CloudFront must sign. Host is
+# deliberately NOT forwarded: OAC SigV4 requires the Function-URL Host, which
+# CloudFront re-adds. No managed policy fits (they either omit the viewer
+# address or force Host).
+resource "aws_cloudfront_origin_request_policy" "api" {
+  name    = "${replace(local.domain_name, ".", "-")}-api"
+  comment = "Forward client IP + Origin + Content-Type + payload hash to the contact Lambda"
+
+  headers_config {
+    header_behavior = "whitelist"
+    headers {
+      items = [
+        "CloudFront-Viewer-Address",
+        "Origin",
+        "Content-Type",
+        "x-amz-content-sha256",
+      ]
+    }
+  }
+
+  cookies_config {
+    cookie_behavior = "none"
+  }
+
+  query_strings_config {
+    query_string_behavior = "none"
+  }
+}
+
 resource "aws_cloudfront_response_headers_policy" "security_headers" {
   name    = "${replace(local.domain_name, ".", "-")}-security-headers"
   comment = "Security headers for ${local.domain_name}"
@@ -90,7 +157,11 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
       # Manager / Analytics entries are consent-gated activation-ready: GA only
       # loads after opt-in via the consent banner, but the CSP must already
       # allow it.
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com https://app.storyblok.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https: blob:; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.storyblok.com https://api-us.storyblok.com https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com; frame-src https://calendar.google.com https://calendar.app.google https://app.storyblok.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests;"
+      # challenges.cloudflare.com in script-src + frame-src: Turnstile loads
+      # api.js and renders its challenge in an iframe. connect-src stays 'self'
+      # — the contact POST goes to same-origin /api/contact (siteverify is a
+      # server-side call from the Lambda, not the browser).
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com https://app.storyblok.com https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https: blob:; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.storyblok.com https://api-us.storyblok.com https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com; frame-src https://calendar.google.com https://calendar.app.google https://app.storyblok.com https://challenges.cloudflare.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests;"
       override                = true
     }
 

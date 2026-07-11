@@ -1,0 +1,10 @@
+{
+  "name": "agusgonzaleznic-contact-lambda",
+  "version": "1.0.0",
+  "description": "Contact form gateway Lambda: 10 anti-abuse controls then forward to Apps Script.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  }
+}

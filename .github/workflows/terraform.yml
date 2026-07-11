@@ -36,6 +36,19 @@ env:
   TF_VAR_storyblok_webhook_url_token: ${{ secrets.STORYBLOK_WEBHOOK_URL_TOKEN }}
   # Numeric Storyblok space id (non-secret)
   TF_VAR_space_id: ${{ vars.STORYBLOK_SPACE_ID }}
+  # Cloudflare API token — Account > Turnstile > Edit (sensitive)
+  TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  # Cloudflare account id that owns the Turnstile widget (non-secret)
+  TF_VAR_cloudflare_account_id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+  # Google Apps Script URL the contact Lambda forwards to (sensitive). This MUST
+  # be a freshly-rotated /exec deployment URL in a DEDICATED secret — NOT the old
+  # VITE_GOOGLE_APPS_SCRIPT_URL, which shipped in the public client bundle and is
+  # exposed in git history / CDN caches / browsers. See README runbook.
+  TF_VAR_apps_script_url: ${{ secrets.CONTACT_APPS_SCRIPT_URL }}
+  # Server-only shared secret the Lambda injects into the forward payload; the
+  # Apps Script doPost() rejects any POST whose `secret` field doesn't match, so
+  # the (formerly public) URL alone cannot email the owner (sensitive).
+  TF_VAR_apps_script_shared_secret: ${{ secrets.CONTACT_APPS_SCRIPT_SHARED_SECRET }}
 
 defaults:
   run:
