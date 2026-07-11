@@ -1,17 +1,19 @@
 import { Mail, Linkedin, Github } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const location = useLocation();
+  const navigate = useNavigate();
   const isHome = location.pathname === "/";
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Section links scroll on the home page; elsewhere they become /#<id>
-  // anchors so they still work (scrollToSection would silently no-op there).
+  // Section links scroll on the home page; elsewhere they navigate to "/"
+  // with { scrollTo } state (ScrollManager scrolls after arrival) so the URL
+  // never carries a lingering /#hash.
   const quickLinks: { label: string; id?: string; to?: string }[] = [
     { label: "About", id: "about" },
     { label: "Services", id: "services" },
@@ -57,12 +59,12 @@ export const Footer = () => {
                         {link.label}
                       </button>
                     ) : (
-                      <a
-                        href={`/#${link.id}`}
+                      <button
+                        onClick={() => navigate("/", { state: { scrollTo: link.id } })}
                         className="text-primary-foreground/90 hover:text-accent transition-colors"
                       >
                         {link.label}
-                      </a>
+                      </button>
                     )}
                   </li>
                 ))}
