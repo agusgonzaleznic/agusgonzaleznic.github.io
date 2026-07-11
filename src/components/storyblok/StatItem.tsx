@@ -26,7 +26,7 @@ export const StatItem = ({ blok }: StatItemProps) => {
         </div>
       )}
       <div className="text-3xl font-bold text-accent mb-2">{blok.value}</div>
-      <h4 className="text-lg font-semibold mb-2">{blok.label}</h4>
+      <h4 className="text-lg font-bold mb-2">{blok.label}</h4>
       {blok.description && (
         <p className="text-sm text-muted-foreground leading-relaxed">
           {blok.description}

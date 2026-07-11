@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import profileImage from "@/assets/profile.jpg";
+import { HERO_CTA_ID, SECTION_PADDING } from "@/lib/layout";
 
 export const Hero = () => {
   const handleBooking = () => {
@@ -19,7 +20,7 @@ export const Hero = () => {
         <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-accent/5 rounded-full blur-3xl animate-pulse delay-300" />
       </div>
 
-      <div className="container relative z-10 px-6 py-20 md:py-32">
+      <div className={`container relative z-10 px-6 ${SECTION_PADDING}`}>
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Content */}
@@ -60,7 +61,7 @@ export const Hero = () => {
                 One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div id={HERO_CTA_ID} className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button
                   size="lg"
                   onClick={handleBooking}
@@ -106,6 +107,9 @@ export const Hero = () => {
                     alt="Agustin Gonzalez Nicolini - Engineering Leadership Coach"
                     className="w-full h-full object-cover"
                     loading="eager"
+                    // React 18 only forwards the lowercase spelling ("fetchPriority"
+                    // is dropped with a warning until React 19); spread keeps tsc happy.
+                    {...{ fetchpriority: "high" }}
                     width="512"
                     height="512"
                   />
@@ -117,8 +121,9 @@ export const Hero = () => {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+      {/* Scroll indicator — desktop only; on the stacked mobile layout it
+          crowds the profile image and adds nothing. */}
+      <div className="hidden md:block absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
         <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full p-1">
           <div className="w-1.5 h-3 bg-accent rounded-full mx-auto animate-pulse" />
         </div>

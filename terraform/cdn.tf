@@ -86,7 +86,11 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
 
   security_headers_config {
     content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com https://app.storyblok.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.storyblok.com https://api-us.storyblok.com; frame-src https://calendar.google.com https://calendar.app.google https://app.storyblok.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests;"
+      # Fonts are self-hosted (font-src/style-src 'self'). The Google Tag
+      # Manager / Analytics entries are consent-gated activation-ready: GA only
+      # loads after opt-in via the consent banner, but the CSP must already
+      # allow it.
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com https://app.storyblok.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https: blob:; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.storyblok.com https://api-us.storyblok.com https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com; frame-src https://calendar.google.com https://calendar.app.google https://app.storyblok.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests;"
       override                = true
     }
 

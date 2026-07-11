@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { isAnalyticsConfigured, withdrawAnalyticsConsent } from "@/lib/analytics";
+import { SECTION_PADDING } from "@/lib/layout";
 
 // Shared layout for the legal pages (/impressum and /privacy). Uses the same
 // Navigation + Footer shell and typography tokens as the home page sections.
@@ -27,7 +30,7 @@ const LegalLayout = ({
     <Navigation />
     <main className="pt-16">
       <section className="bg-background">
-        <div className="container px-6 py-24">
+        <div className={`container px-6 ${SECTION_PADDING}`}>
           <div className="max-w-3xl mx-auto space-y-8">{children}</div>
         </div>
       </section>
@@ -41,7 +44,7 @@ const H1 = ({ children }: { children: React.ReactNode }) => (
 );
 
 const H2 = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="text-fluid-xl font-semibold pt-4">{children}</h2>
+  <h2 className="text-fluid-xl font-bold pt-4">{children}</h2>
 );
 
 const P = ({ children }: { children: React.ReactNode }) => (
@@ -130,6 +133,42 @@ export const Impressum = () => (
   </LegalLayout>
 );
 
+// Rendered only when GA4 is configured: withdraws analytics consent right
+// where the processing is described (Art. 7(3) GDPR — withdrawing must be as
+// easy as consenting). withdrawAnalyticsConsent() also halts a running tag
+// immediately and makes the consent banner ask again on the next visit.
+const WithdrawAnalyticsConsent = () => {
+  const [withdrawn, setWithdrawn] = useState(false);
+
+  if (withdrawn) {
+    return (
+      <P>
+        <strong>Consent withdrawn.</strong> Analytics has stopped and the _ga
+        cookies have been removed. The consent banner will ask again on your
+        next visit.
+      </P>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => {
+          withdrawAnalyticsConsent();
+          setWithdrawn(true);
+        }}
+        className="rounded-lg border-2 border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+      >
+        Withdraw analytics consent
+      </button>
+      <p className="pt-2 text-sm text-muted-foreground leading-relaxed">
+        After withdrawing, the consent banner will reappear on your next visit.
+      </p>
+    </div>
+  );
+};
+
 export const Privacy = () => (
   <LegalLayout
     title="Privacy Policy — Agustin Gonzalez Nicolini"
@@ -201,18 +240,12 @@ export const Privacy = () => (
       storage.
     </P>
 
-    <H2>4. Google Fonts</H2>
+    <H2>4. Fonts</H2>
     <P>
-      This website loads fonts from the <strong>Google Fonts</strong> content
-      delivery network. When a page loads, your browser connects to Google's
-      servers, which discloses your IP address to Google (potentially in the
-      United States). This is done to provide a consistent, legible
-      presentation of the site; legal basis: Art. 6(1)(f) GDPR (legitimate
-      interest in a uniform site appearance). Please note that IP disclosure to
-      Google occurs before you can interact with the page. If you prefer to
-      avoid this, you can block fonts.googleapis.com/fonts.gstatic.com in your
-      browser; the site remains usable with fallback fonts. Details:{" "}
-      <A href="https://policies.google.com/privacy">https://policies.google.com/privacy</A>
+      The fonts used on this website are <strong>self-hosted</strong>: they are
+      served directly from this website's own domain as part of the site
+      itself. Loading them causes no request to Google or any other third-party
+      font service, and no data about you is transmitted to a font provider.
     </P>
 
     <H2>5. Booking Link (Google Calendar)</H2>
@@ -227,12 +260,56 @@ export const Privacy = () => (
     </P>
 
     <H2>6. Cookies, Analytics, and Tracking</H2>
-    <P>
-      This website sets <strong>no cookies</strong> of its own and uses{" "}
-      <strong>no analytics or tracking tools</strong>. Website content is
-      fetched from the Storyblok CMS only at build time — no visitor data is
-      sent to Storyblok.
-    </P>
+    {isAnalyticsConfigured() ? (
+      <>
+        <P>
+          This website uses <strong>Google Analytics 4</strong> (Google Ireland
+          Ltd. / Google LLC) — but <strong>only if you accept it</strong> in
+          the consent banner. Before you accept (and always if you decline),
+          no analytics script is loaded, no request is made to Google, and no
+          analytics cookies are set. The purpose is to understand, in
+          aggregate, how the site is used (e.g. which pages are visited) so it
+          can be improved.
+        </P>
+        <P>
+          Google's <strong>Consent Mode v2</strong> is used: every consent
+          signal defaults to "denied", and only the analytics-storage signal is
+          set to "granted" after you accept — advertising signals remain
+          denied. Google Analytics 4 does not log or store IP addresses; IP
+          data is used only transiently to derive coarse location. If you
+          accept, Google Analytics
+          sets the cookies <strong>_ga</strong> and <strong>_ga_*</strong>{" "}
+          (lifetime of up to two years) to distinguish visitors. Analytics
+          event data is retained in Google Analytics for at most 14 months and
+          is then deleted automatically.
+        </P>
+        <P>
+          Legal basis: Art. 6(1)(a) GDPR (your consent, given via the banner).
+          You can withdraw your consent at any time with effect for the
+          future:
+        </P>
+        <WithdrawAnalyticsConsent />
+        <P>
+          Google acts as a processor for this measurement. Data may be
+          transferred to Google servers in the United States; Google is
+          certified under the EU–US Data Privacy Framework and additionally
+          relies on EU Standard Contractual Clauses. Details:{" "}
+          <A href="https://policies.google.com/privacy">https://policies.google.com/privacy</A>
+        </P>
+        <P>
+          Beyond this, the website sets no cookies of its own. Website content
+          is fetched from the Storyblok CMS only at build time — no visitor
+          data is sent to Storyblok.
+        </P>
+      </>
+    ) : (
+      <P>
+        This website sets <strong>no cookies</strong> of its own and uses{" "}
+        <strong>no analytics or tracking tools</strong>. Website content is
+        fetched from the Storyblok CMS only at build time — no visitor data is
+        sent to Storyblok.
+      </P>
+    )}
 
     <H2>7. Your Rights</H2>
     <P>Under the GDPR you have the right to:</P>

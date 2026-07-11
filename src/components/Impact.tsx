@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { TrendingDown, Zap, Shield, Users, Rocket, Target } from "lucide-react";
+import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 const stats = [
   {
@@ -69,11 +70,11 @@ const timeline = [
 
 export const Impact = () => {
   return (
-    <section id="impact" className="py-24 md:py-32 bg-gradient-to-b from-background to-secondary/30">
+    <section id="impact" className={`${SECTION_PADDING} bg-gradient-to-b from-background to-secondary/30`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
+          <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             <h2 className="text-fluid-3xl font-bold mb-6">Numbers I Stand Behind</h2>
             <p className="text-fluid-lg text-muted-foreground">
               Results from teams I've led as an operator — the same playbooks we'll work from
@@ -93,7 +94,7 @@ export const Impact = () => {
                   </div>
                   <div className="flex-1">
                     <div className="text-3xl font-bold text-accent mb-1">{stat.value}</div>
-                    <div className="text-sm font-semibold text-foreground mb-2">{stat.label}</div>
+                    <div className="text-sm font-medium text-foreground mb-2">{stat.label}</div>
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       {stat.description}
                     </p>
@@ -123,7 +124,7 @@ export const Impact = () => {
                     {/* Period badge */}
                     <div className="shrink-0 md:w-32">
                       <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-accent/10 border border-accent/20">
-                        <span className="text-sm font-semibold text-accent">{item.period}</span>
+                        <span className="text-sm font-medium text-accent">{item.period}</span>
                       </div>
                     </div>
 

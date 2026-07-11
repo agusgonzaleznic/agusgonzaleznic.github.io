@@ -4,6 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 // Keep these answers in sync with the FAQPage JSON-LD in index.html so that
 // what humans read matches what search and AI engines index (no cloaking).
@@ -37,11 +38,11 @@ const faqs = [
 
 export const FAQ = () => {
   return (
-    <section id="faq" className="py-24 md:py-32 bg-background">
+    <section id="faq" className={`${SECTION_PADDING} bg-background`}>
       <div className="container px-6">
         <div className="max-w-3xl mx-auto">
           {/* Section header */}
-          <div className="text-center mb-16 animate-fade-in-up">
+          <div className={`text-center ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             <h2 className="text-fluid-3xl font-bold mb-6">Frequently Asked Questions</h2>
             <p className="text-fluid-lg text-muted-foreground">
               Practical answers on fit, format, and how we'd start
@@ -51,7 +52,7 @@ export const FAQ = () => {
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, index) => (
               <AccordionItem key={faq.question} value={`item-${index}`}>
-                <AccordionTrigger className="text-left text-lg font-semibold">
+                <AccordionTrigger className="text-left text-lg font-medium">
                   {faq.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-base text-muted-foreground leading-relaxed">

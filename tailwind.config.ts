@@ -15,8 +15,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        serif: ['Playfair Display', 'Georgia', 'serif'],
+        // "* Fallback" faces are metric-matched local fonts defined in the
+        // inline critical CSS in index.html (fontaine-style overrides)
+        sans: ['Inter', 'Inter Fallback', 'system-ui', 'sans-serif'],
+        serif: ['Playfair Display', 'Playfair Display Fallback', 'Georgia', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",

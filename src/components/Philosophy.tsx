@@ -1,4 +1,5 @@
 import { Lightbulb, Cog, Heart } from "lucide-react";
+import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 const pillars = [
   {
@@ -26,11 +27,11 @@ const pillars = [
 
 export const Philosophy = () => {
   return (
-    <section id="philosophy" className="py-24 md:py-32 bg-gradient-to-b from-background to-secondary/30">
+    <section id="philosophy" className={`${SECTION_PADDING} bg-gradient-to-b from-background to-secondary/30`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
+          <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             <h2 className="text-fluid-3xl font-bold mb-6">My Coaching Philosophy</h2>
             <p className="text-fluid-lg text-muted-foreground">
               Three pillars behind every engagement — and what each one changes for your team
@@ -60,7 +61,7 @@ export const Philosophy = () => {
 
                     {/* Content */}
                     <div className="flex-1">
-                      <h3 className="text-fluid-xl font-semibold mb-3 group-hover:text-accent transition-colors">
+                      <h3 className="text-fluid-xl font-bold mb-3 group-hover:text-accent transition-colors">
                         {pillar.title}
                       </h3>
                       <p className="text-fluid-base text-muted-foreground leading-relaxed">

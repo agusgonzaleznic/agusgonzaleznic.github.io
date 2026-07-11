@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Target, ShieldCheck, MessagesSquare, Wrench } from "lucide-react";
+import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 const values = [
   {
@@ -26,11 +27,11 @@ const values = [
 
 export const About = () => {
   return (
-    <section id="about" className="py-24 md:py-32 bg-background">
+    <section id="about" className={`${SECTION_PADDING} bg-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
-          <div className="max-w-3xl mb-16 animate-fade-in-up">
+          <div className={`max-w-3xl ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             <h2 className="text-fluid-3xl font-bold mb-6">
               From Haedo to Berlin, One Engineering Team at a Time
             </h2>
@@ -44,7 +45,7 @@ export const About = () => {
 
           {/* Values grid */}
           <div>
-            <h3 className="text-fluid-xl font-semibold mb-8 text-center">How I Work</h3>
+            <h3 className="text-fluid-xl font-bold mb-8 text-center">How I Work</h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {values.map((value, index) => (
                 <Card
@@ -56,7 +57,7 @@ export const About = () => {
                       <value.icon className="w-6 h-6 text-accent" />
                     </div>
                   </div>
-                  <h4 className="text-lg font-semibold mb-2">{value.title}</h4>
+                  <h4 className="text-lg font-bold mb-2">{value.title}</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {value.description}
                   </p>

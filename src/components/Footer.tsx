@@ -38,7 +38,7 @@ export const Footer = () => {
 
             {/* Quick Links */}
             <div>
-              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
               <ul className="space-y-2 text-sm">
                 {quickLinks.map((link) => (
                   <li key={link.label}>
@@ -71,7 +71,7 @@ export const Footer = () => {
 
             {/* Connect */}
             <div>
-              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">Connect</h4>
+              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider">Connect</h4>
               <div className="flex gap-3">
                 <a
                   href="https://www.linkedin.com/in/agusgonzaleznic"

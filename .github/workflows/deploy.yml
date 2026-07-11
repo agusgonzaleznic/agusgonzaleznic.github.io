@@ -52,10 +52,23 @@ jobs:
       artifact-path: 'dist'
       run-lint: true
     secrets:
+      # VITE_GA_MEASUREMENT_ID is a repo VARIABLE (not a secret — a GA4
+      # measurement ID is public by nature, visible in every tag request).
+      # Unset variable → empty value → analytics feature stays off.
+      #
+      # Activation checklist — the privacy policy (src/pages/Legal.tsx §6)
+      # states retention and no-advertising as facts, so configure the GA4
+      # property FIRST; the code's Consent Mode denials cover the tag side
+      # only, not property settings:
+      #   1. GA4 Admin → Data settings → Data retention: event data 14 months.
+      #   2. GA4 Admin → Data collection: Google Signals OFF, ads
+      #      personalization OFF, advertising features data collection OFF.
+      #   3. Then: gh variable set GA_MEASUREMENT_ID --body "G-XXXXXXXXXX"
       build-env-vars: |
         VITE_GOOGLE_APPS_SCRIPT_URL=${{ secrets.VITE_GOOGLE_APPS_SCRIPT_URL }}
         STORYBLOK_PUBLIC_TOKEN=${{ secrets.STORYBLOK_PUBLIC_TOKEN }}
         STORYBLOK_REQUIRE_TOKEN=1
+        VITE_GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID }}
 
   # GitHub Pages sends Cache-Control max-age=600, so CloudFront serves stale
   # pages for up to 10 minutes after a deploy. Invalidate so new posts/pages

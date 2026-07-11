@@ -3,6 +3,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { PostCard } from "@/components/blog/PostCard";
 import { getAllPosts, SITE_URL } from "@/lib/blog";
+import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 const TITLE = "Writing | Agustin Gonzalez Nicolini";
 const DESCRIPTION =
@@ -31,9 +32,9 @@ const Blog = () => {
       <Navigation />
       <main className="pt-16">
         <section className="bg-background">
-          <div className="container px-6 py-24 md:py-32">
+          <div className={`container px-6 ${SECTION_PADDING}`}>
             <div className="mx-auto max-w-3xl">
-              <header className="mb-16 animate-fade-in-up">
+              <header className={`${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
                 <h1 className="mb-4 text-fluid-3xl font-bold">Writing</h1>
                 <p className="text-fluid-lg leading-relaxed text-muted-foreground">
                   Notes from fifteen years of running engineering teams — leadership,
@@ -44,7 +45,7 @@ const Blog = () => {
 
               {posts.length === 0 ? (
                 <div className="rounded-lg border-2 border-dashed border-border p-12 text-center animate-fade-in-up">
-                  <p className="text-fluid-lg font-serif font-semibold text-foreground">
+                  <p className="text-fluid-lg font-serif font-bold text-foreground">
                     Nothing here yet
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">

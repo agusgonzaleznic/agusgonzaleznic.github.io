@@ -41,7 +41,7 @@ const applyMark = (children: ReactNode, mark: RichtextMark): ReactNode => {
   const attrs = mark.attrs ?? {};
   switch (mark.type) {
     case "bold":
-      return <strong className="font-semibold text-foreground">{children}</strong>;
+      return <strong className="font-bold text-foreground">{children}</strong>;
     case "italic":
       return <em>{children}</em>;
     case "underline":
@@ -96,7 +96,7 @@ const renderChildren = (node: RichtextNode, ctx: Ctx): ReactNode =>
 
 const HEADING_CLASS: Record<number, string> = {
   2: "group scroll-mt-24 text-fluid-2xl font-bold mt-12 mb-5",
-  3: "group scroll-mt-24 text-fluid-xl font-semibold mt-10 mb-4",
+  3: "group scroll-mt-24 text-fluid-xl font-bold mt-10 mb-4",
 };
 
 const renderNode = (node: RichtextNode, key: number, ctx: Ctx): ReactNode => {
@@ -130,7 +130,7 @@ const renderNode = (node: RichtextNode, key: number, ctx: Ctx): ReactNode => {
         );
       }
       return (
-        <Tag key={key} className="text-fluid-lg font-semibold mt-8 mb-3">
+        <Tag key={key} className="text-fluid-lg font-bold mt-8 mb-3">
           {renderChildren(node, ctx)}
         </Tag>
       );
