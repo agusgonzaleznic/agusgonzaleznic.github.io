@@ -6,6 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Mail, Send, Linkedin, Github } from "lucide-react";
+import {
+  CONTACT_CTA_ID,
+  SECTION_HEADER_MARGIN,
+  SECTION_PADDING,
+} from "@/lib/layout";
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -82,11 +87,11 @@ export const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-24 md:py-32 bg-gradient-to-b from-background to-secondary/30">
+    <section id="contact" className={`${SECTION_PADDING} bg-gradient-to-b from-background to-secondary/30`}>
       <div className="container px-6">
         <div className="max-w-5xl mx-auto">
           {/* Section header */}
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
+          <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             <h2 className="text-fluid-3xl font-bold mb-6">What's the Hardest Part of the Job Right Now?</h2>
             <p className="text-fluid-lg text-muted-foreground">
               Tell me in a few lines — a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for.
@@ -152,6 +157,7 @@ export const Contact = () => {
                 </div>
 
                 <Button
+                  id={CONTACT_CTA_ID}
                   type="submit"
                   size="lg"
                   className="w-full bg-accent hover:bg-accent-hover text-accent-foreground shadow-accent"
@@ -170,7 +176,7 @@ export const Contact = () => {
             {/* Contact info */}
             <div className="lg:col-span-2 space-y-6 animate-fade-in-up delay-200">
               <Card className="p-6 border-2">
-                <h3 className="font-semibold mb-4">Get in Touch</h3>
+                <h3 className="font-bold mb-4">Get in Touch</h3>
                 <div className="space-y-4">
                   <a
                     href="mailto:info@agusgonzaleznic.com"
@@ -209,14 +215,14 @@ export const Contact = () => {
               </Card>
 
               <Card className="p-6 bg-accent/5 border-accent/20">
-                <h3 className="font-semibold mb-3 text-foreground">Response Time</h3>
+                <h3 className="font-bold mb-3 text-foreground">Response Time</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   I typically respond within 24 hours. For urgent inquiries, please mention it in your message.
                 </p>
               </Card>
 
               <Card className="p-6 bg-primary/5 border-primary/20">
-                <h3 className="font-semibold mb-3 text-foreground">Free Discovery Call</h3>
+                <h3 className="font-bold mb-3 text-foreground">Free Discovery Call</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   The first 30 minutes are on me: a working session on your situation, not a sales pitch. If I'm not the right coach for the problem, I'll say so.
                 </p>

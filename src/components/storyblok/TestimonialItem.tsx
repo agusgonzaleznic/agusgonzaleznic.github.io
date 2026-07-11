@@ -55,7 +55,7 @@ export const TestimonialItem = ({ blok }: TestimonialItemProps) => {
             </div>
           )}
           <div>
-            <p className="font-semibold text-foreground">{blok.author_name}</p>
+            <p className="font-medium text-foreground">{blok.author_name}</p>
             <p className="text-sm text-muted-foreground">
               {blok.author_role}
               {blok.author_company && ` • ${blok.author_company}`}

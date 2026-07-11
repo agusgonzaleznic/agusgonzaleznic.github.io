@@ -25,7 +25,7 @@ export const MetricItem = ({ blok }: MetricItemProps) => {
         )}
         <div className="flex-1">
           <div className="text-3xl font-bold text-accent mb-1">{blok.value}</div>
-          <div className="text-sm font-semibold text-foreground mb-2">{blok.label}</div>
+          <div className="text-sm font-medium text-foreground mb-2">{blok.label}</div>
           {blok.description && (
             <p className="text-xs text-muted-foreground leading-relaxed">
               {blok.description}

@@ -1,5 +1,6 @@
 import { storyblokEditable, StoryblokComponent } from "@storyblok/react";
 import { AboutBlockStoryblok } from "@/lib/types/storyblok";
+import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 interface AboutBlockProps {
   blok: AboutBlockStoryblok;
@@ -14,12 +15,12 @@ export const AboutBlock = ({ blok }: AboutBlockProps) => {
     <section
       {...storyblokEditable(blok)}
       id="about"
-      className="py-24 md:py-32 bg-background"
+      className={`${SECTION_PADDING} bg-background`}
     >
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
-          <div className="max-w-3xl mb-16 animate-fade-in-up">
+          <div className={`max-w-3xl ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             {blok.heading && (
               <h2 className="text-fluid-3xl font-bold mb-6">{blok.heading}</h2>
             )}

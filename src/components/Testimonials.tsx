@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 // Composite scenarios, not client quotes — coaching is confidential, and real
 // endorsements will only ever appear with a client's explicit sign-off.
@@ -25,11 +26,11 @@ const engagements = [
 
 export const Testimonials = () => {
   return (
-    <section id="testimonials" className="py-24 md:py-32 bg-background">
+    <section id="testimonials" className={`${SECTION_PADDING} bg-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
+          <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             <h2 className="text-fluid-3xl font-bold mb-6">Typical Engagements</h2>
             <p className="text-fluid-lg text-muted-foreground">
               Three composite sketches — not client quotes — showing the problems leaders bring me and how the work tends to unfold
@@ -44,7 +45,7 @@ export const Testimonials = () => {
                 className={`p-8 hover-lift border-2 hover:border-accent/30 transition-all duration-300 animate-fade-in-up delay-${index * 100}`}
               >
                 <div className="mb-6">
-                  <p className="font-semibold text-foreground">{engagement.role}</p>
+                  <p className="font-medium text-foreground">{engagement.role}</p>
                   <p className="text-sm text-muted-foreground">{engagement.context}</p>
                 </div>
 

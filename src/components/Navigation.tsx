@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import {
+  CONTACT_CTA_ID,
+  HERO_CTA_ID,
+  setStickyCtaVisible,
+} from "@/lib/layout";
 
 // Section links only scroll on the home page; on any other route they become
 // plain /#<id> anchors (SSR-safe, works from prerendered HTML pre-hydration).
@@ -16,6 +21,9 @@ const staggerDelay = (index: number) =>
 export const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Starts hidden so the prerendered HTML never carries the sticky CTA (it
+  // would flash on top of the hero CTA before hydration).
+  const [isStickyCtaVisible, setIsStickyCtaVisible] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === "/";
   const isBlog = location.pathname.startsWith("/blog");
@@ -28,6 +36,46 @@ export const Navigation = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Show the sticky CTA only while no inline booking affordance is on screen
+  // — the hero's button block and the contact form's submit button.
+  useEffect(() => {
+    // Every route change starts from hidden: without this, state left over
+    // from a branch below (e.g. legal → home) flashes the sticky CTA on top
+    // of the hero CTA until the new observer's first async callback fires.
+    setIsStickyCtaVisible(false);
+    if (isBlog) return;
+    const targets = [HERO_CTA_ID, CONTACT_CTA_ID]
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    if (targets.length === 0) {
+      // Route without inline CTAs (e.g. legal pages): always show it.
+      setIsStickyCtaVisible(true);
+      return () => setIsStickyCtaVisible(false);
+    }
+    const inView = new Set<Element>();
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) inView.add(entry.target);
+        else inView.delete(entry.target);
+      }
+      setIsStickyCtaVisible(inView.size === 0);
+    });
+    targets.forEach((el) => observer.observe(el));
+    return () => {
+      observer.disconnect();
+      setIsStickyCtaVisible(false);
+    };
+  }, [isBlog, location.pathname]);
+
+  // Publish whether the sticky CTA is actually rendered (same condition as
+  // the JSX below) so CookieNotice can stack the consent banner above it
+  // only when it exists — see the store in src/lib/layout.ts.
+  const showStickyCta = !isMobileMenuOpen && !isBlog && isStickyCtaVisible;
+  useEffect(() => {
+    setStickyCtaVisible(showStickyCta);
+    return () => setStickyCtaVisible(false);
+  }, [showStickyCta]);
 
   const scrollToSection = (id: string) => {
     setIsMobileMenuOpen(false);
@@ -175,8 +223,11 @@ export const Navigation = () => {
       )}
 
       {/* Sticky CTA on mobile — suppressed on blog routes so it doesn't
-          permanently cover the bottom of long-form reading. */}
-      {!isMobileMenuOpen && !isBlog && (
+          permanently cover the bottom of long-form reading, and while an
+          inline booking CTA is already visible. Stays bottom-0 z-40: the
+          CookieNotice (z-50) reads the store above and moves to bottom-24
+          on mobile only while this is rendered. */}
+      {showStickyCta && (
         <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden p-4 bg-gradient-to-t from-background via-background to-transparent">
           <Button
             onClick={handleContact}

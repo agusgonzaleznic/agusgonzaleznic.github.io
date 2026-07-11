@@ -15,6 +15,7 @@ import {
   storyblokImage,
   toIsoUtc,
 } from "@/lib/blog";
+import { SECTION_PADDING } from "@/lib/layout";
 
 const AUTHOR = "Agustin Gonzalez Nicolini";
 
@@ -93,7 +94,7 @@ const BlogPostPage = () => {
       <Navigation />
       <main className="pt-16">
         <article className="bg-background">
-          <div className="container px-6 py-24 md:py-32">
+          <div className={`container px-6 ${SECTION_PADDING}`}>
             <div className="mx-auto max-w-3xl">
               <header className="mb-10 animate-fade-in-up">
                 <Link

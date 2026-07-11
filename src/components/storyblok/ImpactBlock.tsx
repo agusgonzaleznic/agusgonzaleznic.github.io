@@ -1,5 +1,6 @@
 import { storyblokEditable, StoryblokComponent } from "@storyblok/react";
 import { ImpactBlockStoryblok } from "@/lib/types/storyblok";
+import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 interface ImpactBlockProps {
   blok: ImpactBlockStoryblok;
@@ -14,12 +15,12 @@ export const ImpactBlock = ({ blok }: ImpactBlockProps) => {
     <section
       {...storyblokEditable(blok)}
       id="impact"
-      className="py-24 md:py-32 bg-gradient-to-b from-background to-secondary/30"
+      className={`${SECTION_PADDING} bg-gradient-to-b from-background to-secondary/30`}
     >
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
+          <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             {blok.heading && (
               <h2 className="text-fluid-3xl font-bold mb-6">{blok.heading}</h2>
             )}

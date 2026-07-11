@@ -1,5 +1,8 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
+import { SECTION_PADDING } from "@/lib/layout";
 
 const NotFound = () => {
   const location = useLocation();
@@ -9,14 +12,25 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-gray-600">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 underline hover:text-blue-700">
-          Return to Home
-        </a>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Navigation />
+      <main className="flex flex-1 items-center pt-16">
+        <section className={`w-full bg-background ${SECTION_PADDING}`}>
+          <div className="container px-6">
+            <div className="max-w-3xl mx-auto text-center animate-fade-in-up">
+              <h1 className="text-fluid-3xl font-bold mb-6">404</h1>
+              <p className="text-fluid-lg text-muted-foreground mb-8">
+                This page doesn't exist — but the conversation can still start
+                somewhere useful.
+              </p>
+              <a href="/" className="font-medium text-accent hover:underline">
+                Return to home
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
     </div>
   );
 };

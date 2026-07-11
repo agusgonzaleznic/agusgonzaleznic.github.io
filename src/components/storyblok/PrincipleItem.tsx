@@ -27,7 +27,7 @@ export const PrincipleItem = ({ blok }: PrincipleItemProps) => {
 
       {/* Content */}
       <div className="flex-1">
-        <h3 className="text-fluid-xl font-semibold mb-3 group-hover:text-accent transition-colors">
+        <h3 className="text-fluid-xl font-bold mb-3 group-hover:text-accent transition-colors">
           {blok.title}
         </h3>
         <p className="text-fluid-base text-muted-foreground leading-relaxed">

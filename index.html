@@ -32,8 +32,8 @@
     <meta property="og:description" content="Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably — 15+ years of engineering leadership. Berlin &amp; remote." />
     <meta property="og:image" content="https://agusgonzaleznic.com/og-image.webp" />
     <meta property="og:image:type" content="image/webp" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image:width" content="1500" />
+    <meta property="og:image:height" content="500" />
     <meta property="og:image:alt" content="Agustin Gonzalez Nicolini — Engineering Leadership Coach" />
     <meta property="og:image" content="https://agusgonzaleznic.com/og-image.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
@@ -220,15 +220,26 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/profile.jpg" />
 
-    <!-- DNS Prefetch and Preconnect for faster font loading -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Self-hosted fonts (latin subsets, google-webfonts-helper). The design is
+      consolidated onto four faces; three are preloaded because the fold uses
+      them: Inter 400 (body), Inter 500 (nav links, badges, buttons) and
+      Playfair 700 (all headings, nav wordmark). font-display: optional below
+      guarantees no mid-page font swap and zero font CLS.
 
-    <!-- Load fonts asynchronously (non-blocking) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet" />
-    </noscript>
+      Measured tradeoff (like-for-like local Lighthouse A/B, mobile): Chrome
+      delays first paint for preloaded font-display:optional fonts, so these
+      ~72 KB of preloads cost roughly +0.9s FCP/LCP under Lighthouse's
+      simulated-4G model, in exchange for CLS 0.095 -> 0 and no FOUT. Real-user
+      first-paint delay is capped far lower by optional's ~100ms font block
+      window. Do not add preloads without re-running that A/B; the remaining
+      non-preloaded face (Inter 700, stat numbers below the fold) may keep the
+      metric-matched fallback on a slow first visit — layout-stable, cached
+      for repeat visits.
+    -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-v20-latin-regular.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-v20-latin-500.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/playfair-display-v40-latin-700.woff2" crossorigin />
 
     <!-- Prefetch external booking link -->
     <link rel="dns-prefetch" href="https://calendar.app.google" />
@@ -236,7 +247,30 @@
 
     <!-- Critical CSS - Inlined for faster initial render -->
     <style>
-      :root{--background:0 0% 98%;--foreground:220 15% 12%;--primary:220 15% 12%;--primary-foreground:0 0% 98%;--secondary:220 10% 92%;--accent:10 85% 58%;--accent-foreground:0 0% 100%;--muted-foreground:220 12% 38%;--border:220 10% 88%}*{border-color:hsl(var(--border))}body{background-color:hsl(var(--background));color:hsl(var(--foreground));font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}html{scroll-behavior:smooth}h1,h2,h3,h4,h5,h6{font-family:"Playfair Display",Georgia,serif}#root{min-height:100vh}
+      /*
+        font-display: optional — if a face is not ready at first paint the
+        metric-matched fallback renders and KEEPS (no re-style/FOUT ever).
+        Preloaded faces are essentially always ready; the rest are cached
+        for the next navigation.
+      */
+      @font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:optional;src:url(/fonts/inter-v20-latin-regular.woff2) format("woff2")}
+      @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:optional;src:url(/fonts/inter-v20-latin-500.woff2) format("woff2")}
+      @font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:optional;src:url(/fonts/inter-v20-latin-700.woff2) format("woff2")}
+      @font-face{font-family:"Playfair Display";font-style:normal;font-weight:700;font-display:optional;src:url(/fonts/playfair-display-v40-latin-700.woff2) format("woff2")}
+      /*
+        Inter 600 and Playfair 400/600 are intentionally NOT shipped: the
+        design uses only the four weights above, and any stray font-semibold
+        (e.g. shadcn/ui defaults) resolves to the 700 face of the same family
+        rather than a mismatched fallback typeface.
+      */
+      /*
+        Metric-compatible local fallbacks (fontaine formula, values computed
+        from @capsizecss/metrics font tables: size-adjust = avg-char-width
+        ratio, ascent/descent/line-gap divided by size-adjust).
+      */
+      @font-face{font-family:"Inter Fallback";src:local("Arial");size-adjust:107.12%;ascent-override:90.44%;descent-override:22.52%;line-gap-override:0%}
+      @font-face{font-family:"Playfair Display Fallback";src:local("Georgia");size-adjust:101.39%;ascent-override:106.72%;descent-override:24.76%;line-gap-override:0%}
+      :root{--background:0 0% 98%;--foreground:220 15% 12%;--primary:220 15% 12%;--primary-foreground:0 0% 98%;--secondary:220 10% 92%;--accent:10 85% 58%;--accent-foreground:0 0% 100%;--muted-foreground:220 12% 38%;--border:220 10% 88%}*{border-color:hsl(var(--border))}body{background-color:hsl(var(--background));color:hsl(var(--foreground));font-family:Inter,"Inter Fallback",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}html{scroll-behavior:smooth}h1,h2,h3,h4,h5,h6{font-family:"Playfair Display","Playfair Display Fallback",Georgia,serif}#root{min-height:100vh}
     </style>
   </head>
 
