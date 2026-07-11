@@ -43,6 +43,12 @@ const stats = [
 
 const timeline = [
   {
+    period: "2025-Present",
+    company: "Confidential (Web3)",
+    role: "Head of Infrastructure & Security",
+    achievement: "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now.",
+  },
+  {
     period: "2022-2025",
     company: "JUCR GmbH (EV Charging)",
     role: "VP of Engineering",

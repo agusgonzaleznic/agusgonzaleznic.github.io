@@ -12,7 +12,7 @@ const faqs = [
   {
     question: "Who is Agustin Gonzalez Nicolini?",
     answer:
-      "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev — most recently as VP of Engineering — and I now coach senior technology leaders one-on-one.",
+      "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev; today I head infrastructure and security at a Web3 company and coach senior technology leaders one-on-one.",
   },
   {
     question: "Who does Agustin coach?",

@@ -2,9 +2,10 @@
 
 > Agustin Gonzalez Nicolini is an executive coach for engineering leaders —
 > from new engineering managers to CTOs — working from Berlin, Germany with
-> remote clients worldwide. His last operating role was VP of Engineering
-> at JUCR (2022–2025), and his career spans fintech, gaming, e-mobility
-> (EV charging), and healthtech, going back more than fifteen years.
+> remote clients worldwide. He currently heads infrastructure and security
+> at a Web3 company (name confidential), and his career spans fintech,
+> gaming, e-mobility (EV charging), healthtech, and web3, going back more
+> than fifteen years.
 
 Website: https://agusgonzaleznic.com
 Contact: info@agusgonzaleznic.com
@@ -66,6 +67,8 @@ management.
 
 ## Experience
 
+- 2025–present — Head of Infrastructure & Security at a Web3 company
+  (name confidential for now).
 - 2022–2025 — VP of Engineering at JUCR GmbH (EV charging): ran the
   multi-account AWS migration, unified 5+ SaaS services, sustained 99.99%
   uptime.
