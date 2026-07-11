@@ -1,206 +1,107 @@
-# Agustin Gonzalez Nicolini — Leadership & Engineering Coaching
+# agusgonzaleznic.com
 
-A modern, conversion-focused single-page portfolio for engineering leadership coaching.
+Personal site of Agustin Gonzalez Nicolini — engineering-leadership coaching. A prerendered React single-page app served as static files from GitHub Pages behind a CloudFront CDN, with a CMS-driven blog, a bot-hardened contact form, and consent-gated analytics. Infrastructure and CI are managed as code.
 
-**Live Site**: https://agusgonzaleznic.github.io
+**Live:** https://agusgonzaleznic.com
 
-## Features
+---
 
-- 🎨 **Premium Design System**: Minimal grayscale palette with electric coral accent
-- ⚡ **Performance Optimized**: Vite-powered builds with optimized assets
-- 🔍 **SEO-Ready**: Complete meta tags, JSON-LD schema, sitemap, and robots.txt
-- 📱 **Fully Responsive**: Mobile-first design with adaptive layouts
-- ♿ **Accessible**: WCAG 2.1 AA compliant with semantic HTML and Radix UI primitives
-- 🎭 **Smooth Animations**: Tasteful transitions with reduced-motion support
-- 🔒 **Type-Safe**: Built with TypeScript for reliability
-- ✅ **Quality Assured**: ESLint with pre-commit hooks via Husky
-- 🚀 **CI/CD Ready**: Automated deployments with GitHub Actions
+## How it fits together
 
-## Tech Stack
+```
+Browser ──▶ CloudFront (agusgonzaleznic.com)
+              ├─ default behavior ─▶ GitHub Pages (static site, this repo)
+              └─ /api/* ───────────▶ Lambda (contact form) via OAC
 
-### Core
-- **[Vite](https://vitejs.dev/)** 7.2.2 - Next-generation build tool and dev server
-- **[React](https://react.dev/)** 18.3.1 - UI library
-- **[TypeScript](https://www.typescriptlang.org/)** 5.9.3 - Type safety
-- **[React Router](https://reactrouter.com/)** 6.30.1 - Client-side routing
-
-### Styling & UI
-- **[Tailwind CSS](https://tailwindcss.com/)** 3.4.18 - Utility-first CSS framework
-- **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React components
-- **[Radix UI](https://www.radix-ui.com/)** - Accessible component primitives
-- **[Lucide React](https://lucide.dev/)** 0.553.0 - Icon library
-- **[React Icons](https://react-icons.github.io/react-icons/)** 5.5.0 - Simple Icons for brand logos (LinkedIn, GitHub)
-
-### Forms & Validation
-- **[React Hook Form](https://react-hook-form.com/)** 7.66.0 - Form state management
-- **[Zod](https://zod.dev/)** 3.25.76 - Schema validation
-
-### Development Tools
-- **[ESLint](https://eslint.org/)** 9.39.1 - Code linting
-- **[Husky](https://typicode.github.io/husky/)** 9.1.7 - Git hooks
-- **[lint-staged](https://github.com/lint-staged/lint-staged)** 16.2.6 - Pre-commit linting
-- **[SWC](https://swc.rs/)** - Fast TypeScript/JavaScript compiler
-
-## Getting Started
-
-### Prerequisites
-
-- **Node.js** 20.x or higher
-- **npm** (comes with Node.js)
-
-Install Node.js via [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) (recommended):
-```bash
-nvm install 20
-nvm use 20
+Storyblok (CMS) ──publish webhook──▶ Lambda ──▶ GitHub Actions (rebuild) ──▶ Pages ──▶ CloudFront invalidation
 ```
 
-### Installation
+- **Static-site generation.** `vite build` (client) + an SSR build (`src/entry-server.tsx`) feed `scripts/prerender.mjs`, which renders each route to static HTML so crawlers and AI engines see full content without running JS. Each route gets its own `<head>` (title/meta/canonical/JSON-LD) via `react-helmet`.
+- **Blog from a CMS, safely.** Blog posts live in Storyblok and are fetched **at build time** by `scripts/fetch-blog.mjs` — the CMS token is a build-only environment variable and never reaches the browser bundle. A Storyblok publish fires a webhook that triggers a rebuild, so the token is never exposed client-side and content still updates on publish.
+- **Hardened contact form.** Submissions POST to a same-origin `/api/contact` endpoint (a Lambda behind CloudFront) that runs server-side anti-abuse controls (Cloudflare Turnstile verification, schema validation, rate limits, honeypot, duplicate suppression) before relaying the message. No third-party script loads at page load.
+- **Consent-first analytics.** Analytics is off by default and loads only after explicit opt-in; the privacy notice reflects the site's actual behavior.
+- **Infrastructure as code.** DNS, TLS, CDN, and the serverless pieces are defined in Terraform (`terraform/`) and applied through a gated CI pipeline. See [`terraform/README.md`](terraform/README.md).
+
+## Tech stack
+
+- **Vite 7** + **React 18** + **TypeScript 5** (SWC).
+- **Tailwind CSS 3** with **shadcn/ui** (Radix primitives), **lucide-react** icons.
+- **React Router 6** for routing; **react-helmet** for per-route metadata.
+- **@storyblok/react** for CMS content.
+- **ESLint 9** + **Husky** + **lint-staged** (pre-commit lint).
+- Fonts are self-hosted (`public/fonts/`) with `font-display: optional` — no external font requests, no layout shift.
+
+## Local development
+
+Requires Node.js 22.
 
 ```bash
-# Clone the repository
-git clone git@github.com:agusgonzaleznic/agusgonzaleznic.github.io.git
-
-# Navigate to project directory
-cd agusgonzaleznic.github.io
-
-# Install dependencies
 npm install
-
-# Start development server
-npm run dev
+npm run dev        # dev server at http://localhost:8080
 ```
 
-The site will be available at `http://localhost:8080`
+The blog is empty locally unless a Storyblok read token is provided (see below); everything else runs without any secrets.
 
-### Available Scripts
+### Scripts
 
 ```bash
-npm run dev          # Start development server (port 8080)
-npm run build        # Build for production
-npm run build:dev    # Build in development mode
-npm run preview      # Preview production build locally
-npm run lint         # Run ESLint
+npm run dev        # dev server (runs fetch-blog first)
+npm run build      # full production build (see the chain below)
+npm run preview    # serve the built dist/ locally
+npm run lint       # ESLint
 ```
 
-### Pre-commit Hooks
+`npm run build` runs, in order:
 
-This project uses [Husky](https://typicode.github.io/husky/) to automatically run linting on staged files before each commit:
+1. `assert-no-client-secrets` — fails the build if a `VITE_STORYBLOK_*` var is present (guard against inlining a CMS token into the public bundle).
+2. `fetch-blog` — pulls published blog posts from Storyblok into `src/generated/`.
+3. `build:client` + `build:server` — Vite client and SSR builds.
+4. `prerender` — renders each route to static HTML and generates `sitemap.xml`, the blog RSS feed, and `llms.txt`.
 
-- **Auto-configured**: Hooks are set up automatically when you run `npm install`
-- **What runs**: ESLint on all staged `.ts`, `.tsx`, `.js`, `.jsx` files
-- **Auto-fix**: Fixable issues are automatically corrected
-- **Blocks commits**: Commits are blocked if there are unfixable linting errors
+### Environment variables (all optional for local dev)
 
-To bypass hooks (not recommended):
-```bash
-git commit --no-verify
-```
+| Variable | Purpose | Notes |
+|---|---|---|
+| `STORYBLOK_PUBLIC_TOKEN` | Build-time CMS read | **Never** `VITE_`-prefixed — build-time only, never bundled. |
+| `STORYBLOK_VERSION=draft` | Preview unpublished posts locally | Optional; needs a preview token. |
+| `VITE_TURNSTILE_SITE_KEY` | Cloudflare Turnstile widget (public site key) | Public by design. Empty → contact form shows an email fallback. |
+| `VITE_GA_MEASUREMENT_ID` | Enable consent-gated analytics | Public by design. Empty → analytics fully disabled. |
 
-## Deployment
+Provide them inline or via your own secrets manager. **Do not commit real values.**
 
-### Automatic Deployment (GitHub Actions)
+## Deployment & CI
 
-This project uses **reusable GitHub Actions workflows** for automated CI/CD:
+Two GitHub Actions pipelines (reusable workflows are pinned by commit SHA):
 
-- **Deploy Workflow** (`.github/workflows/deploy.yml`)
-  - Triggers on push to `main` branch
-  - Runs linting and build
-  - Deploys to GitHub Pages automatically
-  - Uses reusable workflow from [`agusgonzaleznic/github-reusable-workflows`](https://github.com/agusgonzaleznic/github-reusable-workflows)
+- **`ci.yml`** — on PRs: lints and builds the site (only when site files changed) and reports a single required status check.
+- **`deploy.yml`** — on push to `main` (site paths only) and on the Storyblok rebuild webhook: builds, deploys to GitHub Pages, and invalidates the CloudFront cache so changes are live immediately.
+- **`terraform.yml`** — on PRs/merges touching `terraform/**`: plans (posting a summary on the PR) and applies through a gated environment. See [`terraform/README.md`](terraform/README.md).
 
-- **CI Workflow** (`.github/workflows/ci.yml`)
-  - Runs on pull requests to `main`
-  - Validates code quality with ESLint
-  - Ensures build succeeds
-
-### GitHub Pages Setup
-
-1. Go to **Repository → Settings → Pages**
-2. Under "Source", select **GitHub Actions**
-3. Push to `main` branch to trigger deployment
-4. Site will be live at: `https://agusgonzaleznic.github.io`
-
-### Manual Deployment
-
-Build and deploy to any static hosting service:
-
-```bash
-# Build for production
-npm run build
-
-# The dist/ directory contains the production build
-# Upload dist/ to your hosting provider
-```
-
-### Custom Domain
-
-To use a custom domain:
-
-1. Add a `CNAME` file to `public/` with your domain:
-   ```bash
-   echo "yourdomain.com" > public/CNAME
-   ```
-
-2. Configure DNS:
-   - For apex domain (`example.com`):
-     - Add A records pointing to GitHub Pages IPs
-   - For subdomain (`www.example.com`):
-     - Add CNAME record pointing to `agusgonzaleznic.github.io`
-
-3. See: [GitHub Pages Custom Domain Documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site)
-
-## Project Structure
+## Project structure
 
 ```
 .
-├── .github/
-│   └── workflows/          # GitHub Actions CI/CD
-├── .husky/                 # Git hooks
-├── public/                 # Static assets
-│   ├── .nojekyll          # Disable Jekyll processing
-│   ├── favicon.ico
-│   ├── robots.txt
-│   └── sitemap.xml
+├── index.html               # Vite entry + static <head> (route-head markers, JSON-LD)
+├── public/                  # static assets, self-hosted fonts, robots.txt
+├── scripts/                 # build-time: fetch-blog, prerender, generate-feeds, guards
 ├── src/
-│   ├── components/         # React components
-│   │   └── ui/            # shadcn/ui components
-│   ├── hooks/             # Custom React hooks
-│   ├── lib/               # Utility functions
-│   ├── pages/             # Page components
-│   ├── assets/            # Images and media
-│   ├── App.tsx            # Root component
-│   ├── main.tsx           # Entry point
-│   └── index.css          # Global styles
-├── index.html             # HTML template (Vite entry point)
-├── vite.config.ts         # Vite configuration
-├── tailwind.config.ts     # Tailwind CSS configuration
-├── tsconfig.json          # TypeScript configuration
-└── package.json           # Dependencies and scripts
+│   ├── components/          # sections, blog/, ui/ (shadcn), ScrollManager, CookieNotice
+│   ├── pages/               # Index, Blog, BlogPost, Legal (Impressum/Privacy), NotFound
+│   ├── lib/                 # analytics, layout constants, storyblok, utils
+│   ├── generated/           # build-time blog data (gitignored)
+│   ├── entry-server.tsx     # SSR entry used by the prerenderer
+│   └── App.tsx / main.tsx
+├── terraform/               # infrastructure as code (see its own README)
+└── .github/workflows/       # ci.yml, deploy.yml, terraform.yml
 ```
 
-## Code Quality
+## Conventions
 
-- **Linting**: ESLint with TypeScript support
-- **Type Checking**: Strict TypeScript configuration
-- **Pre-commit Hooks**: Automatic linting via Husky + lint-staged
-- **CI/CD**: Automated checks on every PR and push
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Make your changes
-4. Run linting: `npm run lint`
-5. Commit your changes (pre-commit hooks will run automatically)
-6. Push to your fork: `git push origin feature/your-feature`
-7. Open a Pull Request
+- **Every change ships via a PR** — CI must pass; `main` is protected.
+- **Accessibility & SEO/GEO**: semantic HTML, per-route metadata, JSON-LD, and on-page FAQ text kept identical to its structured-data counterpart.
+- **URLs stay clean** — bare paths, no lingering fragments.
+- **No secrets in the repo, the bundle, build logs, or PR output.** This is a public repository; treat all output as world-readable.
 
 ## License
 
-This project is private and proprietary.
-
-## Contact
-
-**Agustin Gonzalez Nicolini**
-- Website: https://agusgonzaleznic.github.io
-- GitHub: [@agusgonzaleznic](https://github.com/agusgonzaleznic)
+Private and proprietary. Content and branding © Agustin Gonzalez Nicolini.
