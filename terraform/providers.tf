@@ -14,6 +14,10 @@ terraform {
       source  = "labd/storyblok"
       version = "~> 1.5"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5.0"
+    }
   }
 }
 
@@ -27,4 +31,11 @@ provider "aws" {
 provider "storyblok" {
   url   = "https://mapi.storyblok.com"
   token = var.token
+}
+
+# Cloudflare provider v5 removed the provider-level account_id argument;
+# account scope is set per-resource (cloudflare_turnstile_widget.account_id =
+# var.cloudflare_account_id in contact.tf). Only the API token lives here.
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
 }
