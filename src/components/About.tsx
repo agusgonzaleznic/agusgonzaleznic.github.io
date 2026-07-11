@@ -36,7 +36,7 @@ export const About = () => {
               From Haedo to Berlin, One Engineering Team at a Time
             </h2>
             <p className="text-fluid-lg text-muted-foreground leading-relaxed mb-6">
-              I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, and healthtech — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform.
+              I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3 — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform.
             </p>
             <p className="text-fluid-lg text-muted-foreground leading-relaxed">
               I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security — and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck.
