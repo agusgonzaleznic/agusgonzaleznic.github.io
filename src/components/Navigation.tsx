@@ -150,10 +150,14 @@ export const Navigation = () => {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? "bg-background/95 backdrop-blur-md shadow-md"
-            : "bg-transparent"
+        // transform-gpu keeps the bar on its own compositor layer so scrolling
+        // content behind it doesn't force per-frame repaints of the bar.
+        // No backdrop-blur: a backdrop-filter on a fixed element re-rasterizes
+        // every scroll frame and flickers/shimmers in Chrome & Safari. The
+        // background is near-opaque (95%) so the blur was barely visible anyway.
+        // Transition scoped to the two properties that actually change.
+        className={`fixed top-0 left-0 right-0 z-50 transform-gpu transition-[background-color,box-shadow] duration-300 ${
+          isScrolled ? "bg-background/95 shadow-md" : "bg-transparent shadow-none"
         }`}
       >
         <div className="container px-6 py-4">
