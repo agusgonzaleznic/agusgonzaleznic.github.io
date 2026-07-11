@@ -76,7 +76,7 @@ const timeline = [
 
 export const Impact = () => {
   return (
-    <section id="impact" className={`${SECTION_PADDING} bg-gradient-to-b from-background to-secondary/30`}>
+    <section id="impact" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
