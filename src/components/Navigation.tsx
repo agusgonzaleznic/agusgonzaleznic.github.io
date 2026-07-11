@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import {
@@ -8,8 +8,10 @@ import {
   setStickyCtaVisible,
 } from "@/lib/layout";
 
-// Section links only scroll on the home page; on any other route they become
-// plain /#<id> anchors (SSR-safe, works from prerendered HTML pre-hydration).
+// Section links scroll in place on the home page; on any other route they
+// navigate to "/" with router state { scrollTo } and ScrollManager performs
+// the scroll after arrival — never a /#hash, so the address bar stays clean
+// (owner preference; fragments are SEO-neutral but linger for the session).
 type NavLink = { label: string; id?: string; to?: string };
 
 // Static class names so Tailwind's scanner keeps them; index.css only defines
@@ -25,6 +27,7 @@ export const Navigation = () => {
   // would flash on top of the hero CTA before hydration).
   const [isStickyCtaVisible, setIsStickyCtaVisible] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isHome = location.pathname === "/";
   const isBlog = location.pathname.startsWith("/blog");
 
@@ -136,14 +139,16 @@ export const Navigation = () => {
       );
     }
     return (
-      <a
+      <button
         key={link.label}
-        href={`/#${link.id}`}
-        onClick={() => setIsMobileMenuOpen(false)}
+        onClick={() => {
+          setIsMobileMenuOpen(false);
+          navigate("/", { state: { scrollTo: link.id } });
+        }}
         className={className}
       >
         {link.label}
-      </a>
+      </button>
     );
   };
 

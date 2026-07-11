@@ -10,6 +10,7 @@ import BlogPost from "./pages/BlogPost";
 import { Impressum, Privacy } from "./pages/Legal";
 import { StoryblokPage } from "./pages/StoryblokPage";
 import { CookieNotice } from "./components/CookieNotice";
+import { ScrollManager } from "./components/ScrollManager";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +36,12 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => (
 // Route table, router-agnostic so it can sit under BrowserRouter (client) or
 // StaticRouter (server prerender).
 export const AppRoutes = () => (
-  <Routes>
+  <>
+    {/* Scroll policy: top on new navigations, restore on back/forward,
+        state-based section scrolling, hash stripping. Effects only — inert
+        during prerender. */}
+    <ScrollManager />
+    <Routes>
     <Route path="/" element={<Index />} />
     {/* Blog — static imports: prerender needs these routes rendered eagerly */}
     <Route path="/blog" element={<Blog />} />
@@ -46,9 +52,10 @@ export const AppRoutes = () => (
     {/* Storyblok preview routes */}
     <Route path="/preview" element={<StoryblokPage slug="home" />} />
     <Route path="/preview/:slug" element={<StoryblokPageWrapper />} />
-    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-    <Route path="*" element={<NotFound />} />
-  </Routes>
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </>
 );
 
 const App = () => (
