@@ -29,11 +29,21 @@ export const Navigation = () => {
   const isBlog = location.pathname.startsWith("/blog");
 
   useEffect(() => {
+    // Hysteresis (dead-band) so the bar can't flicker. A single `scrollY > 50`
+    // threshold flips the scrolled style on/off repeatedly when the user hovers
+    // around 50px during a slow scroll, and each flip re-fires the 300ms
+    // background/blur/shadow transition. Instead: switch to the solid style only
+    // after scrolling clearly past the top (>64px), and back to transparent only
+    // once essentially back at the very top (<8px); hold state in between.
+    const SCROLL_ON = 64;
+    const SCROLL_OFF = 8;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const y = window.scrollY;
+      setIsScrolled((prev) => (prev ? y > SCROLL_OFF : y > SCROLL_ON));
     };
 
-    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // set correct initial state (e.g. loaded at an anchor)
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
