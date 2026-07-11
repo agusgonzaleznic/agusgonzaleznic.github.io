@@ -15,7 +15,7 @@ export const PhilosophyBlock = ({ blok }: PhilosophyBlockProps) => {
     <section
       {...storyblokEditable(blok)}
       id="philosophy"
-      className={`${SECTION_PADDING} bg-gradient-to-b from-background to-secondary/30`}
+      className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}
     >
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">

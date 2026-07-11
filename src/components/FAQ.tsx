@@ -38,7 +38,10 @@ const faqs = [
 
 export const FAQ = () => {
   return (
-    <section id="faq" className={`${SECTION_PADDING} bg-background`}>
+    // Tinted bloom keeps the plain/tinted alternation going (testimonials and
+    // contact are plain) — without it two plain sections sit adjacent and
+    // their combined padding reads as one oversized gap.
+    <section id="faq" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-3xl mx-auto">
           {/* Section header */}

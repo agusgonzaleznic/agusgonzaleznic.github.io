@@ -87,7 +87,7 @@ export const Contact = () => {
   };
 
   return (
-    <section id="contact" className={`${SECTION_PADDING} bg-gradient-to-b from-background to-secondary/30`}>
+    <section id="contact" className={`${SECTION_PADDING} bg-background`}>
       <div className="container px-6">
         <div className="max-w-5xl mx-auto">
           {/* Section header */}
