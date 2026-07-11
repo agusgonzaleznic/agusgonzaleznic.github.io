@@ -124,8 +124,13 @@ data "aws_cloudfront_cache_policy" "caching_disabled" {
 # address or force Host).
 resource "aws_cloudfront_origin_request_policy" "api" {
   name    = "${replace(local.domain_name, ".", "-")}-api"
-  comment = "Forward client IP + Origin + Content-Type + payload hash to the contact Lambda"
+  comment = "Forward client IP + Origin + Content-Type to the contact Lambda"
 
+  # NOTE: do NOT list x-amz-content-sha256 here. CloudFront computes and signs
+  # that header itself when it SigV4-signs the request to the OAC-protected
+  # Lambda Function URL; CloudFront rejects it in an origin-request-policy
+  # whitelist ("parameter Headers contains x-amz-content-sha256 that is not
+  # allowed"). The browser never sends it either.
   headers_config {
     header_behavior = "whitelist"
     headers {
@@ -133,7 +138,6 @@ resource "aws_cloudfront_origin_request_policy" "api" {
         "CloudFront-Viewer-Address",
         "Origin",
         "Content-Type",
-        "x-amz-content-sha256",
       ]
     }
   }

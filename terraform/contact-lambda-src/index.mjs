@@ -117,10 +117,10 @@ function corsHeaders(origin) {
   return {
     "access-control-allow-origin": origin,
     "access-control-allow-methods": "POST, OPTIONS",
-    // Must list every header the client sends on the POST. Contact.tsx sends
-    // Content-Type AND x-amz-content-sha256 (the latter forces a preflight);
-    // omitting it makes the browser block the actual POST.
-    "access-control-allow-headers": "content-type, x-amz-content-sha256",
+    // The production form is same-origin (no preflight). These headers only
+    // matter for the defensive cross-origin path; the client sends just
+    // Content-Type.
+    "access-control-allow-headers": "content-type",
     "access-control-max-age": "86400",
     vary: "Origin",
   };

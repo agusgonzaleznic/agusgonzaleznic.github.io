@@ -150,12 +150,13 @@ test("OPTIONS preflight from bad origin -> 403", async () => {
 test("OPTIONS allow-headers covers every header the client actually sends", async () => {
   install();
   const res = await handler(event({ method: "OPTIONS" }));
-  // Contact.tsx sends Content-Type + x-amz-content-sha256 on the POST; both
-  // must be advertised or the browser blocks the real request after preflight.
+  // The production form is same-origin (no preflight); the client sends only
+  // Content-Type. x-amz-content-sha256 is CloudFront's own OAC-signing header,
+  // never sent by the browser, so it must NOT be required here.
   const allowed = res.headers["access-control-allow-headers"]
     .split(",")
     .map((h) => h.trim().toLowerCase());
-  for (const h of ["content-type", "x-amz-content-sha256"]) {
+  for (const h of ["content-type"]) {
     assert.ok(allowed.includes(h), `preflight must allow ${h}`);
   }
 });

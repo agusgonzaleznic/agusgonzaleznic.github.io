@@ -19,15 +19,18 @@ import { loadTurnstile } from "@/lib/turnstile";
 // Script URL lives server-side now and never ships in this bundle.
 const CONTACT_ENDPOINT = "/api/contact";
 
-// Hex SHA-256 of the exact request body. Required because the POST reaches the
-// Lambda Function URL through CloudFront with SigV4/OAC: AWS signs the request
-// and Lambda rejects unsigned payloads, so the browser must send the payload
-// hash in `x-amz-content-sha256`. We hash the same string we send as the body.
-// NOTE FOR INFRA: the CloudFront origin request policy MUST forward the
-// `x-amz-content-sha256` header to the origin, or every POST fails with 403.
+// The POST reaches the Lambda Function URL through CloudFront with OAC/SigV4.
+// For requests with a body, CloudFront folds the viewer-supplied
+// x-amz-content-sha256 (hex SHA-256 of the exact body) into the signature it
+// sends to the origin; if the viewer omits it or it doesn't match the body,
+// Lambda rejects with 403 "signature does not match". It's a SIGNED header, so
+// it must NOT appear in the origin request policy (CloudFront rejects that).
+// Same-origin request → no CORS preflight despite the custom header.
 async function sha256Hex(body: string): Promise<string> {
-  const bytes = new TextEncoder().encode(body);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(body),
+  );
   return Array.from(new Uint8Array(digest))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
@@ -188,6 +191,7 @@ export const Contact = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // Required for CloudFront's OAC SigV4 signature over the body.
           "x-amz-content-sha256": await sha256Hex(body),
         },
         body,
