@@ -158,10 +158,15 @@ function chunkItems(items) {
 }
 
 async function callClaude(client, chunk, locale, glossaryTerms) {
+  // Per-item ids (not positional order): the model occasionally splits or merges
+  // an item, so a length- or order-based mapping would mis-align or (worse) drop
+  // the whole batch. Echoing an explicit id lets us map each result back exactly
+  // and keep raw DeepL only for the specific ids the model didn't return.
   const user =
     `Post-edit each item into natural, native-quality ${LOCALE_NAME[locale]}. ` +
-    "Return one corrected translation per item, in the same order, in the translations array.\n\n" +
-    chunk.map((it, i) => `#${i}\nEN: ${it.source}\nMT: ${it.mt}`).join("\n\n");
+    "Return one object per item in `items`, echoing the item's numeric `id` and its corrected translation as `text`. " +
+    "Return every id you were given exactly once; do not split, merge, renumber, or reorder items.\n\n" +
+    chunk.map((it) => `id ${it.idx}\nEN: ${it.source}\nMT: ${it.mt}`).join("\n\n");
 
   const response = await client.messages.create({
     model: MODEL,
@@ -172,8 +177,18 @@ async function callClaude(client, chunk, locale, glossaryTerms) {
         type: "json_schema",
         schema: {
           type: "object",
-          properties: { translations: { type: "array", items: { type: "string" } } },
-          required: ["translations"],
+          properties: {
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: { id: { type: "integer" }, text: { type: "string" } },
+                required: ["id", "text"],
+                additionalProperties: false,
+              },
+            },
+          },
+          required: ["items"],
           additionalProperties: false,
         },
       },
@@ -191,11 +206,11 @@ async function callClaude(client, chunk, locale, glossaryTerms) {
     .map((b) => b.text)
     .join("");
   const parsed = JSON.parse(text); // structured output guarantees valid JSON shape
-  const arr = Array.isArray(parsed?.translations) ? parsed.translations : [];
-  if (arr.length !== chunk.length) {
-    throw new Error(`expected ${chunk.length} translations, got ${arr.length}`);
+  const byId = new Map();
+  for (const o of Array.isArray(parsed?.items) ? parsed.items : []) {
+    if (o && Number.isInteger(o.id) && typeof o.text === "string") byId.set(o.id, o.text);
   }
-  return arr;
+  return byId; // id -> corrected text; ids the model omitted are simply absent
 }
 
 /**
@@ -234,9 +249,9 @@ export function createPostEditor({ apiKey, glossaryTerms = [] }) {
 
     for (const chunk of chunkItems(items.map((it, i) => ({ ...it, idx: i })))) {
       stats.calls += 1;
-      let candidates;
+      let byId;
       try {
-        candidates = await callClaude(client, chunk, locale, glossaryTerms);
+        byId = await callClaude(client, chunk, locale, glossaryTerms);
       } catch (err) {
         stats.failures += 1;
         console.warn(
@@ -245,15 +260,17 @@ export function createPostEditor({ apiKey, glossaryTerms = [] }) {
         );
         continue;
       }
-      chunk.forEach((it, j) => {
-        const cand = candidates[j];
+      // Map each result back by id. A missing id or a mangled placeholder keeps
+      // raw DeepL for THAT string only — never the whole batch.
+      for (const it of chunk) {
+        const cand = byId.get(it.idx);
         if (typeof cand === "string" && cand.trim() && placeholdersPreserved(it.source, cand)) {
           out[it.idx] = cand;
           stats.postEdited += 1;
         } else {
           stats.keptMt += 1;
         }
-      });
+      }
     }
     return out;
   }

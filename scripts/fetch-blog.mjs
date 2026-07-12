@@ -69,6 +69,12 @@ async function translateBlog(posts) {
     return;
   }
   const cache = loadCache(cachePath);
+  // REGEN_LOCALES=fr,it,pt drops those locales' cached blog strings so they are
+  // re-translated + re-post-edited from scratch; other locales stay cache hits
+  // (deterministic, no re-spend). Mirrors the flag in translate.mjs.
+  for (const l of (process.env.REGEN_LOCALES ?? "").split(",").map((s) => s.trim()).filter(Boolean)) {
+    delete cache.translations[l];
+  }
   const glossaryRegex = loadGlossary(glossaryPath);
   // Optional LLM post-edit pass (ANTHROPIC_API_KEY). Keyless → raw DeepL only.
   const postEditor = hasAnthropicKey()
