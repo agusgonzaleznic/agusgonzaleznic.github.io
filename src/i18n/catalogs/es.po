@@ -771,6 +771,10 @@ msgstr "El sitio se sirve mediante HTTPS. No tenés ninguna obligación legal ni
 msgid "The site links to an external booking page at <0>calendar.app.google</0> (Google Appointment Scheduling). No data is transmitted to Google by merely viewing this website; only when you click the link and use the booking page does Google process the data you enter there, under Google's own privacy policy and as an independent controller. Legal basis for any data I receive from a booking (name, email, chosen time): Art. 6(1)(b) GDPR."
 msgstr "El sitio enlaza a una página de reservas externa en <0>calendar.app.google</0> (Google Appointment Scheduling). El solo hecho de ver este sitio web no transmite ningún dato a Google; solamente cuando hacés clic en el enlace y usás la página de reservas, Google procesa los datos que ingresás ahí, bajo su propia política de privacidad y en calidad de responsable independiente del tratamiento. Base jurídica para cualquier dato que reciba de una reserva (nombre, email, horario elegido): art. 6(1)(b) del RGPD."
 
+#: src/components/blog/MachineTranslationNotice.tsx
+msgid "This article was translated automatically. <0>Read the original in English</0>."
+msgstr "Este artículo fue traducido automáticamente. <0>Leé el original en inglés</0>."
+
 #: src/pages/NotFound.tsx
 msgid "This page doesn't exist — but the conversation can still start somewhere useful."
 msgstr "Esta página no existe, pero la conversación igual puede empezar en algún lugar que valga la pena."

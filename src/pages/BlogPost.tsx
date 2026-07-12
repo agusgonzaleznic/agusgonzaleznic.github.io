@@ -7,6 +7,7 @@ import { Trans } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { PostMeta } from "@/components/blog/PostMeta";
+import { MachineTranslationNotice } from "@/components/blog/MachineTranslationNotice";
 import { RichText } from "@/components/blog/RichText";
 import NotFound from "@/pages/NotFound";
 import {
@@ -17,7 +18,13 @@ import {
   storyblokImage,
   toIsoUtc,
 } from "@/lib/blog";
-import { localeFromPath, localizePath, LOCALE_META, SOURCE_LOCALE } from "@/i18n/locales";
+import {
+  isAutoTranslated,
+  localeFromPath,
+  localizePath,
+  LOCALE_META,
+  SOURCE_LOCALE,
+} from "@/i18n/locales";
 import { SECTION_PADDING } from "@/lib/layout";
 
 const AUTHOR = "Agustin Gonzalez Nicolini";
@@ -142,6 +149,12 @@ const BlogPostPage = () => {
                   </p>
                 )}
               </header>
+
+              {/* Disclose machine translation on FR/IT/PT articles; link the
+                  English original (root path). DE/ES are human-gated → no notice. */}
+              {isAutoTranslated(locale) && (
+                <MachineTranslationNotice enUrl={`/blog/${post.slug}/`} />
+              )}
 
               {post.cover_image && (
                 <figure className="mb-12 animate-fade-in">
