@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import profileImage from "@/assets/profile.jpg";
 import { HERO_CTA_ID, SECTION_PADDING } from "@/lib/layout";
 
 export const Hero = () => {
+  const { t } = useLingui();
   const handleBooking = () => {
     window.open("https://calendar.app.google/kFaanhSae5WefLnD7", "_blank");
   };
@@ -117,7 +118,7 @@ export const Hero = () => {
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl hover-lift">
                   <img
                     src={profileImage}
-                    alt="Agustin Gonzalez Nicolini - Engineering Leadership Coach"
+                    alt={t`Agustin Gonzalez Nicolini - Engineering Leadership Coach`}
                     className="w-full h-full object-cover"
                     loading="eager"
                     // React 18 only forwards the lowercase spelling ("fetchPriority"

@@ -102,16 +102,37 @@ export function toIsoUtc(date: string | null | undefined): string {
   return `${m[1]}T${m[2] ?? "00:00"}:${m[3] ?? "00"}+00:00`;
 }
 
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
+// Per-locale long month names + date order. Deterministic string surgery (no
+// Intl) so prerender (Node) and client (browser) always produce byte-identical
+// output — hydration-safe and timezone-independent, unlike Intl.DateTimeFormat
+// whose result can vary with the runtime's ICU version.
+const MONTHS: Record<string, string[]> = {
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  de: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+  es: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+  fr: ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
+  it: ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"],
+  pt: ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"],
+};
 
-/** "2026-07-04 10:00" → "July 4, 2026" (timezone-independent, hydration-safe). */
-export function formatDate(date: string | null | undefined): string {
+/** Locale date order: en "July 4, 2026" · de "4. Juli 2026" · es/pt "4 de julio de 2026" · fr/it "4 juillet 2026". */
+function formatByLocale(locale: string, month: string, day: number, year: string): string {
+  switch (locale) {
+    case "de": return `${day}. ${month} ${year}`;
+    case "es":
+    case "pt": return `${day} de ${month} de ${year}`;
+    case "fr":
+    case "it": return `${day} ${month} ${year}`;
+    default: return `${month} ${day}, ${year}`; // en
+  }
+}
+
+/** "2026-07-04 10:00" → localized date (timezone-independent, hydration-safe). */
+export function formatDate(date: string | null | undefined, locale: string = SOURCE_LOCALE): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(date ?? "");
   if (!m) return "";
-  return `${MONTHS[Number(m[2]) - 1]} ${Number(m[3])}, ${m[1]}`;
+  const months = MONTHS[locale] ?? MONTHS[SOURCE_LOCALE];
+  return formatByLocale(locale, months[Number(m[2]) - 1], Number(m[3]), m[1]);
 }
 
 export function getAllPosts(locale: string = SOURCE_LOCALE): BlogPost[] {

@@ -10,6 +10,7 @@ import {
   subscribeStickyCtaVisible,
 } from "@/lib/layout";
 import { Trans, useLingui } from "@lingui/react/macro";
+import { LocaleLink } from "@/components/LocaleLink";
 
 // Two-mode privacy banner, driven by whether GA4 is configured (via the
 // public VITE_GA_MEASUREMENT_ID build variable):
@@ -101,12 +102,12 @@ export const CookieNotice = () => {
                   </span>{" "}
                   (Google Analytics) to understand how it is used. Nothing is
                   loaded unless you accept — details are in the{" "}
-                  <a
-                    href="/privacy"
+                  <LocaleLink
+                    to="/privacy"
                     className="font-medium text-accent hover:underline"
                   >
                     Privacy Policy
-                  </a>
+                  </LocaleLink>
                   .
                 </Trans>
               </p>
@@ -138,12 +139,12 @@ export const CookieNotice = () => {
                     no cookies and no tracking
                   </span>
                   . Details are in the{" "}
-                  <a
-                    href="/privacy"
+                  <LocaleLink
+                    to="/privacy"
                     className="font-medium text-accent hover:underline"
                   >
                     Privacy Policy
-                  </a>
+                  </LocaleLink>
                   .
                 </Trans>
               </p>

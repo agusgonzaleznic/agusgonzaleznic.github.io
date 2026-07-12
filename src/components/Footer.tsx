@@ -120,12 +120,12 @@ export const Footer = () => {
                 <Trans>© {currentYear} Agustin Gonzalez Nicolini. All rights reserved.</Trans>
               </p>
               <div className="flex gap-6">
-                <a href="/privacy" className="hover:text-accent transition-colors">
+                <LocaleLink to="/privacy" className="hover:text-accent transition-colors">
                   <Trans>Privacy Policy</Trans>
-                </a>
-                <a href="/impressum" className="hover:text-accent transition-colors">
+                </LocaleLink>
+                <LocaleLink to="/impressum" className="hover:text-accent transition-colors">
                   <Trans>Impressum</Trans>
-                </a>
+                </LocaleLink>
                 {/* Crawlable locale links — renders nothing until >=2 locales
                     are published, so the English DOM is unchanged today. */}
                 <LanguageSwitcher />

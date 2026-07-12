@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useLingui } from "@lingui/react/macro";
 import { Check, ChevronDown, Globe } from "lucide-react";
 import {
   delocalizePath,
@@ -29,6 +30,7 @@ type Props = { className?: string; variant?: "inline" | "dropdown" };
 
 export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
   const { pathname } = useLocation();
+  const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -63,7 +65,7 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
 
   if (variant === "inline") {
     return (
-      <nav aria-label="Language" className={cn("flex items-center gap-3", className)}>
+      <nav aria-label={t`Language`} className={cn("flex items-center gap-3", className)}>
         {links.map(({ locale, isActive, href, name }) =>
           isActive ? (
             <span key={locale} aria-current="true" lang={locale} className="text-sm font-medium text-accent">
@@ -94,7 +96,7 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Change language"
+        aria-label={t`Change language`}
         className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-accent"
       >
         <Globe className="h-4 w-4" aria-hidden="true" />
@@ -108,7 +110,7 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
       {/* Anchors stay in the DOM at all times (crawlable); `hidden` only hides
           them visually when closed. */}
       <nav
-        aria-label="Language"
+        aria-label={t`Language`}
         className={cn(
           "absolute right-0 mt-2 min-w-[9rem] overflow-hidden rounded-md border border-border bg-popover py-1 text-popover-foreground shadow-md",
           open ? "block" : "hidden",

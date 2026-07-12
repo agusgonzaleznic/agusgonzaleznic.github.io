@@ -1,8 +1,10 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { Helmet } from "react-helmet";
 import { Trans } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { LocaleLink } from "@/components/LocaleLink";
 import { SECTION_PADDING } from "@/lib/layout";
 
 const NotFound = () => {
@@ -14,6 +16,11 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Unknown paths hit the SPA fallback with HTTP 200; tell crawlers not to
+          index these soft-404s (follow so link equity still flows). */}
+      <Helmet>
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       <Navigation />
       <main className="flex flex-1 items-center pt-16">
         <section className={`w-full bg-background ${SECTION_PADDING}`}>
@@ -24,9 +31,9 @@ const NotFound = () => {
                 <Trans>This page doesn't exist — but the conversation can still start
                 somewhere useful.</Trans>
               </p>
-              <a href="/" className="font-medium text-accent hover:underline">
+              <LocaleLink to="/" className="font-medium text-accent hover:underline">
                 <Trans>Return to home</Trans>
-              </a>
+              </LocaleLink>
             </div>
           </div>
         </section>

@@ -1,6 +1,10 @@
 msgid ""
 msgstr "POT-Creation-Date: 2026-07-12 10:38+0200\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\nContent-Transfer-Encoding: 8bit\nX-Generator: @lingui/cli\nLanguage: fr\nProject-Id-Version: \nReport-Msgid-Bugs-To: \nPO-Revision-Date: \nLast-Translator: \nLanguage-Team: \nPlural-Forms: \n"
 
+#: src/components/blog/PostMeta.tsx
+msgid "{minutes} min read"
+msgstr "{minutes} min de lecture"
+
 #: src/components/Footer.tsx
 msgid "© {currentYear} Agustin Gonzalez Nicolini. All rights reserved."
 msgstr "© {currentYear} Agustin Gonzalez Nicolini. Tous droits réservés."
@@ -78,6 +82,10 @@ msgstr "accéder à tes données à caractère personnel (art. 15),"
 msgid "After withdrawing, the consent banner will reappear on your next visit."
 msgstr "Une fois ton consentement retiré, la bannière de consentement réapparaîtra lors de ta prochaine visite."
 
+#: src/components/Hero.tsx
+msgid "Agustin Gonzalez Nicolini - Engineering Leadership Coach"
+msgstr "Agustin Gonzalez Nicolini - Engineering Leadership Coach"
+
 #: src/pages/BlogPost.tsx
 msgid "All writing"
 msgstr "Tous les textes"
@@ -147,6 +155,10 @@ msgstr "Clarification de parcours professionnel et développement de la marque p
 #: src/components/Services.tsx
 msgid "Career Transition Coaching"
 msgstr "Coaching de transition professionnelle"
+
+#: src/components/LanguageSwitcher.tsx
+msgid "Change language"
+msgstr "Changer de langue"
 
 #: src/components/Philosophy.tsx
 msgid "Clear goals, working feedback loops, and OKRs that tie each person's growth to business results — so your team knows exactly what winning looks like this quarter."
@@ -468,6 +480,10 @@ msgstr "J'ai maintenu des contrôles de sécurité rigoureux pendant que les éq
 msgid "Kontakt"
 msgstr "Contact"
 
+#: src/components/LanguageSwitcher.tsx
+msgid "Language"
+msgstr "Langue"
+
 #: src/components/Hero.tsx
 msgid "Lead an Engineering Org That <0>Ships, Scales, <1>and Lasts<2><3/><4><5><6/><7/></5></4></2></1></0>"
 msgstr "Dirige une organisation d'ingénierie qui <0>livre, scale <1>et dure dans le temps<2><3/><4><5><6/><7/></5></4></2></1></0>"
@@ -629,6 +645,10 @@ msgstr "La sécurité psychologique, un mentorat délibéré et une culture dans
 #: src/components/Footer.tsx
 msgid "Quick Links"
 msgstr "Liens rapides"
+
+#: src/components/blog/PostCard.tsx
+msgid "Read"
+msgstr "Lire"
 
 #: src/pages/Legal.tsx
 msgid "rectification (Art. 16),"

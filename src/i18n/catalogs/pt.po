@@ -1,6 +1,10 @@
 msgid ""
 msgstr "POT-Creation-Date: 2026-07-12 10:38+0200\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\nContent-Transfer-Encoding: 8bit\nX-Generator: @lingui/cli\nLanguage: pt\nProject-Id-Version: \nReport-Msgid-Bugs-To: \nPO-Revision-Date: \nLast-Translator: \nLanguage-Team: \nPlural-Forms: \n"
 
+#: src/components/blog/PostMeta.tsx
+msgid "{minutes} min read"
+msgstr "{minutes} min de leitura"
+
 #: src/components/Footer.tsx
 msgid "© {currentYear} Agustin Gonzalez Nicolini. All rights reserved."
 msgstr "© {currentYear} Agustin Gonzalez Nicolini. Todos os direitos reservados."
@@ -78,6 +82,10 @@ msgstr "aceder aos teus dados pessoais (art. 15.º),"
 msgid "After withdrawing, the consent banner will reappear on your next visit."
 msgstr "Depois de retirares o consentimento, o banner de consentimento voltará a aparecer na tua próxima visita."
 
+#: src/components/Hero.tsx
+msgid "Agustin Gonzalez Nicolini - Engineering Leadership Coach"
+msgstr "Agustin Gonzalez Nicolini - Engineering Leadership Coach"
+
 #: src/pages/BlogPost.tsx
 msgid "All writing"
 msgstr "Todos os textos"
@@ -147,6 +155,10 @@ msgstr "Clareza na carreira e desenvolvimento da marca pessoal"
 #: src/components/Services.tsx
 msgid "Career Transition Coaching"
 msgstr "Coaching de transição de carreira"
+
+#: src/components/LanguageSwitcher.tsx
+msgid "Change language"
+msgstr "Mudar de idioma"
 
 #: src/components/Philosophy.tsx
 msgid "Clear goals, working feedback loops, and OKRs that tie each person's growth to business results — so your team knows exactly what winning looks like this quarter."
@@ -468,6 +480,10 @@ msgstr "Mantive os controlos de segurança rigorosos enquanto as equipas de jogo
 msgid "Kontakt"
 msgstr "Contacto"
 
+#: src/components/LanguageSwitcher.tsx
+msgid "Language"
+msgstr "Idioma"
+
 #: src/components/Hero.tsx
 msgid "Lead an Engineering Org That <0>Ships, Scales, <1>and Lasts<2><3/><4><5><6/><7/></5></4></2></1></0>"
 msgstr "Lidera uma Engineering Org Que <0>Entrega, Escala <1>e Perdura<2><3/><4><5><6/><7/></5></4></2></1></0>"
@@ -629,6 +645,10 @@ msgstr "Segurança psicológica, mentoria deliberada e uma cultura na qual as pe
 #: src/components/Footer.tsx
 msgid "Quick Links"
 msgstr "Links rápidos"
+
+#: src/components/blog/PostCard.tsx
+msgid "Read"
+msgstr "Ler"
 
 #: src/pages/Legal.tsx
 msgid "rectification (Art. 16),"

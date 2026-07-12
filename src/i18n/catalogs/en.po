@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/components/blog/PostMeta.tsx
+msgid "{minutes} min read"
+msgstr "{minutes} min read"
+
 #: src/components/Footer.tsx
 msgid "© {currentYear} Agustin Gonzalez Nicolini. All rights reserved."
 msgstr "© {currentYear} Agustin Gonzalez Nicolini. All rights reserved."
@@ -90,6 +94,10 @@ msgstr "access your personal data (Art. 15),"
 msgid "After withdrawing, the consent banner will reappear on your next visit."
 msgstr "After withdrawing, the consent banner will reappear on your next visit."
 
+#: src/components/Hero.tsx
+msgid "Agustin Gonzalez Nicolini - Engineering Leadership Coach"
+msgstr "Agustin Gonzalez Nicolini - Engineering Leadership Coach"
+
 #: src/pages/BlogPost.tsx
 msgid "All writing"
 msgstr "All writing"
@@ -159,6 +167,10 @@ msgstr "Career clarity & personal brand development"
 #: src/components/Services.tsx
 msgid "Career Transition Coaching"
 msgstr "Career Transition Coaching"
+
+#: src/components/LanguageSwitcher.tsx
+msgid "Change language"
+msgstr "Change language"
 
 #: src/components/Philosophy.tsx
 msgid "Clear goals, working feedback loops, and OKRs that tie each person's growth to business results — so your team knows exactly what winning looks like this quarter."
@@ -480,6 +492,10 @@ msgstr "Kept security controls stringent while game teams shipped features at fu
 msgid "Kontakt"
 msgstr "Kontakt"
 
+#: src/components/LanguageSwitcher.tsx
+msgid "Language"
+msgstr "Language"
+
 #: src/components/Hero.tsx
 msgid "Lead an Engineering Org That <0>Ships, Scales, <1>and Lasts<2><3/><4><5><6/><7/></5></4></2></1></0>"
 msgstr "Lead an Engineering Org That <0>Ships, Scales, <1>and Lasts<2><3/><4><5><6/><7/></5></4></2></1></0>"
@@ -641,6 +657,10 @@ msgstr "Psychological safety, deliberate mentoring, and a culture people choose 
 #: src/components/Footer.tsx
 msgid "Quick Links"
 msgstr "Quick Links"
+
+#: src/components/blog/PostCard.tsx
+msgid "Read"
+msgstr "Read"
 
 #: src/pages/Legal.tsx
 msgid "rectification (Art. 16),"

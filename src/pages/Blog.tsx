@@ -5,7 +5,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { PostCard } from "@/components/blog/PostCard";
 import { getAllPosts, SITE_URL } from "@/lib/blog";
-import { localeFromPath, localizePath } from "@/i18n/locales";
+import { localeFromPath, localizePath, LOCALE_META } from "@/i18n/locales";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 const Blog = () => {
@@ -36,6 +36,7 @@ const Blog = () => {
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={blogUrl} />
+        <meta property="og:locale" content={LOCALE_META[locale].ogLocale} />
       </Helmet>
       <Navigation />
       <main className="pt-16">
