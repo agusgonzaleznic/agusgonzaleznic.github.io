@@ -63,9 +63,18 @@ const REGISTER_RULES = {
     "Warm and informal-professional, like an experienced peer talking shop — not a corporate brochure.",
     "Keep natural abbreviations from the source: 'orgs' → 'orgs' (or 'org'), not 'organizaciones'.",
   ],
-  fr: ["Address the reader with the formal vous — never tu."],
-  it: ["Address the reader with the formal register (Lei) — never the informal tu."],
-  pt: ["Use European Portuguese and a professional register."],
+  fr: [
+    "Address the reader INFORMALLY with 'tu' (tu/ton/tes) — never the formal 'vous'. Warm, direct, peer-to-peer.",
+    "Keep source abbreviations ('orgs') and English tech/coaching loanwords intact.",
+  ],
+  it: [
+    "Address the reader INFORMALLY with 'tu' — never the formal 'Lei'. Warm, direct, peer-to-peer.",
+    "Keep source abbreviations ('orgs') and English tech/coaching loanwords intact.",
+  ],
+  pt: [
+    "Use European Portuguese and address the reader INFORMALLY with 'tu' — never the formal 'o senhor / a senhora'. Warm, direct, peer-to-peer.",
+    "Keep source abbreviations ('orgs') and English tech/coaching loanwords intact.",
+  ],
 };
 
 export function resolveAnthropicKey() {

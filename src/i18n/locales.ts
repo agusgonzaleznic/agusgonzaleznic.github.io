@@ -37,7 +37,7 @@ export const LOCALE_META: Record<Locale, { name: string; dir: "ltr" | "rtl"; ogL
  * translated catalog is reviewed — this is the one switch that gates URLs,
  * sitemap entries, hreflang, and the language switcher.
  */
-export const PUBLISHED_LOCALES: readonly Locale[] = ["en", "de", "es"];
+export const PUBLISHED_LOCALES: readonly Locale[] = ["en", "de", "es", "fr", "it", "pt"];
 
 /** Non-source locales, used to build and match path prefixes. */
 const PREFIXED_LOCALES = ALL_LOCALES.filter((l) => l !== SOURCE_LOCALE);
