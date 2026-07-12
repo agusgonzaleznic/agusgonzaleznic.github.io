@@ -80,12 +80,21 @@ jobs:
       # and the blog localization in scripts/fetch-blog.mjs). Unset/empty secret →
       # keyless no-op: catalogs stay untranslated, only English blog-data.json is
       # written, and the site ships English-only — safe and behavior-identical to now.
-      # A locale is published only after LLM post-edit + native review and being
-      # added to PUBLISHED_LOCALES in src/i18n/locales.ts; the key alone changes nothing.
+      # A locale is published only after native review and being added to
+      # PUBLISHED_LOCALES in src/i18n/locales.ts; the keys alone change nothing.
+      #
+      # ANTHROPIC_API_KEY is a SECRET, build-time only and NON-VITE. It enables the
+      # LLM post-edit pass (scripts/lib/llm-postedit.mjs) that refines raw DeepL into
+      # native-quality copy during the blog localization in scripts/fetch-blog.mjs.
+      # Unset/empty → the pass is skipped and the build ships raw DeepL; a Claude
+      # outage/refusal degrades to raw DeepL per-string and never fails the build.
+      # (The Lingui catalog post-edit runs offline via `node scripts/translate.mjs`,
+      # not in this workflow — the committed .po files are the source of truth.)
       build-env-vars: |
         STORYBLOK_PUBLIC_TOKEN=${{ secrets.STORYBLOK_PUBLIC_TOKEN }}
         STORYBLOK_REQUIRE_TOKEN=1
         DEEPL_API_KEY=${{ secrets.DEEPL_API_KEY }}
+        ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
         VITE_GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID }}
         VITE_TURNSTILE_SITE_KEY=${{ vars.TURNSTILE_SITE_KEY }}
 

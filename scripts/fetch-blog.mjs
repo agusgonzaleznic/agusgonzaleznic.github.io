@@ -13,9 +13,11 @@ import {
   hasApiKey,
   loadCache,
   loadGlossary,
+  loadGlossaryTerms,
   saveCache,
   TARGET_LOCALES,
 } from "./lib/deepl.mjs";
+import { createPostEditor, hasAnthropicKey, POSTEDIT_VERSION } from "./lib/llm-postedit.mjs";
 import { blogDataFilename, translateStories } from "./lib/richtext-translate.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -57,10 +59,16 @@ async function translateBlog(posts) {
   }
   const cache = loadCache(cachePath);
   const glossaryRegex = loadGlossary(glossaryPath);
+  // Optional LLM post-edit pass (ANTHROPIC_API_KEY). Keyless → raw DeepL only.
+  const postEditor = hasAnthropicKey()
+    ? createPostEditor({ apiKey: process.env.ANTHROPIC_API_KEY.trim(), glossaryTerms: loadGlossaryTerms(glossaryPath) })
+    : null;
   const translator = createTranslator({
     apiKey: process.env.DEEPL_API_KEY.trim(),
     glossaryRegex,
     cache,
+    postEditor,
+    cacheSalt: postEditor ? POSTEDIT_VERSION : "",
   });
   for (const locale of TARGET_LOCALES) {
     const localized = await translateStories(posts, locale, translator);
@@ -69,6 +77,13 @@ async function translateBlog(posts) {
     console.log(`✓ fetch-blog: ${localized.length} post(s) → src/generated/${blogDataFilename(locale)}`);
   }
   saveCache(cachePath, cache);
+  if (postEditor) {
+    const { postEdited, keptMt, failures } = postEditor.stats;
+    console.log(
+      `✓ fetch-blog: LLM post-edit — ${postEdited} refined, ${keptMt} kept as raw DeepL` +
+        `${failures ? `, ${failures} call(s) failed` : ""}.`,
+    );
+  }
 }
 
 if (!token) {

@@ -30,11 +30,13 @@ import {
   hasApiKey,
   loadCache,
   loadGlossary,
+  loadGlossaryTerms,
   saveCache,
   seedCache,
   SOURCE_LOCALE,
   TARGET_LOCALES,
 } from "./lib/deepl.mjs";
+import { createPostEditor, hasAnthropicKey, POSTEDIT_VERSION } from "./lib/llm-postedit.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, "..");
@@ -153,7 +155,19 @@ async function main() {
 
   const cache = loadCache(cachePath);
   const glossaryRegex = loadGlossary(glossaryPath);
-  const translator = createTranslator({ apiKey: process.env.DEEPL_API_KEY.trim(), glossaryRegex, cache });
+  // Optional LLM post-edit pass: refines raw DeepL into native-quality copy when
+  // ANTHROPIC_API_KEY is set. Keyless → null → raw DeepL only (unchanged behaviour).
+  const postEditor = hasAnthropicKey()
+    ? createPostEditor({ apiKey: process.env.ANTHROPIC_API_KEY.trim(), glossaryTerms: loadGlossaryTerms(glossaryPath) })
+    : null;
+  const cacheSalt = postEditor ? POSTEDIT_VERSION : "";
+  const translator = createTranslator({
+    apiKey: process.env.DEEPL_API_KEY.trim(),
+    glossaryRegex,
+    cache,
+    postEditor,
+    cacheSalt,
+  });
 
   for (const locale of TARGET_LOCALES) {
     const targetPo = resolve(catalogDir, `${locale}.po`);
@@ -170,7 +184,7 @@ async function main() {
       );
       for (const e of messages) {
         const existing = prev.get(entryKey(e));
-        if (existing) seedCache(cache, locale, sourceText(e), existing);
+        if (existing) seedCache(cache, locale, sourceText(e), existing, cacheSalt);
       }
     }
 
@@ -190,9 +204,13 @@ async function main() {
 
   saveCache(cachePath, cache);
   const { cacheHits, translated, apiCalls } = translator.stats;
+  const pe = postEditor
+    ? ` LLM post-edit: ${postEditor.stats.postEdited} refined, ${postEditor.stats.keptMt} kept as raw DeepL` +
+      `${postEditor.stats.failures ? `, ${postEditor.stats.failures} call(s) failed` : ""}.`
+    : " LLM post-edit: skipped (ANTHROPIC_API_KEY not set).";
   console.log(
-    `✓ i18n:translate done — ${translated} translated, ${cacheHits} from cache, ${apiCalls} API call(s). ` +
-      "Next: LLM post-edit + native review, then add the locale to PUBLISHED_LOCALES.",
+    `✓ i18n:translate done — ${translated} translated, ${cacheHits} from cache, ${apiCalls} DeepL call(s).${pe} ` +
+      "Next: native review, then add the locale to PUBLISHED_LOCALES.",
   );
 }
 
