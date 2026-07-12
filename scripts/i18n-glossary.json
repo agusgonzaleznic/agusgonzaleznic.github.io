@@ -1,0 +1,23 @@
+{
+  "$comment": "Do-not-translate terms for the build-time DeepL pipeline (scripts/translate.mjs and scripts/lib/richtext-translate.mjs, via scripts/lib/deepl.mjs). Each term is protected verbatim through translation. Matching is CASE-SENSITIVE and bounded to whole tokens, longest term first. URLs and email addresses are protected automatically by pattern in deepl.mjs and do NOT need to be listed here. ICU placeholders ({name}, {count, plural, …}) and Lingui/HTML component tags (<0>, </0>, <strong>) are likewise auto-protected.",
+  "terms": [
+    "Agustín González Nicolini",
+    "Agustin Gonzalez Nicolini",
+    "agusgonzaleznic.com",
+    "Wildlife Studios",
+    "Storyblok",
+    "Medium",
+    "Confidential",
+    "GitOps",
+    "DevOps",
+    "FinOps",
+    "Haedo",
+    "Berlin",
+    "Ualá",
+    "Uala",
+    "JUCR",
+    "Bdev",
+    "Web3",
+    "DORA"
+  ]
+}

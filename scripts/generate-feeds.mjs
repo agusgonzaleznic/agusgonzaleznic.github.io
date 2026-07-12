@@ -6,16 +6,26 @@
 //   - llms.txt        (public/llms.txt as base template + appended "## Blog" section;
 //                      overwrites the copy vite made from public/ during build:client)
 //
+// i18n: sitemap entries and llms.txt iterate PUBLISHED_LOCALES. Each sitemap
+// <url> carries a COMPLETE set of <xhtml:link rel="alternate"> hreflang entries
+// (one per published locale + x-default → English). English llms.txt stays at
+// the root (dist/llms.txt); a prefixed locale writes dist/{locale}/llms.txt from
+// its own translated brief (public/{locale}/llms.txt). Today PUBLISHED_LOCALES =
+// ["en"], so only English URLs/files are emitted and the only sitemap delta is a
+// self hreflang="en" + x-default (both harmless, same URL). The blog RSS stays
+// English-only (a single feed).
+//
 // Generated files >1kb get .gz/.br siblings, matching the prerender convention.
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { gzipSync, brotliCompressSync, constants as zlibConstants } from "node:zlib";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, "..");
 const distDir = resolve(projectRoot, "dist");
+const serverEntry = resolve(projectRoot, "dist-server/entry-server.js");
 const blogDataFile = resolve(projectRoot, "src/generated/blog-data.json");
 
 const SITE_URL = "https://agusgonzaleznic.com";
@@ -72,15 +82,41 @@ function writeCompressed(outFile, content) {
   }
 }
 
-function buildSitemap(posts) {
+// The <xhtml:link> alternates for a canonical path: one per published locale
+// (each at that locale's equivalent URL) + x-default → English. Indented to sit
+// inside a <url> element (4 spaces).
+function alternateLinks(canonicalPath, cfg) {
+  const links = cfg.PUBLISHED_LOCALES.map(
+    (loc) =>
+      `    <xhtml:link rel="alternate" hreflang="${loc}" href="${xmlEscape(
+        `${SITE_URL}${cfg.localizePath(canonicalPath, loc)}`,
+      )}" />`,
+  );
+  links.push(
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${xmlEscape(`${SITE_URL}${canonicalPath}`)}" />`,
+  );
+  return links.join("\n");
+}
+
+// One <url> per published locale for a page, each with the full alternate set.
+function urlEntries(page, cfg) {
+  return cfg.PUBLISHED_LOCALES.map((loc) => {
+    const loc_url = xmlEscape(`${SITE_URL}${cfg.localizePath(page.canonical, loc)}`);
+    const alternates = alternateLinks(page.canonical, cfg);
+    const images = page.images ? `\n${page.images}` : "";
+    return `  <url>
+    <loc>${loc_url}</loc>
+    <lastmod>${page.lastmod}</lastmod>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+${alternates}${images}
+  </url>`;
+  }).join("\n");
+}
+
+function buildSitemap(posts, cfg) {
   const today = new Date().toISOString().slice(0, 10);
-  const urls = [
-    `  <url>
-    <loc>${SITE_URL}/</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-    <image:image>
+  const homeImages = `    <image:image>
       <image:loc>${SITE_URL}/profile.jpg</image:loc>
       <image:title>Agustin Gonzalez Nicolini, engineering leadership coach in Berlin</image:title>
       <image:caption>Portrait of Agustin Gonzalez Nicolini, coach to CTOs, VPs of Engineering, and engineering managers worldwide</image:caption>
@@ -88,37 +124,26 @@ function buildSitemap(posts) {
     <image:image>
       <image:loc>${SITE_URL}/og-image.webp</image:loc>
       <image:title>Engineering leadership and executive coaching — agusgonzaleznic.com preview</image:title>
-    </image:image>
-  </url>`,
-    ...["impressum", "privacy"].map(
-      (slug) => `  <url>
-    <loc>${SITE_URL}/${slug}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>`,
-    ),
-    `  <url>
-    <loc>${SITE_URL}/blog/</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`,
-    ...posts.map((post) => {
-      const lastmod = (postModified(post) ?? new Date()).toISOString().slice(0, 10);
-      return `  <url>
-    <loc>${xmlEscape(`${SITE_URL}/blog/${post.slug}/`)}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>`;
-    }),
+    </image:image>`;
+
+  const pages = [
+    { canonical: "/", lastmod: today, changefreq: "weekly", priority: "1.0", images: homeImages },
+    { canonical: "/impressum", lastmod: today, changefreq: "yearly", priority: "0.3" },
+    { canonical: "/privacy", lastmod: today, changefreq: "yearly", priority: "0.3" },
+    { canonical: "/blog/", lastmod: today, changefreq: "weekly", priority: "0.8" },
+    ...posts.map((post) => ({
+      canonical: `/blog/${post.slug}/`,
+      lastmod: (postModified(post) ?? new Date()).toISOString().slice(0, 10),
+      changefreq: "monthly",
+      priority: "0.7",
+    })),
   ];
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-${urls.join("\n")}
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${pages.map((page) => urlEntries(page, cfg)).join("\n")}
 </urlset>
 `;
 }
@@ -151,8 +176,8 @@ ${items.join("\n")}
 `;
 }
 
-function buildLlmsTxt(posts) {
-  const base = readFileSync(resolve(projectRoot, "public/llms.txt"), "utf-8").trimEnd();
+function buildLlmsTxt(posts, templatePath) {
+  const base = readFileSync(templatePath, "utf-8").trimEnd();
   if (posts.length === 0 || /^## Blog$/m.test(base)) return `${base}\n`;
 
   const entries = posts.map((post) => {
@@ -162,15 +187,38 @@ function buildLlmsTxt(posts) {
   return `${base}\n\n## Blog\n\n${entries.join("\n")}\n`;
 }
 
-export function generateFeeds() {
+// The locale config (PUBLISHED_LOCALES/SOURCE_LOCALE/localizePath) comes from the
+// compiled server bundle so it stays in sync with src/i18n. prerender.mjs passes
+// it in; standalone runs load it here.
+async function loadI18nConfig() {
+  const { PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath } = await import(
+    pathToFileURL(serverEntry).href
+  );
+  return { PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath };
+}
+
+export async function generateFeeds(i18nConfig) {
+  const cfg = i18nConfig ?? (await loadI18nConfig());
   const posts = JSON.parse(readFileSync(blogDataFile, "utf-8"));
 
-  writeCompressed(resolve(distDir, "sitemap.xml"), buildSitemap(posts));
+  writeCompressed(resolve(distDir, "sitemap.xml"), buildSitemap(posts, cfg));
   writeCompressed(resolve(distDir, "blog/rss.xml"), buildRss(posts));
-  writeCompressed(resolve(distDir, "llms.txt"), buildLlmsTxt(posts));
+
+  // Per-locale llms.txt: English at the root, others under /{locale}/ from their
+  // own translated brief (public/{locale}/llms.txt). A locale without a brief yet
+  // is skipped rather than emitting an English copy under its prefix.
+  for (const locale of cfg.PUBLISHED_LOCALES) {
+    const prefix = locale === cfg.SOURCE_LOCALE ? "" : `${locale}/`;
+    const templatePath =
+      locale === cfg.SOURCE_LOCALE
+        ? resolve(projectRoot, "public/llms.txt")
+        : resolve(projectRoot, `public/${locale}/llms.txt`);
+    if (!existsSync(templatePath)) continue;
+    writeCompressed(resolve(distDir, `${prefix}llms.txt`), buildLlmsTxt(posts, templatePath));
+  }
 
   console.log(
-    `✓ Generated dist/sitemap.xml, dist/blog/rss.xml, dist/llms.txt (${posts.length} post(s))`,
+    `✓ Generated dist/sitemap.xml, dist/blog/rss.xml, llms.txt (${posts.length} post(s), ${cfg.PUBLISHED_LOCALES.length} locale(s))`,
   );
 }
 
@@ -180,5 +228,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     console.error("generate-feeds: dist/ not found — run the build first.");
     process.exit(1);
   }
-  generateFeeds();
+  await generateFeeds();
 }

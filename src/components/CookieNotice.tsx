@@ -9,6 +9,7 @@ import {
   getStickyCtaVisible,
   subscribeStickyCtaVisible,
 } from "@/lib/layout";
+import { Trans, useLingui } from "@lingui/react/macro";
 
 // Two-mode privacy banner, driven by whether GA4 is configured (via the
 // public VITE_GA_MEASUREMENT_ID build variable):
@@ -30,6 +31,7 @@ import {
 const DISMISS_KEY = "privacy-notice-dismissed";
 
 export const CookieNotice = () => {
+  const { t } = useLingui();
   const consentMode = isAnalyticsConfigured();
   const [visible, setVisible] = useState(false);
   // Navigation publishes whether the mobile sticky "Book a Session" CTA is
@@ -81,7 +83,7 @@ export const CookieNotice = () => {
   return (
     <div
       role="region"
-      aria-label="Privacy notice"
+      aria-label={t`Privacy notice`}
       // bottom-24 on mobile clears the sticky "Book a Session" CTA (fixed
       // bottom-0, z-40 in Navigation) — but only while that CTA is rendered;
       // otherwise the banner sits at the viewport bottom. z-50 stays above it.
@@ -92,19 +94,21 @@ export const CookieNotice = () => {
           {consentMode ? (
             <>
               <p className="flex-1 text-sm leading-relaxed text-muted-foreground">
-                This site would like to use{" "}
-                <span className="font-medium text-foreground">
-                  optional analytics cookies
-                </span>{" "}
-                (Google Analytics) to understand how it is used. Nothing is
-                loaded unless you accept — details are in the{" "}
-                <a
-                  href="/privacy"
-                  className="font-medium text-accent hover:underline"
-                >
-                  Privacy Policy
-                </a>
-                .
+                <Trans>
+                  This site would like to use{" "}
+                  <span className="font-medium text-foreground">
+                    optional analytics cookies
+                  </span>{" "}
+                  (Google Analytics) to understand how it is used. Nothing is
+                  loaded unless you accept — details are in the{" "}
+                  <a
+                    href="/privacy"
+                    className="font-medium text-accent hover:underline"
+                  >
+                    Privacy Policy
+                  </a>
+                  .
+                </Trans>
               </p>
               {/* Accept and Decline share one style: GDPR consent must be as
                   easy to refuse as to give, so neither button is emphasized. */}
@@ -114,39 +118,41 @@ export const CookieNotice = () => {
                   onClick={decline}
                   className="rounded-lg border-2 border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
                 >
-                  Decline
+                  <Trans>Decline</Trans>
                 </button>
                 <button
                   type="button"
                   onClick={accept}
                   className="rounded-lg border-2 border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
                 >
-                  Accept
+                  <Trans>Accept</Trans>
                 </button>
               </div>
             </>
           ) : (
             <>
               <p className="flex-1 text-sm leading-relaxed text-muted-foreground">
-                This site uses{" "}
-                <span className="font-medium text-foreground">
-                  no cookies and no tracking
-                </span>
-                . Details are in the{" "}
-                <a
-                  href="/privacy"
-                  className="font-medium text-accent hover:underline"
-                >
-                  Privacy Policy
-                </a>
-                .
+                <Trans>
+                  This site uses{" "}
+                  <span className="font-medium text-foreground">
+                    no cookies and no tracking
+                  </span>
+                  . Details are in the{" "}
+                  <a
+                    href="/privacy"
+                    className="font-medium text-accent hover:underline"
+                  >
+                    Privacy Policy
+                  </a>
+                  .
+                </Trans>
               </p>
               <button
                 type="button"
                 onClick={dismissInfo}
                 className="shrink-0 self-end rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover sm:self-auto"
               >
-                Got it
+                <Trans>Got it</Trans>
               </button>
             </>
           )}

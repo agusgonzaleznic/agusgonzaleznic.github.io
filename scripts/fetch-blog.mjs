@@ -8,9 +8,21 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  createTranslator,
+  hasApiKey,
+  loadCache,
+  loadGlossary,
+  saveCache,
+  TARGET_LOCALES,
+} from "./lib/deepl.mjs";
+import { blogDataFilename, translateStories } from "./lib/richtext-translate.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const outFile = resolve(__dirname, "../src/generated/blog-data.json");
+const generatedDir = resolve(__dirname, "../src/generated");
+const outFile = resolve(generatedDir, "blog-data.json");
+const cachePath = resolve(__dirname, ".i18n-cache.json");
+const glossaryPath = resolve(__dirname, "i18n-glossary.json");
 
 // EU space (288632938663524) → EU CDA host.
 const API_BASE = "https://api.storyblok.com/v2/cdn/stories";
@@ -28,6 +40,35 @@ const requireToken = process.env.STORYBLOK_REQUIRE_TOKEN === "1";
 function writeOutput(posts) {
   mkdirSync(dirname(outFile), { recursive: true });
   writeFileSync(outFile, `${JSON.stringify(posts, null, 2)}\n`);
+}
+
+// Build-time localization of the blog (title/excerpt/SEO + richtext text nodes)
+// via DeepL, writing src/generated/blog-data.<locale>.json per target locale.
+// KEYLESS no-op: with no DEEPL_API_KEY this returns immediately, so only the
+// English blog-data.json is written and the site stays English-only.
+async function translateBlog(posts) {
+  if (posts.length === 0 || !hasApiKey()) {
+    if (posts.length > 0 && !hasApiKey()) {
+      console.log(
+        "  fetch-blog: DEEPL_API_KEY not set — skipping blog translation (English-only).",
+      );
+    }
+    return;
+  }
+  const cache = loadCache(cachePath);
+  const glossaryRegex = loadGlossary(glossaryPath);
+  const translator = createTranslator({
+    apiKey: process.env.DEEPL_API_KEY.trim(),
+    glossaryRegex,
+    cache,
+  });
+  for (const locale of TARGET_LOCALES) {
+    const localized = await translateStories(posts, locale, translator);
+    const localeFile = resolve(generatedDir, blogDataFilename(locale));
+    writeFileSync(localeFile, `${JSON.stringify(localized, null, 2)}\n`);
+    console.log(`✓ fetch-blog: ${localized.length} post(s) → src/generated/${blogDataFilename(locale)}`);
+  }
+  saveCache(cachePath, cache);
 }
 
 if (!token) {
@@ -111,6 +152,7 @@ try {
   console.log(
     `✓ fetch-blog: ${posts.length} post(s) (version=${version}) → src/generated/blog-data.json`,
   );
+  await translateBlog(posts);
 } catch (err) {
   console.error(`fetch-blog: ${err instanceof Error ? err.message : err}`);
   process.exit(1);
