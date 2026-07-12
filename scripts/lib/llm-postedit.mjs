@@ -31,7 +31,8 @@
 
 // Bump when the prompt, model, or recipe changes so the salted cache regenerates
 // post-edited entries on the next keyed build instead of serving stale ones.
-export const POSTEDIT_VERSION = "pe1";
+// pe2: register switched to informal German (du) + Argentine voseo Spanish.
+export const POSTEDIT_VERSION = "pe2";
 
 // Post-editing is a well-scoped rewrite, not deep reasoning — the widely-used
 // default model, no extended thinking. Volume here is tiny (a handful of blog
@@ -44,7 +45,7 @@ const MAX_CHARS_PER_CALL = 4000; // and bounds output well under MAX_TOKENS
 
 const LOCALE_NAME = {
   de: "German",
-  es: "Latin American Spanish",
+  es: "Argentine Spanish",
   fr: "French",
   it: "Italian",
   pt: "European Portuguese",
@@ -53,13 +54,14 @@ const LOCALE_NAME = {
 // Per-locale register notes layered on top of the universal rules below.
 const REGISTER_RULES = {
   de: [
-    "Address the reader with the formal Sie / Ihr — never du / dein.",
+    "Address the reader INFORMALLY with du / dein / dir / dich — never the formal Sie / Ihr. This is a modern Berlin tech voice: warm, direct, peer-to-peer, the way engineers actually talk to each other.",
+    "Keep it concise and don't over-expand: German runs ~30% longer than English, so prefer the tightest natural phrasing (UI labels/buttons must not overflow) and keep source abbreviations — 'orgs' stays 'Orgs', not 'Organisationen'.",
     "Beware false friends and calques: a \"DevOps Lead\" is a role — never \"DevOps Blei\" (Blei is the metal).",
-    "German runs ~30% longer than English; prefer the tightest natural phrasing so UI labels and buttons don't overflow.",
   ],
   es: [
-    "Use Latin American Spanish spelling and vocabulary (the author is Argentine) — not Peninsular Spanish.",
-    "Keep the register consistent throughout and professional but warm.",
+    "Use Argentine Spanish with VOSEO: address the reader as 'vos' and use vos verb forms (dirigí, tenés, podés, sabés, sos, contás) — never tú- or usted-forms (not 'dirige', 'dirija', 'tienes', 'usted', 'su equipo' → use 'tu equipo').",
+    "Warm and informal-professional, like an experienced peer talking shop — not a corporate brochure.",
+    "Keep natural abbreviations from the source: 'orgs' → 'orgs' (or 'org'), not 'organizaciones'.",
   ],
   fr: ["Address the reader with the formal vous — never tu."],
   it: ["Address the reader with the formal register (Lei) — never the informal tu."],

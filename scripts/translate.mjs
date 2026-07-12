@@ -169,6 +169,12 @@ async function main() {
     cacheSalt,
   });
 
+  // FORCE_RETRANSLATE=1 skips adopting the existing catalogs so every string is
+  // re-translated + re-post-edited from scratch. Use it after a register/prompt
+  // change (paired with a POSTEDIT_VERSION bump) so old copy isn't preserved as
+  // cache hits. Normal runs adopt existing translations (below) to avoid re-spend.
+  const forceRetranslate = process.env.FORCE_RETRANSLATE === "1";
+
   for (const locale of TARGET_LOCALES) {
     const targetPo = resolve(catalogDir, `${locale}.po`);
 
@@ -176,7 +182,7 @@ async function main() {
     // the CURRENT English source hash) so we neither clobber them nor re-spend
     // API calls. If the English later changes, its hash changes and the stale
     // entry misses the cache → it is retranslated.
-    if (existsSync(targetPo)) {
+    if (!forceRetranslate && existsSync(targetPo)) {
       const prev = new Map(
         parsePo(readFileSync(targetPo, "utf8"))
           .filter((e) => e.msgid !== "" && e.msgstr && e.msgstr.trim())
