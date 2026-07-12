@@ -1,0 +1,821 @@
+{
+  "slug": "immobilienscout24-terraform-provider",
+  "full_slug": "blog/immobilienscout24-terraform-provider",
+  "title": "Automatizando avisos inmobiliarios con Terraform: presentamos el provider de Immobilienscout24",
+  "excerpt": "Buscar departamento en Berlin me convenció de que el sector inmobiliario necesita IaC. Así que construí un provider de Terraform open-source para Immobilienscout24: acá te cuento por qué, cómo funciona y con qué obstáculos me crucé.",
+  "body": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "Introducción",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Como alguien que lleva más de 15 años diseñando, construyendo y asegurando infraestructura en la nube, la automatización está en mi ADN. Mi carrera abarcó fintech, movilidad, gaming y health tech, liderando equipos de ingeniería de alto rendimiento y optimizando sistemas complejos para escalar, ganar resiliencia y controlar costos. En cada paso, ",
+            "type": "text"
+          },
+          {
+            "text": "Infrastructure as Code (IaC)",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " fue un pilar fundamental para obtener resultados confiables y repetibles.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Supongo que el mundo inmobiliario va rezagado. Mientras buscaba un departamento en Berlin —una tarea no apta para cualquiera—, noté algo que se repetía: algunos avisos están disponibles por muy poco tiempo, así que ",
+            "type": "text"
+          },
+          {
+            "text": "publicar o actualizar avisos inmobiliarios debe ser tedioso para propietarios y administradores de propiedades. Parece un proceso manual, incluso para negocios de gran escala, y actualizar el contenido debe ser una pesadilla.",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "text": " Así fue como nació la idea de un ",
+            "type": "text"
+          },
+          {
+            "text": "Immobilienscout24 Terraform provider",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://github.com/agusgonzaleznic/terraform-provider-immobilienscout24",
+                  "title": null
+                }
+              }
+            ]
+          },
+          {
+            "text": " de código abierto.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "Por qué construí el Immobilienscout24 Terraform provider",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Immobilienscout24",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              },
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://www.immobilienscout24.de/",
+                  "title": null
+                }
+              }
+            ]
+          },
+          {
+            "text": " es uno de los portales inmobiliarios más populares de Alemania. Sin embargo, su integración con workflows cloud-native es prácticamente inexistente, salvo contadas excepciones como ",
+            "type": "text"
+          },
+          {
+            "text": "GetTheFlat",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://gettheflat.com/",
+                  "title": null
+                }
+              }
+            ]
+          },
+          {
+            "text": " (y hasta a ellos les faltan funcionalidades).",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Mi motivación era sencilla:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "bullet_list",
+        "attrs": {
+          "tight": false
+        },
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Reducir la fricción",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " para los equipos de Ops que gestionan portfolios inmobiliarios.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Empoderar a las empresas con \"mentalidad de automatización\" para que publiquen avisos igual que deberían automatizar su infraestructura en la nube, con control de versiones y CI/CD.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Alentar al ecosistema inmobiliario a adoptar el open source y las mejores prácticas modernas.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Creo que todo proceso repetitivo, ya sea levantar servidores o publicar departamentos, merece ser automatizado.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "¿Para quién es esto?",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Este provider es para:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "bullet_list",
+        "attrs": {
+          "tight": false
+        },
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Agencias inmobiliarias, startups de SaaS y proptech",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "  (ni idea si el término existe) ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "equipos",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "  que quieran automatizar la creación de listings y mantener la paridad entre varias plataformas —quizás, en el futuro, con un ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "módulo de Terraform",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://developer.hashicorp.com/terraform/language/modules",
+                          "title": null
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Ingenieros de la nube o consultores técnicos",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "  que trabajan para clientes del sector inmobiliario que necesitan auditabilidad, rollback y repetibilidad en sus listings.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Entusiastas del open-source",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "  con ganas de tender puentes entre las industrias tradicionales y el poder de la automatización de infraestructura.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Si alguna vez pensaste: ",
+            "type": "text"
+          },
+          {
+            "text": "«¿Por qué sigo teniendo que hacer clic por un portal para publicar propiedades?»",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "text": "… esto es para vos.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "Cómo funciona",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "El ",
+            "type": "text"
+          },
+          {
+            "text": "Immobilienscout24 Terraform provider",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://github.com/agusgonzaleznic/terraform-provider-immobilienscout24",
+                  "title": null
+                }
+              }
+            ]
+          },
+          {
+            "text": "  es un MVP que te permite insertar un nuevo listing inmobiliario usando la API oficial. Usa autenticación OAuth1 y está construido con el moderno ",
+            "type": "text"
+          },
+          {
+            "text": "Terraform Plugin Framework",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://github.com/hashicorp/terraform-plugin-framework",
+                  "title": null
+                }
+              }
+            ]
+          },
+          {
+            "text": ".",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 4
+        },
+        "content": [
+          {
+            "text": "Ejemplo de uso",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Quiero aclarar que este proceso puede cambiar una vez que el provider se construya y publique automáticamente. Dicho esto, después de ",
+            "type": "text"
+          },
+          {
+            "text": "creación del provider",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://github.com/agusgonzaleznic/terraform-provider-immobilienscout24#installation",
+                  "title": null
+                }
+              }
+            ]
+          },
+          {
+            "text": "  a partir del código fuente, podés automatizar la publicación de un listing con apenas unas pocas líneas de código:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "code_block",
+        "attrs": {
+          "class": "language-hcl"
+        },
+        "content": [
+          {
+            "text": "provider \"immobilienscout24\" {\n  consumer_key        = \"YOUR_CONSUMER_KEY\"\n  consumer_secret     = \"YOUR_CONSUMER_SECRET\"\n  access_token        = \"YOUR_ACCESS_TOKEN\"\n  access_token_secret = \"YOUR_ACCESS_TOKEN_SECRET\"\n}\n\nresource \"immobilienscout24_realestate\" \"listing\" {\n  title            = \"Modern Apartment\"\n  description_note = \"Listed via Terraform!\"\n  street           = \"Sample Street\"\n  house_number     = \"5A\"\n  postcode         = \"10115\"\n  city             = \"Berlin\"\n}",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Correr ",
+            "type": "text"
+          },
+          {
+            "text": "terraform apply",
+            "type": "text",
+            "marks": [
+              {
+                "type": "code"
+              }
+            ]
+          },
+          {
+            "text": " va a crear un nuevo listing en tu cuenta de Immobilienscout24 (usando, por ahora, su API de sandbox).",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "Los obstáculos: conseguir acceso a la API",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Arrancar con la construcción del provider fue genial, y gran parte de eso se debió a la ",
+            "type": "text"
+          },
+          {
+            "text": "documentación oficial",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://api.immobilienscout24.de/api-docs/import-export/introduction/",
+                  "title": null
+                }
+              }
+            ]
+          },
+          {
+            "text": " sobre la API de ImmoScout y la increíble ",
+            "type": "text"
+          },
+          {
+            "text": "documentación oficial de Terraform",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework/providers-plugin-framework-provider",
+                  "title": null
+                }
+              }
+            ]
+          },
+          {
+            "text": ".",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "¿El verdadero desafío? ",
+            "type": "text"
+          },
+          {
+            "text": "Conseguir acceso a la API de Immobilienscout24.",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " Cuando pedí las credenciales de la API, me encontré con una serie de preguntas sobre open source, Terraform y la intención de uso. En su mayoría, preguntas normales, pero sí tuve la sensación de que el equipo de soporte no había trabajado antes con herramientas de infrastructure-as-code ni había consultado con sus equipos de desarrollo internos.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "También aclararon que ",
+            "type": "text"
+          },
+          {
+            "text": "el acceso a la API no es gratuito",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ", lo que genera otra barrera para los innovadores y los proyectos de la comunidad —y, por lo tanto, me impide probar realmente el provider en la vida real—.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Es un recordatorio de que, aunque la tecnología avanza rápido, las grandes orgs, las startups y los líderes de la industria pueden tardar en ponerse al día con los movimientos de open source y automatización. Espero que, al lanzar este provider, pueda encender la conversación, mostrar el valor real de la comunidad open source y animar a plataformas como Immobilienscout24 a invertir más en herramientas accesibles para desarrolladores.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "Qué sigue: expandir el provider",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "¡Esto es apenas el comienzo! Tengo pensado agregar:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "bullet_list",
+        "attrs": {
+          "tight": false
+        },
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Soporte para lectura, actualización y eliminación",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " para listings inmobiliarios.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Tipos de recursos adicionales",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", como fuentes de datos para las imágenes de los listings, o quizás incluso la gestión de agentes.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Funcionalidades de nivel productivo (o lo más cercano posible a ese nivel)",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ": manejo robusto de errores, cobertura de tests y documentación.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Feedback de la comunidad:",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " si estás usando esto o querés ver nuevas funcionalidades, abrí un issue o un PR.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Como alguien que hace mucho defiende el open source y la automatización en cada industria, me comprometo a darles a los equipos las herramientas para moverse más rápido y con menos fricción, incluso en sectores tradicionales como el inmobiliario.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "Reflexiones finales",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Si sos desarrollador, NinjaOps engineer, o incluso un líder de negocio, te animo a que pruebes el provider, compartas tu feedback, o contribuyas con un issue o un PR.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Llevemos el poder del open source y la automatización a cada parte del stack, incluso a las que todavía piensan en PDFs y portales.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Conseguí el código:",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "text": "github.com/agusgonzaleznic/terraform-provider-immobilienscout24",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://github.com/agusgonzaleznic/terraform-provider-immobilienscout24",
+                  "title": null
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "¡Automaticemos el sector inmobiliario juntos!",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "cover_image": null,
+  "published_date": "2025-07-01 09:00",
+  "first_published_at": "2026-07-05T20:49:42.447Z",
+  "published_at": "2026-07-05T20:49:42.447Z",
+  "original_url": "https://agusgonzaleznic.medium.com/automating-real-estate-listings-with-terraform-introducing-the-immobilienscout24-provider-689b24f4bad6",
+  "seo_title": "Terraform Provider para Immobilienscout24: automatizá tus avisos",
+  "seo_description": "Por qué construí un provider de Terraform open-source para Immobilienscout24, cómo automatiza los avisos inmobiliarios con IaC y los obstáculos de acceso a la API con los que me topé.",
+  "canonical_override": "",
+  "tag_list": [
+    "immobilienscout24",
+    "immoscout",
+    "open-source",
+    "terraform",
+    "terraform-provider"
+  ],
+  "uuid": "f0382ea8-64ea-47dd-bc92-8887a3238cb1"
+}

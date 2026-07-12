@@ -82,11 +82,13 @@ function writeCompressed(outFile, content) {
   }
 }
 
-// The <xhtml:link> alternates for a canonical path: one per published locale
-// (each at that locale's equivalent URL) + x-default → English. Indented to sit
-// inside a <url> element (4 spaces).
-function alternateLinks(canonicalPath, cfg) {
-  const links = cfg.PUBLISHED_LOCALES.map(
+// The <xhtml:link> alternates for a canonical path: one per locale in `locales`
+// (each at that locale's equivalent URL) + x-default → English. `locales`
+// defaults to every published locale; blog articles pass their per-article
+// approved set so the sitemap never advertises an un-emitted variant. Indented
+// to sit inside a <url> element (4 spaces).
+function alternateLinks(canonicalPath, cfg, locales = cfg.PUBLISHED_LOCALES) {
+  const links = locales.map(
     (loc) =>
       `    <xhtml:link rel="alternate" hreflang="${loc}" href="${xmlEscape(
         `${SITE_URL}${cfg.localizePath(canonicalPath, loc)}`,
@@ -98,11 +100,13 @@ function alternateLinks(canonicalPath, cfg) {
   return links.join("\n");
 }
 
-// One <url> per published locale for a page, each with the full alternate set.
+// One <url> per emitted locale for a page, each with the matching alternate set.
+// A page's `locales` (blog articles) defaults to every published locale.
 function urlEntries(page, cfg) {
-  return cfg.PUBLISHED_LOCALES.map((loc) => {
+  const locales = page.locales ?? cfg.PUBLISHED_LOCALES;
+  return locales.map((loc) => {
     const loc_url = xmlEscape(`${SITE_URL}${cfg.localizePath(page.canonical, loc)}`);
-    const alternates = alternateLinks(page.canonical, cfg);
+    const alternates = alternateLinks(page.canonical, cfg, locales);
     const images = page.images ? `\n${page.images}` : "";
     return `  <url>
     <loc>${loc_url}</loc>
@@ -136,6 +140,9 @@ function buildSitemap(posts, cfg) {
       lastmod: (postModified(post) ?? new Date()).toISOString().slice(0, 10),
       changefreq: "monthly",
       priority: "0.7",
+      // Review gate: sitemap <url> + alternates only for this article's
+      // approved/auto locales (matches what prerender emitted).
+      locales: post.approved_locales,
     })),
   ];
 

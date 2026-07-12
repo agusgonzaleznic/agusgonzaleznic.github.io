@@ -5,7 +5,7 @@
 // VITE_-prefixed var — so the token cannot reach the client bundle. The fetched
 // content is public and safe to bake in.
 
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -20,6 +20,12 @@ import {
 } from "./lib/deepl.mjs";
 import { createPostEditor, hasAnthropicKey, POSTEDIT_VERSION } from "./lib/llm-postedit.mjs";
 import { blogDataFilename, translateStories } from "./lib/richtext-translate.mjs";
+import {
+  AUTO_LOCALES,
+  REVIEW_GATED_LOCALES,
+  approvedLocalesFor,
+  loadApprovals,
+} from "./lib/blog-gate.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const generatedDir = resolve(__dirname, "../src/generated");
@@ -27,6 +33,9 @@ const outFile = resolve(generatedDir, "blog-data.json");
 const cachePath = resolve(__dirname, ".i18n-cache.json");
 const glossaryPath = resolve(__dirname, "i18n-glossary.json");
 const localesTsPath = resolve(__dirname, "../src/i18n/locales.ts");
+// Review-gate state (see scripts/lib/blog-gate.mjs).
+const approvalsPath = resolve(__dirname, "../content/i18n-approvals.json");
+const reviewedDir = resolve(__dirname, "../content/translations");
 
 // EU space (288632938663524) → EU CDA host.
 const API_BASE = "https://api.storyblok.com/v2/cdn/stories";
@@ -46,24 +55,51 @@ function writeOutput(posts) {
   writeFileSync(outFile, `${JSON.stringify(posts, null, 2)}\n`);
 }
 
-// Build-time localization of the blog (title/excerpt/SEO + richtext text nodes)
-// via DeepL, writing src/generated/blog-data.<locale>.json per PUBLISHED locale.
-// Only PUBLISHED_LOCALES are translated (prerender ships only those, so the rest
-// would be pure build cost). KEYLESS no-op: with no DEEPL_API_KEY this returns
-// immediately, so only the English blog-data.json is written.
+// Build-time localization of the blog, writing src/generated/blog-data.<locale>.json.
+// Two policies (see scripts/lib/blog-gate.mjs), gated on PUBLISHED_LOCALES:
+//   - Review-gated locales (DE/ES): served VERBATIM from committed reviewed
+//     content (content/translations/<uuid>.<locale>.json) for approved+fresh
+//     posts only. No translation, no API key needed — fully deterministic.
+//   - Auto locales (FR/IT/PT): translated at build via DeepL (+ optional LLM
+//     post-edit). KEYLESS → skipped, so those files fall back to English.
+// English (blog-data.json) is written by writeOutput() before this runs; each
+// post already carries its baked `approved_locales`.
 async function translateBlog(posts) {
-  // Translate only locales we actually ship, minus the English source. Today
-  // PUBLISHED_LOCALES is ["en"], so this is empty and there is zero blog
-  // translation cost; publishing de/es makes it ["de","es"] automatically.
-  const targets = readPublishedLocales(localesTsPath).filter((l) => l !== SOURCE_LOCALE);
+  const published = readPublishedLocales(localesTsPath);
+
+  // Review-gated locales: assemble from committed reviewed content. A post is
+  // included only when its approved_locales set contains the locale (approved +
+  // hash-fresh); pending / held / stale variants are simply omitted.
+  for (const locale of REVIEW_GATED_LOCALES) {
+    if (!published.includes(locale)) continue;
+    const reviewed = [];
+    for (const post of posts) {
+      if (!post.approved_locales.includes(locale)) continue;
+      const file = resolve(reviewedDir, `${post.uuid}.${locale}.json`);
+      if (!existsSync(file)) {
+        // Approved in the manifest but the reviewed content is missing — fail
+        // loud rather than silently drop a supposedly-approved translation.
+        throw new Error(
+          `fetch-blog: ${post.uuid} is approved for "${locale}" but ${file} is missing.`,
+        );
+      }
+      reviewed.push(JSON.parse(readFileSync(file, "utf-8")));
+    }
+    writeFileSync(
+      resolve(generatedDir, blogDataFilename(locale)),
+      `${JSON.stringify(reviewed, null, 2)}\n`,
+    );
+    console.log(
+      `✓ fetch-blog: ${reviewed.length} reviewed post(s) → src/generated/${blogDataFilename(locale)} (gated)`,
+    );
+  }
+
+  // Auto locales (FR/IT/PT): translate at build time.
+  const targets = published.filter((l) => AUTO_LOCALES.includes(l));
   if (posts.length === 0 || targets.length === 0 || !hasApiKey()) {
     if (posts.length > 0 && targets.length > 0 && !hasApiKey()) {
       console.log(
-        "  fetch-blog: DEEPL_API_KEY not set — skipping blog translation (English-only).",
-      );
-    } else if (posts.length > 0 && targets.length === 0) {
-      console.log(
-        "  fetch-blog: no published non-source locales — skipping blog translation (English-only).",
+        "  fetch-blog: DEEPL_API_KEY not set — skipping auto blog translation (FR/IT/PT fall back to English).",
       );
     }
     return;
@@ -178,6 +214,15 @@ try {
     console.warn(
       "⚠ fetch-blog: token is set but 0 published posts found under blog/ — writing empty blog data.",
     );
+  }
+
+  // Bake each post's per-article approved-locale set (review gate) onto the
+  // English data so prerender + generate-feeds emit routes / hreflang / sitemap
+  // entries only for approved (or auto) pairs. See scripts/lib/blog-gate.mjs.
+  const approvals = loadApprovals(approvalsPath);
+  const publishedLocales = readPublishedLocales(localesTsPath);
+  for (const post of posts) {
+    post.approved_locales = approvedLocalesFor(post, approvals, publishedLocales, SOURCE_LOCALE);
   }
 
   writeOutput(posts);

@@ -1,0 +1,34 @@
+{
+  "5d2d1471-049c-4566-aa14-ca564bf1ab6c": {
+    "de": {
+      "status": "approved",
+      "sourceHash": "b9d02d6ee9d9285be7d7f5ff",
+      "provenance": "grandfathered-mt",
+      "reviewedAt": null,
+      "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
+    },
+    "es": {
+      "status": "approved",
+      "sourceHash": "b9d02d6ee9d9285be7d7f5ff",
+      "provenance": "grandfathered-mt",
+      "reviewedAt": null,
+      "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
+    }
+  },
+  "f0382ea8-64ea-47dd-bc92-8887a3238cb1": {
+    "de": {
+      "status": "approved",
+      "sourceHash": "0e82fc9ff4cd0774e670183b",
+      "provenance": "grandfathered-mt",
+      "reviewedAt": null,
+      "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
+    },
+    "es": {
+      "status": "approved",
+      "sourceHash": "0e82fc9ff4cd0774e670183b",
+      "provenance": "grandfathered-mt",
+      "reviewedAt": null,
+      "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
+    }
+  }
+}

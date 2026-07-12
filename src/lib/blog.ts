@@ -144,7 +144,12 @@ export function getAllPosts(locale: string = SOURCE_LOCALE): BlogPost[] {
 
 export function getPost(slug: string, locale: string = SOURCE_LOCALE): BlogPost | undefined {
   const clean = slug.replace(/\/+$/, "");
-  return getAllPosts(locale).find((p) => p.slug === clean);
+  const localized = getAllPosts(locale).find((p) => p.slug === clean);
+  if (localized || locale === SOURCE_LOCALE) return localized;
+  // Review gate: this article has no approved/available variant in `locale`
+  // (e.g. a stray client-side link to a not-yet-reviewed translation). Fall back
+  // to the English post so the reader gets content, not a blank not-found.
+  return getAllPosts(SOURCE_LOCALE).find((p) => p.slug === clean);
 }
 
 /** Concatenated plain text of a richtext subtree. */

@@ -5,10 +5,15 @@
 // URLs + authority. Every other locale is served under a path prefix
 // (`/de/`, `/es/blog/`, …).
 //
-// A locale is only PUBLISHED once its translated catalog exists AND has been
-// reviewed. prerender, sitemap, hreflang, and the language switcher all iterate
-// PUBLISHED_LOCALES, so today (en-only) nothing new is emitted: zero new URLs,
-// zero behaviour change. Publishing a locale later = add it to PUBLISHED_LOCALES.
+// PUBLISHED_LOCALES is the COARSE, site-wide switch: prerender, sitemap,
+// hreflang, and the language switcher iterate it, so a locale here has its
+// site chrome + marketing pages emitted. All six are currently published.
+//
+// BLOG articles have a FINER, per-(article × locale) gate on top of this
+// (content/i18n-approvals.json): DE/ES article variants are emitted only when
+// their translation has been reviewed + approved; FR/IT/PT articles translate
+// automatically at build time (with a machine-translation disclosure). English
+// is the source and always emits. See scripts/fetch-blog.mjs + prerender.mjs.
 
 export const SOURCE_LOCALE = "en" as const;
 
@@ -33,9 +38,9 @@ export const LOCALE_META: Record<Locale, { name: string; dir: "ltr" | "rtl"; ogL
 };
 
 /**
- * Locales that actually render / are linked today. Keep this to `["en"]` until a
- * translated catalog is reviewed — this is the one switch that gates URLs,
- * sitemap entries, hreflang, and the language switcher.
+ * Locales whose site chrome + marketing pages render / are linked. The coarse
+ * switch for URLs, sitemap entries, hreflang, and the language switcher. Blog
+ * article variants have an additional per-article review gate (see the header).
  */
 export const PUBLISHED_LOCALES: readonly Locale[] = ["en", "de", "es", "fr", "it", "pt"];
 

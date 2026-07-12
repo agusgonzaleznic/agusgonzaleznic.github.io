@@ -1,0 +1,1180 @@
+{
+  "slug": "github-is-turning-into-a-toxic-relationship",
+  "full_slug": "blog/github-is-turning-into-a-toxic-relationship",
+  "title": "GitHub se está convirtiendo en una relación tóxica",
+  "excerpt": "Crecí usando GitHub. Ahora quiere cobrarles un peaje a los developers por no usar sus servidores, y eso dice más sobre el abandono que sobre los precios.",
+  "body": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "Crecí en GitHub.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "No en el sentido de «una vez aprendí a programar ahí»… Me refiero a que ",
+            "type": "text"
+          },
+          {
+            "text": "mi carrera",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "text": "​, algunas amistades, mi confianza como ingeniero y una parte enorme de mi identidad profesional se forjaron en ese sitito del octocat. Me registré a finales de 2013, en la época en que pushear tu código a GitHub se sentía como sumarte a una comunidad global de builders a los que de verdad les importaba compartir.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "GitHub no era solo una herramienta. Era ",
+            "type": "text"
+          },
+          {
+            "text": "el",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "text": "​ lugar.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "El open source vivía ahí. Ahí se construían carreras. Ahí se construía confianza. Hacíamos mini-conferencias en Buenos Aires donde le enseñábamos a la gente cómo —y por qué— usarlo.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Por eso, ver lo que está pasando ahora se siente menos como un cambio de precios y más como ver a un viejo amigo olvidar de a poco por qué la gente lo quiso en primer lugar.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "Un pequeño desvío: ¿Qué es GitHub Actions (en términos humanos)?",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Si no trabajás en tech, acá va la versión simple.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Cuando los desarrolladores escriben software, no solo escriben código y lo lanzan. Hay un montón de tareas repetitivas de por medio: chequear si el código funciona, correr tests, empaquetarlo y deployarlo en algún lado. ",
+            "type": "text"
+          },
+          {
+            "text": "GitHub Actions",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": "​ es el sistema de automatización que hace esas tareas por vos.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Pensalo como una línea de montaje de fábrica para software.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Pusheás código → GitHub Actions corre → el software se chequea y se despacha.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Durante años, esto fue ",
+            "type": "text"
+          },
+          {
+            "text": "básicamente gratis",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "text": "​ si no usabas los propios servidores de GitHub para correr esas tareas, y pagabas por tiempo de cómputo (con un redondeo bastante malo) si corrías en sus servidores por comodidad. Esa apertura es la razón por la que creció a su alrededor todo un ecosistema de alternativas más rápidas, más baratas y mejores.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Y ahí es donde la historia da un giro.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "El cambio que encendió la mecha",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "GitHub anunció hace poco que, a partir de ",
+            "type": "text"
+          },
+          {
+            "text": "2026",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ", va a cobrar una ",
+            "type": "text"
+          },
+          {
+            "text": "tasa de «control plane»",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " para GitHub Actions… incluso si ",
+            "type": "text"
+          },
+          {
+            "text": "no",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "text": "  usás la propia infraestructura de GitHub para ejecutarlas.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "En otras palabras, ",
+            "type": "text"
+          },
+          {
+            "text": "GitHub te va a cobrar por no usar GitHub.",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "La tarifa es de aproximadamente ",
+            "type": "text"
+          },
+          {
+            "text": "0,002 dólares por minuto",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ". Suena ínfimo, hasta que lo escalás a equipos reales, cargas de trabajo reales y tiempo real. De repente, estás hablando de ",
+            "type": "text"
+          },
+          {
+            "text": "decenas o cientos de dólares al mes",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " solo por el permiso de ejecutar la automatización en otro lado.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Y eso fue lo que me voló la cabeza.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A los desarrolladores no nos molesta pagar por cómputo. Ya lo hacemos. Lo que sí nos molesta es que nos cobren un peaje por ",
+            "type": "text"
+          },
+          {
+            "text": "evitar",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "text": " una plataforma que hace años no recibe un mantenimiento como corresponde.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "¿Por qué la bronca es tan intensa?",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "No se trata de dinero. Se trata de ",
+            "type": "text"
+          },
+          {
+            "text": "abandono",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ".",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": " GitHub Actions es ampliamente conocido entre los desarrolladores como:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "bullet_list",
+        "attrs": {
+          "tight": false
+        },
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Lento",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Difícil de observar (logs malos, métricas malas)",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Facturado de forma injusta (redondea los jobs cortos a minutos completos)",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Y respaldado por un equipo cada vez más chico",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Mientras tanto, plataformas de terceros como Depot y Blacksmith demostraron que:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "bullet_list",
+        "attrs": {
+          "tight": false
+        },
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Las builds pueden ser ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "entre 10 y 30 veces más rápidas",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "La facturación puede ser ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "justa y precisa",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Y la observabilidad puede ser ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "realmente útil",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "italic"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "En lugar de competir (o, siendo honesto, al menos mejorar), GitHub eligió otra palanca: ",
+            "type": "text"
+          },
+          {
+            "text": "cobrarles impuesto a las vías de escape",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ".",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Por eso la reacción no fue un desacuerdo leve. Fue indignación, incredulidad y resignación, todo a la vez.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Incluso quienes ayudaron a ",
+            "type": "text"
+          },
+          {
+            "text": "construir",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "text": " este ecosistema (incluido el creador de Terraform) dijo públicamente que era la movida equivocada en el peor momento posible.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "blockquote",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Mitchell Hashimoto, creador de Terraform, ",
+                "type": "text"
+              },
+              {
+                "text": "lo dijo en X",
+                "type": "text",
+                "marks": [
+                  {
+                    "type": "link",
+                    "attrs": {
+                      "href": "https://x.com/mitchellh/status/2001072374251446374",
+                      "title": null
+                    }
+                  }
+                ]
+              },
+              {
+                "text": ".",
+                "type": "text"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Y eso me lleva a Terraform…",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "Terraform Cloud también hizo esto (y lo dejé)",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "En 2024, Terraform Cloud pasó de un modelo de precios basado en usuarios a algo llamado ",
+            "type": "text"
+          },
+          {
+            "text": "Resources Under Management (RUM)",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ".",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "En lugar de pagar por cuánta gente hay en tu equipo, pagás por cuántos recursos cloud gestionás ",
+            "type": "text"
+          },
+          {
+            "text": "por mes",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "text": ".",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "En el papel, esto sonaba razonable:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "bullet_list",
+        "attrs": {
+          "tight": false
+        },
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "El plan gratuito se amplió a 500 recursos",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "El precio pasó a ser \"basado en el uso\"",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Supuestamente ayudaba a los equipos más chicos",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "¿En la práctica?",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "bullet_list",
+        "attrs": {
+          "tight": false
+        },
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Los costos se volvieron más difíciles de predecir",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Las funciones avanzadas quedaron detrás de planes más caros",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Y los equipos se sintieron castigados por escalar de forma responsable",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "¿Te suena?",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "El resultado de esta movida para mí fue que primero conseguí un 40% de descuento en la renovación del contrato anual, y usé ese tiempo para migrar todo: los states, el module registry, e incluso HCP Vault Secrets… Me sentí traicionado.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Tanto Terraform Cloud como GitHub Actions siguieron el mismo libreto:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "ordered_list",
+        "attrs": {
+          "order": 1,
+          "tight": false
+        },
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Convertirse en el estándar por defecto",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Dejá que el ecosistema se construya a tu alrededor",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Invertir de menos en el producto",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Monetizá los cuellos de botella",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Llamalo «justicia»",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Este patrón tiene un nombre.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "Enshittification",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "El escritor Cory Doctorow acuñó el término ",
+            "type": "text"
+          },
+          {
+            "text": "enshittification",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " para describir lo que pasa cuando las plataformas:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "bullet_list",
+        "attrs": {
+          "tight": false
+        },
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Arrancan siendo generosas con los usuarios",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Después priorizan a los clientes empresariales",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Y, finalmente, extraen valor de todos una vez que el lock-in está completo",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "La experiencia del usuario no se derrumba de golpe. Se erosiona de a poco. Pequeños cortes. Comisiones. Fricción. Decisiones que tienen sentido en una hoja de cálculo pero se sienten hostiles en la vida real.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Que GitHub les cobre a los desarrolladores por los self-hosted runners no es el fin de GitHub.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Pero es ",
+            "type": "text"
+          },
+          {
+            "text": "es",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "text": "un momento de enshittification de manual.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "Lo más triste es que esto se podía evitar",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Lo que duele no es solo la plata. Es el ",
+            "type": "text"
+          },
+          {
+            "text": "pérdida de alineación",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "text": ".",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "GitHub ganaba porque entendía a los desarrolladores.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Ahora se siente como un activo de Microsoft sin capitán.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "No hay CEO. No hay un liderazgo de producto visible. No hay nadie con la autoridad clara para decir: «Esto va a quemar la confianza».",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Y la confianza (no el código) es el activo más valioso de GitHub.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "La ironía es brutal: GitHub construyó su imperio sobre la generosidad del open source, y ahora les está cobrando peaje a las mismas personas que hicieron que el ecosistema fuera mejor que el propio GitHub.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 3
+        },
+        "content": [
+          {
+            "text": "¿Dónde quedo yo en todo esto?",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "No quiero que GitHub fracase; quiero que recuerde para quién existe.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Pero, por primera vez en mi carrera, ya no estoy seguro de que lo haga.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Los estándares solo importan cuando son neutrales. En el momento en que un «estándar» viene con una cabina de peaje, la gente empieza a buscar salidas. Y una vez que surjan competidores reales (no solo mejores herramientas, sino mejores plataformas), esa salida podría por fin concretarse.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "GitHub no está muerto.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Pero ya no está prosperando.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Y para quienes crecimos ahí, darme cuenta de eso duele más de lo que jamás podría doler cualquier factura.",
+            "type": "text"
+          }
+        ]
+      }
+    ]
+  },
+  "cover_image": null,
+  "published_date": "2025-12-17 09:00",
+  "first_published_at": "2026-07-05T20:49:42.141Z",
+  "published_at": "2026-07-05T20:49:42.141Z",
+  "original_url": "https://agusgonzaleznic.medium.com/github-is-turning-into-a-toxic-relationship-9d8e8178c097",
+  "seo_title": "GitHub se está convirtiendo en una relación tóxica",
+  "seo_description": "La tarifa de control-plane de GitHub para 2026 les cobra a los developers por no usar su infraestructura. Por qué el cambio de precios de Actions se siente como un caso de enshittification de manual.",
+  "canonical_override": "",
+  "tag_list": [
+    "enshittification",
+    "github",
+    "github-actions",
+    "opinion"
+  ],
+  "uuid": "5d2d1471-049c-4566-aa14-ca564bf1ab6c"
+}
