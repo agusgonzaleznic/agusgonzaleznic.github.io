@@ -53,6 +53,10 @@ for (const post of blogPosts) {
     path: `/blog/${post.slug}`,
     file: `blog/${post.slug}/index.html`,
     canonical: `/blog/${post.slug}/`,
+    // Review gate: emit this article's /{locale}/ variant + hreflang only for
+    // its approved (or auto) locales. Fallback keeps old behaviour if the field
+    // is ever absent (e.g. hand-built data). See scripts/lib/blog-gate.mjs.
+    approvedLocales: post.approved_locales,
   });
 }
 
@@ -70,12 +74,13 @@ const ROOT = '<div id="root"></div>';
 const HEAD_START = "<!-- route-head:start -->";
 const HEAD_END = "<!-- route-head:end -->";
 
-// Build the hreflang alternate <link>s for a route: one per PUBLISHED locale
+// Build the hreflang alternate <link>s for a route: one per locale in `locales`
 // (each pointing at that locale's equivalent URL) plus x-default → English.
-// With only "en" published this is a self hreflang="en" + x-default, both at
-// the English URL.
-function hreflangLinks(canonicalPath) {
-  const links = PUBLISHED_LOCALES.map(
+// `locales` defaults to every PUBLISHED locale (chrome/marketing pages); blog
+// articles pass their per-article approved set so hreflang never advertises a
+// locale variant that was not emitted (reciprocity).
+function hreflangLinks(canonicalPath, locales = PUBLISHED_LOCALES) {
+  const links = locales.map(
     (loc) =>
       `<link rel="alternate" hreflang="${loc}" href="${SITE_URL}${localizePath(canonicalPath, loc)}" />`,
   );
@@ -165,9 +170,13 @@ for (const locale of PUBLISHED_LOCALES) {
   const prefix = locale === SOURCE_LOCALE ? "" : `${locale}/`;
 
   for (const route of routes) {
+    // Review gate: a blog article carries `approvedLocales`; skip emitting its
+    // variant (and hreflang entry) for a locale that is not approved/auto. The
+    // English (source) variant is always in the set, so it is never skipped.
+    if (route.approvedLocales && !route.approvedLocales.includes(locale)) continue;
     const urlPath = localizePath(route.path, locale);
     const { html: appHtml, helmet } = render(urlPath, locale);
-    const alternates = hreflangLinks(route.canonical);
+    const alternates = hreflangLinks(route.canonical, route.approvedLocales);
 
     // "/" keeps the template head untouched (the block between the markers IS
     // the homepage head); we only splice the hreflang alternates in before the
