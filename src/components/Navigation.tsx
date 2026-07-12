@@ -201,9 +201,9 @@ export const Navigation = () => {
               >
                 <Trans>Book a Session</Trans>
               </Button>
-              {/* Crawlable locale links — renders nothing until >=2 locales are
-                  published, so the English DOM is unchanged today. */}
-              <LanguageSwitcher />
+              {/* Crawlable locale links (compact dropdown) — renders nothing until
+                  >=2 locales are published, so the English DOM is unchanged today. */}
+              <LanguageSwitcher variant="dropdown" />
             </div>
 
             {/* Mobile Menu Button */}
