@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Helmet } from "react-helmet";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+import { LocaleLink } from "@/components/LocaleLink";
 import { ArrowLeft } from "lucide-react";
 import { Trans } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
@@ -112,13 +113,13 @@ const BlogPostPage = () => {
           <div className={`container px-6 ${SECTION_PADDING}`}>
             <div className="mx-auto max-w-3xl">
               <header className="mb-10 animate-fade-in-up">
-                <Link
+                <LocaleLink
                   to="/blog/"
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-accent"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <Trans>All writing</Trans>
-                </Link>
+                </LocaleLink>
                 <h1 className="mt-8 mb-6 text-fluid-3xl font-bold leading-tight">
                   {post.title}
                 </h1>

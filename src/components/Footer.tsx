@@ -1,14 +1,20 @@
 import { Mail, Linkedin, Github } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { LocaleLink } from "@/components/LocaleLink";
+import { useLocalizedTo } from "@/i18n/useLocalizedTo";
+import { delocalizePath } from "@/i18n/locales";
 
 export const Footer = () => {
   const { t } = useLingui();
   const currentYear = new Date().getFullYear();
   const location = useLocation();
   const navigate = useNavigate();
-  const isHome = location.pathname === "/";
+  const localize = useLocalizedTo();
+  // Locale-aware: /de/ (and every localized home) counts as home, so section
+  // links scroll in place instead of navigating away.
+  const isHome = delocalizePath(location.pathname) === "/";
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -48,12 +54,12 @@ export const Footer = () => {
                 {quickLinks.map((link) => (
                   <li key={link.id ?? link.to}>
                     {link.to ? (
-                      <Link
+                      <LocaleLink
                         to={link.to}
                         className="text-primary-foreground/90 hover:text-accent transition-colors"
                       >
                         {link.label}
-                      </Link>
+                      </LocaleLink>
                     ) : isHome ? (
                       <button
                         onClick={() => scrollToSection(link.id!)}
@@ -63,7 +69,7 @@ export const Footer = () => {
                       </button>
                     ) : (
                       <button
-                        onClick={() => navigate("/", { state: { scrollTo: link.id } })}
+                        onClick={() => navigate(localize("/"), { state: { scrollTo: link.id } })}
                         className="text-primary-foreground/90 hover:text-accent transition-colors"
                       >
                         {link.label}

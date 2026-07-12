@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { LocaleLink } from "@/components/LocaleLink";
 import { ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { PostMeta } from "@/components/blog/PostMeta";
@@ -9,7 +9,7 @@ import type { BlogPost } from "@/lib/blog";
 const STAGGER_DELAYS = ["", "delay-100", "delay-200", "delay-300", "delay-400"];
 
 export const PostCard = ({ post, index }: { post: BlogPost; index: number }) => (
-  <Link
+  <LocaleLink
     to={`/blog/${post.slug}/`}
     className={`group block animate-fade-in-up ${STAGGER_DELAYS[Math.min(index, STAGGER_DELAYS.length - 1)]}`}
   >
@@ -26,5 +26,5 @@ export const PostCard = ({ post, index }: { post: BlogPost; index: number }) => 
         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
       </span>
     </Card>
-  </Link>
+  </LocaleLink>
 );

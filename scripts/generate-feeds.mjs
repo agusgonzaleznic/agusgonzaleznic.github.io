@@ -207,13 +207,16 @@ export async function generateFeeds(i18nConfig) {
   // Per-locale llms.txt: English at the root, others under /{locale}/ from their
   // own translated brief (public/{locale}/llms.txt). A locale without a brief yet
   // is skipped rather than emitting an English copy under its prefix.
+  const rootBrief = resolve(projectRoot, "public/llms.txt");
   for (const locale of cfg.PUBLISHED_LOCALES) {
     const prefix = locale === cfg.SOURCE_LOCALE ? "" : `${locale}/`;
+    // Prefer a translated brief (public/{locale}/llms.txt); otherwise fall back
+    // to the English brief so /{locale}/llms.txt is still a valid Markdown file
+    // (H1 + summary) rather than the SPA HTML fallback GitHub Pages would serve
+    // for a missing path — which crawlers reject as a malformed llms.txt.
+    const localeBrief = resolve(projectRoot, `public/${locale}/llms.txt`);
     const templatePath =
-      locale === cfg.SOURCE_LOCALE
-        ? resolve(projectRoot, "public/llms.txt")
-        : resolve(projectRoot, `public/${locale}/llms.txt`);
-    if (!existsSync(templatePath)) continue;
+      locale !== cfg.SOURCE_LOCALE && existsSync(localeBrief) ? localeBrief : rootBrief;
     writeCompressed(resolve(distDir, `${prefix}llms.txt`), buildLlmsTxt(posts, templatePath));
   }
 

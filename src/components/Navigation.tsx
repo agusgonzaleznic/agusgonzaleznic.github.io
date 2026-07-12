@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { LocaleLink } from "@/components/LocaleLink";
+import { useLocalizedTo } from "@/i18n/useLocalizedTo";
+import { delocalizePath } from "@/i18n/locales";
 import {
   CONTACT_CTA_ID,
   HERO_CTA_ID,
@@ -31,8 +34,12 @@ export const Navigation = () => {
   const [isStickyCtaVisible, setIsStickyCtaVisible] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const isHome = location.pathname === "/";
-  const isBlog = location.pathname.startsWith("/blog");
+  const localize = useLocalizedTo();
+  // Locale-aware: treat /{locale}/ and /{locale}/blog like their English roots
+  // so home-scroll and blog-specific behaviour work under every language.
+  const basePath = delocalizePath(location.pathname);
+  const isHome = basePath === "/";
+  const isBlog = basePath.startsWith("/blog");
 
   useEffect(() => {
     // Hysteresis (dead-band) so the bar can't flicker. A single `scrollY > 50`
@@ -120,14 +127,14 @@ export const Navigation = () => {
   const renderNavLink = (link: NavLink, className: string) => {
     if (link.to) {
       return (
-        <Link
+        <LocaleLink
           key={link.id ?? link.to}
           to={link.to}
           onClick={() => setIsMobileMenuOpen(false)}
           className={className}
         >
           {link.label}
-        </Link>
+        </LocaleLink>
       );
     }
     if (isHome) {
@@ -146,7 +153,7 @@ export const Navigation = () => {
         key={link.label}
         onClick={() => {
           setIsMobileMenuOpen(false);
-          navigate("/", { state: { scrollTo: link.id } });
+          navigate(localize("/"), { state: { scrollTo: link.id } });
         }}
         className={className}
       >
@@ -179,12 +186,12 @@ export const Navigation = () => {
                 AGN
               </button>
             ) : (
-              <Link
+              <LocaleLink
                 to="/"
                 className="text-xl font-serif font-bold text-foreground hover:text-accent transition-colors"
               >
                 AGN
-              </Link>
+              </LocaleLink>
             )}
 
             {/* Desktop Navigation */}
