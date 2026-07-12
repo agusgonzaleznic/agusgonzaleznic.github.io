@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useLingui } from "@lingui/react/macro";
 import { Check, ChevronDown, Globe } from "lucide-react";
 import {
@@ -9,27 +9,32 @@ import {
   LOCALE_META,
   PUBLISHED_LOCALES,
 } from "@/i18n/locales";
+import { dynamicActivate } from "@/i18n/i18n";
 import { cn } from "@/lib/utils";
 
 // Crawlable language switcher: real <a> anchors to the SAME route in each
-// PUBLISHED locale, so search/AI crawlers follow them and a switch triggers a
-// full navigation (the destination locale's catalog + <html lang> load on
-// load). SSR-safe — useLocation works under StaticRouter during prerender.
+// PUBLISHED locale, so search/AI crawlers and no-JS visitors follow them to the
+// prerendered per-locale page. SSR-safe — useLocation works under StaticRouter.
 //
-// It renders ONLY published locales. Today PUBLISHED_LOCALES === ["en"], so
-// there is nothing to switch between and this renders nothing: mounting it is a
-// no-op and the site is unchanged. When a second locale is published it appears
-// automatically. The routing author mounts it in Navigation + Footer.
+// PROGRESSIVE ENHANCEMENT: on a plain click we intercept, load the target
+// locale's catalog, update <html lang>, and client-navigate — the text swaps
+// in place with NO full reload, and ScrollManager keeps the reader's position
+// (navigation state { localeSwitch }). Modifier/middle clicks, JS-off, and a
+// failed catalog load all fall back to the anchor's normal full navigation, so
+// nothing regresses. SEO is unchanged: the URL still becomes the real /{locale}/
+// path (own canonical/hreflang), and crawlers use the prerendered pages.
+//
+// Renders ONLY published locales, and nothing until >=2 are published.
 //
 // variant="inline"   — flat row of codes (footer; ample room).
 // variant="dropdown" — compact trigger + collapsible menu (top nav; saves space).
 //   The menu's <a> anchors are ALWAYS in the DOM (only visually toggled), so the
-//   prerendered HTML stays crawlable exactly like the inline list — the dropdown
-//   is a display affordance, not a JS-gated content mount.
+//   prerendered HTML stays crawlable exactly like the inline list.
 type Props = { className?: string; variant?: "inline" | "dropdown" };
 
 export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -50,6 +55,30 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [open]);
+
+  // Intercept plain left-clicks for an in-place switch; let the browser handle
+  // modifier/middle clicks (open in new tab) and fall back to a full navigation
+  // if the catalog chunk fails to load.
+  const switchTo = (e: MouseEvent<HTMLAnchorElement>, locale: string, href: string) => {
+    if (
+      e.defaultPrevented ||
+      e.button !== 0 ||
+      e.metaKey ||
+      e.ctrlKey ||
+      e.shiftKey ||
+      e.altKey
+    ) {
+      return;
+    }
+    e.preventDefault();
+    setOpen(false);
+    dynamicActivate(locale)
+      .then(() => {
+        document.documentElement.lang = locale;
+        navigate(href, { state: { localeSwitch: true } });
+      })
+      .catch(() => window.location.assign(href));
+  };
 
   // Nothing to switch between until at least two locales are published.
   if (PUBLISHED_LOCALES.length < 2) return null;
@@ -78,6 +107,7 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
               lang={locale}
               hrefLang={locale}
               aria-label={name}
+              onClick={(e) => switchTo(e, locale, href)}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-accent"
             >
               {locale.toUpperCase()}
@@ -133,6 +163,7 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
               href={href}
               lang={locale}
               hrefLang={locale}
+              onClick={(e) => switchTo(e, locale, href)}
               className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
             >
               {name}
