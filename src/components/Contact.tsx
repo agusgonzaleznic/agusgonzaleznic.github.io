@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Mail, Send, Linkedin, Github } from "lucide-react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   CONTACT_CTA_ID,
   SECTION_HEADER_MARGIN,
@@ -37,6 +38,7 @@ async function sha256Hex(body: string): Promise<string> {
 }
 
 export const Contact = () => {
+  const { t } = useLingui();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -154,7 +156,7 @@ export const Contact = () => {
 
     // Basic validation — focus the first offending field.
     if (!formData.name || !formData.email || !formData.message) {
-      toast.error("Please fill in all required fields");
+      toast.error(t`Please fill in all required fields`);
       focusInvalid(!formData.name ? "name" : !formData.email ? "email" : "message");
       return;
     }
@@ -162,13 +164,13 @@ export const Contact = () => {
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast.error("Please enter a valid email address");
+      toast.error(t`Please enter a valid email address`);
       focusInvalid("email");
       return;
     }
 
     if (!turnstileToken) {
-      toast.error("Please complete the verification challenge and try again.");
+      toast.error(t`Please complete the verification challenge and try again.`);
       return;
     }
 
@@ -201,7 +203,7 @@ export const Contact = () => {
       const data = await response.json().catch(() => ({}) as { error?: string });
 
       if (response.ok) {
-        toast.success("Message sent — I typically reply within 24 hours.");
+        toast.success(t`Message sent — I typically reply within 24 hours.`);
         setFormData({ name: "", email: "", role: "", message: "" });
         setCompanyWebsite("");
         return;
@@ -211,31 +213,31 @@ export const Contact = () => {
         case 400:
           toast.error(
             data.error ||
-              "Some details look off. Please check the form and try again.",
+              t`Some details look off. Please check the form and try again.`,
           );
           break;
         case 403:
           toast.error(
             data.error ||
-              "Verification failed. Please complete the challenge and try again.",
+              t`Verification failed. Please complete the challenge and try again.`,
           );
           break;
         case 429:
           toast.error(
             data.error ||
-              "Too many requests. Please wait a moment, or email me directly.",
+              t`Too many requests. Please wait a moment, or email me directly.`,
           );
           break;
         default:
           toast.error(
             data.error ||
-              "Failed to send message. Please try again or email me directly.",
+              t`Failed to send message. Please try again or email me directly.`,
           );
       }
     } catch (error) {
       console.error("Form submission error:", error);
       toast.error(
-        "Failed to send message. Please try again or email me directly.",
+        t`Failed to send message. Please try again or email me directly.`,
       );
     } finally {
       // The Turnstile token is single-use; always clear + reset the widget so a
@@ -251,9 +253,9 @@ export const Contact = () => {
         <div className="max-w-5xl mx-auto">
           {/* Section header */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h2 className="text-fluid-3xl font-bold mb-6">What's the Hardest Part of the Job Right Now?</h2>
+            <h2 className="text-fluid-3xl font-bold mb-6"><Trans>What's the Hardest Part of the Job Right Now?</Trans></h2>
             <p className="text-fluid-lg text-muted-foreground">
-              Tell me in a few lines — a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for.
+              <Trans>Tell me in a few lines — a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for.</Trans>
             </p>
           </div>
 
@@ -267,7 +269,7 @@ export const Contact = () => {
                 className="space-y-6"
               >
                 <div>
-                  <Label htmlFor="name">Name *</Label>
+                  <Label htmlFor="name"><Trans>Name *</Trans></Label>
                   <Input
                     id="name"
                     name="name"
@@ -277,7 +279,7 @@ export const Contact = () => {
                       setInvalidField(null);
                       setFormData({ ...formData, name: e.target.value });
                     }}
-                    placeholder="Your full name"
+                    placeholder={t`Your full name`}
                     required
                     aria-invalid={invalidField === "name"}
                     className="mt-2"
@@ -285,7 +287,7 @@ export const Contact = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="email">Email *</Label>
+                  <Label htmlFor="email"><Trans>Email *</Trans></Label>
                   <Input
                     id="email"
                     name="email"
@@ -304,20 +306,20 @@ export const Contact = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="role">Current Role</Label>
+                  <Label htmlFor="role"><Trans>Current Role</Trans></Label>
                   <Input
                     id="role"
                     name="role"
                     autoComplete="organization-title"
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    placeholder="e.g., Engineering Manager, VP of Engineering"
+                    placeholder={t`e.g., Engineering Manager, VP of Engineering`}
                     className="mt-2"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="message">What would you like help with? *</Label>
+                  <Label htmlFor="message"><Trans>What would you like help with? *</Trans></Label>
                   <Textarea
                     id="message"
                     value={formData.message}
@@ -325,7 +327,7 @@ export const Contact = () => {
                       setInvalidField(null);
                       setFormData({ ...formData, message: e.target.value });
                     }}
-                    placeholder="Tell me about your current challenges or goals..."
+                    placeholder={t`Tell me about your current challenges or goals...`}
                     required
                     aria-invalid={invalidField === "message"}
                     className="mt-2 min-h-32"
@@ -365,8 +367,8 @@ export const Contact = () => {
                   <div ref={widgetContainerRef} className="min-h-[65px]" />
                   {turnstileError && (
                     <p className="mt-2 text-sm text-destructive" role="alert">
-                      Verification isn't available right now — please email me
-                      directly at info@agusgonzaleznic.com.
+                      <Trans>Verification isn't available right now — please email me
+                      directly at info@agusgonzaleznic.com.</Trans>
                     </p>
                   )}
                 </div>
@@ -378,12 +380,12 @@ export const Contact = () => {
                   className="w-full bg-accent hover:bg-accent-hover text-accent-foreground shadow-accent"
                   disabled={isSubmitting || !turnstileToken}
                 >
-                  {isSubmitting ? "Sending..." : "Send Message"}
+                  {isSubmitting ? t`Sending...` : t`Send Message`}
                   <Send className="ml-2 h-5 w-5" />
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center">
-                  By submitting, you agree to being contacted about coaching services. Your information is kept confidential.
+                  <Trans>By submitting, you agree to being contacted about coaching services. Your information is kept confidential.</Trans>
                 </p>
               </form>
             </Card>
@@ -391,7 +393,7 @@ export const Contact = () => {
             {/* Contact info */}
             <div className="lg:col-span-2 space-y-6 animate-fade-in-up delay-200">
               <Card className="p-6 border-2">
-                <h3 className="font-bold mb-4">Get in Touch</h3>
+                <h3 className="font-bold mb-4"><Trans>Get in Touch</Trans></h3>
                 <div className="space-y-4">
                   <a
                     href="mailto:info@agusgonzaleznic.com"
@@ -412,7 +414,7 @@ export const Contact = () => {
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
                       <Linkedin className="w-5 h-5" />
                     </div>
-                    <span className="text-sm">LinkedIn Profile</span>
+                    <span className="text-sm"><Trans>LinkedIn Profile</Trans></span>
                   </a>
 
                   <a
@@ -424,22 +426,22 @@ export const Contact = () => {
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
                       <Github className="w-5 h-5" />
                     </div>
-                    <span className="text-sm">GitHub Profile</span>
+                    <span className="text-sm"><Trans>GitHub Profile</Trans></span>
                   </a>
                 </div>
               </Card>
 
               <Card className="p-6 bg-accent/5 border-accent/20">
-                <h3 className="font-bold mb-3 text-foreground">Response Time</h3>
+                <h3 className="font-bold mb-3 text-foreground"><Trans>Response Time</Trans></h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  I typically respond within 24 hours. For urgent inquiries, please mention it in your message.
+                  <Trans>I typically respond within 24 hours. For urgent inquiries, please mention it in your message.</Trans>
                 </p>
               </Card>
 
               <Card className="p-6 bg-primary/5 border-primary/20">
-                <h3 className="font-bold mb-3 text-foreground">Free Discovery Call</h3>
+                <h3 className="font-bold mb-3 text-foreground"><Trans>Free Discovery Call</Trans></h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  The first 30 minutes are on me: a working session on your situation, not a sales pitch. If I'm not the right coach for the problem, I'll say so.
+                  <Trans>The first 30 minutes are on me: a working session on your situation, not a sales pitch. If I'm not the right coach for the problem, I'll say so.</Trans>
                 </p>
               </Card>
             </div>

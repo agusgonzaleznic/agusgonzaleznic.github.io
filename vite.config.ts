@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import { lingui } from "@lingui/vite-plugin";
 import path from "path";
 import viteCompression from "vite-plugin-compression";
 import mkcert from "vite-plugin-mkcert";
@@ -17,7 +18,12 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     https: useHttps, // Enable HTTPS for Storyblok Visual Editor (set VITE_HTTPS=true)
   },
   plugins: [
-    react(),
+    // Lingui macros (t / msg / <Trans> …) are rewritten at compile time by the
+    // SWC plugin wired into the React transform below. The @lingui/vite-plugin
+    // compiles `.po` catalog imports into message objects (one code-split chunk
+    // per locale). Keep the SWC transform (Option A) so JSX output is unchanged.
+    react({ plugins: [["@lingui/swc-plugin", {}]] }),
+    lingui(),
     // Only use mkcert when HTTPS is enabled
     ...(useHttps ? [mkcert()] : []),
     // Gzip compression

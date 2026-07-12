@@ -1,43 +1,45 @@
 import { Card } from "@/components/ui/card";
 import { TrendingDown, Zap, Shield, Users, Rocket, Target } from "lucide-react";
+import { Trans, useLingui } from "@lingui/react/macro";
+import { msg } from "@lingui/core/macro";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 const stats = [
   {
     icon: TrendingDown,
     value: "40%",
-    label: "Cloud Cost Reduction",
-    description: "FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap",
+    label: msg`Cloud Cost Reduction`,
+    description: msg`FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap`,
   },
   {
     icon: Shield,
     value: "99.99%",
-    label: "System Uptime",
-    description: "Multi-region failover and DR/HA playbooks, built so a bad day in one region stays invisible to users",
+    label: msg`System Uptime`,
+    description: msg`Multi-region failover and DR/HA playbooks, built so a bad day in one region stays invisible to users`,
   },
   {
     icon: Rocket,
     value: "3×",
-    label: "Faster Releases",
-    description: "Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event",
+    label: msg`Faster Releases`,
+    description: msg`Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event`,
   },
   {
     icon: Zap,
     value: "75%",
-    label: "Reduced Lead Time",
-    description: "A multi-account AWS migration with deployments automated end to end",
+    label: msg`Reduced Lead Time`,
+    description: msg`A multi-account AWS migration with deployments automated end to end`,
   },
   {
     icon: Users,
     value: "50%",
-    label: "Team Velocity Boost",
-    description: "OKRs paired with DORA metrics, used as working tools rather than dashboards",
+    label: msg`Team Velocity Boost`,
+    description: msg`OKRs paired with DORA metrics, used as working tools rather than dashboards`,
   },
   {
     icon: Target,
     value: "60%",
-    label: "Faster Onboarding",
-    description: "Standardized processes and documentation a new hire can follow on day one",
+    label: msg`Faster Onboarding`,
+    description: msg`Standardized processes and documentation a new hire can follow on day one`,
   },
 ];
 
@@ -45,45 +47,46 @@ const timeline = [
   {
     period: "2025-Present",
     company: "Confidential (Web3)",
-    role: "Head of Infrastructure & Security",
-    achievement: "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now.",
+    role: msg`Head of Infrastructure & Security`,
+    achievement: msg`Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now.`,
   },
   {
     period: "2022-2025",
     company: "JUCR GmbH (EV Charging)",
-    role: "VP of Engineering",
-    achievement: "Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime.",
+    role: msg`VP of Engineering`,
+    achievement: msg`Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime.`,
   },
   {
     period: "2020-2022",
     company: "Wildlife Studios (Gaming)",
-    role: "Cloud Security Manager",
-    achievement: "Kept security controls stringent while game teams shipped features at full speed.",
+    role: msg`Cloud Security Manager`,
+    achievement: msg`Kept security controls stringent while game teams shipped features at full speed.`,
   },
   {
     period: "2018-2021",
     company: "Ualá (FinTech)",
-    role: "DevOps Lead",
-    achievement: "Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout.",
+    role: msg`DevOps Lead`,
+    achievement: msg`Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout.`,
   },
   {
     period: "2014-2018",
     company: "Bdev (HealthTech)",
-    role: "Infrastructure & Security Lead",
-    achievement: "Migrated on-premise infrastructure to AWS and implemented SOC 2 and ISO 27001 compliance.",
+    role: msg`Infrastructure & Security Lead`,
+    achievement: msg`Migrated on-premise infrastructure to AWS and implemented SOC 2 and ISO 27001 compliance.`,
   },
 ];
 
 export const Impact = () => {
+  const { i18n } = useLingui();
   return (
     <section id="impact" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h2 className="text-fluid-3xl font-bold mb-6">Numbers I Stand Behind</h2>
+            <h2 className="text-fluid-3xl font-bold mb-6"><Trans>Numbers I Stand Behind</Trans></h2>
             <p className="text-fluid-lg text-muted-foreground">
-              Results from teams I've led as an operator — the same playbooks we'll work from
+              <Trans>Results from teams I've led as an operator — the same playbooks we'll work from</Trans>
             </p>
           </div>
 
@@ -91,7 +94,7 @@ export const Impact = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
             {stats.map((stat, index) => (
               <Card
-                key={stat.label}
+                key={index}
                 className={`p-6 hover-lift border-2 hover:border-accent/30 transition-all duration-300 animate-fade-in-up delay-${index * 100}`}
               >
                 <div className="flex items-start gap-4">
@@ -100,9 +103,9 @@ export const Impact = () => {
                   </div>
                   <div className="flex-1">
                     <div className="text-3xl font-bold text-accent mb-1">{stat.value}</div>
-                    <div className="text-sm font-medium text-foreground mb-2">{stat.label}</div>
+                    <div className="text-sm font-medium text-foreground mb-2">{i18n._(stat.label)}</div>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      {stat.description}
+                      {i18n._(stat.description)}
                     </p>
                   </div>
                 </div>
@@ -113,7 +116,7 @@ export const Impact = () => {
           {/* Timeline */}
           <div>
             <h3 className="text-fluid-2xl font-bold text-center mb-12 animate-fade-in-up">
-              Experience Timeline
+              <Trans>Experience Timeline</Trans>
             </h3>
             <div className="space-y-6">
               {timeline.map((item, index) => (
@@ -141,11 +144,11 @@ export const Impact = () => {
                           <div className="w-2 h-2 rounded-full bg-accent mt-2 shrink-0" />
                           <div className="flex-1">
                             <div className="flex flex-col gap-1 mb-3">
-                              <h4 className="text-lg font-bold text-foreground">{item.role}</h4>
+                              <h4 className="text-lg font-bold text-foreground">{i18n._(item.role)}</h4>
                               <p className="text-sm text-muted-foreground">{item.company}</p>
                             </div>
                             <p className="text-sm text-muted-foreground leading-relaxed">
-                              {item.achievement}
+                              {i18n._(item.achievement)}
                             </p>
                           </div>
                         </div>

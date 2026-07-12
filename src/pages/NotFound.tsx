@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { Trans } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SECTION_PADDING } from "@/lib/layout";
@@ -20,11 +21,11 @@ const NotFound = () => {
             <div className="max-w-3xl mx-auto text-center animate-fade-in-up">
               <h1 className="text-fluid-3xl font-bold mb-6">404</h1>
               <p className="text-fluid-lg text-muted-foreground mb-8">
-                This page doesn't exist — but the conversation can still start
-                somewhere useful.
+                <Trans>This page doesn't exist — but the conversation can still start
+                somewhere useful.</Trans>
               </p>
               <a href="/" className="font-medium text-accent hover:underline">
-                Return to home
+                <Trans>Return to home</Trans>
               </a>
             </div>
           </div>

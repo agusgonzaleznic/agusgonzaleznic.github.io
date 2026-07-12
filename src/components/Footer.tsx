@@ -1,7 +1,10 @@
 import { Mail, Linkedin, Github } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Trans, useLingui } from "@lingui/react/macro";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export const Footer = () => {
+  const { t } = useLingui();
   const currentYear = new Date().getFullYear();
   const location = useLocation();
   const navigate = useNavigate();
@@ -15,11 +18,11 @@ export const Footer = () => {
   // with { scrollTo } state (ScrollManager scrolls after arrival) so the URL
   // never carries a lingering /#hash.
   const quickLinks: { label: string; id?: string; to?: string }[] = [
-    { label: "About", id: "about" },
-    { label: "Services", id: "services" },
-    { label: "Impact", id: "impact" },
-    { label: "Blog", to: "/blog/" },
-    { label: "Contact", id: "contact" },
+    { label: t`About`, id: "about" },
+    { label: t`Services`, id: "services" },
+    { label: t`Impact`, id: "impact" },
+    { label: t`Blog`, to: "/blog/" },
+    { label: t`Contact`, id: "contact" },
   ];
 
   return (
@@ -31,19 +34,19 @@ export const Footer = () => {
             <div className="md:col-span-2">
               <h3 className="text-2xl font-serif font-bold mb-3">Agustin Gonzalez Nicolini</h3>
               <p className="text-primary-foreground/90 text-sm leading-relaxed mb-4">
-                Coaching for engineering leaders, from someone who has held the pager.
+                <Trans>Coaching for engineering leaders, from someone who has held the pager.</Trans>
               </p>
               <p className="text-primary-foreground/80 text-xs">
-                Based in Berlin, from Haedo • Coaching globally
+                <Trans>Based in Berlin, from Haedo • Coaching globally</Trans>
               </p>
             </div>
 
             {/* Quick Links */}
             <div>
-              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider"><Trans>Quick Links</Trans></h4>
               <ul className="space-y-2 text-sm">
                 {quickLinks.map((link) => (
-                  <li key={link.label}>
+                  <li key={link.id ?? link.to}>
                     {link.to ? (
                       <Link
                         to={link.to}
@@ -73,14 +76,14 @@ export const Footer = () => {
 
             {/* Connect */}
             <div>
-              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider">Connect</h4>
+              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider"><Trans>Connect</Trans></h4>
               <div className="flex gap-3">
                 <a
                   href="https://www.linkedin.com/in/agusgonzaleznic"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-lg bg-primary-foreground/10 hover:bg-accent flex items-center justify-center transition-colors group"
-                  aria-label="LinkedIn Profile"
+                  aria-label={t`LinkedIn Profile`}
                 >
                   <Linkedin className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
                 </a>
@@ -89,14 +92,14 @@ export const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-lg bg-primary-foreground/10 hover:bg-accent flex items-center justify-center transition-colors group"
-                  aria-label="GitHub Profile"
+                  aria-label={t`GitHub Profile`}
                 >
                   <Github className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
                 </a>
                 <a
                   href="mailto:info@agusgonzaleznic.com"
                   className="w-10 h-10 rounded-lg bg-primary-foreground/10 hover:bg-accent flex items-center justify-center transition-colors group"
-                  aria-label="Email"
+                  aria-label={t`Email`}
                 >
                   <Mail className="w-5 h-5 text-primary-foreground group-hover:text-accent-foreground" />
                 </a>
@@ -108,15 +111,18 @@ export const Footer = () => {
           <div className="pt-8 border-t border-primary-foreground/10">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-primary-foreground/80">
               <p>
-                © {currentYear} Agustin Gonzalez Nicolini. All rights reserved.
+                <Trans>© {currentYear} Agustin Gonzalez Nicolini. All rights reserved.</Trans>
               </p>
               <div className="flex gap-6">
                 <a href="/privacy" className="hover:text-accent transition-colors">
-                  Privacy Policy
+                  <Trans>Privacy Policy</Trans>
                 </a>
                 <a href="/impressum" className="hover:text-accent transition-colors">
-                  Impressum
+                  <Trans>Impressum</Trans>
                 </a>
+                {/* Crawlable locale links — renders nothing until >=2 locales
+                    are published, so the English DOM is unchanged today. */}
+                <LanguageSwitcher />
               </div>
             </div>
           </div>

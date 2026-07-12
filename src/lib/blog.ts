@@ -5,6 +5,7 @@
 // `build:dev`/`build:client` on a fresh clone will fail on this import until
 // it has run once). Everything here is pure and SSR-safe.
 import blogData from "@/generated/blog-data.json";
+import { SOURCE_LOCALE } from "@/i18n/locales";
 
 export const SITE_URL = "https://agusgonzaleznic.com";
 
@@ -47,6 +48,25 @@ export interface BlogPost {
 }
 
 const rawPosts = (Array.isArray(blogData) ? blogData : []) as Partial<BlogPost>[];
+
+// Per-locale blog data (src/generated/blog-data.<locale>.json) is written by the
+// build-time DeepL pipeline (scripts/fetch-blog.mjs + richtext-translate.mjs)
+// with the EXACT same shape as blog-data.json. Vite bundles whatever files exist
+// at build time; with no DEEPL key none are emitted and this map is empty, so
+// every locale falls back to the English source below. English never uses it.
+const localeBlogData = import.meta.glob<Partial<BlogPost>[]>("../generated/blog-data.*.json", {
+  eager: true,
+  import: "default",
+});
+
+/** The raw post array for a locale, falling back to the English source. */
+function rawFor(locale: string): Partial<BlogPost>[] {
+  if (locale !== SOURCE_LOCALE) {
+    const data = localeBlogData[`../generated/blog-data.${locale}.json`];
+    if (Array.isArray(data)) return data;
+  }
+  return rawPosts;
+}
 
 const normalize = (p: Partial<BlogPost>): BlogPost => ({
   slug: p.slug ?? "",
@@ -94,16 +114,16 @@ export function formatDate(date: string | null | undefined): string {
   return `${MONTHS[Number(m[2]) - 1]} ${Number(m[3])}, ${m[1]}`;
 }
 
-export function getAllPosts(): BlogPost[] {
-  return rawPosts
+export function getAllPosts(locale: string = SOURCE_LOCALE): BlogPost[] {
+  return rawFor(locale)
     .map(normalize)
     .filter((p) => p.slug && p.title)
     .sort((a, b) => toIsoUtc(postDate(b)).localeCompare(toIsoUtc(postDate(a))));
 }
 
-export function getPost(slug: string): BlogPost | undefined {
+export function getPost(slug: string, locale: string = SOURCE_LOCALE): BlogPost | undefined {
   const clean = slug.replace(/\/+$/, "");
-  return getAllPosts().find((p) => p.slug === clean);
+  return getAllPosts(locale).find((p) => p.slug === clean);
 }
 
 /** Concatenated plain text of a richtext subtree. */

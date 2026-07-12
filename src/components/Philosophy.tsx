@@ -1,40 +1,40 @@
 import { Lightbulb, Cog, Heart } from "lucide-react";
+import { Trans, useLingui } from "@lingui/react/macro";
+import { msg } from "@lingui/core/macro";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 const pillars = [
   {
     icon: Lightbulb,
-    title: "Growth through Clarity",
-    description:
-      "Clear goals, working feedback loops, and OKRs that tie each person's growth to business results — so your team knows exactly what winning looks like this quarter.",
+    title: msg`Growth through Clarity`,
+    description: msg`Clear goals, working feedback loops, and OKRs that tie each person's growth to business results — so your team knows exactly what winning looks like this quarter.`,
     color: "from-accent/20 to-accent/5",
   },
   {
     icon: Cog,
-    title: "Empowerment through Systems",
-    description:
-      "DevOps/GitOps workflows, DORA metrics, and decision frameworks that let your team move fast without waiting on you.",
+    title: msg`Empowerment through Systems`,
+    description: msg`DevOps/GitOps workflows, DORA metrics, and decision frameworks that let your team move fast without waiting on you.`,
     color: "from-primary/20 to-primary/5",
   },
   {
     icon: Heart,
-    title: "Leadership through Empathy",
-    description:
-      "Psychological safety, deliberate mentoring, and a culture people choose to stay in. Retention is a leadership outcome, not an HR metric.",
+    title: msg`Leadership through Empathy`,
+    description: msg`Psychological safety, deliberate mentoring, and a culture people choose to stay in. Retention is a leadership outcome, not an HR metric.`,
     color: "from-accent/20 to-accent/5",
   },
 ];
 
 export const Philosophy = () => {
+  const { i18n } = useLingui();
   return (
     <section id="philosophy" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h2 className="text-fluid-3xl font-bold mb-6">My Coaching Philosophy</h2>
+            <h2 className="text-fluid-3xl font-bold mb-6"><Trans>My Coaching Philosophy</Trans></h2>
             <p className="text-fluid-lg text-muted-foreground">
-              Three pillars behind every engagement — and what each one changes for your team
+              <Trans>Three pillars behind every engagement — and what each one changes for your team</Trans>
             </p>
           </div>
 
@@ -42,7 +42,7 @@ export const Philosophy = () => {
           <div className="space-y-8">
             {pillars.map((pillar, index) => (
               <div
-                key={pillar.title}
+                key={index}
                 className={`group animate-fade-in-up delay-${index * 100}`}
               >
                 <div className="relative">
@@ -62,10 +62,10 @@ export const Philosophy = () => {
                     {/* Content */}
                     <div className="flex-1">
                       <h3 className="text-fluid-xl font-bold mb-3 group-hover:text-accent transition-colors">
-                        {pillar.title}
+                        {i18n._(pillar.title)}
                       </h3>
                       <p className="text-fluid-base text-muted-foreground leading-relaxed">
-                        {pillar.description}
+                        {i18n._(pillar.description)}
                       </p>
                     </div>
                   </div>

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { Trans } from "@lingui/react/macro";
 import profileImage from "@/assets/profile.jpg";
 import { HERO_CTA_ID, SECTION_PADDING } from "@/lib/layout";
 
@@ -27,46 +28,48 @@ export const Hero = () => {
             <div className="space-y-8 animate-fade-in-up">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full border border-accent/20">
                 <Sparkles className="w-4 h-4 text-accent" />
-                <span className="text-sm font-medium text-foreground">15+ years leading engineering teams</span>
+                <span className="text-sm font-medium text-foreground"><Trans>15+ years leading engineering teams</Trans></span>
               </div>
 
               <h1 className="text-fluid-4xl font-bold leading-tight">
-                Lead an Engineering Org That{" "}
-                <span className="text-gradient-accent">
-                  Ships, Scales,{" "}
-                  {/* Underline scoped to "and Lasts" (nowrap keeps the pair on
-                      one line) so mobile and desktop render it identically —
-                      previously the absolute SVG anchored to the span's last
-                      line box, underlining the whole phrase on desktop. */}
-                  <span className="relative whitespace-nowrap">
-                    and Lasts
-                    <svg
-                      className="absolute -bottom-2 left-0 w-full"
-                      height="8"
-                      viewBox="0 0 200 8"
-                      preserveAspectRatio="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M0 4C50 2 150 2 200 4"
-                        stroke="url(#gradient)"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeLinecap="round"
-                      />
-                      <defs>
-                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="hsl(10, 85%, 58%)" />
-                          <stop offset="100%" stopColor="hsl(20, 80%, 65%)" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
+                <Trans>
+                  Lead an Engineering Org That{" "}
+                  <span className="text-gradient-accent">
+                    Ships, Scales,{" "}
+                    {/* Underline scoped to "and Lasts" (nowrap keeps the pair on
+                        one line) so mobile and desktop render it identically —
+                        previously the absolute SVG anchored to the span's last
+                        line box, underlining the whole phrase on desktop. */}
+                    <span className="relative whitespace-nowrap">
+                      and Lasts
+                      <svg
+                        className="absolute -bottom-2 left-0 w-full"
+                        height="8"
+                        viewBox="0 0 200 8"
+                        preserveAspectRatio="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M0 4C50 2 150 2 200 4"
+                          stroke="url(#gradient)"
+                          strokeWidth="3"
+                          fill="none"
+                          strokeLinecap="round"
+                        />
+                        <defs>
+                          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="hsl(10, 85%, 58%)" />
+                            <stop offset="100%" stopColor="hsl(20, 80%, 65%)" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </span>
                   </span>
-                </span>
+                </Trans>
               </h1>
 
               <p className="text-fluid-lg text-muted-foreground leading-relaxed">
-                One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics.
+                <Trans>One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics.</Trans>
               </p>
 
               <div id={HERO_CTA_ID} className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -75,7 +78,7 @@ export const Hero = () => {
                   onClick={handleBooking}
                   className="bg-accent hover:bg-accent-hover text-accent-foreground shadow-accent hover:shadow-lg transition-all duration-300 group"
                 >
-                  Book a Session
+                  <Trans>Book a Session</Trans>
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <Button
@@ -84,12 +87,12 @@ export const Hero = () => {
                   onClick={scrollToServices}
                   className="border-2 hover:bg-secondary"
                 >
-                  How Coaching Works
+                  <Trans>How Coaching Works</Trans>
                 </Button>
               </div>
 
               <div className="pt-8 border-t border-border">
-                <p className="text-sm text-muted-foreground mb-3">Industries where I've led teams:</p>
+                <p className="text-sm text-muted-foreground mb-3"><Trans>Industries where I've led teams:</Trans></p>
                 <div className="flex flex-wrap gap-4 text-sm font-medium text-muted-foreground">
                   <span>Fintech</span>
                   <span>•</span>
@@ -109,7 +112,7 @@ export const Hero = () => {
               <div className="relative aspect-square max-w-lg mx-auto">
                 {/* Glow effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-accent/5 rounded-3xl blur-2xl" />
-                
+
                 {/* Image container */}
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl hover-lift">
                   <img

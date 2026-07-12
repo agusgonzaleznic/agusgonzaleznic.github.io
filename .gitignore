@@ -31,8 +31,15 @@ node_modules
 localhost-key.pem
 localhost.pem
 
-# Build-time generated data (scripts/fetch-blog.mjs)
+# Build-time generated data (scripts/fetch-blog.mjs): English blog-data.json plus
+# per-locale blog-data.<locale>.json produced by the i18n translation pipeline.
 src/generated/blog-data.json
+src/generated/blog-data.*.json
+
+# Compiled Lingui catalogs — derived from the .po sources by @lingui/vite-plugin
+# at build time (the app imports the .po, never the .js). The .po files are the
+# committed source of truth.
+src/i18n/catalogs/*.js
 
 # AI generated files
 **/.claude-flow/

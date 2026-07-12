@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { Trans, useLingui } from "@lingui/react/macro";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
   CONTACT_CTA_ID,
   HERO_CTA_ID,
@@ -21,6 +23,7 @@ const staggerDelay = (index: number) =>
   STAGGER_DELAYS[Math.min(index, STAGGER_DELAYS.length - 1)];
 
 export const Navigation = () => {
+  const { t } = useLingui();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // Starts hidden so the prerendered HTML never carries the sticky CTA (it
@@ -105,20 +108,20 @@ export const Navigation = () => {
   };
 
   const navLinks: NavLink[] = [
-    { label: "About", id: "about" },
-    { label: "Philosophy", id: "philosophy" },
-    { label: "Services", id: "services" },
-    { label: "Impact", id: "impact" },
-    { label: "FAQ", id: "faq" },
-    { label: "Blog", to: "/blog/" },
-    { label: "Contact", id: "contact" },
+    { label: t`About`, id: "about" },
+    { label: t`Philosophy`, id: "philosophy" },
+    { label: t`Services`, id: "services" },
+    { label: t`Impact`, id: "impact" },
+    { label: t`FAQ`, id: "faq" },
+    { label: t`Blog`, to: "/blog/" },
+    { label: t`Contact`, id: "contact" },
   ];
 
   const renderNavLink = (link: NavLink, className: string) => {
     if (link.to) {
       return (
         <Link
-          key={link.label}
+          key={link.id ?? link.to}
           to={link.to}
           onClick={() => setIsMobileMenuOpen(false)}
           className={className}
@@ -130,7 +133,7 @@ export const Navigation = () => {
     if (isHome) {
       return (
         <button
-          key={link.label}
+          key={link.id ?? link.to}
           onClick={() => scrollToSection(link.id!)}
           className={className}
         >
@@ -196,15 +199,18 @@ export const Navigation = () => {
                 onClick={handleContact}
                 className="bg-accent hover:bg-accent-hover text-accent-foreground"
               >
-                Book a Session
+                <Trans>Book a Session</Trans>
               </Button>
+              {/* Crawlable locale links — renders nothing until >=2 locales are
+                  published, so the English DOM is unchanged today. */}
+              <LanguageSwitcher />
             </div>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 text-foreground hover:text-accent transition-colors"
-              aria-label="Toggle menu"
+              aria-label={t`Toggle menu`}
             >
               {isMobileMenuOpen ? (
                 <X className="w-6 h-6" />
@@ -235,7 +241,7 @@ export const Navigation = () => {
               size="lg"
               className="bg-accent hover:bg-accent-hover text-accent-foreground animate-fade-in-up delay-400"
             >
-              Book a Session
+              <Trans>Book a Session</Trans>
             </Button>
           </div>
         </div>

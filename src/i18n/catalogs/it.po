@@ -1,0 +1,913 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-07-12 10:38+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: it\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/components/Footer.tsx
+msgid "© {currentYear} Agustin Gonzalez Nicolini. All rights reserved."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "<0>Consent withdrawn.</0> Analytics has stopped and the _ga cookies have been removed. The consent banner will ask again on your next visit."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "<0>Retention:</0> Contact inquiries and the related emails are kept only as long as needed to handle your inquiry and any follow-up, and are then deleted, unless statutory retention obligations require longer storage."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "1. Controller"
+msgstr ""
+
+#: src/components/Hero.tsx
+msgid "15+ years leading engineering teams"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "2. Hosting and Server Logs"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "3. Contact Form"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "4. Fonts"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "5. Booking Link (Google Calendar)"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "6. Cookies, Analytics, and Tracking"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "7. Your Rights"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "8-12 week programs with weekly check-ins"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "8. Data Security and Obligation to Provide Data"
+msgstr ""
+
+#: src/components/Testimonials.tsx
+msgid "A few months into the role and drowning. Instead of handing over a framework, we rehearsed the conversations they were avoiding — delegation, feedback, saying no — until having them for real felt routine."
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "A multi-account AWS migration with deployments automated end to end"
+msgstr ""
+
+#: src/components/Footer.tsx
+#: src/components/Navigation.tsx
+msgid "About"
+msgstr ""
+
+#: src/components/CookieNotice.tsx
+msgid "Accept"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "access your personal data (Art. 15),"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "After withdrawing, the consent banner will reappear on your next visit."
+msgstr ""
+
+#: src/pages/BlogPost.tsx
+msgid "All writing"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Angaben gemäß § 5 DDG"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "As a service provider, I am responsible for my own content on these pages in accordance with general laws (§ 7 Abs. 1 DDG). This website contains links to external third-party websites, over whose content I have no influence; the respective provider or operator is always responsible for the content of linked pages."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "As of July 2026 — reviewed by the site owner. This page was drafted with assistance and is not legal advice."
+msgstr ""
+
+#: src/components/Testimonials.tsx
+msgid "B2B SaaS Company"
+msgstr ""
+
+#: src/components/Footer.tsx
+msgid "Based in Berlin, from Haedo • Coaching globally"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Best for"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Beyond this, the website sets no cookies of its own. Website content is fetched from the Storyblok CMS only at build time — no visitor data is sent to Storyblok."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Bi-weekly 60-minute sessions"
+msgstr ""
+
+#: src/components/Footer.tsx
+#: src/components/Navigation.tsx
+msgid "Blog"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Board presentations & executive presence"
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way."
+msgstr ""
+
+#: src/components/Hero.tsx
+#: src/components/Navigation.tsx
+msgid "Book a Session"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Book an Intro Call"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "By submitting, you agree to being contacted about coaching services. Your information is kept confidential."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Career clarity & personal brand development"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Career Transition Coaching"
+msgstr ""
+
+#: src/components/Philosophy.tsx
+msgid "Clear goals, working feedback loops, and OKRs that tie each person's growth to business results — so your team knows exactly what winning looks like this quarter."
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Cloud Cost Reduction"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Cloud Security Manager"
+msgstr ""
+
+#: src/components/Testimonials.tsx
+msgid "Coaching conversations are confidential by default, so named endorsements will only ever appear here with a client's explicit sign-off."
+msgstr ""
+
+#: src/components/Footer.tsx
+msgid "Coaching for engineering leaders, from someone who has held the pager."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Coaching Services"
+msgstr ""
+
+#: src/components/Footer.tsx
+msgid "Connect"
+msgstr ""
+
+#: src/components/Footer.tsx
+#: src/components/Navigation.tsx
+msgid "Contact"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "CTO & VP Level"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "CTOs, VPs, and senior engineering executives"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Current Role"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "data portability (Art. 20),"
+msgstr ""
+
+#: src/components/CookieNotice.tsx
+msgid "Decline"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout."
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "DevOps Lead"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "DevOps/GitOps workflows & trunk-based development"
+msgstr ""
+
+#: src/components/Philosophy.tsx
+msgid "DevOps/GitOps workflows, DORA metrics, and decision frameworks that let your team move fast without waiting on you."
+msgstr ""
+
+#: src/components/About.tsx
+msgid "Direct, Kind Feedback"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Director → VP: Strategic thinking & executive presence"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Dispute Resolution"
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "Does Agustin coach remotely?"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "DORA metrics & deployment velocity optimization"
+msgstr ""
+
+#: src/components/Testimonials.tsx
+msgid "E-Commerce Platform"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "e.g., Engineering Manager, VP of Engineering"
+msgstr ""
+
+#: src/components/Footer.tsx
+msgid "Email"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Email *"
+msgstr ""
+
+#: src/components/Philosophy.tsx
+msgid "Empowerment through Systems"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Engineering managers, directors, and team leads"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Engineers and managers at career inflection points"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "erasure (Art. 17),"
+msgstr ""
+
+#: src/components/About.tsx
+msgid "Every engagement names the result it should produce — delivery speed, retention, uptime — and we check that it did."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Executive Leadership Coaching"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Experience Timeline"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Failed to send message. Please try again or email me directly."
+msgstr ""
+
+#: src/components/Navigation.tsx
+msgid "FAQ"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Faster Onboarding"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Faster Releases"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap"
+msgstr ""
+
+#: src/components/Testimonials.tsx
+msgid "FinTech scale-up"
+msgstr ""
+
+#: src/components/Testimonials.tsx
+msgid "First-Time Engineering Manager"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "For engineers and managers moving up a level: land the role, then grow into it faster than you would alone."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "For leaders accountable to boards and founders: an org design that scales, stakeholders who trust you, and decisions you can defend under pressure."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "For managers whose teams should be shipping more than they are: better delivery numbers, healthier rituals, and calmer on-call weeks."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Format"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Free Discovery Call"
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "Frequently Asked Questions"
+msgstr ""
+
+#: src/components/About.tsx
+msgid "From Haedo to Berlin, One Engineering Team at a Time"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Get in Touch"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Get Started"
+msgstr ""
+
+#: src/components/Contact.tsx
+#: src/components/Footer.tsx
+msgid "GitHub Profile"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Google acts as a processor for this measurement. Data may be transferred to Google servers in the United States; Google is certified under the EU–US Data Privacy Framework and additionally relies on EU Standard Contractual Clauses. Details: <0>https://policies.google.com/privacy</0>"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Google acts as a processor in this transmission. Data may be transferred to Google servers in the United States; Google is certified under the EU–US Data Privacy Framework."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Google's <0>Consent Mode v2</0> is used: every consent signal defaults to \"denied\", and only the analytics-storage signal is set to \"granted\" after you accept — advertising signals remain denied. Google Analytics 4 does not log or store IP addresses; IP data is used only transiently to derive coarse location. If you accept, Google Analytics sets the cookies <1>_ga</1> and <2>_ga_*</2> (lifetime of up to two years) to distinguish visitors. Analytics event data is retained in Google Analytics for at most 14 months and is then deleted automatically."
+msgstr ""
+
+#: src/components/CookieNotice.tsx
+msgid "Got it"
+msgstr ""
+
+#: src/components/Philosophy.tsx
+msgid "Growth through Clarity"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Head of Infrastructure & Security"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Hiring, leveling & performance frameworks"
+msgstr ""
+
+#: src/components/Hero.tsx
+msgid "How Coaching Works"
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "How do I start working with Agustin?"
+msgstr ""
+
+#: src/components/About.tsx
+msgid "How I Work"
+msgstr ""
+
+#: src/components/About.tsx
+msgid "I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security — and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck."
+msgstr ""
+
+#: src/components/About.tsx
+msgid "I only teach what I've run in production with real teams — no borrowed frameworks."
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "I typically respond within 24 hours. For urgent inquiries, please mention it in your message."
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role."
+msgstr ""
+
+#: src/components/About.tsx
+msgid "I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3 — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev; today I head infrastructure and security at a Web3 company and coach senior technology leaders one-on-one."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "IC → Manager: First-time leadership transitions"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "IC to Manager & Beyond"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "If you use the contact form, the data you enter (name, email address, role, and message) is transmitted via a <0>Google Apps Script</0> endpoint (Google LLC / Google Ireland Ltd.) and forwarded to me by email. The data is not stored in any database; it exists only in the resulting email correspondence."
+msgstr ""
+
+#: src/components/Footer.tsx
+#: src/components/Navigation.tsx
+msgid "Impact"
+msgstr ""
+
+#: src/components/Footer.tsx
+#: src/pages/Legal.tsx
+msgid "Impressum"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Impressum — Agustin Gonzalez Nicolini"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Impressum (legal notice) for agusgonzaleznic.com pursuant to § 5 DDG."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Incident readiness & on-call culture"
+msgstr ""
+
+#: src/components/Hero.tsx
+msgid "Industries where I've led teams:"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Infrastructure & Security Lead"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Interview prep for leadership roles"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Kept security controls stringent while game teams shipped features at full speed."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Kontakt"
+msgstr ""
+
+#: src/components/Hero.tsx
+msgid "Lead an Engineering Org That <0>Ships, Scales, <1>and Lasts<2><3/><4><5><6/><7/></5></4></2></1></0>"
+msgstr ""
+
+#: src/components/Philosophy.tsx
+msgid "Leadership through Empathy"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Legal basis: Art. 6(1)(a) GDPR (your consent, given via the banner). You can withdraw your consent at any time with effect for the future:"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Legal basis: Art. 6(1)(b) GDPR (steps prior to entering into a contract / responding to your inquiry) and, where the inquiry is not contract-related, Art. 6(1)(a) GDPR (your consent, given by voluntarily submitting the form). You may withdraw consent at any time with effect for the future by emailing <0>info@agusgonzaleznic.com</0>."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Legal basis: Art. 6(1)(f) GDPR (legitimate interest in the secure, reliable provision of this website). Log data may be processed on servers in the United States; GitHub and AWS rely on the EU–US Data Privacy Framework and/or EU Standard Contractual Clauses for such transfers. I do not merge this data with other sources or use it to identify visitors."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Liability for Content and Links"
+msgstr ""
+
+#: src/components/Contact.tsx
+#: src/components/Footer.tsx
+msgid "LinkedIn Profile"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Manager & Director Level"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Manager → Director: Scaling impact through others"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Message sent — I typically reply within 24 hours."
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Migrated on-premise infrastructure to AWS and implemented SOC 2 and ISO 27001 compliance."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Most Popular"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Multi-region failover and DR/HA playbooks, built so a bad day in one region stays invisible to users"
+msgstr ""
+
+#: src/components/Philosophy.tsx
+msgid "My Coaching Philosophy"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Name *"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Not sure which format fits your situation?"
+msgstr ""
+
+#: src/pages/Blog.tsx
+msgid "Notes from fifteen years of running engineering teams — leadership, infrastructure, and the occasional strong opinion. I publish when I have something worth saying, not on a schedule."
+msgstr ""
+
+#: src/pages/Blog.tsx
+msgid "Notes on engineering leadership and the systems behind it, from fifteen years of running teams and infrastructure. By Agustin Gonzalez Nicolini."
+msgstr ""
+
+#: src/pages/Blog.tsx
+msgid "Nothing here yet"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Numbers I Stand Behind"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "object to processing based on legitimate interests (Art. 21), and"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "OKRs paired with DORA metrics, used as working tools rather than dashboards"
+msgstr ""
+
+#: src/components/Testimonials.tsx
+msgid "One team became four in a year and everything got slower — it usually does. We sketched an org structure early on, then stress-tested and adjusted it over the following quarters as the company kept growing."
+msgstr ""
+
+#: src/components/Hero.tsx
+msgid "One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Organization design & scaling strategies"
+msgstr ""
+
+#: src/pages/BlogPost.tsx
+msgid "Originally published on <0>Medium</0>."
+msgstr ""
+
+#: src/components/About.tsx
+msgid "Outcomes Over Optics"
+msgstr ""
+
+#: src/components/Navigation.tsx
+msgid "Philosophy"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Please complete the verification challenge and try again."
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Please enter a valid email address"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Please fill in all required fields"
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "Practical answers on fit, format, and how we'd start"
+msgstr ""
+
+#: src/components/About.tsx
+msgid "Practice Over Theory"
+msgstr ""
+
+#: src/components/CookieNotice.tsx
+msgid "Privacy notice"
+msgstr ""
+
+#: src/components/Footer.tsx
+#: src/pages/Legal.tsx
+msgid "Privacy Policy"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Privacy Policy — Agustin Gonzalez Nicolini"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Privacy policy for agusgonzaleznic.com: how personal data is processed under the GDPR."
+msgstr ""
+
+#: src/components/Philosophy.tsx
+msgid "Psychological safety, deliberate mentoring, and a culture people choose to stay in. Retention is a leadership outcome, not an HR metric."
+msgstr ""
+
+#: src/components/Footer.tsx
+msgid "Quick Links"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "rectification (Art. 16),"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Reduced Lead Time"
+msgstr ""
+
+#: src/components/About.tsx
+msgid "Resilience and compliance as design inputs, not afterthoughts — a habit from years of PCI-DSS, SOC 2, and ISO 27001 work."
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Response Time"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "restriction of processing (Art. 18),"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Results from teams I've led as an operator — the same playbooks we'll work from"
+msgstr ""
+
+#: src/pages/NotFound.tsx
+msgid "Return to home"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now."
+msgstr ""
+
+#: src/components/About.tsx
+msgid "Security by Default"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Send Message"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Sending..."
+msgstr ""
+
+#: src/components/Testimonials.tsx
+msgid "Senior Engineering Manager"
+msgstr ""
+
+#: src/components/Footer.tsx
+#: src/components/Navigation.tsx
+msgid "Services"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Some details look off. Please check the form and try again."
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Stakeholder influence & C-suite communication"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Standardized processes and documentation a new hire can follow on day one"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "System Uptime"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Team & Manager Coaching"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Team rituals, retrospectives & continuous improvement"
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Team Velocity Boost"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Technology roadmap alignment with business goals"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Tell me about your current challenges or goals..."
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Tell me in a few lines — a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "The European Commission provides a platform for online dispute resolution (ODR): <0>https://ec.europa.eu/consumers/odr/</0>. I am neither obliged nor willing to participate in dispute resolution proceedings before a consumer arbitration board (Verbraucherschlichtungsstelle)."
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "The first 30 minutes are on me: a working session on your situation, not a sales pitch. If I'm not the right coach for the problem, I'll say so."
+msgstr ""
+
+#: src/components/Testimonials.tsx
+msgid "The first call was about messy deploys. Within six months the pipeline was boring — in the best way — but the more useful work was getting them out of the middle of every decision their team makes."
+msgstr ""
+
+#: src/pages/Blog.tsx
+msgid "The first posts are on their way. Check back soon."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "The fonts used on this website are <0>self-hosted</0>: they are served directly from this website's own domain as part of the site itself. Loading them causes no request to Google or any other third-party font service, and no data about you is transmitted to a font provider."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "The site is served over HTTPS. You are not legally or contractually obliged to provide personal data; however, without contact details I cannot respond to inquiries."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "The site links to an external booking page at <0>calendar.app.google</0> (Google Appointment Scheduling). No data is transmitted to Google by merely viewing this website; only when you click the link and use the booking page does Google process the data you enter there, under Google's own privacy policy and as an independent controller. Legal basis for any data I receive from a booking (name, email, chosen time): Art. 6(1)(b) GDPR."
+msgstr ""
+
+#: src/pages/NotFound.tsx
+msgid "This page doesn't exist — but the conversation can still start somewhere useful."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "This privacy policy explains how personal data is processed when you visit this website, in accordance with the EU General Data Protection Regulation (GDPR)."
+msgstr ""
+
+#: src/components/CookieNotice.tsx
+msgid "This site uses <0>no cookies and no tracking</0>. Details are in the <1>Privacy Policy</1>."
+msgstr ""
+
+#: src/components/CookieNotice.tsx
+msgid "This site would like to use <0>optional analytics cookies</0> (Google Analytics) to understand how it is used. Nothing is loaded unless you accept — details are in the <1>Privacy Policy</1>."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "This website is a static site hosted on <0>GitHub Pages</0> (GitHub, Inc., USA) and delivered via <1>Amazon CloudFront</1> (Amazon Web Services), a content delivery network. When you access the site, these providers process connection data as a technical necessity — in particular your IP address, date and time of the request, browser type, operating system, and the pages accessed — in server logs to deliver the site and ensure its security and stability."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "This website sets <0>no cookies</0> of its own and uses <1>no analytics or tracking tools</1>. Website content is fetched from the Storyblok CMS only at build time — no visitor data is sent to Storyblok."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "This website uses <0>Google Analytics 4</0> (Google Ireland Ltd. / Google LLC) — but <1>only if you accept it</1> in the consent banner. Before you accept (and always if you decline), no analytics script is loaded, no request is made to Google, and no analytics cookies are set. The purpose is to understand, in aggregate, how the site is used (e.g. which pages are visited) so it can be improved."
+msgstr ""
+
+#: src/components/Testimonials.tsx
+msgid "Three composite sketches — not client quotes — showing the problems leaders bring me and how the work tends to unfold"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Three formats. Pick by the problem you have, not the title you hold."
+msgstr ""
+
+#: src/components/Philosophy.tsx
+msgid "Three pillars behind every engagement — and what each one changes for your team"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "To exercise these rights, contact <0>info@agusgonzaleznic.com</0>."
+msgstr ""
+
+#: src/components/Navigation.tsx
+msgid "Toggle menu"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Too many requests. Please wait a moment, or email me directly."
+msgstr ""
+
+#: src/components/Impact.tsx
+msgid "Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event"
+msgstr ""
+
+#: src/components/Testimonials.tsx
+msgid "Typical Engagements"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Under the GDPR you have the right to:"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Vendor management & strategic partnerships"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Verantwortlich i.S.d. § 18 Abs. 2 MStV"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Verification failed. Please complete the challenge and try again."
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Verification isn't available right now — please email me directly at info@agusgonzaleznic.com."
+msgstr ""
+
+#: src/components/Impact.tsx
+#: src/components/Testimonials.tsx
+msgid "VP of Engineering"
+msgstr ""
+
+#: src/components/Services.tsx
+msgid "Weekly or bi-weekly 45-minute sessions"
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "What does engineering leadership coaching cover?"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "What would you like help with? *"
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "What's the Hardest Part of the Job Right Now?"
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "Whatever stands between you and a team that delivers: scaling and org design, stakeholder and C-suite communication, delivery speed and DORA metrics, DevOps and GitOps workflows, hiring and performance frameworks, incident readiness, and executive presence."
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "Who does Agustin coach?"
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "Who is Agustin Gonzalez Nicolini?"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "Withdraw analytics consent"
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "withdraw any consent at any time with effect for the future (Art. 7(3))."
+msgstr ""
+
+#: src/pages/Blog.tsx
+msgid "Writing"
+msgstr ""
+
+#: src/pages/Blog.tsx
+msgid "Writing — Agustin Gonzalez Nicolini"
+msgstr ""
+
+#: src/pages/Blog.tsx
+msgid "Writing | Agustin Gonzalez Nicolini"
+msgstr ""
+
+#: src/components/FAQ.tsx
+msgid "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English, Spanish, or German — whichever you think best in."
+msgstr ""
+
+#: src/pages/Legal.tsx
+msgid "You also have the right to lodge a complaint with a data protection supervisory authority (Art. 77 GDPR). The authority responsible for this website's operator is:"
+msgstr ""
+
+#: src/components/About.tsx
+msgid "You'll hear what I actually think, specifically and early. That candor is most of the value."
+msgstr ""
+
+#: src/components/Contact.tsx
+msgid "Your full name"
+msgstr ""
