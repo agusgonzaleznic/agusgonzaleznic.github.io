@@ -44,6 +44,18 @@ export const LOCALE_META: Record<Locale, { name: string; dir: "ltr" | "rtl"; ogL
  */
 export const PUBLISHED_LOCALES: readonly Locale[] = ["en", "de", "es", "fr", "it", "pt"];
 
+/**
+ * Locales whose blog articles are machine-translated (DeepL + LLM), not natively
+ * reviewed — so a disclosure notice is shown on those articles. DE/ES are
+ * human-gated (see scripts/lib/blog-gate.mjs) and carry no notice. Keep this in
+ * sync with AUTO_LOCALES in scripts/lib/blog-gate.mjs (build side).
+ */
+export const AUTO_TRANSLATED_LOCALES: readonly Locale[] = ["fr", "it", "pt"];
+
+/** Is `l` a machine-translated (auto) locale that discloses it to readers? */
+export const isAutoTranslated = (l: string): boolean =>
+  (AUTO_TRANSLATED_LOCALES as readonly string[]).includes(l);
+
 /** Non-source locales, used to build and match path prefixes. */
 const PREFIXED_LOCALES = ALL_LOCALES.filter((l) => l !== SOURCE_LOCALE);
 // e.g. /^\/(de|es|fr|it|pt)(?=\/|$)/

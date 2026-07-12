@@ -26,6 +26,13 @@ export const REVIEW_GATED_LOCALES = ["de", "es"];
 /** Locales auto-translated at build time (disclosed as machine translation). */
 export const AUTO_LOCALES = ["fr", "it", "pt"];
 
+// Per-locale mode for the auto-translated locales. Flip any to "hold" to pull
+// that locale's articles back to the English fallback (no /{locale}/ variant
+// emitted, no hreflang/sitemap entry) — e.g. if unreviewed machine translation
+// is ever judged too risky for the brand. One-line change, no other edits.
+// (Keep the "auto" set in sync with AUTO_TRANSLATED_LOCALES in src/i18n/locales.ts.)
+export const AUTO_LOCALE_MODE = { fr: "auto", it: "auto", pt: "auto" };
+
 // Richtext node types whose text is NOT translated (kept verbatim), so they
 // must not contribute to the source hash either — matches richtext-translate.
 const OPAQUE_RICHTEXT = new Set(["code_block"]);
@@ -87,7 +94,9 @@ export function approvedGatedLocales(post, approvals) {
 export function approvedLocalesFor(post, approvals, publishedLocales, sourceLocale = "en") {
   const published = new Set(publishedLocales);
   const out = [sourceLocale];
-  for (const loc of AUTO_LOCALES) if (published.has(loc)) out.push(loc);
+  for (const loc of AUTO_LOCALES) {
+    if (published.has(loc) && AUTO_LOCALE_MODE[loc] === "auto") out.push(loc);
+  }
   for (const loc of approvedGatedLocales(post, approvals)) if (published.has(loc)) out.push(loc);
   return [...new Set(out)];
 }
