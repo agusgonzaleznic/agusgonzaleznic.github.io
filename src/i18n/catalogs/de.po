@@ -1,913 +1,901 @@
 msgid ""
-msgstr ""
-"POT-Creation-Date: 2026-07-12 10:38+0200\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Generator: @lingui/cli\n"
-"Language: de\n"
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Plural-Forms: \n"
+msgstr "POT-Creation-Date: 2026-07-12 10:38+0200\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\nContent-Transfer-Encoding: 8bit\nX-Generator: @lingui/cli\nLanguage: de\nProject-Id-Version: \nReport-Msgid-Bugs-To: \nPO-Revision-Date: \nLast-Translator: \nLanguage-Team: \nPlural-Forms: \n"
 
 #: src/components/Footer.tsx
 msgid "© {currentYear} Agustin Gonzalez Nicolini. All rights reserved."
-msgstr ""
+msgstr "© {currentYear} Agustin Gonzalez Nicolini. Alle Rechte vorbehalten."
 
 #: src/pages/Legal.tsx
 msgid "<0>Consent withdrawn.</0> Analytics has stopped and the _ga cookies have been removed. The consent banner will ask again on your next visit."
-msgstr ""
+msgstr "<0>Einwilligung widerrufen.</0> Analytics wurde beendet und die _ga-Cookies wurden entfernt. Beim nächsten Besuch fragt Sie das Einwilligungsbanner erneut."
 
 #: src/pages/Legal.tsx
 msgid "<0>Retention:</0> Contact inquiries and the related emails are kept only as long as needed to handle your inquiry and any follow-up, and are then deleted, unless statutory retention obligations require longer storage."
-msgstr ""
+msgstr "<0>Aufbewahrung:</0> Kontaktanfragen und die zugehörigen E-Mails werden nur so lange aufbewahrt, wie es zur Bearbeitung Ihrer Anfrage und etwaiger Rückfragen erforderlich ist, und danach gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten eine längere Speicherung vorschreiben."
 
 #: src/pages/Legal.tsx
 msgid "1. Controller"
-msgstr ""
+msgstr "1. Verantwortlicher"
 
 #: src/components/Hero.tsx
 msgid "15+ years leading engineering teams"
-msgstr ""
+msgstr "Über 15 Jahre Führungserfahrung in Engineering-Teams"
 
 #: src/pages/Legal.tsx
 msgid "2. Hosting and Server Logs"
-msgstr ""
+msgstr "2. Hosting und Server-Logs"
 
 #: src/pages/Legal.tsx
 msgid "3. Contact Form"
-msgstr ""
+msgstr "3. Kontaktformular"
 
 #: src/pages/Legal.tsx
 msgid "4. Fonts"
-msgstr ""
+msgstr "4. Schriftarten"
 
 #: src/pages/Legal.tsx
 msgid "5. Booking Link (Google Calendar)"
-msgstr ""
+msgstr "5. Buchungslink (Google Kalender)"
 
 #: src/pages/Legal.tsx
 msgid "6. Cookies, Analytics, and Tracking"
-msgstr ""
+msgstr "6. Cookies, Analytics und Tracking"
 
 #: src/pages/Legal.tsx
 msgid "7. Your Rights"
-msgstr ""
+msgstr "7. Ihre Rechte"
 
 #: src/components/Services.tsx
 msgid "8-12 week programs with weekly check-ins"
-msgstr ""
+msgstr "8- bis 12-wöchige Programme mit wöchentlichen Check-ins"
 
 #: src/pages/Legal.tsx
 msgid "8. Data Security and Obligation to Provide Data"
-msgstr ""
+msgstr "8. Datensicherheit und Pflicht zur Bereitstellung von Daten"
 
 #: src/components/Testimonials.tsx
 msgid "A few months into the role and drowning. Instead of handing over a framework, we rehearsed the conversations they were avoiding — delegation, feedback, saying no — until having them for real felt routine."
-msgstr ""
+msgstr "Erst wenige Monate in der neuen Rolle – und völlig überfordert. Statt ein fertiges Framework zu übergeben, haben wir die Gespräche geübt, die vermieden wurden – Delegieren, Feedback, Neinsagen –, bis es zur Routine wurde, sie wirklich zu führen."
 
 #: src/components/Impact.tsx
 msgid "A multi-account AWS migration with deployments automated end to end"
-msgstr ""
+msgstr "Eine AWS-Migration über mehrere Accounts mit durchgängig automatisierten Deployments"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 msgid "About"
-msgstr ""
+msgstr "Über mich"
 
 #: src/components/CookieNotice.tsx
 msgid "Accept"
-msgstr ""
+msgstr "Akzeptieren"
 
 #: src/pages/Legal.tsx
 msgid "access your personal data (Art. 15),"
-msgstr ""
+msgstr "Auskunft über Ihre personenbezogenen Daten (Art. 15),"
 
 #: src/pages/Legal.tsx
 msgid "After withdrawing, the consent banner will reappear on your next visit."
-msgstr ""
+msgstr "Nach dem Widerruf erscheint das Einwilligungsbanner bei Ihrem nächsten Besuch erneut."
 
 #: src/pages/BlogPost.tsx
 msgid "All writing"
-msgstr ""
+msgstr "Alle Texte"
 
 #: src/pages/Legal.tsx
 msgid "Angaben gemäß § 5 DDG"
-msgstr ""
+msgstr "Angaben gemäß § 5 DDG"
 
 #: src/pages/Legal.tsx
 msgid "As a service provider, I am responsible for my own content on these pages in accordance with general laws (§ 7 Abs. 1 DDG). This website contains links to external third-party websites, over whose content I have no influence; the respective provider or operator is always responsible for the content of linked pages."
-msgstr ""
+msgstr "Als Diensteanbieter bin ich gemäß den allgemeinen Gesetzen (§ 7 Abs. 1 DDG) für eigene Inhalte auf diesen Seiten verantwortlich. Diese Website enthält Links zu externen Websites Dritter, auf deren Inhalte ich keinen Einfluss habe; für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber verantwortlich."
 
 #: src/pages/Legal.tsx
 msgid "As of July 2026 — reviewed by the site owner. This page was drafted with assistance and is not legal advice."
-msgstr ""
+msgstr "Stand: Juli 2026 – geprüft durch den Betreiber der Website. Diese Seite wurde mit Unterstützung erstellt und stellt keine Rechtsberatung dar."
 
 #: src/components/Testimonials.tsx
 msgid "B2B SaaS Company"
-msgstr ""
+msgstr "B2B-SaaS-Unternehmen"
 
 #: src/components/Footer.tsx
 msgid "Based in Berlin, from Haedo • Coaching globally"
-msgstr ""
+msgstr "Ansässig in Berlin, aus Haedo • Coaching weltweit"
 
 #: src/components/Services.tsx
 msgid "Best for"
-msgstr ""
+msgstr "Ideal für"
 
 #: src/pages/Legal.tsx
 msgid "Beyond this, the website sets no cookies of its own. Website content is fetched from the Storyblok CMS only at build time — no visitor data is sent to Storyblok."
-msgstr ""
+msgstr "Darüber hinaus setzt die Website keine eigenen Cookies. Die Inhalte der Website werden ausschließlich zum Build-Zeitpunkt aus dem Storyblok CMS abgerufen – es werden keine Besucherdaten an Storyblok übermittelt."
 
 #: src/components/Services.tsx
 msgid "Bi-weekly 60-minute sessions"
-msgstr ""
+msgstr "Zweiwöchentliche Sitzungen à 60 Minuten"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 msgid "Blog"
-msgstr ""
+msgstr "Blog"
 
 #: src/components/Services.tsx
 msgid "Board presentations & executive presence"
-msgstr ""
+msgstr "Board-Präsentationen und Führungspräsenz"
 
 #: src/components/FAQ.tsx
 msgid "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way."
-msgstr ""
+msgstr "Buchen Sie über diese Seite ein kostenloses 30-minütiges Kennenlerngespräch oder schreiben Sie mir an info@agusgonzaleznic.com – eine Vorbereitung ist nicht nötig. In diesem Gespräch klären wir, wo Sie feststecken und ob Coaching das richtige Mittel ist; einen konkreten nächsten Schritt nehmen Sie in jedem Fall mit."
 
 #: src/components/Hero.tsx
 #: src/components/Navigation.tsx
 msgid "Book a Session"
-msgstr ""
+msgstr "Termin buchen"
 
 #: src/components/Services.tsx
 msgid "Book an Intro Call"
-msgstr ""
+msgstr "Kennenlerngespräch buchen"
 
 #: src/components/Contact.tsx
 msgid "By submitting, you agree to being contacted about coaching services. Your information is kept confidential."
-msgstr ""
+msgstr "Mit dem Absenden erklären Sie sich damit einverstanden, dass ich Sie zu meinen Coaching-Leistungen kontaktiere. Ihre Angaben werden vertraulich behandelt."
 
 #: src/components/Services.tsx
 msgid "Career clarity & personal brand development"
-msgstr ""
+msgstr "Karriereklarheit und Aufbau der persönlichen Marke"
 
 #: src/components/Services.tsx
 msgid "Career Transition Coaching"
-msgstr ""
+msgstr "Coaching für den Karriereübergang"
 
 #: src/components/Philosophy.tsx
 msgid "Clear goals, working feedback loops, and OKRs that tie each person's growth to business results — so your team knows exactly what winning looks like this quarter."
-msgstr ""
+msgstr "Klare Ziele, funktionierende Feedback-Schleifen und OKRs, die die Entwicklung jedes Einzelnen mit den Geschäftsergebnissen verknüpfen – damit Ihr Team genau weiß, wie Erfolg in diesem Quartal aussieht."
 
 #: src/components/Impact.tsx
 msgid "Cloud Cost Reduction"
-msgstr ""
+msgstr "Senkung der Cloud-Kosten"
 
 #: src/components/Impact.tsx
 msgid "Cloud Security Manager"
-msgstr ""
+msgstr "Cloud Security Manager"
 
 #: src/components/Testimonials.tsx
 msgid "Coaching conversations are confidential by default, so named endorsements will only ever appear here with a client's explicit sign-off."
-msgstr ""
+msgstr "Coaching-Gespräche sind grundsätzlich vertraulich; namentliche Empfehlungen erscheinen hier daher nur mit der ausdrücklichen Freigabe des Klienten."
 
 #: src/components/Footer.tsx
 msgid "Coaching for engineering leaders, from someone who has held the pager."
-msgstr ""
+msgstr "Coaching für Engineering-Führungskräfte – von jemandem, der selbst den Pager getragen hat."
 
 #: src/components/Services.tsx
 msgid "Coaching Services"
-msgstr ""
+msgstr "Coaching-Angebote"
 
 #: src/components/Footer.tsx
 msgid "Connect"
-msgstr ""
+msgstr "Vernetzen"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 msgid "Contact"
-msgstr ""
+msgstr "Kontakt"
 
 #: src/components/Services.tsx
 msgid "CTO & VP Level"
-msgstr ""
+msgstr "CTO- und VP-Ebene"
 
 #: src/components/Services.tsx
 msgid "CTOs, VPs, and senior engineering executives"
-msgstr ""
+msgstr "CTOs, VPs und leitende Engineering-Führungskräfte"
 
 #: src/components/Contact.tsx
 msgid "Current Role"
-msgstr ""
+msgstr "Aktuelle Position"
 
 #: src/pages/Legal.tsx
 msgid "data portability (Art. 20),"
-msgstr ""
+msgstr "Datenübertragbarkeit (Art. 20),"
 
 #: src/components/CookieNotice.tsx
 msgid "Decline"
-msgstr ""
+msgstr "Ablehnen"
 
 #: src/components/Impact.tsx
 msgid "Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout."
-msgstr ""
+msgstr "Kernbankensystem auf einer vollständig serverlosen Architektur bereitgestellt – durchgängig PCI-DSS-konform und umfassend sicherheitsgehärtet."
 
 #: src/components/Impact.tsx
 msgid "DevOps Lead"
-msgstr ""
+msgstr "DevOps Lead"
 
 #: src/components/Services.tsx
 msgid "DevOps/GitOps workflows & trunk-based development"
-msgstr ""
+msgstr "DevOps-/GitOps-Workflows und trunk-based Development"
 
 #: src/components/Philosophy.tsx
 msgid "DevOps/GitOps workflows, DORA metrics, and decision frameworks that let your team move fast without waiting on you."
-msgstr ""
+msgstr "DevOps-/GitOps-Workflows, DORA-Metriken und Entscheidungsframeworks, mit denen Ihr Team schnell vorankommt, ohne auf Sie warten zu müssen."
 
 #: src/components/About.tsx
 msgid "Direct, Kind Feedback"
-msgstr ""
+msgstr "Direktes, wohlwollendes Feedback"
 
 #: src/components/Services.tsx
 msgid "Director → VP: Strategic thinking & executive presence"
-msgstr ""
+msgstr "Director → VP: Strategisches Denken und Führungspräsenz"
 
 #: src/pages/Legal.tsx
 msgid "Dispute Resolution"
-msgstr ""
+msgstr "Streitbeilegung"
 
 #: src/components/FAQ.tsx
 msgid "Does Agustin coach remotely?"
-msgstr ""
+msgstr "Coacht Agustin auch remote?"
 
 #: src/components/Services.tsx
 msgid "DORA metrics & deployment velocity optimization"
-msgstr ""
+msgstr "DORA-Metriken und Optimierung der Deployment-Geschwindigkeit"
 
 #: src/components/Testimonials.tsx
 msgid "E-Commerce Platform"
-msgstr ""
+msgstr "E-Commerce-Plattform"
 
 #: src/components/Contact.tsx
 msgid "e.g., Engineering Manager, VP of Engineering"
-msgstr ""
+msgstr "z. B. Engineering Manager, VP of Engineering"
 
 #: src/components/Footer.tsx
 msgid "Email"
-msgstr ""
+msgstr "E-Mail"
 
 #: src/components/Contact.tsx
 msgid "Email *"
-msgstr ""
+msgstr "E-Mail *"
 
 #: src/components/Philosophy.tsx
 msgid "Empowerment through Systems"
-msgstr ""
+msgstr "Befähigung durch Systeme"
 
 #: src/components/Services.tsx
 msgid "Engineering managers, directors, and team leads"
-msgstr ""
+msgstr "Engineering Manager, Directors und Team Leads"
 
 #: src/components/Services.tsx
 msgid "Engineers and managers at career inflection points"
-msgstr ""
+msgstr "Ingenieure und Führungskräfte an beruflichen Wendepunkten"
 
 #: src/pages/Legal.tsx
 msgid "erasure (Art. 17),"
-msgstr ""
+msgstr "Löschung (Art. 17),"
 
 #: src/components/About.tsx
 msgid "Every engagement names the result it should produce — delivery speed, retention, uptime — and we check that it did."
-msgstr ""
+msgstr "Jedes Engagement benennt das Ergebnis, das es liefern soll – Liefergeschwindigkeit, Mitarbeiterbindung, Verfügbarkeit – und wir prüfen, ob es das getan hat."
 
 #: src/components/Services.tsx
 msgid "Executive Leadership Coaching"
-msgstr ""
+msgstr "Executive Leadership Coaching"
 
 #: src/components/Impact.tsx
 msgid "Experience Timeline"
-msgstr ""
+msgstr "Beruflicher Werdegang"
 
 #: src/components/Contact.tsx
 msgid "Failed to send message. Please try again or email me directly."
-msgstr ""
+msgstr "Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder schreiben Sie mir direkt eine E-Mail."
 
 #: src/components/Navigation.tsx
 msgid "FAQ"
-msgstr ""
+msgstr "FAQ"
 
 #: src/components/Impact.tsx
 msgid "Faster Onboarding"
-msgstr ""
+msgstr "Schnelleres Onboarding"
 
 #: src/components/Impact.tsx
 msgid "Faster Releases"
-msgstr ""
+msgstr "Schnellere Releases"
 
 #: src/components/Impact.tsx
 msgid "FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap"
-msgstr ""
+msgstr "FinOps-Disziplin plus hartnäckige Lieferantenverhandlungen – Geld zurück in die Roadmap"
 
 #: src/components/Testimonials.tsx
 msgid "FinTech scale-up"
-msgstr ""
+msgstr "FinTech-Scale-up"
 
 #: src/components/Testimonials.tsx
 msgid "First-Time Engineering Manager"
-msgstr ""
+msgstr "Engineering Manager in der ersten Führungsrolle"
 
 #: src/components/Services.tsx
 msgid "For engineers and managers moving up a level: land the role, then grow into it faster than you would alone."
-msgstr ""
+msgstr "Für Ingenieure und Führungskräfte auf dem Sprung zur nächsten Ebene: die Rolle bekommen und dann schneller hineinwachsen, als es allein gelingen würde."
 
 #: src/components/Services.tsx
 msgid "For leaders accountable to boards and founders: an org design that scales, stakeholders who trust you, and decisions you can defend under pressure."
-msgstr ""
+msgstr "Für Führungskräfte mit Verantwortung gegenüber Boards und Gründern: ein Organisationsdesign, das skaliert, Stakeholder, die Ihnen vertrauen, und Entscheidungen, die Sie auch unter Druck vertreten können."
 
 #: src/components/Services.tsx
 msgid "For managers whose teams should be shipping more than they are: better delivery numbers, healthier rituals, and calmer on-call weeks."
-msgstr ""
+msgstr "Für Führungskräfte, deren Teams mehr liefern sollten, als sie es tun: bessere Lieferkennzahlen, gesündere Rituale und ruhigere On-Call-Wochen."
 
 #: src/components/Services.tsx
 msgid "Format"
-msgstr ""
+msgstr "Format"
 
 #: src/components/Contact.tsx
 msgid "Free Discovery Call"
-msgstr ""
+msgstr "Kostenloses Erstgespräch"
 
 #: src/components/FAQ.tsx
 msgid "Frequently Asked Questions"
-msgstr ""
+msgstr "Häufig gestellte Fragen"
 
 #: src/components/About.tsx
 msgid "From Haedo to Berlin, One Engineering Team at a Time"
-msgstr ""
+msgstr "Von Haedo nach Berlin – ein Engineering-Team nach dem anderen"
 
 #: src/components/Contact.tsx
 msgid "Get in Touch"
-msgstr ""
+msgstr "Kontakt aufnehmen"
 
 #: src/components/Services.tsx
 msgid "Get Started"
-msgstr ""
+msgstr "Loslegen"
 
 #: src/components/Contact.tsx
 #: src/components/Footer.tsx
 msgid "GitHub Profile"
-msgstr ""
+msgstr "GitHub-Profil"
 
 #: src/pages/Legal.tsx
 msgid "Google acts as a processor for this measurement. Data may be transferred to Google servers in the United States; Google is certified under the EU–US Data Privacy Framework and additionally relies on EU Standard Contractual Clauses. Details: <0>https://policies.google.com/privacy</0>"
-msgstr ""
+msgstr "Google fungiert bei dieser Messung als Auftragsverarbeiter. Daten können an Google-Server in den USA übermittelt werden; Google ist unter dem EU-US Data Privacy Framework zertifiziert und stützt sich zusätzlich auf die EU-Standardvertragsklauseln. Details: <0>https://policies.google.com/privacy</0>"
 
 #: src/pages/Legal.tsx
 msgid "Google acts as a processor in this transmission. Data may be transferred to Google servers in the United States; Google is certified under the EU–US Data Privacy Framework."
-msgstr ""
+msgstr "Google fungiert bei dieser Übermittlung als Auftragsverarbeiter. Daten können an Google-Server in den USA übermittelt werden; Google ist unter dem EU-US Data Privacy Framework zertifiziert."
 
 #: src/pages/Legal.tsx
 msgid "Google's <0>Consent Mode v2</0> is used: every consent signal defaults to \"denied\", and only the analytics-storage signal is set to \"granted\" after you accept — advertising signals remain denied. Google Analytics 4 does not log or store IP addresses; IP data is used only transiently to derive coarse location. If you accept, Google Analytics sets the cookies <1>_ga</1> and <2>_ga_*</2> (lifetime of up to two years) to distinguish visitors. Analytics event data is retained in Google Analytics for at most 14 months and is then deleted automatically."
-msgstr ""
+msgstr "Es wird Googles <0>Consent Mode v2</0> verwendet: Jedes Einwilligungssignal steht standardmäßig auf „denied“, und nur das Signal „analytics-storage“ wird nach Ihrer Zustimmung auf „granted“ gesetzt – Werbe-Signale bleiben abgelehnt. Google Analytics 4 protokolliert oder speichert keine IP-Adressen; IP-Daten werden nur vorübergehend verwendet, um einen groben Standort abzuleiten. Wenn Sie zustimmen, setzt Google Analytics die Cookies <1>_ga</1> und <2>_ga_*</2> (Lebensdauer bis zu zwei Jahre), um Besucher zu unterscheiden. Analyse-Ereignisdaten werden in Google Analytics höchstens 14 Monate lang aufbewahrt und danach automatisch gelöscht."
 
 #: src/components/CookieNotice.tsx
 msgid "Got it"
-msgstr ""
+msgstr "Verstanden"
 
 #: src/components/Philosophy.tsx
 msgid "Growth through Clarity"
-msgstr ""
+msgstr "Wachstum durch Klarheit"
 
 #: src/components/Impact.tsx
 msgid "Head of Infrastructure & Security"
-msgstr ""
+msgstr "Head of Infrastructure & Security"
 
 #: src/components/Services.tsx
 msgid "Hiring, leveling & performance frameworks"
-msgstr ""
+msgstr "Frameworks für Hiring, Leveling und Performance"
 
 #: src/components/Hero.tsx
 msgid "How Coaching Works"
-msgstr ""
+msgstr "So funktioniert Coaching"
 
 #: src/components/FAQ.tsx
 msgid "How do I start working with Agustin?"
-msgstr ""
+msgstr "Wie beginne ich die Zusammenarbeit mit Agustin?"
 
 #: src/components/About.tsx
 msgid "How I Work"
-msgstr ""
+msgstr "Meine Arbeitsweise"
 
 #: src/components/About.tsx
 msgid "I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security — and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck."
-msgstr ""
+msgstr "Ich berate das C-Level und leitende Engineering-Führungskräfte zu cloud-nativen Systemen, DevOps-Transformation und Security – und ich habe eine Version dessen, womit Sie gerade konfrontiert sind, wahrscheinlich selbst erlebt: die Reorganisation, das Audit, das Post-Mortem nach einem Ausfall, den Budgetstreit. Ob Sie ein Start-up durch die Scale-up-Phase führen oder in einem Konzern die Lieferdisziplin wiederherstellen – wir bauen die Systeme und Gewohnheiten, mit denen Ihr Team liefert, ohne dass Sie zum Engpass werden."
 
 #: src/components/About.tsx
 msgid "I only teach what I've run in production with real teams — no borrowed frameworks."
-msgstr ""
+msgstr "Ich vermittle nur, was ich mit echten Teams in der Produktion selbst umgesetzt habe – keine geborgten Frameworks."
 
 #: src/components/Contact.tsx
 msgid "I typically respond within 24 hours. For urgent inquiries, please mention it in your message."
-msgstr ""
+msgstr "In der Regel antworte ich innerhalb von 24 Stunden. Bei dringenden Anliegen vermerken Sie dies bitte in Ihrer Nachricht."
 
 #: src/components/FAQ.tsx
 msgid "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role."
-msgstr ""
+msgstr "Ich arbeite mit CTOs und VPs of Engineering, Directors, Engineering Managern, Tech Leads und Individual Contributors, die sich auf ihre erste Führungsrolle vorbereiten."
 
 #: src/components/About.tsx
 msgid "I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3 — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
-msgstr ""
+msgstr "Ich bin Agustin Gonzalez Nicolini. Seit über 15 Jahren baue und führe ich multidisziplinäre Teams in Fintech, Gaming, E-Mobility, Healthtech und Web3 – und liefere REST- und GraphQL-Architekturen auf serverlosen und containerisierten, cloud-nativen Systemen, darunter eine Kernbankenplattform."
 
 #: src/components/FAQ.tsx
 msgid "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev; today I head infrastructure and security at a Web3 company and coach senior technology leaders one-on-one."
-msgstr ""
+msgstr "Ich bin Engineering-Führungskraft und Leadership-Coach mit Sitz in Berlin. Ich habe Engineering-Teams bei Unternehmen wie Ualá, Wildlife Studios, JUCR und Bdev geleitet; heute verantworte ich Infrastruktur und Security bei einem Web3-Unternehmen und coache leitende Technologie-Führungskräfte im Einzelcoaching."
 
 #: src/components/Services.tsx
 msgid "IC → Manager: First-time leadership transitions"
-msgstr ""
+msgstr "IC → Manager: Der erste Wechsel in die Führung"
 
 #: src/components/Services.tsx
 msgid "IC to Manager & Beyond"
-msgstr ""
+msgstr "Vom IC zum Manager und darüber hinaus"
 
 #: src/pages/Legal.tsx
 msgid "If you use the contact form, the data you enter (name, email address, role, and message) is transmitted via a <0>Google Apps Script</0> endpoint (Google LLC / Google Ireland Ltd.) and forwarded to me by email. The data is not stored in any database; it exists only in the resulting email correspondence."
-msgstr ""
+msgstr "Wenn Sie das Kontaktformular nutzen, werden die von Ihnen eingegebenen Daten (Name, E-Mail-Adresse, Rolle und Nachricht) über einen <0>Google Apps Script</0>-Endpunkt (Google LLC / Google Ireland Ltd.) übermittelt und per E-Mail an mich weitergeleitet. Die Daten werden in keiner Datenbank gespeichert; sie existieren nur in der daraus entstehenden E-Mail-Korrespondenz."
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 msgid "Impact"
-msgstr ""
+msgstr "Wirkung"
 
 #: src/components/Footer.tsx
 #: src/pages/Legal.tsx
 msgid "Impressum"
-msgstr ""
+msgstr "Impressum"
 
 #: src/pages/Legal.tsx
 msgid "Impressum — Agustin Gonzalez Nicolini"
-msgstr ""
+msgstr "Impressum — Agustin Gonzalez Nicolini"
 
 #: src/pages/Legal.tsx
 msgid "Impressum (legal notice) for agusgonzaleznic.com pursuant to § 5 DDG."
-msgstr ""
+msgstr "Impressum für agusgonzaleznic.com gemäß § 5 DDG."
 
 #: src/components/Services.tsx
 msgid "Incident readiness & on-call culture"
-msgstr ""
+msgstr "Incident-Bereitschaft und On-Call-Kultur"
 
 #: src/components/Hero.tsx
 msgid "Industries where I've led teams:"
-msgstr ""
+msgstr "Branchen, in denen ich Teams geführt habe:"
 
 #: src/components/Impact.tsx
 msgid "Infrastructure & Security Lead"
-msgstr ""
+msgstr "Infrastructure & Security Lead"
 
 #: src/components/Services.tsx
 msgid "Interview prep for leadership roles"
-msgstr ""
+msgstr "Interview-Vorbereitung für Führungsrollen"
 
 #: src/components/Impact.tsx
 msgid "Kept security controls stringent while game teams shipped features at full speed."
-msgstr ""
+msgstr "Sicherheitskontrollen streng gehalten, während die Game-Teams Features mit voller Geschwindigkeit auslieferten."
 
 #: src/pages/Legal.tsx
 msgid "Kontakt"
-msgstr ""
+msgstr "Kontakt"
 
 #: src/components/Hero.tsx
 msgid "Lead an Engineering Org That <0>Ships, Scales, <1>and Lasts<2><3/><4><5><6/><7/></5></4></2></1></0>"
-msgstr ""
+msgstr "Führen Sie eine Engineering-Organisation, die <0>liefert, skaliert <1>und Bestand hat<2><3/><4><5><6/><7/></5></4></2></1></0>"
 
 #: src/components/Philosophy.tsx
 msgid "Leadership through Empathy"
-msgstr ""
+msgstr "Führung durch Empathie"
 
 #: src/components/Impact.tsx
 msgid "Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime."
-msgstr ""
+msgstr "Migration zu Multi-Account-AWS geleitet, eine Architektur über mehr als 5 SaaS-Dienste vereinheitlicht und eine Verfügbarkeit von 99,99 % gehalten."
 
 #: src/pages/Legal.tsx
 msgid "Legal basis: Art. 6(1)(a) GDPR (your consent, given via the banner). You can withdraw your consent at any time with effect for the future:"
-msgstr ""
+msgstr "Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Ihre über das Banner erteilte Einwilligung). Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen:"
 
 #: src/pages/Legal.tsx
 msgid "Legal basis: Art. 6(1)(b) GDPR (steps prior to entering into a contract / responding to your inquiry) and, where the inquiry is not contract-related, Art. 6(1)(a) GDPR (your consent, given by voluntarily submitting the form). You may withdraw consent at any time with effect for the future by emailing <0>info@agusgonzaleznic.com</0>."
-msgstr ""
+msgstr "Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Maßnahmen vor Vertragsabschluss / Beantwortung Ihrer Anfrage) und, soweit die Anfrage nicht vertragsbezogen ist, Art. 6 Abs. 1 lit. a DSGVO (Ihre Einwilligung durch das freiwillige Absenden des Formulars). Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen, indem Sie eine E-Mail an <0>info@agusgonzaleznic.com</0> senden."
 
 #: src/pages/Legal.tsx
 msgid "Legal basis: Art. 6(1)(f) GDPR (legitimate interest in the secure, reliable provision of this website). Log data may be processed on servers in the United States; GitHub and AWS rely on the EU–US Data Privacy Framework and/or EU Standard Contractual Clauses for such transfers. I do not merge this data with other sources or use it to identify visitors."
-msgstr ""
+msgstr "Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der sicheren, zuverlässigen Bereitstellung dieser Website). Protokolldaten können auf Servern in den USA verarbeitet werden; GitHub und AWS stützen sich bei solchen Übermittlungen auf das EU-US Data Privacy Framework und/oder die EU-Standardvertragsklauseln. Ich führe diese Daten nicht mit anderen Quellen zusammen und nutze sie nicht, um Besucher zu identifizieren."
 
 #: src/pages/Legal.tsx
 msgid "Liability for Content and Links"
-msgstr ""
+msgstr "Haftung für Inhalte und Links"
 
 #: src/components/Contact.tsx
 #: src/components/Footer.tsx
 msgid "LinkedIn Profile"
-msgstr ""
+msgstr "LinkedIn-Profil"
 
 #: src/components/Services.tsx
 msgid "Manager & Director Level"
-msgstr ""
+msgstr "Manager- und Director-Ebene"
 
 #: src/components/Services.tsx
 msgid "Manager → Director: Scaling impact through others"
-msgstr ""
+msgstr "Manager → Director: Wirkung durch andere skalieren"
 
 #: src/components/Contact.tsx
 msgid "Message sent — I typically reply within 24 hours."
-msgstr ""
+msgstr "Nachricht gesendet – ich antworte in der Regel innerhalb von 24 Stunden."
 
 #: src/components/Impact.tsx
 msgid "Migrated on-premise infrastructure to AWS and implemented SOC 2 and ISO 27001 compliance."
-msgstr ""
+msgstr "Lokale Infrastruktur zu AWS migriert und Compliance nach SOC 2 und ISO 27001 umgesetzt."
 
 #: src/components/Services.tsx
 msgid "Most Popular"
-msgstr ""
+msgstr "Am beliebtesten"
 
 #: src/components/Impact.tsx
 msgid "Multi-region failover and DR/HA playbooks, built so a bad day in one region stays invisible to users"
-msgstr ""
+msgstr "Multi-Region-Failover und DR/HA-Playbooks, gebaut, damit ein schlechter Tag in einer Region für die Nutzer unsichtbar bleibt"
 
 #: src/components/Philosophy.tsx
 msgid "My Coaching Philosophy"
-msgstr ""
+msgstr "Meine Coaching-Philosophie"
 
 #: src/components/Contact.tsx
 msgid "Name *"
-msgstr ""
+msgstr "Name *"
 
 #: src/components/Services.tsx
 msgid "Not sure which format fits your situation?"
-msgstr ""
+msgstr "Sie sind sich nicht sicher, welches Format zu Ihrer Situation passt?"
 
 #: src/pages/Blog.tsx
 msgid "Notes from fifteen years of running engineering teams — leadership, infrastructure, and the occasional strong opinion. I publish when I have something worth saying, not on a schedule."
-msgstr ""
+msgstr "Notizen aus fünfzehn Jahren Leitung von Engineering-Teams – Leadership, Infrastruktur und gelegentlich eine dezidierte Meinung. Ich veröffentliche, wenn ich etwas zu sagen habe, das es wert ist – nicht nach Zeitplan."
 
 #: src/pages/Blog.tsx
 msgid "Notes on engineering leadership and the systems behind it, from fifteen years of running teams and infrastructure. By Agustin Gonzalez Nicolini."
-msgstr ""
+msgstr "Notizen zu Engineering-Leadership und den Systemen dahinter, aus fünfzehn Jahren Leitung von Teams und Infrastruktur. Von Agustin Gonzalez Nicolini."
 
 #: src/pages/Blog.tsx
 msgid "Nothing here yet"
-msgstr ""
+msgstr "Hier ist noch nichts"
 
 #: src/components/Impact.tsx
 msgid "Numbers I Stand Behind"
-msgstr ""
+msgstr "Zahlen, hinter denen ich stehe"
 
 #: src/pages/Legal.tsx
 msgid "object to processing based on legitimate interests (Art. 21), and"
-msgstr ""
+msgstr "Widerspruch gegen die Verarbeitung auf Grundlage berechtigter Interessen einzulegen (Art. 21), und"
 
 #: src/components/Impact.tsx
 msgid "OKRs paired with DORA metrics, used as working tools rather than dashboards"
-msgstr ""
+msgstr "OKRs kombiniert mit DORA-Metriken, genutzt als Arbeitswerkzeuge statt als Dashboards"
 
 #: src/components/Testimonials.tsx
 msgid "One team became four in a year and everything got slower — it usually does. We sketched an org structure early on, then stress-tested and adjusted it over the following quarters as the company kept growing."
-msgstr ""
+msgstr "Aus einem Team wurden innerhalb eines Jahres vier, und alles wurde langsamer – wie so oft. Wir haben früh eine Organisationsstruktur skizziert, sie in den folgenden Quartalen unter Belastung getestet und angepasst, während das Unternehmen weiterwuchs."
 
 #: src/components/Hero.tsx
 msgid "One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics."
-msgstr ""
+msgstr "Einzelcoaching für leitende Engineering-Führungskräfte, vom erstmaligen Manager bis zum CTO. Wir arbeiten an dem, woran Sie gemessen werden: Delivery, Mitarbeiterbindung und eine Organisation, die ohne Heldentaten läuft."
 
 #: src/components/Services.tsx
 msgid "Organization design & scaling strategies"
-msgstr ""
+msgstr "Organisationsdesign und Skalierungsstrategien"
 
 #: src/pages/BlogPost.tsx
 msgid "Originally published on <0>Medium</0>."
-msgstr ""
+msgstr "Ursprünglich veröffentlicht auf <0>Medium</0>."
 
 #: src/components/About.tsx
 msgid "Outcomes Over Optics"
-msgstr ""
+msgstr "Ergebnisse statt Show"
 
 #: src/components/Navigation.tsx
 msgid "Philosophy"
-msgstr ""
+msgstr "Philosophie"
 
 #: src/components/Contact.tsx
 msgid "Please complete the verification challenge and try again."
-msgstr ""
+msgstr "Bitte lösen Sie die Verifizierung und versuchen Sie es erneut."
 
 #: src/components/Contact.tsx
 msgid "Please enter a valid email address"
-msgstr ""
+msgstr "Bitte geben Sie eine gültige E-Mail-Adresse ein"
 
 #: src/components/Contact.tsx
 msgid "Please fill in all required fields"
-msgstr ""
+msgstr "Bitte füllen Sie alle Pflichtfelder aus"
 
 #: src/components/FAQ.tsx
 msgid "Practical answers on fit, format, and how we'd start"
-msgstr ""
+msgstr "Praktische Antworten zu Passung, Format und dem Einstieg"
 
 #: src/components/About.tsx
 msgid "Practice Over Theory"
-msgstr ""
+msgstr "Praxis statt Theorie"
 
 #: src/components/CookieNotice.tsx
 msgid "Privacy notice"
-msgstr ""
+msgstr "Datenschutzerklärung"
 
 #: src/components/Footer.tsx
 #: src/pages/Legal.tsx
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Datenschutzerklärung"
 
 #: src/pages/Legal.tsx
 msgid "Privacy Policy — Agustin Gonzalez Nicolini"
-msgstr ""
+msgstr "Datenschutzerklärung – Agustin Gonzalez Nicolini"
 
 #: src/pages/Legal.tsx
 msgid "Privacy policy for agusgonzaleznic.com: how personal data is processed under the GDPR."
-msgstr ""
+msgstr "Datenschutzerklärung für agusgonzaleznic.com: Wie personenbezogene Daten gemäß DSGVO verarbeitet werden."
 
 #: src/components/Philosophy.tsx
 msgid "Psychological safety, deliberate mentoring, and a culture people choose to stay in. Retention is a leadership outcome, not an HR metric."
-msgstr ""
+msgstr "Psychologische Sicherheit, bewusstes Mentoring und eine Kultur, in der Menschen bleiben wollen. Mitarbeiterbindung ist ein Führungsergebnis, keine HR-Kennzahl."
 
 #: src/components/Footer.tsx
 msgid "Quick Links"
-msgstr ""
+msgstr "Schnellzugriff"
 
 #: src/pages/Legal.tsx
 msgid "rectification (Art. 16),"
-msgstr ""
+msgstr "Berichtigung (Art. 16),"
 
 #: src/components/Impact.tsx
 msgid "Reduced Lead Time"
-msgstr ""
+msgstr "Kürzere Lead Time"
 
 #: src/components/About.tsx
 msgid "Resilience and compliance as design inputs, not afterthoughts — a habit from years of PCI-DSS, SOC 2, and ISO 27001 work."
-msgstr ""
+msgstr "Resilienz und Compliance als Design-Vorgaben, nicht als nachträgliche Gedanken – eine Gewohnheit aus Jahren der Arbeit mit PCI-DSS, SOC 2 und ISO 27001."
 
 #: src/components/Contact.tsx
 msgid "Response Time"
-msgstr ""
+msgstr "Reaktionszeit"
 
 #: src/pages/Legal.tsx
 msgid "restriction of processing (Art. 18),"
-msgstr ""
+msgstr "Einschränkung der Verarbeitung (Art. 18),"
 
 #: src/components/Impact.tsx
 msgid "Results from teams I've led as an operator — the same playbooks we'll work from"
-msgstr ""
+msgstr "Ergebnisse aus Teams, die ich operativ geführt habe – dieselben Playbooks, mit denen wir arbeiten werden"
 
 #: src/pages/NotFound.tsx
 msgid "Return to home"
-msgstr ""
+msgstr "Zurück zur Startseite"
 
 #: src/components/Impact.tsx
 msgid "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now."
-msgstr ""
+msgstr "Infrastruktur und Security durchgängig für eine Web3-Plattform verantwortet – der Name des Unternehmens bleibt vorerst vertraulich."
 
 #: src/components/About.tsx
 msgid "Security by Default"
-msgstr ""
+msgstr "Security by Default"
 
 #: src/components/Contact.tsx
 msgid "Send Message"
-msgstr ""
+msgstr "Nachricht senden"
 
 #: src/components/Contact.tsx
 msgid "Sending..."
-msgstr ""
+msgstr "Wird gesendet …"
 
 #: src/components/Testimonials.tsx
 msgid "Senior Engineering Manager"
-msgstr ""
+msgstr "Senior Engineering Manager"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 msgid "Services"
-msgstr ""
+msgstr "Leistungen"
 
 #: src/components/Contact.tsx
 msgid "Some details look off. Please check the form and try again."
-msgstr ""
+msgstr "Einige Angaben scheinen nicht zu stimmen. Bitte prüfen Sie das Formular und versuchen Sie es erneut."
 
 #: src/components/Services.tsx
 msgid "Stakeholder influence & C-suite communication"
-msgstr ""
+msgstr "Stakeholder-Einfluss und Kommunikation mit dem C-Level"
 
 #: src/components/Impact.tsx
 msgid "Standardized processes and documentation a new hire can follow on day one"
-msgstr ""
+msgstr "Standardisierte Prozesse und Dokumentation, an denen sich eine neue Person schon am ersten Tag orientieren kann"
 
 #: src/components/Impact.tsx
 msgid "System Uptime"
-msgstr ""
+msgstr "System-Uptime"
 
 #: src/components/Services.tsx
 msgid "Team & Manager Coaching"
-msgstr ""
+msgstr "Team- und Manager-Coaching"
 
 #: src/components/Services.tsx
 msgid "Team rituals, retrospectives & continuous improvement"
-msgstr ""
+msgstr "Team-Rituale, Retrospektiven und kontinuierliche Verbesserung"
 
 #: src/components/Impact.tsx
 msgid "Team Velocity Boost"
-msgstr ""
+msgstr "Höhere Team-Velocity"
 
 #: src/components/Services.tsx
 msgid "Technology roadmap alignment with business goals"
-msgstr ""
+msgstr "Ausrichtung der Technologie-Roadmap an den Geschäftszielen"
 
 #: src/components/Contact.tsx
 msgid "Tell me about your current challenges or goals..."
-msgstr ""
+msgstr "Erzählen Sie mir von Ihren aktuellen Herausforderungen oder Zielen …"
 
 #: src/components/Contact.tsx
 msgid "Tell me in a few lines — a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for."
-msgstr ""
+msgstr "Erzählen Sie mir in ein paar Zeilen davon – ein Team, das feststeckt, ein holpriger Übergang, eine Entscheidung, um die Sie immer wieder kreisen. Genau dafür ist ein erstes Gespräch da."
 
 #: src/pages/Legal.tsx
 msgid "The European Commission provides a platform for online dispute resolution (ODR): <0>https://ec.europa.eu/consumers/odr/</0>. I am neither obliged nor willing to participate in dispute resolution proceedings before a consumer arbitration board (Verbraucherschlichtungsstelle)."
-msgstr ""
+msgstr "Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <0>https://ec.europa.eu/consumers/odr/</0>. Ich bin weder verpflichtet noch bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
 
 #: src/components/Contact.tsx
 msgid "The first 30 minutes are on me: a working session on your situation, not a sales pitch. If I'm not the right coach for the problem, I'll say so."
-msgstr ""
+msgstr "Die ersten 30 Minuten gehen auf mich: eine Arbeitssitzung zu Ihrer Situation, kein Verkaufsgespräch. Bin ich nicht der richtige Coach für das Problem, sage ich es Ihnen."
 
 #: src/components/Testimonials.tsx
 msgid "The first call was about messy deploys. Within six months the pipeline was boring — in the best way — but the more useful work was getting them out of the middle of every decision their team makes."
-msgstr ""
+msgstr "Beim ersten Gespräch ging es um chaotische Deployments. Innerhalb von sechs Monaten war die Pipeline langweilig – im besten Sinne –, doch die nützlichere Arbeit bestand darin, sie aus der Mitte jeder Entscheidung ihres Teams herauszuholen."
 
 #: src/pages/Blog.tsx
 msgid "The first posts are on their way. Check back soon."
-msgstr ""
+msgstr "Die ersten Beiträge sind unterwegs. Schauen Sie bald wieder vorbei."
 
 #: src/pages/Legal.tsx
 msgid "The fonts used on this website are <0>self-hosted</0>: they are served directly from this website's own domain as part of the site itself. Loading them causes no request to Google or any other third-party font service, and no data about you is transmitted to a font provider."
-msgstr ""
+msgstr "Die auf dieser Website verwendeten Schriftarten werden <0>selbst gehostet</0>: Sie werden direkt von der eigenen Domain dieser Website als Teil der Seite ausgeliefert. Ihr Laden löst keine Anfrage an Google oder einen anderen Drittanbieter für Schriftarten aus, und es werden keine Daten über Sie an einen Schriftartenanbieter übermittelt."
 
 #: src/pages/Legal.tsx
 msgid "The site is served over HTTPS. You are not legally or contractually obliged to provide personal data; however, without contact details I cannot respond to inquiries."
-msgstr ""
+msgstr "Die Website wird über HTTPS ausgeliefert. Sie sind weder gesetzlich noch vertraglich verpflichtet, personenbezogene Daten anzugeben; ohne Kontaktdaten kann ich jedoch nicht auf Anfragen antworten."
 
 #: src/pages/Legal.tsx
 msgid "The site links to an external booking page at <0>calendar.app.google</0> (Google Appointment Scheduling). No data is transmitted to Google by merely viewing this website; only when you click the link and use the booking page does Google process the data you enter there, under Google's own privacy policy and as an independent controller. Legal basis for any data I receive from a booking (name, email, chosen time): Art. 6(1)(b) GDPR."
-msgstr ""
+msgstr "Die Website verlinkt auf eine externe Buchungsseite unter <0>calendar.app.google</0> (Google Appointment Scheduling). Durch das bloße Betrachten dieser Website werden keine Daten an Google übermittelt; erst wenn Sie auf den Link klicken und die Buchungsseite nutzen, verarbeitet Google die dort eingegebenen Daten gemäß der eigenen Datenschutzerklärung von Google und als eigenständig Verantwortlicher. Rechtsgrundlage für alle Daten, die ich aus einer Buchung erhalte (Name, E-Mail, gewählter Termin): Art. 6 Abs. 1 lit. b DSGVO."
 
 #: src/pages/NotFound.tsx
 msgid "This page doesn't exist — but the conversation can still start somewhere useful."
-msgstr ""
+msgstr "Diese Seite existiert nicht – aber das Gespräch kann trotzdem an einer sinnvollen Stelle beginnen."
 
 #: src/pages/Legal.tsx
 msgid "This privacy policy explains how personal data is processed when you visit this website, in accordance with the EU General Data Protection Regulation (GDPR)."
-msgstr ""
+msgstr "Diese Datenschutzerklärung erläutert, wie personenbezogene Daten bei Ihrem Besuch dieser Website gemäß der Datenschutz-Grundverordnung (DSGVO) der EU verarbeitet werden."
 
 #: src/components/CookieNotice.tsx
 msgid "This site uses <0>no cookies and no tracking</0>. Details are in the <1>Privacy Policy</1>."
-msgstr ""
+msgstr "Diese Website verwendet <0>keine Cookies und kein Tracking</0>. Einzelheiten finden Sie in der <1>Datenschutzerklärung</1>."
 
 #: src/components/CookieNotice.tsx
 msgid "This site would like to use <0>optional analytics cookies</0> (Google Analytics) to understand how it is used. Nothing is loaded unless you accept — details are in the <1>Privacy Policy</1>."
-msgstr ""
+msgstr "Diese Website möchte <0>optionale Analyse-Cookies</0> (Google Analytics) verwenden, um zu verstehen, wie sie genutzt wird. Es wird nichts geladen, solange Sie nicht zustimmen – Einzelheiten finden Sie in der <1>Datenschutzerklärung</1>."
 
 #: src/pages/Legal.tsx
 msgid "This website is a static site hosted on <0>GitHub Pages</0> (GitHub, Inc., USA) and delivered via <1>Amazon CloudFront</1> (Amazon Web Services), a content delivery network. When you access the site, these providers process connection data as a technical necessity — in particular your IP address, date and time of the request, browser type, operating system, and the pages accessed — in server logs to deliver the site and ensure its security and stability."
-msgstr ""
+msgstr "Diese Website ist eine statische Seite, die auf <0>GitHub Pages</0> (GitHub, Inc., USA) gehostet und über <1>Amazon CloudFront</1> (Amazon Web Services), ein Content Delivery Network, ausgeliefert wird. Wenn Sie auf die Website zugreifen, verarbeiten diese Anbieter aus technischer Notwendigkeit Verbindungsdaten – insbesondere Ihre IP-Adresse, Datum und Uhrzeit der Anfrage, Browsertyp, Betriebssystem und die aufgerufenen Seiten – in Server-Logs, um die Website auszuliefern und ihre Sicherheit und Stabilität zu gewährleisten."
 
 #: src/pages/Legal.tsx
 msgid "This website sets <0>no cookies</0> of its own and uses <1>no analytics or tracking tools</1>. Website content is fetched from the Storyblok CMS only at build time — no visitor data is sent to Storyblok."
-msgstr ""
+msgstr "Diese Website setzt <0>keine eigenen Cookies</0> und verwendet <1>keine Analyse- oder Tracking-Tools</1>. Die Inhalte der Website werden ausschließlich zum Build-Zeitpunkt aus dem Storyblok CMS abgerufen – es werden keine Besucherdaten an Storyblok übermittelt."
 
 #: src/pages/Legal.tsx
 msgid "This website uses <0>Google Analytics 4</0> (Google Ireland Ltd. / Google LLC) — but <1>only if you accept it</1> in the consent banner. Before you accept (and always if you decline), no analytics script is loaded, no request is made to Google, and no analytics cookies are set. The purpose is to understand, in aggregate, how the site is used (e.g. which pages are visited) so it can be improved."
-msgstr ""
+msgstr "Diese Website nutzt <0>Google Analytics 4</0> (Google Ireland Ltd. / Google LLC) – aber <1>nur, wenn Sie dem im Einwilligungsbanner zustimmen</1>. Bevor Sie zustimmen (und immer, wenn Sie ablehnen), wird kein Analytics-Skript geladen, keine Anfrage an Google gesendet und es werden keine Analytics-Cookies gesetzt. Ziel ist es, in aggregierter Form zu verstehen, wie die Website genutzt wird (z. B. welche Seiten besucht werden), um sie zu verbessern."
 
 #: src/components/Testimonials.tsx
 msgid "Three composite sketches — not client quotes — showing the problems leaders bring me and how the work tends to unfold"
-msgstr ""
+msgstr "Drei zusammengesetzte Skizzen – keine Kundenzitate –, die zeigen, welche Probleme Führungskräfte zu mir bringen und wie sich die Arbeit typischerweise entfaltet"
 
 #: src/components/Services.tsx
 msgid "Three formats. Pick by the problem you have, not the title you hold."
-msgstr ""
+msgstr "Drei Formate. Wählen Sie nach dem Problem, das Sie haben, nicht nach dem Titel, den Sie tragen."
 
 #: src/components/Philosophy.tsx
 msgid "Three pillars behind every engagement — and what each one changes for your team"
-msgstr ""
+msgstr "Drei Säulen hinter jedem Engagement – und was jede davon für Ihr Team verändert"
 
 #: src/pages/Legal.tsx
 msgid "To exercise these rights, contact <0>info@agusgonzaleznic.com</0>."
-msgstr ""
+msgstr "Um diese Rechte auszuüben, wenden Sie sich an <0>info@agusgonzaleznic.com</0>."
 
 #: src/components/Navigation.tsx
 msgid "Toggle menu"
-msgstr ""
+msgstr "Menü ein-/ausblenden"
 
 #: src/components/Contact.tsx
 msgid "Too many requests. Please wait a moment, or email me directly."
-msgstr ""
+msgstr "Zu viele Anfragen. Bitte warten Sie einen Moment oder schreiben Sie mir direkt eine E-Mail."
 
 #: src/components/Impact.tsx
 msgid "Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event"
-msgstr ""
+msgstr "Trunk-based Development, CI/CD und GitOps – das Releasen wurde zur Routine, nicht zum Ereignis"
 
 #: src/components/Testimonials.tsx
 msgid "Typical Engagements"
-msgstr ""
+msgstr "Typische Engagements"
 
 #: src/pages/Legal.tsx
 msgid "Under the GDPR you have the right to:"
-msgstr ""
+msgstr "Nach der DSGVO haben Sie das Recht auf:"
 
 #: src/components/Services.tsx
 msgid "Vendor management & strategic partnerships"
-msgstr ""
+msgstr "Vendor-Management und strategische Partnerschaften"
 
 #: src/pages/Legal.tsx
 msgid "Verantwortlich i.S.d. § 18 Abs. 2 MStV"
-msgstr ""
+msgstr "Verantwortlich i.S.d. § 18 Abs. 2 MStV"
 
 #: src/components/Contact.tsx
 msgid "Verification failed. Please complete the challenge and try again."
-msgstr ""
+msgstr "Die Verifizierung ist fehlgeschlagen. Bitte lösen Sie die Sicherheitsabfrage und versuchen Sie es erneut."
 
 #: src/components/Contact.tsx
 msgid "Verification isn't available right now — please email me directly at info@agusgonzaleznic.com."
-msgstr ""
+msgstr "Die Verifizierung ist derzeit nicht verfügbar – bitte schreiben Sie mir direkt an info@agusgonzaleznic.com."
 
 #: src/components/Impact.tsx
 #: src/components/Testimonials.tsx
 msgid "VP of Engineering"
-msgstr ""
+msgstr "VP of Engineering"
 
 #: src/components/Services.tsx
 msgid "Weekly or bi-weekly 45-minute sessions"
-msgstr ""
+msgstr "Wöchentliche oder zweiwöchentliche Sitzungen à 45 Minuten"
 
 #: src/components/FAQ.tsx
 msgid "What does engineering leadership coaching cover?"
-msgstr ""
+msgstr "Was umfasst Coaching für Engineering-Führungskräfte?"
 
 #: src/components/Contact.tsx
 msgid "What would you like help with? *"
-msgstr ""
+msgstr "Wobei kann ich Ihnen helfen? *"
 
 #: src/components/Contact.tsx
 msgid "What's the Hardest Part of the Job Right Now?"
-msgstr ""
+msgstr "Was ist derzeit der schwierigste Teil Ihrer Aufgabe?"
 
 #: src/components/FAQ.tsx
 msgid "Whatever stands between you and a team that delivers: scaling and org design, stakeholder and C-suite communication, delivery speed and DORA metrics, DevOps and GitOps workflows, hiring and performance frameworks, incident readiness, and executive presence."
-msgstr ""
+msgstr "Alles, was zwischen Ihnen und einem liefernden Team steht: Skalierung und Organisationsdesign, Kommunikation mit Stakeholdern und dem C-Level, Liefergeschwindigkeit und DORA-Metriken, DevOps- und GitOps-Workflows, Frameworks für Hiring und Performance, Incident-Bereitschaft und Führungspräsenz."
 
 #: src/components/FAQ.tsx
 msgid "Who does Agustin coach?"
-msgstr ""
+msgstr "Wen coacht Agustin?"
 
 #: src/components/FAQ.tsx
 msgid "Who is Agustin Gonzalez Nicolini?"
-msgstr ""
+msgstr "Wer ist Agustin Gonzalez Nicolini?"
 
 #: src/pages/Legal.tsx
 msgid "Withdraw analytics consent"
-msgstr ""
+msgstr "Analytics-Einwilligung widerrufen"
 
 #: src/pages/Legal.tsx
 msgid "withdraw any consent at any time with effect for the future (Art. 7(3))."
-msgstr ""
+msgstr "jede Einwilligung jederzeit mit Wirkung für die Zukunft zu widerrufen (Art. 7 Abs. 3)."
 
 #: src/pages/Blog.tsx
 msgid "Writing"
-msgstr ""
+msgstr "Texte"
 
 #: src/pages/Blog.tsx
 msgid "Writing — Agustin Gonzalez Nicolini"
-msgstr ""
+msgstr "Texte – Agustin Gonzalez Nicolini"
 
 #: src/pages/Blog.tsx
 msgid "Writing | Agustin Gonzalez Nicolini"
-msgstr ""
+msgstr "Texte | Agustin Gonzalez Nicolini"
 
 #: src/components/FAQ.tsx
 msgid "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English, Spanish, or German — whichever you think best in."
-msgstr ""
+msgstr "Ja. Ich bin in Berlin ansässig und coache Führungskräfte weltweit remote. Die Sitzungen finden auf Englisch, Spanisch oder Deutsch statt – je nachdem, in welcher Sprache Sie am besten denken."
 
 #: src/pages/Legal.tsx
 msgid "You also have the right to lodge a complaint with a data protection supervisory authority (Art. 77 GDPR). The authority responsible for this website's operator is:"
-msgstr ""
+msgstr "Sie haben zudem das Recht, Beschwerde bei einer Datenschutz-Aufsichtsbehörde einzulegen (Art. 77 DSGVO). Die für den Betreiber dieser Website zuständige Behörde ist:"
 
 #: src/components/About.tsx
 msgid "You'll hear what I actually think, specifically and early. That candor is most of the value."
-msgstr ""
+msgstr "Sie hören, was ich wirklich denke – konkret und früh. Diese Offenheit macht den größten Teil des Werts aus."
 
 #: src/components/Contact.tsx
 msgid "Your full name"
-msgstr ""
+msgstr "Ihr vollständiger Name"
