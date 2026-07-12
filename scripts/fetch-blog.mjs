@@ -14,8 +14,9 @@ import {
   loadCache,
   loadGlossary,
   loadGlossaryTerms,
+  readPublishedLocales,
   saveCache,
-  TARGET_LOCALES,
+  SOURCE_LOCALE,
 } from "./lib/deepl.mjs";
 import { createPostEditor, hasAnthropicKey, POSTEDIT_VERSION } from "./lib/llm-postedit.mjs";
 import { blogDataFilename, translateStories } from "./lib/richtext-translate.mjs";
@@ -25,6 +26,7 @@ const generatedDir = resolve(__dirname, "../src/generated");
 const outFile = resolve(generatedDir, "blog-data.json");
 const cachePath = resolve(__dirname, ".i18n-cache.json");
 const glossaryPath = resolve(__dirname, "i18n-glossary.json");
+const localesTsPath = resolve(__dirname, "../src/i18n/locales.ts");
 
 // EU space (288632938663524) → EU CDA host.
 const API_BASE = "https://api.storyblok.com/v2/cdn/stories";
@@ -45,14 +47,23 @@ function writeOutput(posts) {
 }
 
 // Build-time localization of the blog (title/excerpt/SEO + richtext text nodes)
-// via DeepL, writing src/generated/blog-data.<locale>.json per target locale.
-// KEYLESS no-op: with no DEEPL_API_KEY this returns immediately, so only the
-// English blog-data.json is written and the site stays English-only.
+// via DeepL, writing src/generated/blog-data.<locale>.json per PUBLISHED locale.
+// Only PUBLISHED_LOCALES are translated (prerender ships only those, so the rest
+// would be pure build cost). KEYLESS no-op: with no DEEPL_API_KEY this returns
+// immediately, so only the English blog-data.json is written.
 async function translateBlog(posts) {
-  if (posts.length === 0 || !hasApiKey()) {
-    if (posts.length > 0 && !hasApiKey()) {
+  // Translate only locales we actually ship, minus the English source. Today
+  // PUBLISHED_LOCALES is ["en"], so this is empty and there is zero blog
+  // translation cost; publishing de/es makes it ["de","es"] automatically.
+  const targets = readPublishedLocales(localesTsPath).filter((l) => l !== SOURCE_LOCALE);
+  if (posts.length === 0 || targets.length === 0 || !hasApiKey()) {
+    if (posts.length > 0 && targets.length > 0 && !hasApiKey()) {
       console.log(
         "  fetch-blog: DEEPL_API_KEY not set — skipping blog translation (English-only).",
+      );
+    } else if (posts.length > 0 && targets.length === 0) {
+      console.log(
+        "  fetch-blog: no published non-source locales — skipping blog translation (English-only).",
       );
     }
     return;
@@ -70,7 +81,7 @@ async function translateBlog(posts) {
     postEditor,
     cacheSalt: postEditor ? POSTEDIT_VERSION : "",
   });
-  for (const locale of TARGET_LOCALES) {
+  for (const locale of targets) {
     const localized = await translateStories(posts, locale, translator);
     const localeFile = resolve(generatedDir, blogDataFilename(locale));
     writeFileSync(localeFile, `${JSON.stringify(localized, null, 2)}\n`);
