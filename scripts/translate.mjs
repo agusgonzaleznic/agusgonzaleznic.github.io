@@ -154,6 +154,13 @@ async function main() {
   const messages = enEntries.filter((e) => !isHeader(e) && e.msgid !== "");
 
   const cache = loadCache(cachePath);
+  // REGEN_LOCALES=fr,it,pt regenerates ONLY those locales from scratch (clears
+  // their cache, skips catalog adoption, and rewrites only their .po) — used to
+  // re-post-edit a subset after a guard/prompt fix without disturbing reviewed
+  // locales (e.g. de/es) or bumping POSTEDIT_VERSION globally.
+  const regenList = (process.env.REGEN_LOCALES ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  const regenSet = regenList.length ? new Set(regenList) : null;
+  if (regenSet) for (const l of regenSet) delete cache.translations[l];
   const glossaryRegex = loadGlossary(glossaryPath);
   // Optional LLM post-edit pass: refines raw DeepL into native-quality copy when
   // ANTHROPIC_API_KEY is set. Keyless → null → raw DeepL only (unchanged behaviour).
@@ -173,9 +180,10 @@ async function main() {
   // re-translated + re-post-edited from scratch. Use it after a register/prompt
   // change (paired with a POSTEDIT_VERSION bump) so old copy isn't preserved as
   // cache hits. Normal runs adopt existing translations (below) to avoid re-spend.
-  const forceRetranslate = process.env.FORCE_RETRANSLATE === "1";
+  const forceRetranslate = process.env.FORCE_RETRANSLATE === "1" || regenSet != null;
+  const localesToRun = regenSet ? TARGET_LOCALES.filter((l) => regenSet.has(l)) : TARGET_LOCALES;
 
-  for (const locale of TARGET_LOCALES) {
+  for (const locale of localesToRun) {
     const targetPo = resolve(catalogDir, `${locale}.po`);
 
     // Adopt any existing reviewed/edited translations into the cache (keyed to

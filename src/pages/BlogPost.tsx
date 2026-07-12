@@ -17,7 +17,7 @@ import {
   storyblokImage,
   toIsoUtc,
 } from "@/lib/blog";
-import { localeFromPath, localizePath, SOURCE_LOCALE } from "@/i18n/locales";
+import { localeFromPath, localizePath, LOCALE_META, SOURCE_LOCALE } from "@/i18n/locales";
 import { SECTION_PADDING } from "@/lib/layout";
 
 const AUTHOR = "Agustin Gonzalez Nicolini";
@@ -96,6 +96,7 @@ const BlogPostPage = () => {
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonical} />
         <meta property="og:image" content={ogImage} />
+        <meta property="og:locale" content={LOCALE_META[locale].ogLocale} />
         <meta property="article:published_time" content={published} />
         {post.tag_list.map((tag) => (
           <meta key={tag} property="article:tag" content={tag} />

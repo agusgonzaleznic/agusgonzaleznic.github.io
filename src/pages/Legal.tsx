@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { isAnalyticsConfigured, withdrawAnalyticsConsent } from "@/lib/analytics";
+import { localeFromPath, LOCALE_META } from "@/i18n/locales";
 import { SECTION_PADDING } from "@/lib/layout";
 
 // Shared layout for the legal pages (/impressum and /privacy). Uses the same
@@ -21,12 +23,15 @@ const LegalLayout = ({
   description: string;
   path: string;
   children: React.ReactNode;
-}) => (
+}) => {
+  const locale = localeFromPath(useLocation().pathname);
+  return (
   <div className="min-h-screen">
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={`https://agusgonzaleznic.com${path}`} />
+      <meta property="og:locale" content={LOCALE_META[locale].ogLocale} />
     </Helmet>
     <Navigation />
     <main className="pt-16">
@@ -38,7 +43,8 @@ const LegalLayout = ({
     </main>
     <Footer />
   </div>
-);
+  );
+};
 
 const H1 = ({ children }: { children: React.ReactNode }) => (
   <h1 className="text-fluid-3xl font-bold mb-10">{children}</h1>
