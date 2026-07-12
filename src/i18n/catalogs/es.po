@@ -100,7 +100,7 @@ msgstr "Empresa de SaaS B2B"
 
 #: src/components/Footer.tsx
 msgid "Based in Berlin, from Haedo • Coaching globally"
-msgstr "Con base en Berlin, de Haedo • Coaching a nivel global"
+msgstr "Con base en Berlín, de Haedo • Coaching a nivel global"
 
 #: src/components/Services.tsx
 msgid "Best for"
@@ -199,7 +199,7 @@ msgstr "portabilidad de los datos (art. 20),"
 
 #: src/components/CookieNotice.tsx
 msgid "Decline"
-msgstr "Caída"
+msgstr "Rechazar"
 
 #: src/components/Impact.tsx
 msgid "Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout."
@@ -231,7 +231,7 @@ msgstr "Resolución de disputas"
 
 #: src/components/FAQ.tsx
 msgid "Does Agustin coach remotely?"
-msgstr "¿Agustín hace coaching de forma remota?"
+msgstr "¿Agustin hace coaching de forma remota?"
 
 #: src/components/Services.tsx
 msgid "DORA metrics & deployment velocity optimization"
@@ -311,7 +311,7 @@ msgstr "Manager de ingeniería por primera vez"
 
 #: src/components/Services.tsx
 msgid "For engineers and managers moving up a level: land the role, then grow into it faster than you would alone."
-msgstr "Para ingenieros y managers que están subiendo un nivel: conseguí el rol y después creceteé en él más rápido de lo que lo harías solo."
+msgstr "Para ingenieros y managers que están subiendo un nivel: conseguí el rol y después crecé en él más rápido de lo que lo harías solo."
 
 #: src/components/Services.tsx
 msgid "For leaders accountable to boards and founders: an org design that scales, stakeholders who trust you, and decisions you can defend under pressure."
@@ -335,7 +335,7 @@ msgstr "Preguntas frecuentes"
 
 #: src/components/About.tsx
 msgid "From Haedo to Berlin, One Engineering Team at a Time"
-msgstr "De Haedo a Berlin, un equipo de ingeniería a la vez"
+msgstr "De Haedo a Berlín, un equipo de ingeniería a la vez"
 
 #: src/components/Contact.tsx
 msgid "Get in Touch"
@@ -412,7 +412,7 @@ msgstr "Soy Agustin Gonzalez Nicolini. Durante más de 15 años construí y lide
 
 #: src/components/FAQ.tsx
 msgid "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev; today I head infrastructure and security at a Web3 company and coach senior technology leaders one-on-one."
-msgstr "Soy líder de ingeniería y leadership coach, radicado en Berlin, Alemania. Lideré equipos de ingeniería en empresas como Ualá, Wildlife Studios, JUCR y Bdev; hoy dirijo infraestructura y seguridad en una empresa Web3 y hago coaching one-on-one a líderes sénior de tecnología."
+msgstr "Soy líder de ingeniería y leadership coach, radicado en Berlín, Alemania. Lideré equipos de ingeniería en empresas como Ualá, Wildlife Studios, JUCR y Bdev; hoy dirijo infraestructura y seguridad en una empresa Web3 y hago coaching one-on-one a líderes sénior de tecnología."
 
 #: src/components/Services.tsx
 msgid "IC → Manager: First-time leadership transitions"
@@ -519,7 +519,7 @@ msgstr "Migré la infraestructura on-premise a AWS e implementé el cumplimiento
 
 #: src/components/Services.tsx
 msgid "Most Popular"
-msgstr "Los más populares"
+msgstr "Más popular"
 
 #: src/components/Impact.tsx
 msgid "Multi-region failover and DR/HA playbooks, built so a bad day in one region stays invisible to users"
@@ -717,7 +717,7 @@ msgstr "Alineación del roadmap tecnológico con los objetivos del negocio"
 
 #: src/components/Contact.tsx
 msgid "Tell me about your current challenges or goals..."
-msgstr "Contame en pocas líneas sobre tus desafíos u objetivos actuales..."
+msgstr "Contame sobre tus desafíos u objetivos actuales..."
 
 #: src/components/Contact.tsx
 msgid "Tell me in a few lines — a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for."
@@ -813,7 +813,7 @@ msgstr "Colaboraciones habituales"
 
 #: src/pages/Legal.tsx
 msgid "Under the GDPR you have the right to:"
-msgstr "Bajo el GDPR tenés derecho a:"
+msgstr "Según el RGPD tenés derecho a:"
 
 #: src/components/Services.tsx
 msgid "Vendor management & strategic partnerships"
@@ -858,7 +858,7 @@ msgstr "Lo que sea que se interponga entre vos y un equipo que entrega resultado
 
 #: src/components/FAQ.tsx
 msgid "Who does Agustin coach?"
-msgstr "¿A quién le hace coaching Agustín?"
+msgstr "¿A quién le hace coaching Agustin?"
 
 #: src/components/FAQ.tsx
 msgid "Who is Agustin Gonzalez Nicolini?"
@@ -886,7 +886,7 @@ msgstr "Writing | Agustin Gonzalez Nicolini"
 
 #: src/components/FAQ.tsx
 msgid "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English, Spanish, or German — whichever you think best in."
-msgstr "Sí. Estoy radicado en Berlin y hago coaching a líderes de forma remota en todo el mundo. Las sesiones son en inglés, español o alemán, en el idioma en el que mejor pienses."
+msgstr "Sí. Estoy radicado en Berlín y hago coaching a líderes de forma remota en todo el mundo. Las sesiones son en inglés, español o alemán, en el idioma en el que mejor pienses."
 
 #: src/pages/Legal.tsx
 msgid "You also have the right to lodge a complaint with a data protection supervisory authority (Art. 77 GDPR). The authority responsible for this website's operator is:"

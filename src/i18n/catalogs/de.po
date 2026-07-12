@@ -199,7 +199,7 @@ msgstr "Datenübertragbarkeit (Art. 20),"
 
 #: src/components/CookieNotice.tsx
 msgid "Decline"
-msgstr "Rückgang"
+msgstr "Ablehnen"
 
 #: src/components/Impact.tsx
 msgid "Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout."
@@ -279,7 +279,7 @@ msgstr "Executive Leadership Coaching"
 
 #: src/components/Impact.tsx
 msgid "Experience Timeline"
-msgstr "Zeitlicher Überblick über die Erfahrung"
+msgstr "Werdegang"
 
 #: src/components/Contact.tsx
 msgid "Failed to send message. Please try again or email me directly."
@@ -307,7 +307,7 @@ msgstr "FinTech-Scale-up"
 
 #: src/components/Testimonials.tsx
 msgid "First-Time Engineering Manager"
-msgstr "Engineering Manager zum ersten Mal"
+msgstr "Zum ersten Mal Engineering Manager"
 
 #: src/components/Services.tsx
 msgid "For engineers and managers moving up a level: land the role, then grow into it faster than you would alone."
@@ -660,7 +660,7 @@ msgstr "Zurück zur Startseite"
 
 #: src/components/Impact.tsx
 msgid "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now."
-msgstr "Infrastruktur und Security end-to-end für eine Web3-Plattform betrieben – der Name des Unternehmens bleibt vorerst Confidential."
+msgstr "Infrastruktur und Security end-to-end für eine Web3-Plattform betrieben — der Name des Unternehmens bleibt vorerst vertraulich."
 
 #: src/components/About.tsx
 msgid "Security by Default"

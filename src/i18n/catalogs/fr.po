@@ -174,7 +174,7 @@ msgstr "Services de Coaching"
 
 #: src/components/Footer.tsx
 msgid "Connect"
-msgstr "Se connecter"
+msgstr "Restons en contact"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
@@ -295,7 +295,7 @@ msgstr "Onboarding plus rapide"
 
 #: src/components/Impact.tsx
 msgid "Faster Releases"
-msgstr "Des releases plus fréquentes"
+msgstr "Des releases plus rapides"
 
 #: src/components/Impact.tsx
 msgid "FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap"

@@ -100,7 +100,7 @@ msgstr "Empresa de SaaS B2B"
 
 #: src/components/Footer.tsx
 msgid "Based in Berlin, from Haedo • Coaching globally"
-msgstr "Sediado em Berlin, natural de Haedo • Coaching a nível global"
+msgstr "Radicado em Berlim, natural de Haedo • Coaching a nível global"
 
 #: src/components/Services.tsx
 msgid "Best for"
@@ -174,7 +174,7 @@ msgstr "Serviços de Coaching"
 
 #: src/components/Footer.tsx
 msgid "Connect"
-msgstr "Ligar"
+msgstr "Vamos conectar-nos"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
@@ -335,7 +335,7 @@ msgstr "Perguntas frequentes"
 
 #: src/components/About.tsx
 msgid "From Haedo to Berlin, One Engineering Team at a Time"
-msgstr "De Haedo a Berlin, uma equipa de engenharia de cada vez"
+msgstr "De Haedo a Berlim, uma equipa de engenharia de cada vez"
 
 #: src/components/Contact.tsx
 msgid "Get in Touch"
@@ -412,7 +412,7 @@ msgstr "Chamo-me Agustin Gonzalez Nicolini. Há mais de 15 anos que construo e l
 
 #: src/components/FAQ.tsx
 msgid "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev; today I head infrastructure and security at a Web3 company and coach senior technology leaders one-on-one."
-msgstr "Sou um líder de engenharia e leadership coach sediado em Berlin, na Alemanha. Já liderei equipas de engenharia em empresas como Ualá, Wildlife Studios, JUCR e Bdev; hoje dirijo as áreas de infraestrutura e segurança numa empresa Web3 e faço coaching individual a líderes tecnológicos séniores."
+msgstr "Sou um líder de engenharia e leadership coach radicado em Berlim, na Alemanha. Já liderei equipas de engenharia em empresas como Ualá, Wildlife Studios, JUCR e Bdev; hoje dirijo as áreas de infraestrutura e segurança numa empresa Web3 e faço coaching individual a líderes tecnológicos séniores."
 
 #: src/components/Services.tsx
 msgid "IC → Manager: First-time leadership transitions"
@@ -660,7 +660,7 @@ msgstr "Voltar à página inicial"
 
 #: src/components/Impact.tsx
 msgid "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now."
-msgstr "Gestão da infraestrutura e da segurança de ponta a ponta para uma plataforma Web3 — o nome da empresa mantém-se Confidential por enquanto."
+msgstr "Gestão da infraestrutura e da segurança de ponta a ponta para uma plataforma Web3 — o nome da empresa mantém-se confidencial por enquanto."
 
 #: src/components/About.tsx
 msgid "Security by Default"
@@ -761,7 +761,7 @@ msgstr "Esta política de privacidade explica como são tratados os dados pessoa
 
 #: src/components/CookieNotice.tsx
 msgid "This site uses <0>no cookies and no tracking</0>. Details are in the <1>Privacy Policy</1>."
-msgstr "Este site utiliza <0>nenhuns cookies e nenhum rastreamento</0>. Encontras os detalhes na <1>Política de Privacidade</1>."
+msgstr "Este site não utiliza <0>cookies nem rastreamento</0>. Encontras os detalhes na <1>Política de Privacidade</1>."
 
 #: src/components/CookieNotice.tsx
 msgid "This site would like to use <0>optional analytics cookies</0> (Google Analytics) to understand how it is used. Nothing is loaded unless you accept — details are in the <1>Privacy Policy</1>."
@@ -842,7 +842,7 @@ msgstr "Sessões semanais ou quinzenais de 45 minutos"
 
 #: src/components/FAQ.tsx
 msgid "What does engineering leadership coaching cover?"
-msgstr "O que abrange o Coaching de Leadership em engenharia?"
+msgstr "O que abrange o coaching de liderança em engenharia?"
 
 #: src/components/Contact.tsx
 msgid "What would you like help with? *"
@@ -858,7 +858,7 @@ msgstr "Tudo o que se interpõe entre ti e uma equipa que entrega: scaling e org
 
 #: src/components/FAQ.tsx
 msgid "Who does Agustin coach?"
-msgstr "Quem é que o Agustin faz coaching?"
+msgstr "A quem é que o Agustin faz coaching?"
 
 #: src/components/FAQ.tsx
 msgid "Who is Agustin Gonzalez Nicolini?"
@@ -886,7 +886,7 @@ msgstr "Escrita | Agustin Gonzalez Nicolini"
 
 #: src/components/FAQ.tsx
 msgid "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English, Spanish, or German — whichever you think best in."
-msgstr "Sim. Estou sediado em Berlin e faço coaching a líderes de todo o mundo, de forma remota. As sessões decorrem em inglês, espanhol ou alemão — na língua em que te sentires melhor."
+msgstr "Sim. Estou radicado em Berlim e faço coaching a líderes de todo o mundo, de forma remota. As sessões decorrem em inglês, espanhol ou alemão — na língua em que te sentires melhor."
 
 #: src/pages/Legal.tsx
 msgid "You also have the right to lodge a complaint with a data protection supervisory authority (Art. 77 GDPR). The authority responsible for this website's operator is:"

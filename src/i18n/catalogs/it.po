@@ -100,7 +100,7 @@ msgstr "Azienda SaaS nel settore B2B"
 
 #: src/components/Footer.tsx
 msgid "Based in Berlin, from Haedo • Coaching globally"
-msgstr "Con sede a Berlin, da Haedo • Coaching a livello globale"
+msgstr "Di base a Berlino, da Haedo • Coaching a livello globale"
 
 #: src/components/Services.tsx
 msgid "Best for"
@@ -335,7 +335,7 @@ msgstr "Domande frequenti"
 
 #: src/components/About.tsx
 msgid "From Haedo to Berlin, One Engineering Team at a Time"
-msgstr "Da Haedo a Berlin, un team di ingegneri alla volta"
+msgstr "Da Haedo a Berlino, un team di ingegneri alla volta"
 
 #: src/components/Contact.tsx
 msgid "Get in Touch"
@@ -412,7 +412,7 @@ msgstr "Mi chiamo Agustin Gonzalez Nicolini. Da oltre 15 anni costruisco e guido
 
 #: src/components/FAQ.tsx
 msgid "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev; today I head infrastructure and security at a Web3 company and coach senior technology leaders one-on-one."
-msgstr "Sono un leader tecnico e un leadership coach con sede a Berlin, in Germania. Ho guidato team di engineering in aziende come Ualá, Wildlife Studios, JUCR e Bdev; oggi dirigo infrastruttura e sicurezza in un'azienda Web3 e faccio coaching one-on-one a leader tecnologici senior."
+msgstr "Sono un leader tecnico e un leadership coach di base a Berlino, in Germania. Ho guidato team di engineering in aziende come Ualá, Wildlife Studios, JUCR e Bdev; oggi dirigo infrastruttura e sicurezza in un'azienda Web3 e faccio coaching one-on-one a leader tecnologici senior."
 
 #: src/components/Services.tsx
 msgid "IC → Manager: First-time leadership transitions"
@@ -636,7 +636,7 @@ msgstr "rettifica (art. 16),"
 
 #: src/components/Impact.tsx
 msgid "Reduced Lead Time"
-msgstr "Lead time ridotti"
+msgstr "Lead time ridotto"
 
 #: src/components/About.tsx
 msgid "Resilience and compliance as design inputs, not afterthoughts — a habit from years of PCI-DSS, SOC 2, and ISO 27001 work."
@@ -858,7 +858,7 @@ msgstr "Qualunque cosa si frapponga tra te e un team che consegna: scaling e org
 
 #: src/components/FAQ.tsx
 msgid "Who does Agustin coach?"
-msgstr "Chi allena Agustin?"
+msgstr "A chi fa coaching Agustin?"
 
 #: src/components/FAQ.tsx
 msgid "Who is Agustin Gonzalez Nicolini?"
@@ -886,7 +886,7 @@ msgstr "Scrittura | Agustin Gonzalez Nicolini"
 
 #: src/components/FAQ.tsx
 msgid "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English, Spanish, or German — whichever you think best in."
-msgstr "Sì. Vivo a Berlin e faccio coaching da remoto a leader in tutto il mondo. Le sessioni si svolgono in inglese, spagnolo o tedesco — la lingua in cui pensi meglio."
+msgstr "Sì. Vivo a Berlino e faccio coaching da remoto a leader in tutto il mondo. Le sessioni si svolgono in inglese, spagnolo o tedesco — la lingua in cui pensi meglio."
 
 #: src/pages/Legal.tsx
 msgid "You also have the right to lodge a complaint with a data protection supervisory authority (Art. 77 GDPR). The authority responsible for this website's operator is:"
