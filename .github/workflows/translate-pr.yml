@@ -1,0 +1,55 @@
+name: Translate PR
+
+# Opens a per-article review PR for any new/changed DE/ES blog translation
+# (see scripts/translate-pr.mjs). English is never gated; approval = merging the
+# PR after flipping content/i18n-approvals.json to "approved".
+on:
+  # After a deploy finishes on main — an article may have just been published or
+  # edited, so its DE/ES translation may need (re)review.
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types: [completed]
+  # Manual run; force_uuids forces specific articles into review (testing).
+  workflow_dispatch:
+    inputs:
+      force_uuids:
+        description: "Comma-separated Storyblok UUIDs to force into review (testing only)"
+        required: false
+        default: ""
+
+# Serialize runs so two deploys can't race on the same translate/<uuid> branches.
+concurrency:
+  group: translate-pr
+  cancel-in-progress: false
+
+# The GITHUB_TOKEN stays read-only; all writes (push branch, open PR) go through
+# the fine-grained PAT (TRANSLATE_PR_TOKEN) so that merging a review PR triggers
+# the downstream Deploy workflow (a GITHUB_TOKEN push cannot).
+permissions:
+  contents: read
+
+jobs:
+  translate:
+    # Only after a SUCCESSFUL deploy, or on manual dispatch.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0 # need origin/main + translate/* refs for the idempotency check
+          token: ${{ secrets.TRANSLATE_PR_TOKEN }}
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Translate & open review PRs
+        env:
+          STORYBLOK_PUBLIC_TOKEN: ${{ secrets.STORYBLOK_PUBLIC_TOKEN }}
+          DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ secrets.TRANSLATE_PR_TOKEN }}
+          FORCE_UUIDS: ${{ github.event.inputs.force_uuids }}
+        run: node scripts/translate-pr.mjs
