@@ -34,7 +34,7 @@ export const About = () => {
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
-          <div className={`max-w-3xl ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
+          <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             <h2 className="text-fluid-3xl font-bold mb-6">
               <Trans>From Haedo to Berlin, One Engineering Team at a Time</Trans>
             </h2>

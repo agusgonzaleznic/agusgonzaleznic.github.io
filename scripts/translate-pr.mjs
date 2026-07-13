@@ -99,7 +99,7 @@ function prBody(post, locales) {
     "",
     "**To publish:** in `content/i18n-approvals.json`, change `\"status\": \"pending\"` → `\"approved\"` for the locale(s) you accept, then **merge** — merging deploys them. Leave pending (or close) to keep them gated. Editing the English original later auto-demotes an approved translation until it is re-reviewed.",
     "",
-    "_Opened automatically by translate-pr.yml. Do not add a Co-Authored-By trailer._",
+    "_Opened automatically by the translation pipeline._",
   ].join("\n");
 }
 

@@ -20,7 +20,7 @@ export const AboutBlock = ({ blok }: AboutBlockProps) => {
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
-          <div className={`max-w-3xl ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
+          <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             {blok.heading && (
               <h2 className="text-fluid-3xl font-bold mb-6">{blok.heading}</h2>
             )}

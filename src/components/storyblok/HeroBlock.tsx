@@ -54,27 +54,27 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
               </div>
 
               <h1 className="text-fluid-4xl font-bold leading-tight">
-                <span className="text-gradient-accent relative">
-                  {blok.title}
+                {/* The underline is a SIBLING of the gradient text, not a child:
+                    background-clip:text (text-gradient-accent) can make Chrome
+                    clip a child SVG away on some GPU/color paths. Solid accent
+                    stroke instead of a fragile stroke="url(#id)" reference. */}
+                <span className="relative">
+                  <span className="text-gradient-accent">{blok.title}</span>
                   <svg
+                    aria-hidden="true"
                     className="absolute -bottom-2 left-0 w-full"
                     height="8"
                     viewBox="0 0 200 8"
+                    preserveAspectRatio="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
                       d="M0 4C50 2 150 2 200 4"
-                      stroke="url(#gradient)"
+                      style={{ stroke: "hsl(var(--accent))" }}
                       strokeWidth="3"
                       fill="none"
                       strokeLinecap="round"
                     />
-                    <defs>
-                      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="hsl(10, 85%, 58%)" />
-                        <stop offset="100%" stopColor="hsl(20, 80%, 65%)" />
-                      </linearGradient>
-                    </defs>
                   </svg>
                 </span>
               </h1>
