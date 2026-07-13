@@ -1,18 +1,16 @@
 {
   "5d2d1471-049c-4566-aa14-ca564bf1ab6c": {
     "de": {
-      "status": "approved",
+      "status": "pending",
       "sourceHash": "b9d02d6ee9d9285be7d7f5ff",
-      "provenance": "grandfathered-mt",
-      "reviewedAt": null,
-      "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
+      "provenance": "auto-mt",
+      "reviewedAt": null
     },
     "es": {
-      "status": "approved",
+      "status": "pending",
       "sourceHash": "b9d02d6ee9d9285be7d7f5ff",
-      "provenance": "grandfathered-mt",
-      "reviewedAt": null,
-      "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
+      "provenance": "auto-mt",
+      "reviewedAt": null
     }
   },
   "f0382ea8-64ea-47dd-bc92-8887a3238cb1": {
