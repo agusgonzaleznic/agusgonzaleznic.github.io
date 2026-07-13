@@ -30,4 +30,13 @@ export default tseslint.config(
       "react-refresh/only-export-components": "off",
     },
   },
+  // entry-server.tsx is the SSR entry, not a fast-refreshed component module: it
+  // legitimately exports render() and re-exports the locale config for the Node
+  // build scripts. The rule doesn't apply here.
+  {
+    files: ["src/entry-server.tsx"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
 );

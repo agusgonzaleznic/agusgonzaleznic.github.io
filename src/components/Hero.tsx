@@ -41,9 +41,10 @@ export const Hero = () => {
                       can make Chrome clip a child SVG away on some GPU/color paths
                       (invisible in Chrome, fine in Safari). It also uses a solid
                       accent stroke instead of a fragile stroke="url(#id)" paint
-                      reference. nowrap keeps "and Lasts" + its underline on one
-                      line so mobile and desktop render identically. */}
-                  <span className="relative whitespace-nowrap">
+                      reference. No whitespace-nowrap: long translations (e.g. the
+                      French "et dure dans le temps") must be allowed to wrap, or
+                      the phrase overflows the column and runs behind the photo. */}
+                  <span className="relative">
                     <span className="text-gradient-accent">and Lasts</span>
                     <svg
                       aria-hidden="true"
