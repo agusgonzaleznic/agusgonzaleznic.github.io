@@ -7,82 +7,61 @@
 > gaming, e-mobility (EV charging), healthtech, and web3, going back more
 > than fifteen years.
 
-Website: https://agusgonzaleznic.com
-Contact: info@agusgonzaleznic.com
-Location: Berlin, Germany (remote coaching, worldwide)
-Languages: English, Spanish, German
-Book a session: https://calendar.app.google/kFaanhSae5WefLnD7
+Website: https://agusgonzaleznic.com · Contact: info@agusgonzaleznic.com ·
+Location: Berlin, Germany (remote coaching, worldwide) · Languages: English,
+Spanish, German.
 
-## Who he coaches
+**Who he coaches:** CTOs and VPs of Engineering; directors and engineering
+managers; tech leads; and individual contributors stepping into management for
+the first time.
 
-- CTOs and VPs of Engineering
-- Directors and engineering managers
-- Tech leads
-- Individual contributors stepping into management for the first time
+**Coaching services:** *Executive Leadership Coaching (CTO & VP level)* — org
+design at scale, stakeholder and C-suite influence, technology strategy, and
+executive presence (bi-weekly 60-minute sessions). *Team & Manager Coaching
+(manager & director level)* — DORA metrics, healthier team rituals, hiring and
+performance systems, on-call and incident practice, and trunk-based DevOps/GitOps
+delivery (weekly or bi-weekly 45-minute sessions). *Career Transition Coaching
+(IC to leadership and beyond)* — 8–12 week structured programs with weekly
+check-ins for IC→manager, manager→director, and director→VP moves, plus interview
+preparation. New clients begin with a free 30-minute introductory call to check fit.
 
-## Coaching services
+**Coaching philosophy:** growth through clarity (explicit goals, working feedback
+loops, and OKRs tied to company results); empowerment through systems (DevOps and
+GitOps practice, DORA metrics, and decision frameworks so teams move without
+waiting on their leader); and leadership through empathy (psychological safety and
+intentional mentorship).
 
-- **Executive Leadership Coaching (CTO & VP level)** — for leaders who answer
-  to a board or founders: org design at scale, influence with stakeholders and
-  the C-suite, technology strategy, and executive presence. Bi-weekly
-  60-minute sessions.
-- **Team & Manager Coaching (manager & director level)** — for managers and
-  directors whose teams have more in them: DORA metrics, healthier team
-  rituals, hiring and performance systems, on-call and incident practice, and
-  trunk-based DevOps/GitOps delivery. Weekly or bi-weekly 45-minute sessions.
-- **Career Transition Coaching (IC to leadership and beyond)** — 8–12 week
-  structured programs, with weekly check-ins, for the moves that change how
-  you work: IC to manager, manager to director, director to VP — plus
-  interview preparation for leadership roles.
-
-New clients begin with a free 30-minute introductory call to check fit.
-
-## Coaching philosophy
-
-- **Growth through clarity** — explicit goals, feedback loops that work, and
-  OKRs connecting personal development to company results.
-- **Empowerment through systems** — delivery systems (DevOps and GitOps
-  practice, DORA metrics, decision frameworks) so teams move quickly without
-  waiting on their leader.
-- **Leadership through empathy** — psychological safety and intentional
-  mentorship, building teams people don't want to leave.
-
-## Areas of expertise
-
-Engineering leadership; executive coaching; scaling teams and organizations;
-DevOps, GitOps, and platform engineering; DORA metrics; cloud-native
-architecture; FinOps and cloud cost control; site reliability and incident
-management; organizational design; and transitions from engineering into
+**Areas of expertise:** engineering leadership; executive coaching; scaling teams
+and organizations; DevOps, GitOps, and platform engineering; DORA metrics;
+cloud-native architecture; FinOps and cloud cost control; site reliability and
+incident management; organizational design; and transitions from engineering into
 management.
 
-## Representative results (from teams he has led)
+**Representative results (from teams he has led):** cut cloud spend by 40% through
+FinOps practice and vendor negotiation; sustained 99.99% uptime with DR/HA
+playbooks and multi-region failover; made releases 3× faster via GitOps, CI/CD,
+and trunk-based development; shortened lead time by 75% after moving to
+multi-account AWS with automated deployments; lifted team velocity 50% by pairing
+OKRs with DORA metrics; and sped up onboarding 60% by standardizing processes and
+documentation.
 
-- Cut cloud spend by 40% through FinOps practice and vendor negotiation.
-- Sustained 99.99% uptime with DR/HA playbooks and multi-region failover.
-- Made releases 3× faster via GitOps, CI/CD, and trunk-based development.
-- Shortened lead time by 75% after moving to multi-account AWS with automated
-  deployments.
-- Lifted team velocity 50% by pairing OKRs with DORA metrics.
-- Sped up onboarding 60% by standardizing processes and documentation.
+**Experience:** Head of Infrastructure & Security at a Web3 company (2025–present,
+name confidential); VP of Engineering at JUCR GmbH / EV charging (2022–2025);
+Cloud Security Manager at Wildlife Studios / gaming (2020–2022); DevOps Lead at
+Ualá / fintech (2018–2021); and Infrastructure & Security Lead at Bdev /
+healthtech (2014–2018).
 
-## Experience
+This file summarizes agusgonzaleznic.com for AI engines; it paraphrases rather
+than mirrors on-page copy.
 
-- 2025–present — Head of Infrastructure & Security at a Web3 company
-  (name confidential for now).
-- 2022–2025 — VP of Engineering at JUCR GmbH (EV charging): ran the
-  multi-account AWS migration, unified 5+ SaaS services, sustained 99.99%
-  uptime.
-- 2020–2022 — Cloud Security Manager at Wildlife Studios (gaming): maintained
-  strict security controls without slowing feature delivery for game teams.
-- 2018–2021 — DevOps Lead at Ualá (fintech): core banking delivered serverless
-  end to end, with PCI-DSS compliance work and security hardening.
-- 2014–2018 — Infrastructure & Security Lead at Bdev (healthtech): took
-  on-premise systems into AWS and drove compliance with SOC 2 and ISO 27001.
+## Coaching
 
-## Links
+- [Book an introductory call](https://calendar.app.google/kFaanhSae5WefLnD7): free 30-minute fit check
+- [Coaching services & philosophy](https://agusgonzaleznic.com/): full overview on the site
 
-- LinkedIn: https://www.linkedin.com/in/agusgonzaleznic/
-- GitHub: https://github.com/agusgonzaleznic
+## Optional
 
-(This file summarizes agusgonzaleznic.com for AI engines; it paraphrases
-rather than mirrors on-page copy.)
+- [LinkedIn](https://www.linkedin.com/in/agusgonzaleznic/): professional profile
+- [GitHub](https://github.com/agusgonzaleznic): open-source work
+- [Impressum](https://agusgonzaleznic.com/impressum): legal notice (Impressum)
+- [Privacy](https://agusgonzaleznic.com/privacy): privacy policy
