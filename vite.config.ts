@@ -78,8 +78,6 @@ export default defineConfig(({ mode, isSsrBuild }) => {
                 "@radix-ui/react-separator",
                 "@radix-ui/react-slot",
                 "@radix-ui/react-tabs",
-                "@radix-ui/react-toast",
-                "@radix-ui/react-tooltip",
               ],
             },
             // Add content hashing for better caching

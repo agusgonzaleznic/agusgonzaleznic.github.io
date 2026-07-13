@@ -1,9 +1,29 @@
 import { renderToString } from "react-dom/server";
 import { Helmet } from "react-helmet";
 import { StaticRouter } from "react-router-dom/server";
-import { AppProviders, AppRoutes } from "./App";
+import { AppProviders, AppRoutes, type RoutePages } from "./App";
+import Index from "./pages/Index";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
+import { Impressum, Privacy } from "./pages/Legal";
+import { StoryblokPage } from "./pages/StoryblokPage";
+import NotFound from "./pages/NotFound";
 import { i18n } from "./i18n/i18n";
 import { SOURCE_LOCALE } from "./i18n/locales";
+
+// All-eager page map for the prerender: renderToString must emit each route's
+// full markup synchronously, so NO lazy() here. The client uses code-split lazy
+// chunks (App.tsx clientPages); the shared <Suspense> in AppRoutes makes the two
+// trees' Suspense boundaries match so hydration keeps the prerendered markup.
+const serverPages: RoutePages = {
+  Index,
+  Blog,
+  BlogPost,
+  Impressum,
+  Privacy,
+  StoryblokPage,
+  NotFound,
+};
 
 // Server entry used by scripts/prerender.mjs to render routes to static HTML at
 // build time. Mirrors the client tree (AppProviders + AppRoutes) so the markup
@@ -20,7 +40,7 @@ export function render(url: string, locale: string = SOURCE_LOCALE) {
   const html = renderToString(
     <StaticRouter location={url}>
       <AppProviders>
-        <AppRoutes />
+        <AppRoutes pages={serverPages} />
       </AppProviders>
     </StaticRouter>,
   );

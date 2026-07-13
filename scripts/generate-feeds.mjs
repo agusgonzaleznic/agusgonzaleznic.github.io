@@ -188,10 +188,18 @@ function buildLlmsTxt(posts, templatePath) {
   if (posts.length === 0 || /^## Blog$/m.test(base)) return `${base}\n`;
 
   const entries = posts.map((post) => {
+    // llmstxt.org file-list format: "- [name](url): notes". Escape ] in titles
+    // so it can't break out of the link text.
+    const title = String(post.title).replace(/\]/g, "\\]");
     const excerpt = String(post.excerpt).replace(/\s+/g, " ").trim();
-    return `- ${post.title} — ${SITE_URL}/blog/${post.slug}/${excerpt ? ` — ${excerpt}` : ""}`;
+    return `- [${title}](${SITE_URL}/blog/${post.slug}/)${excerpt ? `: ${excerpt}` : ""}`;
   });
-  return `${base}\n\n## Blog\n\n${entries.join("\n")}\n`;
+  const blog = `## Blog\n\n${entries.join("\n")}`;
+  // Keep "## Optional" last (llmstxt.org convention): splice Blog before it.
+  const i = base.search(/^## Optional$/m);
+  return i === -1
+    ? `${base}\n\n${blog}\n`
+    : `${base.slice(0, i).trimEnd()}\n\n${blog}\n\n${base.slice(i).trimEnd()}\n`;
 }
 
 // The locale config (PUBLISHED_LOCALES/SOURCE_LOCALE/localizePath) comes from the
