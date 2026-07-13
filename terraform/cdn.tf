@@ -40,11 +40,41 @@ module "cloudfront" {
     }
   }
 
-  # /api/* -> contact Lambda. CachingDisabled; POST/OPTIONS allowed. The custom
-  # origin request policy forwards the true client IP + Origin + Content-Type +
-  # payload hash but NOT Host (OAC SigV4 needs the Function-URL Host, which
-  # CloudFront supplies). The default (github-pages) behavior is untouched.
+  # /assets/* + /fonts/* -> github-pages, but with a 1-year immutable
+  # Cache-Control (the immutable_assets response-headers policy) instead of the
+  # origin's max-age=600. These paths hold content-hashed bundles + version-
+  # pinned fonts, so repeat visitors reuse them from the browser cache. HTML
+  # stays on the default behavior (600s) so deploys still go live fast. Patterns
+  # are disjoint, so ordering among these behaviors doesn't matter.
   ordered_cache_behavior = [
+    {
+      path_pattern           = "/assets/*"
+      target_origin_id       = "github-pages"
+      viewer_protocol_policy = "redirect-to-https"
+      allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+      cached_methods         = ["GET", "HEAD"]
+      compress               = true
+      use_forwarded_values   = false
+
+      cache_policy_id            = data.aws_cloudfront_cache_policy.caching_optimized.id
+      response_headers_policy_id = aws_cloudfront_response_headers_policy.immutable_assets.id
+    },
+    {
+      path_pattern           = "/fonts/*"
+      target_origin_id       = "github-pages"
+      viewer_protocol_policy = "redirect-to-https"
+      allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+      cached_methods         = ["GET", "HEAD"]
+      compress               = true
+      use_forwarded_values   = false
+
+      cache_policy_id            = data.aws_cloudfront_cache_policy.caching_optimized.id
+      response_headers_policy_id = aws_cloudfront_response_headers_policy.immutable_assets.id
+    },
+    # /api/* -> contact Lambda. CachingDisabled; POST/OPTIONS allowed. The custom
+    # origin request policy forwards the true client IP + Origin + Content-Type +
+    # payload hash but NOT Host (OAC SigV4 needs the Function-URL Host, which
+    # CloudFront supplies). The default (github-pages) behavior is untouched.
     {
       path_pattern           = "/api/*"
       target_origin_id       = "contact-lambda"
@@ -206,6 +236,54 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
     items {
       header   = "Permissions-Policy"
       value    = "geolocation=(), microphone=(), camera=()"
+      override = true
+    }
+  }
+}
+
+# Long-lived immutable Cache-Control for content-hashed assets (/assets/*) and
+# self-hosted fonts (/fonts/*) — used by their ordered cache behaviors above so
+# repeat visitors reuse them from the browser cache instead of re-requesting on
+# the GitHub Pages origin's max-age=600. Carries the security headers that
+# matter for static sub-resources (HSTS, nosniff, CORP for cross-origin font
+# fetches, referrer policy); the document-only CSP/frame-options are omitted (a
+# CSP on a .js/.woff2 response is inert). HTML keeps the default behavior's
+# 600s so content deploys still go live within ~10 minutes.
+#
+# CAVEAT: /assets/* names are content-hashed (safe to pin forever); /fonts/*
+# names are version-pinned but NOT content-hashed — if you ever replace a font
+# file in place, rename it or invalidate /fonts/* on the distribution.
+resource "aws_cloudfront_response_headers_policy" "immutable_assets" {
+  name    = "${replace(local.domain_name, ".", "-")}-immutable-assets"
+  comment = "1yr immutable Cache-Control for hashed assets + fonts"
+
+  security_headers_config {
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      override                   = true
+    }
+
+    content_type_options {
+      override = true
+    }
+
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+  }
+
+  custom_headers_config {
+    items {
+      header   = "Cache-Control"
+      value    = "public, max-age=31536000, immutable"
+      override = true
+    }
+
+    items {
+      header   = "Cross-Origin-Resource-Policy"
+      value    = "cross-origin"
       override = true
     }
   }
