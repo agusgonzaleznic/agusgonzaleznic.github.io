@@ -35,36 +35,32 @@ export const Hero = () => {
               <h1 className="text-fluid-4xl font-bold leading-tight">
                 <Trans>
                   Lead an Engineering Org That{" "}
-                  <span className="text-gradient-accent">
-                    Ships, Scales,{" "}
-                    {/* Underline scoped to "and Lasts" (nowrap keeps the pair on
-                        one line) so mobile and desktop render it identically —
-                        previously the absolute SVG anchored to the span's last
-                        line box, underlining the whole phrase on desktop. */}
-                    <span className="relative whitespace-nowrap">
-                      and Lasts
-                      <svg
-                        className="absolute -bottom-2 left-0 w-full"
-                        height="8"
-                        viewBox="0 0 200 8"
-                        preserveAspectRatio="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M0 4C50 2 150 2 200 4"
-                          stroke="url(#gradient)"
-                          strokeWidth="3"
-                          fill="none"
-                          strokeLinecap="round"
-                        />
-                        <defs>
-                          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="hsl(10, 85%, 58%)" />
-                            <stop offset="100%" stopColor="hsl(20, 80%, 65%)" />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                    </span>
+                  <span className="text-gradient-accent">Ships, Scales,</span>{" "}
+                  {/* The hand-drawn underline is a SIBLING of the gradient text,
+                      not a child of it: background-clip:text (text-gradient-accent)
+                      can make Chrome clip a child SVG away on some GPU/color paths
+                      (invisible in Chrome, fine in Safari). It also uses a solid
+                      accent stroke instead of a fragile stroke="url(#id)" paint
+                      reference. nowrap keeps "and Lasts" + its underline on one
+                      line so mobile and desktop render identically. */}
+                  <span className="relative whitespace-nowrap">
+                    <span className="text-gradient-accent">and Lasts</span>
+                    <svg
+                      aria-hidden="true"
+                      className="absolute -bottom-2 left-0 w-full"
+                      height="8"
+                      viewBox="0 0 200 8"
+                      preserveAspectRatio="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M0 4C50 2 150 2 200 4"
+                        style={{ stroke: "hsl(var(--accent))" }}
+                        strokeWidth="3"
+                        fill="none"
+                        strokeLinecap="round"
+                      />
+                    </svg>
                   </span>
                 </Trans>
               </h1>
