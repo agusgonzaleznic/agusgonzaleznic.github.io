@@ -96,6 +96,25 @@ data "aws_iam_policy_document" "cloudfront" {
     ]
   }
 
+  # Response-headers-policy lifecycle (the immutable_assets policy for the
+  # /assets/* + /fonts/* long-cache behaviors). Create*/Delete* can't be scoped
+  # to a specific policy ID — it doesn't exist until CI creates it — so
+  # response-headers-policy/* is unavoidable, the same single-tenant tradeoff as
+  # CloudFrontManageApiPolicies below. Get/Update of the pre-existing
+  # security_headers policy stay ARN-scoped in ManageSiteDistribution.
+  statement {
+    sid    = "CloudFrontManageResponseHeadersPolicies"
+    effect = "Allow"
+    actions = [
+      "cloudfront:CreateResponseHeadersPolicy",
+      "cloudfront:DeleteResponseHeadersPolicy",
+      "cloudfront:GetResponseHeadersPolicy",
+      "cloudfront:GetResponseHeadersPolicyConfig",
+      "cloudfront:UpdateResponseHeadersPolicy",
+    ]
+    resources = ["arn:aws:cloudfront::${local.account_id}:response-headers-policy/*"]
+  }
+
   # cloudfront:List* actions and GetCachePolicy (used by the managed
   # cache-policy data source) do not support resource-level scoping;
   # Resource:* is unavoidable here and limited to read-only List/Get.
