@@ -36,32 +36,16 @@ export const Hero = () => {
                 <Trans>
                   Lead an Engineering Org That{" "}
                   <span className="text-gradient-accent">Ships, Scales,</span>{" "}
-                  {/* The hand-drawn underline is a SIBLING of the gradient text,
-                      not a child of it: background-clip:text (text-gradient-accent)
-                      can make Chrome clip a child SVG away on some GPU/color paths
-                      (invisible in Chrome, fine in Safari). It also uses a solid
-                      accent stroke instead of a fragile stroke="url(#id)" paint
-                      reference. No whitespace-nowrap: long translations (e.g. the
-                      French "et dure dans le temps") must be allowed to wrap, or
-                      the phrase overflows the column and runs behind the photo. */}
-                  <span className="relative">
+                  {/* The underline is a squiggle BACKGROUND on this wrapper (not a
+                      child SVG of the gradient text — background-clip:text would
+                      clip it away in Chrome) with box-decoration-break:clone, so
+                      it underlines every wrapped line. That is what lets a long
+                      translated clause wrap without overflowing the column AND
+                      still be underlined correctly in every language (the old
+                      absolute SVG only underlined the last line once it wrapped).
+                      The inner span keeps the gradient text. See .underline-squiggle. */}
+                  <span className="underline-squiggle">
                     <span className="text-gradient-accent">and Lasts</span>
-                    <svg
-                      aria-hidden="true"
-                      className="absolute -bottom-2 left-0 w-full"
-                      height="8"
-                      viewBox="0 0 200 8"
-                      preserveAspectRatio="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M0 4C50 2 150 2 200 4"
-                        style={{ stroke: "hsl(var(--accent))" }}
-                        strokeWidth="3"
-                        fill="none"
-                        strokeLinecap="round"
-                      />
-                    </svg>
                   </span>
                 </Trans>
               </h1>
