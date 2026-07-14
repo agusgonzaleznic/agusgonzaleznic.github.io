@@ -1,7 +1,8 @@
 // Build-time LLM post-edit of DeepL machine translation for the i18n pipeline.
 //
 // WHAT: DeepL produces fluent-but-literal MT. This module runs a second pass with
-// Claude that fixes register (German Sie, never du), first-person gender
+// Claude that fixes register to the site's INFORMAL voice (German du — never the
+// formal Sie; Argentine voseo; tu for FR/IT/PT), first-person gender
 // agreement (the author writes in the first person, masculine), false friends
 // ("DevOps Lead" must never become "DevOps Blei" — Blei = the metal), and keeps
 // coaching/tech loanwords and brand names in English — turning raw MT into copy a
@@ -50,6 +51,45 @@ const LOCALE_NAME = {
   it: "Italian",
   pt: "European Portuguese",
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VOICE & LANGUAGE — the standard this pass enforces, and lessons learned.
+//
+// The site's voice is INFORMAL, warm, direct, peer-to-peer: an experienced
+// engineering leader talking shop with a colleague — never a corporate brochure
+// or a stiff literal rendering. Per locale (see REGISTER_RULES below):
+//   de → du (never Sie) · es → Argentine VOSEO (vos: dirigí/tenés/podés, never
+//   tú/usted) · fr/it/pt → tu (never vous / Lei / o senhor).
+// The author is male → masculine agreement for first-person self-reference. Keep
+// English brand/tech/coaching loanwords + source abbreviations ("orgs") intact.
+// German runs ~30% longer than English — prefer the tightest phrasing (UI labels
+// must not overflow).
+//
+// IMPERATIVE — the hard-won nuance; do NOT flatten it to "imperative everywhere".
+// The mood depends on the STRING'S ROLE, not a blanket rule:
+//   • Headlines + persuasive MARKETING / conversion CTAs ("Lead an org that…",
+//     "Book a Session", "Get Started") → 2nd-person INFORMAL IMPERATIVE. In German
+//     this is natural and NOT aggressive for a CTA (it reads as a concise wish,
+//     not a barking command); es + it already localize CTAs this way (Reservá,
+//     Prenota). Missing this once shipped the FR hero as the infinitive "Diriger"
+//     instead of the imperative "Dirige".
+//   • Functional / system UI controls (form submit, cookie Accept/Decline,
+//     "Read" / "Read more", "Back to home", menu / settings actions) → the target
+//     language's UI CONVENTION, which in de/fr/pt is the INFINITIVE (Akzeptieren,
+//     Ablehnen, Nachricht senden, Lesen; Accepter / Refuser; Aceitar / Ler). An
+//     imperative on a functional control reads oddly commanding. (Basis: German UI
+//     localization style guides use the infinitive for controls; German
+//     copywriting uses the imperative for marketing CTAs.)
+//
+// DRIFT GOTCHA: a string is re-translated only on a cache MISS, and the cache key
+// is the message id — which encodes the <Trans> ELEMENT/placeholder structure,
+// not just the words. So changing a translated component's JSX structure (adding
+// or removing a wrapping <span> or an inline <svg>) silently re-keys the id,
+// forces a fresh DeepL+Claude pass for that one string, and can drift its wording
+// AND its voice even though the English is unchanged. After restructuring a
+// translated component, re-check the affected strings' register/imperative — that
+// is exactly how the FR hero title drifted from "Dirige" to "Diriger".
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Per-locale register notes layered on top of the universal rules below.
 const REGISTER_RULES = {
