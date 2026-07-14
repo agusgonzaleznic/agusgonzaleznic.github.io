@@ -20,6 +20,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { gzipSync, brotliCompressSync, constants as zlibConstants } from "node:zlib";
+import Beasties from "beasties";
 import { generateFeeds } from "./generate-feeds.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -164,6 +165,24 @@ function injectRouteHead(html, route, helmet, extraHead) {
   return html.slice(0, start) + headTags + html.slice(end + HEAD_END.length);
 }
 
+// Critical-CSS inliner. For each prerendered page it inlines the above-the-fold
+// CSS the page actually uses and rewrites the render-blocking
+// <link rel="stylesheet"> to load asynchronously (media=print + onload swap,
+// with a <noscript> fallback), so the stylesheet no longer blocks first paint.
+//   fonts:false            — leave the hand-tuned inline @font-face untouched.
+//   reduceInlineStyles:false — keep the existing critical <style> block.
+//   pruneSource:false      — don't rewrite the source .css (the async load needs it).
+// The CSP already allows inline styles + the onload handler (terraform/cdn.tf).
+const beasties = new Beasties({
+  path: distDir,
+  publicPath: "/",
+  preload: "swap",
+  fonts: false,
+  reduceInlineStyles: false,
+  pruneSource: false,
+  logLevel: "silent",
+});
+
 for (const locale of PUBLISHED_LOCALES) {
   // Load + activate this locale's catalog once before rendering its routes.
   await dynamicActivate(locale);
@@ -214,6 +233,11 @@ for (const locale of PUBLISHED_LOCALES) {
     }
 
     html = html.replace(ROOT, `<div id="root">${appHtml}</div>`);
+
+    // Inline critical CSS + defer the full stylesheet (before write, so the
+    // .gz/.br copies below match). Runs on the fully-injected markup.
+    html = await beasties.process(html);
+
     const outFile = resolve(distDir, `${prefix}${route.file}`);
     mkdirSync(dirname(outFile), { recursive: true });
     writeFileSync(outFile, html);
