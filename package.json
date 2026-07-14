@@ -107,5 +107,8 @@
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix --max-warnings 0"
     ]
+  },
+  "overrides": {
+    "esbuild": "0.28.1"
   }
 }
