@@ -138,7 +138,7 @@ msgstr "Marca uma chamada introdutória gratuita de 30 minutos a partir desta p�
 #: src/components/Hero.tsx
 #: src/components/Navigation.tsx
 msgid "Book a Session"
-msgstr "Marcar uma sessão"
+msgstr "Marca uma sessão"
 
 #: src/components/Services.tsx
 msgid "Book an Intro Call"
@@ -355,7 +355,7 @@ msgstr "Entra em contacto"
 
 #: src/components/Services.tsx
 msgid "Get Started"
-msgstr "Começar"
+msgstr "Começa"
 
 #: src/components/Contact.tsx
 #: src/components/Footer.tsx

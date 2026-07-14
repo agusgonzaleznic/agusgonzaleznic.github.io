@@ -138,11 +138,11 @@ msgstr "Réserve un entretien de présentation gratuit de 30 minutes depuis cett
 #: src/components/Hero.tsx
 #: src/components/Navigation.tsx
 msgid "Book a Session"
-msgstr "Réserver une séance"
+msgstr "Réserve une séance"
 
 #: src/components/Services.tsx
 msgid "Book an Intro Call"
-msgstr "Réserver un entretien de présentation"
+msgstr "Réserve un entretien de présentation"
 
 #: src/components/Contact.tsx
 msgid "By submitting, you agree to being contacted about coaching services. Your information is kept confidential."
@@ -355,7 +355,7 @@ msgstr "Me contacter"
 
 #: src/components/Services.tsx
 msgid "Get Started"
-msgstr "Commencer"
+msgstr "Commence"
 
 #: src/components/Contact.tsx
 #: src/components/Footer.tsx
