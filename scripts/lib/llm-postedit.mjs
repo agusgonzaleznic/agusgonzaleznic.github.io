@@ -64,7 +64,7 @@ const REGISTER_RULES = {
     "Keep natural abbreviations from the source: 'orgs' → 'orgs' (or 'org'), not 'organizaciones'.",
   ],
   fr: [
-    "Address the reader INFORMALLY with 'tu' (tu/ton/tes) — never the formal 'vous'. Warm, direct, peer-to-peer.",
+    "Address the reader INFORMALLY with 'tu' (tu/ton/tes) — never the formal 'vous'. Warm, direct, peer-to-peer. For commands/CTAs use the 'tu' IMPERATIVE (Dirige, Lis, Découvre, Réserve), NEVER the infinitive (not 'Diriger', 'Lire', 'Découvrir').",
     "Keep source abbreviations ('orgs') and English tech/coaching loanwords intact.",
   ],
   it: [
@@ -127,6 +127,8 @@ function buildSystemPrompt(locale, glossaryTerms) {
     "Keep brand names, product names, and established English tech/coaching terms in English, with their exact casing (e.g. Leadership, Coaching, DevOps, DORA, GitOps, FinOps, Web3).",
     "Preserve EXACTLY, byte-for-byte and in place: every {placeholder} or {plural, ...} ICU expression, every <0>…</0> / <tag> markup element, every URL, and every email address. Never translate, reorder, renumber, or alter them.",
     "Preserve the source's leading/trailing whitespace and punctuation shape.",
+    "VOICE: warm, direct, confident, peer-to-peer — an experienced engineering leader talking shop with a colleague, never a corporate brochure or a stiff literal rendering; prefer the tightest natural phrasing.",
+    'IMPERATIVE MOOD: when the English is a command / call-to-action (headlines and buttons like "Lead an Engineering Org…", "Book a Session", "Read the original"), render it as the target language\'s SECOND-PERSON INFORMAL IMPERATIVE — never the infinitive, a gerund/nominalization, or a formal form. E.g. "Lead" → fr "Dirige" (NOT the infinitive "Diriger"), es voseo "Dirigí", de "Führe", it "Guida", pt "Lidera"; "Read" → fr "Lis", es "Leé", de "Lies", it "Leggi", pt "Lê".',
     ...(REGISTER_RULES[locale] ?? []),
   ];
   if (glossaryTerms.length) {

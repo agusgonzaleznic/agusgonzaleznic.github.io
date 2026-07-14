@@ -486,7 +486,7 @@ msgstr "Langue"
 
 #: src/components/Hero.tsx
 msgid "Lead an Engineering Org That <0>Ships, Scales,</0> <1><2>and Lasts</2></1>"
-msgstr "Diriger une organisation d'ingénierie qui <0>livre, scale,</0> <1><2>et perdure</2></1>"
+msgstr "Dirige une organisation d'ingénierie qui <0>livre, scale,</0> <1><2>et perdure</2></1>"
 
 #: src/components/Philosophy.tsx
 msgid "Leadership through Empathy"
