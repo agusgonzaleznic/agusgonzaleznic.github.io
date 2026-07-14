@@ -54,28 +54,13 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
               </div>
 
               <h1 className="text-fluid-4xl font-bold leading-tight">
-                {/* The underline is a SIBLING of the gradient text, not a child:
-                    background-clip:text (text-gradient-accent) can make Chrome
-                    clip a child SVG away on some GPU/color paths. Solid accent
-                    stroke instead of a fragile stroke="url(#id)" reference. */}
-                <span className="relative">
+                {/* Squiggle underline as a wrapping-safe background (box-decoration-
+                    break:clone) around the gradient text — not a child SVG, which
+                    background-clip:text would clip in Chrome, and not an absolute
+                    SVG, which only underlines the last line when the title wraps.
+                    See .underline-squiggle. */}
+                <span className="underline-squiggle">
                   <span className="text-gradient-accent">{blok.title}</span>
-                  <svg
-                    aria-hidden="true"
-                    className="absolute -bottom-2 left-0 w-full"
-                    height="8"
-                    viewBox="0 0 200 8"
-                    preserveAspectRatio="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M0 4C50 2 150 2 200 4"
-                      style={{ stroke: "hsl(var(--accent))" }}
-                      strokeWidth="3"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                  </svg>
                 </span>
               </h1>
 
