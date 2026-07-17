@@ -82,6 +82,10 @@ msgstr "A multi-account AWS migration with deployments automated end to end"
 msgid "About"
 msgstr "About"
 
+#: src/pages/About.tsx
+msgid "About Agustin Gonzalez Nicolini — Engineering Leadership Coach"
+msgstr "About Agustin Gonzalez Nicolini — Engineering Leadership Coach"
+
 #: src/components/CookieNotice.tsx
 msgid "Accept"
 msgstr "Accept"
@@ -105,6 +109,10 @@ msgstr "All writing"
 #: src/pages/Legal.tsx
 msgid "Angaben gemäß § 5 DDG"
 msgstr "Angaben gemäß § 5 DDG"
+
+#: src/pages/Faq.tsx
+msgid "Answers on engineering leadership coaching — who I work with, what sessions cover, remote coaching, languages, and how to get started."
+msgstr "Answers on engineering leadership coaching — who I work with, what sessions cover, remote coaching, languages, and how to get started."
 
 #: src/pages/Legal.tsx
 msgid "As a service provider, I am responsible for my own content on these pages in accordance with general laws (§ 7 Abs. 1 DDG). This website contains links to external third-party websites, over whose content I have no influence; the respective provider or operator is always responsible for the content of linked pages."
@@ -146,6 +154,10 @@ msgstr "Board presentations & executive presence"
 #: src/components/FAQ.tsx
 msgid "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way."
 msgstr "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way."
+
+#: src/pages/Contact.tsx
+msgid "Book a free 30-minute intro call with Agustin Gonzalez Nicolini, or email me. Remote coaching for engineering leaders worldwide, in EN, ES, and DE."
+msgstr "Book a free 30-minute intro call with Agustin Gonzalez Nicolini, or email me. Remote coaching for engineering leaders worldwide, in EN, ES, and DE."
 
 #: src/components/Hero.tsx
 #: src/components/Navigation.tsx
@@ -192,6 +204,10 @@ msgstr "Coaching conversations are confidential by default, so named endorsement
 msgid "Coaching for engineering leaders, from someone who has held the pager."
 msgstr "Coaching for engineering leaders, from someone who has held the pager."
 
+#: src/pages/Impact.tsx
+msgid "Coaching Impact & Results — Engineering Leadership"
+msgstr "Coaching Impact & Results — Engineering Leadership"
+
 #: src/components/Services.tsx
 msgid "Coaching Services"
 msgstr "Coaching Services"
@@ -204,6 +220,10 @@ msgstr "Connect"
 #: src/components/Navigation.tsx
 msgid "Contact"
 msgstr "Contact"
+
+#: src/pages/Contact.tsx
+msgid "Contact & Book a Session — Engineering Leadership Coaching"
+msgstr "Contact & Book a Session — Engineering Leadership Coaching"
 
 #: src/components/Services.tsx
 msgid "CTO & VP Level"
@@ -281,6 +301,18 @@ msgstr "Email *"
 msgid "Empowerment through Systems"
 msgstr "Empowerment through Systems"
 
+#: src/pages/Services.tsx
+msgid "Engineering Leadership Coaching — CTO, VP & Manager"
+msgstr "Engineering Leadership Coaching — CTO, VP & Manager"
+
+#: src/pages/Faq.tsx
+msgid "Engineering Leadership Coaching FAQ — Agustin Gonzalez Nicolini"
+msgstr "Engineering Leadership Coaching FAQ — Agustin Gonzalez Nicolini"
+
+#: src/pages/Philosophy.tsx
+msgid "Engineering Leadership Coaching Philosophy"
+msgstr "Engineering Leadership Coaching Philosophy"
+
 #: src/components/Services.tsx
 msgid "Engineering managers, directors, and team leads"
 msgstr "Engineering managers, directors, and team leads"
@@ -309,6 +341,7 @@ msgstr "Experience Timeline"
 msgid "Failed to send message. Please try again or email me directly."
 msgstr "Failed to send message. Please try again or email me directly."
 
+#: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 msgid "FAQ"
 msgstr "FAQ"
@@ -410,6 +443,10 @@ msgstr "How Coaching Works"
 msgid "How do I start working with Agustin?"
 msgstr "How do I start working with Agustin?"
 
+#: src/pages/Philosophy.tsx
+msgid "How I coach engineering leaders: clarity over noise, systems over heroics, and empathy that scales. The principles behind every session."
+msgstr "How I coach engineering leaders: clarity over noise, systems over heroics, and empathy that scales. The principles behind every session."
+
 #: src/components/About.tsx
 msgid "How I Work"
 msgstr "How I Work"
@@ -497,16 +534,8 @@ msgid "Language"
 msgstr "Language"
 
 #: src/components/Hero.tsx
-#~ msgid "Lead an Engineering Org That <0>Ships, Scales, <1>and Lasts<2><3/><4><5><6/><7/></5></4></2></1></0>"
-#~ msgstr "Lead an Engineering Org That <0>Ships, Scales, <1>and Lasts<2><3/><4><5><6/><7/></5></4></2></1></0>"
-
-#: src/components/Hero.tsx
 msgid "Lead an Engineering Org That <0>Ships, Scales,</0> <1><2>and Lasts</2></1>"
 msgstr "Lead an Engineering Org That <0>Ships, Scales,</0> <1><2>and Lasts</2></1>"
-
-#: src/components/Hero.tsx
-#~ msgid "Lead an Engineering Org That <0>Ships, Scales,</0> <1><2>and Lasts</2><3><4/></3></1>"
-#~ msgstr "Lead an Engineering Org That <0>Ships, Scales,</0> <1><2>and Lasts</2><3><4/></3></1>"
 
 #: src/components/Philosophy.tsx
 msgid "Leadership through Empathy"
@@ -544,6 +573,10 @@ msgstr "Manager & Director Level"
 #: src/components/Services.tsx
 msgid "Manager → Director: Scaling impact through others"
 msgstr "Manager → Director: Scaling impact through others"
+
+#: src/pages/About.tsx
+msgid "Meet Agustin Gonzalez Nicolini — engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3."
+msgstr "Meet Agustin Gonzalez Nicolini — engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3."
 
 #: src/components/Contact.tsx
 msgid "Message sent — I typically reply within 24 hours."
@@ -601,6 +634,10 @@ msgstr "OKRs paired with DORA metrics, used as working tools rather than dashboa
 msgid "One team became four in a year and everything got slower — it usually does. We sketched an org structure early on, then stress-tested and adjusted it over the following quarters as the company kept growing."
 msgstr "One team became four in a year and everything got slower — it usually does. We sketched an org structure early on, then stress-tested and adjusted it over the following quarters as the company kept growing."
 
+#: src/pages/Services.tsx
+msgid "One-on-one coaching for CTOs, VPs, directors, and engineering managers — executive coaching, delivery and team coaching, and IC-to-manager programs."
+msgstr "One-on-one coaching for CTOs, VPs, directors, and engineering managers — executive coaching, delivery and team coaching, and IC-to-manager programs."
+
 #: src/components/Hero.tsx
 msgid "One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics."
 msgstr "One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics."
@@ -617,6 +654,7 @@ msgstr "Originally published on <0>Medium</0>."
 msgid "Outcomes Over Optics"
 msgstr "Outcomes Over Optics"
 
+#: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 msgid "Philosophy"
 msgstr "Philosophy"
@@ -782,6 +820,10 @@ msgstr "The first posts are on their way. Check back soon."
 #: src/pages/Legal.tsx
 msgid "The fonts used on this website are <0>self-hosted</0>: they are served directly from this website's own domain as part of the site itself. Loading them causes no request to Google or any other third-party font service, and no data about you is transmitted to a font provider."
 msgstr "The fonts used on this website are <0>self-hosted</0>: they are served directly from this website's own domain as part of the site itself. Loading them causes no request to Google or any other third-party font service, and no data about you is transmitted to a font provider."
+
+#: src/pages/Impact.tsx
+msgid "The results engineering leaders get from coaching: faster delivery, lower attrition, and orgs that run without heroics. Numbers I stand behind."
+msgstr "The results engineering leaders get from coaching: faster delivery, lower attrition, and orgs that run without heroics. Numbers I stand behind."
 
 #: src/pages/Legal.tsx
 msgid "The site is served over HTTPS. You are not legally or contractually obliged to provide personal data; however, without contact details I cannot respond to inquiries."

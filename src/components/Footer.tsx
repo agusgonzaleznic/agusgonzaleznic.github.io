@@ -1,34 +1,22 @@
 import { Mail, Linkedin, Github } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LocaleLink } from "@/components/LocaleLink";
-import { useLocalizedTo } from "@/i18n/useLocalizedTo";
-import { delocalizePath } from "@/i18n/locales";
 
 export const Footer = () => {
   const { t } = useLingui();
   const currentYear = new Date().getFullYear();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const localize = useLocalizedTo();
-  // Locale-aware: /de/ (and every localized home) counts as home, so section
-  // links scroll in place instead of navigating away.
-  const isHome = delocalizePath(location.pathname) === "/";
 
-  const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  // Section links scroll on the home page; elsewhere they navigate to "/"
-  // with { scrollTo } state (ScrollManager scrolls after arrival) so the URL
-  // never carries a lingering /#hash.
-  const quickLinks: { label: string; id?: string; to?: string }[] = [
-    { label: t`About`, id: "about" },
-    { label: t`Services`, id: "services" },
-    { label: t`Impact`, id: "impact" },
+  // Each section is its own route now, so every quick link is a locale-aware
+  // <LocaleLink> that navigates client-side (no reload) — bare paths, no /#hash.
+  const quickLinks: { label: string; to: string }[] = [
+    { label: t`About`, to: "/about" },
+    { label: t`Philosophy`, to: "/philosophy" },
+    { label: t`Services`, to: "/services" },
+    { label: t`Impact`, to: "/impact" },
+    { label: t`FAQ`, to: "/faq" },
     { label: t`Blog`, to: "/blog/" },
-    { label: t`Contact`, id: "contact" },
+    { label: t`Contact`, to: "/contact" },
   ];
 
   return (
@@ -52,29 +40,13 @@ export const Footer = () => {
               <h4 className="font-bold mb-4 text-sm uppercase tracking-wider"><Trans>Quick Links</Trans></h4>
               <ul className="space-y-2 text-sm">
                 {quickLinks.map((link) => (
-                  <li key={link.id ?? link.to}>
-                    {link.to ? (
-                      <LocaleLink
-                        to={link.to}
-                        className="text-primary-foreground/90 hover:text-accent transition-colors"
-                      >
-                        {link.label}
-                      </LocaleLink>
-                    ) : isHome ? (
-                      <button
-                        onClick={() => scrollToSection(link.id!)}
-                        className="text-primary-foreground/90 hover:text-accent transition-colors"
-                      >
-                        {link.label}
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => navigate(localize("/"), { state: { scrollTo: link.id } })}
-                        className="text-primary-foreground/90 hover:text-accent transition-colors"
-                      >
-                        {link.label}
-                      </button>
-                    )}
+                  <li key={link.to}>
+                    <LocaleLink
+                      to={link.to}
+                      className="text-primary-foreground/90 hover:text-accent transition-colors"
+                    >
+                      {link.label}
+                    </LocaleLink>
                   </li>
                 ))}
               </ul>

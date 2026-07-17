@@ -35,9 +35,9 @@ export const About = () => {
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h2 className="text-fluid-3xl font-bold mb-6">
+            <h1 className="text-fluid-3xl font-bold mb-6">
               <Trans>From Haedo to Berlin, One Engineering Team at a Time</Trans>
-            </h2>
+            </h1>
             <p className="text-fluid-lg text-muted-foreground leading-relaxed mb-6">
               <Trans>I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3 — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform.</Trans>
             </p>
@@ -48,7 +48,7 @@ export const About = () => {
 
           {/* Values grid */}
           <div>
-            <h3 className="text-fluid-xl font-bold mb-8 text-center"><Trans>How I Work</Trans></h3>
+            <h2 className="text-fluid-xl font-bold mb-8 text-center"><Trans>How I Work</Trans></h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {values.map((value, index) => (
                 <Card
@@ -60,7 +60,7 @@ export const About = () => {
                       <value.icon className="w-6 h-6 text-accent" />
                     </div>
                   </div>
-                  <h4 className="text-lg font-bold mb-2">{i18n._(value.title)}</h4>
+                  <h3 className="text-lg font-bold mb-2">{i18n._(value.title)}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {i18n._(value.description)}
                   </p>

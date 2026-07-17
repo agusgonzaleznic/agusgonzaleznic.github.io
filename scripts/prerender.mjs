@@ -37,6 +37,12 @@ const SITE_URL = "https://agusgonzaleznic.com";
 // routes are intentionally excluded — they fetch live CMS data at runtime.
 const routes = [
   { path: "/", file: "index.html", canonical: "/" },
+  { path: "/about", file: "about/index.html", canonical: "/about" },
+  { path: "/philosophy", file: "philosophy/index.html", canonical: "/philosophy" },
+  { path: "/services", file: "services/index.html", canonical: "/services" },
+  { path: "/impact", file: "impact/index.html", canonical: "/impact" },
+  { path: "/faq", file: "faq/index.html", canonical: "/faq" },
+  { path: "/contact", file: "contact/index.html", canonical: "/contact" },
   { path: "/impressum", file: "impressum/index.html", canonical: "/impressum" },
   { path: "/privacy", file: "privacy/index.html", canonical: "/privacy" },
 ];

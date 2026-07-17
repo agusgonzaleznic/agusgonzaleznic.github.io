@@ -84,7 +84,7 @@ export const Impact = () => {
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h2 className="text-fluid-3xl font-bold mb-6"><Trans>Numbers I Stand Behind</Trans></h2>
+            <h1 className="text-fluid-3xl font-bold mb-6"><Trans>Numbers I Stand Behind</Trans></h1>
             <p className="text-fluid-lg text-muted-foreground">
               <Trans>Results from teams I've led as an operator — the same playbooks we'll work from</Trans>
             </p>
@@ -115,9 +115,9 @@ export const Impact = () => {
 
           {/* Timeline */}
           <div>
-            <h3 className="text-fluid-2xl font-bold text-center mb-12 animate-fade-in-up">
+            <h2 className="text-fluid-2xl font-bold text-center mb-12 animate-fade-in-up">
               <Trans>Experience Timeline</Trans>
-            </h3>
+            </h2>
             <div className="space-y-6">
               {timeline.map((item, index) => (
                 <div
@@ -144,7 +144,7 @@ export const Impact = () => {
                           <div className="w-2 h-2 rounded-full bg-accent mt-2 shrink-0" />
                           <div className="flex-1">
                             <div className="flex flex-col gap-1 mb-3">
-                              <h4 className="text-lg font-bold text-foreground">{i18n._(item.role)}</h4>
+                              <h3 className="text-lg font-bold text-foreground">{i18n._(item.role)}</h3>
                               <p className="text-sm text-muted-foreground">{item.company}</p>
                             </div>
                             <p className="text-sm text-muted-foreground leading-relaxed">

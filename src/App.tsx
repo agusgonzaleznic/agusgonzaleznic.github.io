@@ -16,6 +16,12 @@ const queryClient = new QueryClient();
 // renderToString must emit full markup synchronously. See entry-server.tsx.
 export type RoutePages = {
   Index: React.ComponentType;
+  About: React.ComponentType;
+  Philosophy: React.ComponentType;
+  Services: React.ComponentType;
+  Impact: React.ComponentType;
+  Faq: React.ComponentType;
+  Contact: React.ComponentType;
   Blog: React.ComponentType;
   BlogPost: React.ComponentType;
   Impressum: React.ComponentType;
@@ -33,6 +39,12 @@ export type RoutePages = {
 // re-render) instead of discarding it.
 const clientPages: RoutePages = {
   Index,
+  About: lazy(() => import("./pages/About")),
+  Philosophy: lazy(() => import("./pages/Philosophy")),
+  Services: lazy(() => import("./pages/Services")),
+  Impact: lazy(() => import("./pages/Impact")),
+  Faq: lazy(() => import("./pages/Faq")),
+  Contact: lazy(() => import("./pages/Contact")),
   Blog: lazy(() => import("./pages/Blog")),
   BlogPost: lazy(() => import("./pages/BlogPost")),
   Impressum: lazy(() => import("./pages/Legal").then((m) => ({ default: m.Impressum }))),
@@ -92,6 +104,13 @@ export const AppRoutes = ({ pages }: { pages: RoutePages }) => (
     <Suspense fallback={null}>
       <Routes>
         <Route path="/" element={<pages.Index />} />
+        {/* Marketing section pages — each its own indexable URL (SEO). */}
+        <Route path="/about" element={<pages.About />} />
+        <Route path="/philosophy" element={<pages.Philosophy />} />
+        <Route path="/services" element={<pages.Services />} />
+        <Route path="/impact" element={<pages.Impact />} />
+        <Route path="/faq" element={<pages.Faq />} />
+        <Route path="/contact" element={<pages.Contact />} />
         {/* Blog */}
         <Route path="/blog" element={<pages.Blog />} />
         <Route path="/blog/:slug" element={<pages.BlogPost />} />
@@ -104,6 +123,12 @@ export const AppRoutes = ({ pages }: { pages: RoutePages }) => (
         {PREFIXED_LOCALES.map((locale) => (
           <Route key={locale} path={`/${locale}`}>
             <Route index element={<pages.Index />} />
+            <Route path="about" element={<pages.About />} />
+            <Route path="philosophy" element={<pages.Philosophy />} />
+            <Route path="services" element={<pages.Services />} />
+            <Route path="impact" element={<pages.Impact />} />
+            <Route path="faq" element={<pages.Faq />} />
+            <Route path="contact" element={<pages.Contact />} />
             <Route path="blog" element={<pages.Blog />} />
             <Route path="blog/:slug" element={<pages.BlogPost />} />
             <Route path="impressum" element={<pages.Impressum />} />
