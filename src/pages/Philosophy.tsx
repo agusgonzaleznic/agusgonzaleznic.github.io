@@ -1,6 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
 import { SeoPage } from "@/components/SeoPage";
 import { Philosophy } from "@/components/Philosophy";
+import { HowIWork } from "@/components/HowIWork";
 
 const PhilosophyPage = () => {
   const { t } = useLingui();
@@ -12,6 +13,7 @@ const PhilosophyPage = () => {
       crumb="Philosophy"
     >
       <Philosophy />
+      <HowIWork />
     </SeoPage>
   );
 };

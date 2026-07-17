@@ -6,11 +6,7 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LocaleLink } from "@/components/LocaleLink";
 import { delocalizePath } from "@/i18n/locales";
-import {
-  CONTACT_CTA_ID,
-  HERO_CTA_ID,
-  setStickyCtaVisible,
-} from "@/lib/layout";
+import { CONTACT_CTA_ID, SERVICES_CTA_ID, setStickyCtaVisible } from "@/lib/layout";
 
 // Every nav entry is now its own route (About, Philosophy, … each have a page).
 // They render as locale-aware <LocaleLink>s and navigate client-side (content
@@ -56,19 +52,21 @@ export const Navigation = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Show the sticky CTA only while no inline booking affordance is on screen
-  // — the hero's button block and the contact form's submit button.
+  // Show the sticky CTA only while no inline booking affordance is on screen —
+  // the contact form's submit button (/contact) and the Services bottom
+  // "Book an Intro Call" CTA (/services). Pages without one always show it.
   useEffect(() => {
     // Every route change starts from hidden: without this, state left over
-    // from a branch below (e.g. legal → home) flashes the sticky CTA on top
-    // of the hero CTA until the new observer's first async callback fires.
+    // from a branch below flashes the sticky CTA on top of an inline CTA
+    // until the new observer's first async callback fires.
     setIsStickyCtaVisible(false);
     if (isBlog) return;
-    const targets = [HERO_CTA_ID, CONTACT_CTA_ID]
+    const targets = [CONTACT_CTA_ID, SERVICES_CTA_ID]
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
     if (targets.length === 0) {
-      // Route without inline CTAs (e.g. legal pages): always show it.
+      // Route without an inline booking CTA (home, content and legal pages):
+      // always show it.
       setIsStickyCtaVisible(true);
       return () => setIsStickyCtaVisible(false);
     }
@@ -90,7 +88,11 @@ export const Navigation = () => {
   // Publish whether the sticky CTA is actually rendered (same condition as
   // the JSX below) so CookieNotice can stack the consent banner above it
   // only when it exists — see the store in src/lib/layout.ts.
-  const showStickyCta = !isMobileMenuOpen && !isBlog && isStickyCtaVisible;
+  // On home the CTA additionally waits for the first scroll (isScrolled):
+  // the landing fold stays clean — especially on a first visit, when the
+  // consent banner is also on screen — and the CTA appears with engagement.
+  const showStickyCta =
+    !isMobileMenuOpen && !isBlog && isStickyCtaVisible && (!isHome || isScrolled);
   useEffect(() => {
     setStickyCtaVisible(showStickyCta);
     return () => setStickyCtaVisible(false);

@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { msg } from "@lingui/core/macro";
-import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
+import { SECTION_HEADER_MARGIN, SECTION_PADDING_STACKED } from "@/lib/layout";
 
 // Composite scenarios, not client quotes — coaching is confidential, and real
 // endorsements will only ever appear with a client's explicit sign-off.
@@ -27,14 +27,15 @@ export const Testimonials = () => {
   const { i18n } = useLingui();
   // Tinted bloom: on /services this sits after the plain <Services/> section, so
   // the plain→tinted alternation avoids two plain sections' padding reading as
-  // one oversized gap. Testimonials renders only on /services.
+  // one oversized gap. Stacked padding keeps the gap to the Services CTA above
+  // compact. Testimonials renders only on /services.
   return (
-    <section id="testimonials" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
+    <section id="testimonials" className={`${SECTION_PADDING_STACKED} bg-gradient-to-b from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h2 className="text-fluid-3xl font-bold mb-6"><Trans>Typical Engagements</Trans></h2>
+            <h2 className="text-fluid-2xl font-bold mb-6"><Trans>Typical Engagements</Trans></h2>
             <p className="text-fluid-lg text-muted-foreground">
               <Trans>Three composite sketches — not client quotes — showing the problems leaders bring me and how the work tends to unfold</Trans>
             </p>

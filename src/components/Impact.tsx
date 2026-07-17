@@ -82,16 +82,69 @@ export const Impact = () => {
     <section id="impact" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
-          {/* Section header */}
+          {/* Page header — the experience timeline leads the page */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h1 className="text-fluid-3xl font-bold mb-6"><Trans>Numbers I Stand Behind</Trans></h1>
+            <h1 className="text-fluid-3xl font-bold">
+              <Trans>Experience Timeline</Trans>
+            </h1>
+          </div>
+
+          {/* Timeline */}
+          <div className="space-y-6">
+            {timeline.map((item, index) => (
+              <div
+                key={item.period}
+                className={`relative animate-fade-in-up delay-${index * 100}`}
+              >
+                {/* Connecting line */}
+                {index < timeline.length - 1 && (
+                  <div className="absolute left-4 md:left-24 top-12 w-0.5 h-full bg-gradient-to-b from-accent to-border" />
+                )}
+
+                <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+                  {/* Period badge */}
+                  <div className="shrink-0 md:w-32">
+                    <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-accent/10 border border-accent/20">
+                      <span className="text-sm font-medium text-accent">{item.period}</span>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <Card className="p-6 border-2 hover:border-accent/30 hover-lift transition-all duration-300">
+                      <div className="flex items-start gap-4">
+                        <div className="w-2 h-2 rounded-full bg-accent mt-2 shrink-0" />
+                        <div className="flex-1">
+                          <div className="flex flex-col gap-1 mb-3">
+                            {/* h2: peers of the Numbers section heading under the
+                                page h1 — keeps the outline free of h1→h3 skips
+                                (same pattern as the /philosophy pillar cards). */}
+                            <h2 className="text-lg font-bold text-foreground">{i18n._(item.role)}</h2>
+                            <p className="text-sm text-muted-foreground">{item.company}</p>
+                          </div>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {i18n._(item.achievement)}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Numbers — the internal pivot scales at md like every other gap
+              (one SECTION_PADDING unit: 4rem/6rem). */}
+          <div className={`mt-16 md:mt-24 text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
+            <h2 className="text-fluid-2xl font-bold mb-6"><Trans>Numbers I Stand Behind</Trans></h2>
             <p className="text-fluid-lg text-muted-foreground">
               <Trans>Results from teams I've led as an operator — the same playbooks we'll work from</Trans>
             </p>
           </div>
 
           {/* Stats grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {stats.map((stat, index) => (
               <Card
                 key={index}
@@ -111,53 +164,6 @@ export const Impact = () => {
                 </div>
               </Card>
             ))}
-          </div>
-
-          {/* Timeline */}
-          <div>
-            <h2 className="text-fluid-2xl font-bold text-center mb-12 animate-fade-in-up">
-              <Trans>Experience Timeline</Trans>
-            </h2>
-            <div className="space-y-6">
-              {timeline.map((item, index) => (
-                <div
-                  key={item.period}
-                  className={`relative animate-fade-in-up delay-${index * 100}`}
-                >
-                  {/* Connecting line */}
-                  {index < timeline.length - 1 && (
-                    <div className="absolute left-4 md:left-24 top-12 w-0.5 h-full bg-gradient-to-b from-accent to-border" />
-                  )}
-
-                  <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-                    {/* Period badge */}
-                    <div className="shrink-0 md:w-32">
-                      <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-accent/10 border border-accent/20">
-                        <span className="text-sm font-medium text-accent">{item.period}</span>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1">
-                      <Card className="p-6 border-2 hover:border-accent/30 hover-lift transition-all duration-300">
-                        <div className="flex items-start gap-4">
-                          <div className="w-2 h-2 rounded-full bg-accent mt-2 shrink-0" />
-                          <div className="flex-1">
-                            <div className="flex flex-col gap-1 mb-3">
-                              <h3 className="text-lg font-bold text-foreground">{i18n._(item.role)}</h3>
-                              <p className="text-sm text-muted-foreground">{item.company}</p>
-                            </div>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                              {i18n._(item.achievement)}
-                            </p>
-                          </div>
-                        </div>
-                      </Card>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
