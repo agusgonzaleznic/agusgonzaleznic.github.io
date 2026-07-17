@@ -452,3 +452,26 @@ import {
   to = storyblok_component.value_item
   id = "288632938663524/199175471916241"
 }
+
+################################################################################
+# Forget the two components the marketing-page migration superseded
+# (metric_item -> stat_item, testimonial_item -> engagement_item). They were
+# already deleted from the space out-of-band, so they only linger in state.
+# destroy = false forgets them from state WITHOUT a refresh (the provider 404s
+# on a deleted component) and without re-issuing a delete. Remove these blocks
+# after one clean apply.
+################################################################################
+
+removed {
+  from = storyblok_component.metric_item
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = storyblok_component.testimonial_item
+  lifecycle {
+    destroy = false
+  }
+}
