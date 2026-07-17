@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Check, ArrowRight } from "lucide-react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { msg } from "@lingui/core/macro";
-import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
+import { SECTION_HEADER_MARGIN, SECTION_PADDING, SERVICES_CTA_ID } from "@/lib/layout";
 
 const services = [
   {
@@ -134,8 +134,9 @@ export const Services = () => {
             ))}
           </div>
 
-          {/* Bottom CTA */}
-          <div className="mt-16 text-center">
+          {/* Bottom CTA — the id lets Navigation's observer hide the mobile
+              sticky CTA while this inline booking button is on screen. */}
+          <div id={SERVICES_CTA_ID} className="mt-16 text-center">
             <p className="text-muted-foreground mb-4">
               <Trans>Not sure which format fits your situation?</Trans>
             </p>

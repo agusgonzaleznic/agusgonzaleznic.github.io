@@ -18,14 +18,19 @@ export const Footer = () => {
     { label: t`Blog`, to: "/blog/" },
     { label: t`Contact`, to: "/contact" },
   ];
+  // Two columns split by a vertical bar keep the footer short.
+  const quickLinkColumns = [quickLinks.slice(0, 4), quickLinks.slice(4)];
 
   return (
     <footer className="bg-primary text-primary-foreground py-12 md:py-16">
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 md:gap-12 mb-12">
+          {/* The Quick Links track is auto (content-sized): its two fixed-width
+              link columns can't shrink below min-content, and an equal 1fr track
+              overflows into the gutter at tablet widths. Brand takes the slack. */}
+          <div className="grid md:grid-cols-[2fr_auto_1fr] gap-8 md:gap-12 mb-12">
             {/* Brand */}
-            <div className="md:col-span-2">
+            <div>
               <h3 className="text-2xl font-serif font-bold mb-3">Agustin Gonzalez Nicolini</h3>
               <p className="text-primary-foreground/90 text-sm leading-relaxed mb-4">
                 <Trans>Coaching for engineering leaders, from someone who has held the pager.</Trans>
@@ -38,18 +43,29 @@ export const Footer = () => {
             {/* Quick Links */}
             <div>
               <h4 className="font-bold mb-4 text-sm uppercase tracking-wider"><Trans>Quick Links</Trans></h4>
-              <ul className="space-y-2 text-sm">
-                {quickLinks.map((link) => (
-                  <li key={link.to}>
-                    <LocaleLink
-                      to={link.to}
-                      className="text-primary-foreground/90 hover:text-accent transition-colors"
-                    >
-                      {link.label}
-                    </LocaleLink>
-                  </li>
+              <div className="flex text-sm">
+                {quickLinkColumns.map((column, columnIndex) => (
+                  <ul
+                    key={columnIndex}
+                    className={`space-y-2 ${
+                      columnIndex === 0
+                        ? "pr-6"
+                        : "pl-6 border-l border-primary-foreground/20"
+                    }`}
+                  >
+                    {column.map((link) => (
+                      <li key={link.to}>
+                        <LocaleLink
+                          to={link.to}
+                          className="text-primary-foreground/90 hover:text-accent transition-colors"
+                        >
+                          {link.label}
+                        </LocaleLink>
+                      </li>
+                    ))}
+                  </ul>
                 ))}
-              </ul>
+              </div>
             </div>
 
             {/* Connect */}

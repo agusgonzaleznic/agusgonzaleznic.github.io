@@ -11,9 +11,8 @@ import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 export const FAQ = () => {
   const { i18n } = useLingui();
   return (
-    // Tinted bloom keeps the plain/tinted alternation going (testimonials and
-    // contact are plain) — without it two plain sections sit adjacent and
-    // their combined padding reads as one oversized gap.
+    // Tinted bloom (see the plain/tinted alternation convention) — the /faq
+    // page's single section reads better tinted between the plain nav/footer.
     <section id="faq" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-3xl mx-auto">

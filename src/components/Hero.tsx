@@ -1,22 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Sparkles } from "lucide-react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import profileImage from "@/assets/profile.jpg";
-import { useLocalizedTo } from "@/i18n/useLocalizedTo";
-import { HERO_CTA_ID, SECTION_PADDING } from "@/lib/layout";
+import { LocaleLink } from "@/components/LocaleLink";
+import { SECTION_PADDING } from "@/lib/layout";
 
 export const Hero = () => {
   const { t } = useLingui();
-  const navigate = useNavigate();
-  const localize = useLocalizedTo();
-  const handleBooking = () => {
-    window.open("https://calendar.app.google/kFaanhSae5WefLnD7", "_blank");
-  };
-
-  // Services is its own page now — navigate there (locale-aware) instead of
-  // scrolling to an on-page section.
-  const goToServices = () => navigate(localize("/services"));
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-secondary/30 to-background">
@@ -58,22 +48,20 @@ export const Hero = () => {
                 <Trans>One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics.</Trans>
               </p>
 
-              <div id={HERO_CTA_ID} className="flex flex-col sm:flex-row gap-4 pt-4">
+              {/* Booking lives in the nav bar (desktop CTA / mobile sticky CTA),
+                  so the hero keeps a single outline action pointing at Services.
+                  A real (locale-aware) link, not a JS button: crawlable href,
+                  cmd/middle-click work — it's the hero's only action. */}
+              <div className="pt-4">
                 <Button
-                  size="lg"
-                  onClick={handleBooking}
-                  className="bg-accent hover:bg-accent-hover text-accent-foreground shadow-accent hover:shadow-lg transition-all duration-300 group"
-                >
-                  <Trans>Book a Session</Trans>
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-                <Button
+                  asChild
                   size="lg"
                   variant="outline"
-                  onClick={goToServices}
                   className="border-2 hover:bg-secondary"
                 >
-                  <Trans>How Coaching Works</Trans>
+                  <LocaleLink to="/services">
+                    <Trans>How Coaching Works</Trans>
+                  </LocaleLink>
                 </Button>
               </div>
 

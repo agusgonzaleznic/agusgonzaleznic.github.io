@@ -149,7 +149,7 @@ msgstr "Blog"
 msgid "Board presentations & executive presence"
 msgstr "Présentations au conseil d'administration et prestance de dirigeant"
 
-#: src/components/FAQ.tsx
+#: src/lib/faq-data.ts
 msgid "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way."
 msgstr "Réserve un entretien de présentation gratuit de 30 minutes depuis cette page ou écris-moi à info@agusgonzaleznic.com — aucune préparation n'est nécessaire. Pendant cet entretien, nous ferons le point sur ce qui te bloque et déterminerons si le coaching est le bon outil ; quoi qu'il en soit, tu repartiras avec une prochaine étape concrète."
 
@@ -157,7 +157,6 @@ msgstr "Réserve un entretien de présentation gratuit de 30 minutes depuis cett
 msgid "Book a free 30-minute intro call with Agustin Gonzalez Nicolini, or email me. Remote coaching for engineering leaders worldwide, in EN, ES, and DE."
 msgstr "Réserve un entretien de présentation gratuit de 30 minutes avec Agustin Gonzalez Nicolini, ou écris-moi un e-mail. Coaching à distance pour les leaders techniques partout dans le monde, en EN, ES et DE."
 
-#: src/components/Hero.tsx
 #: src/components/Navigation.tsx
 msgid "Book a Session"
 msgstr "Réserve une séance"
@@ -201,10 +200,6 @@ msgstr "Les conversations de coaching sont confidentielles par défaut ; par con
 #: src/components/Footer.tsx
 msgid "Coaching for engineering leaders, from someone who has held the pager."
 msgstr "Du coaching pour les leaders techniques, par quelqu'un qui a lui-même porté le pager."
-
-#: src/pages/Impact.tsx
-msgid "Coaching Impact & Results — Engineering Leadership"
-msgstr "Impact et résultats du Coaching — leadership technique"
 
 #: src/components/Services.tsx
 msgid "Coaching Services"
@@ -259,7 +254,7 @@ msgstr "Workflows DevOps/GitOps & trunk-based development"
 msgid "DevOps/GitOps workflows, DORA metrics, and decision frameworks that let your team move fast without waiting on you."
 msgstr "Des workflows DevOps/GitOps, des métriques DORA et des cadres de décision qui permettent à ton équipe d'avancer vite sans dépendre de toi."
 
-#: src/components/About.tsx
+#: src/components/HowIWork.tsx
 msgid "Direct, Kind Feedback"
 msgstr "Un feedback direct et bienveillant"
 
@@ -271,7 +266,7 @@ msgstr "Director → VP : réflexion stratégique et présence exécutive"
 msgid "Dispute Resolution"
 msgstr "Règlement des litiges"
 
-#: src/components/FAQ.tsx
+#: src/lib/faq-data.ts
 msgid "Does Agustin coach remotely?"
 msgstr "Est-ce qu'Agustin fait du coaching à distance ?"
 
@@ -323,13 +318,17 @@ msgstr "Ingénieurs et managers à un tournant de leur carrière"
 msgid "erasure (Art. 17),"
 msgstr "effacement (art. 17),"
 
-#: src/components/About.tsx
+#: src/components/HowIWork.tsx
 msgid "Every engagement names the result it should produce — delivery speed, retention, uptime — and we check that it did."
 msgstr "Chaque mission définit le résultat qu'elle doit produire — rapidité de livraison, rétention, disponibilité — et nous vérifions qu'il est bien atteint."
 
 #: src/components/Services.tsx
 msgid "Executive Leadership Coaching"
 msgstr "Executive Leadership Coaching"
+
+#: src/pages/Impact.tsx
+msgid "Experience & Impact — Engineering Leadership Coaching"
+msgstr "Parcours et impact — Coaching en leadership technique"
 
 #: src/components/Impact.tsx
 msgid "Experience Timeline"
@@ -437,7 +436,7 @@ msgstr "Cadres de recrutement, de leveling et de performance"
 msgid "How Coaching Works"
 msgstr "Comment se déroule le coaching"
 
-#: src/components/FAQ.tsx
+#: src/lib/faq-data.ts
 msgid "How do I start working with Agustin?"
 msgstr "Comment commencer à travailler avec Agustin ?"
 
@@ -445,7 +444,7 @@ msgstr "Comment commencer à travailler avec Agustin ?"
 msgid "How I coach engineering leaders: clarity over noise, systems over heroics, and empathy that scales. The principles behind every session."
 msgstr "Comment j'accompagne les leaders techniques : de la clarté plutôt que du bruit, des systèmes plutôt que de l'héroïsme, et de l'empathie qui passe à l'échelle. Les principes derrière chaque séance."
 
-#: src/components/About.tsx
+#: src/components/HowIWork.tsx
 msgid "How I Work"
 msgstr "Ma façon de travailler"
 
@@ -453,7 +452,7 @@ msgstr "Ma façon de travailler"
 msgid "I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security — and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck."
 msgstr "Je conseille les dirigeants du C-suite et les responsables techniques seniors sur les systèmes cloud-native, la transformation DevOps et la sécurité — et j'ai probablement déjà vécu une version de ce à quoi tu fais face : la réorganisation, l'audit, le post-mortem d'une panne, la bataille budgétaire. Que tu accompagnes une startup dans sa phase de scale-up ou que tu rétablisses la discipline de livraison dans une grande org, nous construisons ensemble les systèmes et les habitudes qui permettent à ton équipe de livrer sans que tu sois le goulot d'étranglement."
 
-#: src/components/About.tsx
+#: src/components/HowIWork.tsx
 msgid "I only teach what I've run in production with real teams — no borrowed frameworks."
 msgstr "Je n'enseigne que ce que j'ai moi-même mis en œuvre en production avec de vraies équipes — pas de frameworks empruntés."
 
@@ -461,7 +460,7 @@ msgstr "Je n'enseigne que ce que j'ai moi-même mis en œuvre en production avec
 msgid "I typically respond within 24 hours. For urgent inquiries, please mention it in your message."
 msgstr "Je réponds généralement dans les 24 heures. Pour toute demande urgente, merci de le mentionner dans ton message."
 
-#: src/components/FAQ.tsx
+#: src/lib/faq-data.ts
 msgid "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role."
 msgstr "Je travaille avec des CTOs et des VPs of Engineering, des directeurs, des engineering managers, des tech leads et des individual contributors qui se préparent à leur premier poste de leadership."
 
@@ -469,7 +468,7 @@ msgstr "Je travaille avec des CTOs et des VPs of Engineering, des directeurs, de
 msgid "I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3 — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
 msgstr "Je m'appelle Agustin Gonzalez Nicolini. Depuis plus de 15 ans, je construis et dirige des équipes pluridisciplinaires dans la fintech, le gaming, l'e-mobility, la healthtech et le Web3 — en livrant des architectures REST et GraphQL sur des systèmes cloud-native serverless et conteneurisés, dont une plateforme de core banking."
 
-#: src/components/FAQ.tsx
+#: src/lib/faq-data.ts
 msgid "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev; today I head infrastructure and security at a Web3 company and coach senior technology leaders one-on-one."
 msgstr "Je suis un leader technique et un coach en leadership basé à Berlin, en Allemagne. J'ai dirigé des équipes d'ingénieurs dans des entreprises comme Ualá, Wildlife Studios, JUCR et Bdev ; aujourd'hui, je dirige l'infrastructure et la sécurité d'une entreprise Web3 et j'accompagne en one-on-one des leaders technologiques seniors."
 
@@ -596,6 +595,10 @@ msgstr "Procédures de basculement multirégional et de reprise après sinistre/
 msgid "My Coaching Philosophy"
 msgstr "Ma philosophie du Coaching"
 
+#: src/pages/Impact.tsx
+msgid "My track record leading engineering orgs — and the results coaching delivers: faster delivery, lower attrition, and teams that run without heroics."
+msgstr "Mon parcours à la tête d'orgs d'ingénierie — et les résultats du coaching : une livraison plus rapide, moins de turnover et des équipes qui tournent sans héroïsme."
+
 #: src/components/Contact.tsx
 msgid "Name *"
 msgstr "Nom *"
@@ -648,7 +651,7 @@ msgstr "Design organisationnel et stratégies de scaling"
 msgid "Originally published on <0>Medium</0>."
 msgstr "Publié à l'origine sur <0>Medium</0>."
 
-#: src/components/About.tsx
+#: src/components/HowIWork.tsx
 msgid "Outcomes Over Optics"
 msgstr "Les résultats avant les apparences"
 
@@ -673,7 +676,7 @@ msgstr "Remplis tous les champs obligatoires"
 msgid "Practical answers on fit, format, and how we'd start"
 msgstr "Des réponses concrètes sur l'adéquation, le format et la manière dont nous démarrerions"
 
-#: src/components/About.tsx
+#: src/components/HowIWork.tsx
 msgid "Practice Over Theory"
 msgstr "La pratique plutôt que la théorie"
 
@@ -714,7 +717,7 @@ msgstr "rectification (art. 16),"
 msgid "Reduced Lead Time"
 msgstr "Réduction du lead time"
 
-#: src/components/About.tsx
+#: src/components/HowIWork.tsx
 msgid "Resilience and compliance as design inputs, not afterthoughts — a habit from years of PCI-DSS, SOC 2, and ISO 27001 work."
 msgstr "La résilience et la conformité comme paramètres de conception, et non comme des réflexions après coup — une habitude acquise au fil des années de travail sur PCI-DSS, SOC 2 et ISO 27001."
 
@@ -738,7 +741,7 @@ msgstr "Retour à l'accueil"
 msgid "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now."
 msgstr "Gestion de bout en bout de l'infrastructure et de la sécurité d'une plateforme Web3 — le nom de l'entreprise reste confidentiel pour l'instant."
 
-#: src/components/About.tsx
+#: src/components/HowIWork.tsx
 msgid "Security by Default"
 msgstr "La sécurité par défaut"
 
@@ -818,10 +821,6 @@ msgstr "Les premiers articles arrivent bientôt. Reviens vite."
 #: src/pages/Legal.tsx
 msgid "The fonts used on this website are <0>self-hosted</0>: they are served directly from this website's own domain as part of the site itself. Loading them causes no request to Google or any other third-party font service, and no data about you is transmitted to a font provider."
 msgstr "Les polices utilisées sur ce site web sont <0>hébergées en interne</0> : elles sont servies directement depuis le domaine propre à ce site et font partie intégrante du site lui-même. Leur chargement n'entraîne aucune requête vers Google ni vers un autre service de polices tiers, et aucune donnée te concernant n'est transmise à un fournisseur de polices."
-
-#: src/pages/Impact.tsx
-msgid "The results engineering leaders get from coaching: faster delivery, lower attrition, and orgs that run without heroics. Numbers I stand behind."
-msgstr "Les résultats que les leaders techniques obtiennent grâce au coaching : une livraison plus rapide, moins de turnover et des orgs qui tournent sans héroïsme. Des chiffres que j'assume."
 
 #: src/pages/Legal.tsx
 msgid "The site is served over HTTPS. You are not legally or contractually obliged to provide personal data; however, without contact details I cannot respond to inquiries."
@@ -924,7 +923,7 @@ msgstr "VP of Engineering"
 msgid "Weekly or bi-weekly 45-minute sessions"
 msgstr "Séances de 45 minutes, chaque semaine ou toutes les deux semaines"
 
-#: src/components/FAQ.tsx
+#: src/lib/faq-data.ts
 msgid "What does engineering leadership coaching cover?"
 msgstr "Que couvre le coaching en Leadership pour l'ingénierie ?"
 
@@ -936,15 +935,15 @@ msgstr "Sur quoi souhaites-tu être accompagné ? *"
 msgid "What's the Hardest Part of the Job Right Now?"
 msgstr "Quelle est la partie la plus difficile de ton travail en ce moment ?"
 
-#: src/components/FAQ.tsx
+#: src/lib/faq-data.ts
 msgid "Whatever stands between you and a team that delivers: scaling and org design, stakeholder and C-suite communication, delivery speed and DORA metrics, DevOps and GitOps workflows, hiring and performance frameworks, incident readiness, and executive presence."
 msgstr "Tout ce qui se dresse entre toi et une équipe qui livre : scaling et org design, communication avec les parties prenantes et le C-suite, vitesse de livraison et métriques DORA, workflows DevOps et GitOps, cadres de recrutement et de performance, préparation aux incidents et présence exécutive."
 
-#: src/components/FAQ.tsx
+#: src/lib/faq-data.ts
 msgid "Who does Agustin coach?"
 msgstr "Qui Agustin coache-t-il ?"
 
-#: src/components/FAQ.tsx
+#: src/lib/faq-data.ts
 msgid "Who is Agustin Gonzalez Nicolini?"
 msgstr "Qui est Agustin Gonzalez Nicolini ?"
 
@@ -968,7 +967,7 @@ msgstr "Écriture — Agustin Gonzalez Nicolini"
 msgid "Writing | Agustin Gonzalez Nicolini"
 msgstr "Écriture | Agustin Gonzalez Nicolini"
 
-#: src/components/FAQ.tsx
+#: src/lib/faq-data.ts
 msgid "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English, Spanish, or German — whichever you think best in."
 msgstr "Oui. Je suis basé à Berlin et j'accompagne des leaders à distance partout dans le monde. Les séances se déroulent en anglais, en espagnol ou en allemand — dans la langue où tu es le plus à l'aise."
 
@@ -976,7 +975,7 @@ msgstr "Oui. Je suis basé à Berlin et j'accompagne des leaders à distance par
 msgid "You also have the right to lodge a complaint with a data protection supervisory authority (Art. 77 GDPR). The authority responsible for this website's operator is:"
 msgstr "Tu disposes également du droit de déposer une réclamation auprès d'une autorité de contrôle chargée de la protection des données (art. 77 du RGPD). L'autorité compétente pour l'exploitant de ce site web est :"
 
-#: src/components/About.tsx
+#: src/components/HowIWork.tsx
 msgid "You'll hear what I actually think, specifically and early. That candor is most of the value."
 msgstr "Tu sauras vraiment ce que je pense, de manière précise et dès le début. Cette franchise, c'est là que réside l'essentiel de la valeur."
 
