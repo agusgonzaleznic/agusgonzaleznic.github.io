@@ -79,6 +79,7 @@ msgstr "A multi-account AWS migration with deployments automated end to end"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/About.tsx
 msgid "About"
 msgstr "About"
 
@@ -101,6 +102,14 @@ msgstr "After withdrawing, the consent banner will reappear on your next visit."
 #: src/components/Hero.tsx
 msgid "Agustin Gonzalez Nicolini - Engineering Leadership Coach"
 msgstr "Agustin Gonzalez Nicolini - Engineering Leadership Coach"
+
+#: src/components/About.tsx
+msgid "Agustin Gonzalez Nicolini — engineering leadership coach in Berlin"
+msgstr "Agustin Gonzalez Nicolini — engineering leadership coach in Berlin"
+
+#: src/pages/Index.tsx
+msgid "Agustin Gonzalez Nicolini | Engineering Leadership Coach"
+msgstr "Agustin Gonzalez Nicolini | Engineering Leadership Coach"
 
 #: src/pages/BlogPost.tsx
 msgid "All writing"
@@ -126,6 +135,10 @@ msgstr "As of July 2026 — reviewed by the site owner. This page was drafted wi
 msgid "B2B SaaS Company"
 msgstr "B2B SaaS Company"
 
+#: src/components/About.tsx
+msgid "Based in Berlin — coaching engineering leaders remotely worldwide, in English, Spanish, or German."
+msgstr "Based in Berlin — coaching engineering leaders remotely worldwide, in English, Spanish, or German."
+
 #: src/components/Footer.tsx
 msgid "Based in Berlin, from Haedo • Coaching globally"
 msgstr "Based in Berlin, from Haedo • Coaching globally"
@@ -150,6 +163,10 @@ msgstr "Blog"
 #: src/components/Services.tsx
 msgid "Board presentations & executive presence"
 msgstr "Board presentations & executive presence"
+
+#: src/components/RelatedPages.tsx
+msgid "Book a free 30-minute intro call"
+msgstr "Book a free 30-minute intro call"
 
 #: src/lib/faq-data.ts
 msgid "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way."
@@ -203,9 +220,18 @@ msgstr "Coaching conversations are confidential by default, so named endorsement
 msgid "Coaching for engineering leaders, from someone who has held the pager."
 msgstr "Coaching for engineering leaders, from someone who has held the pager."
 
+#: src/components/RelatedPages.tsx
+#: src/pages/BlogPost.tsx
+msgid "Coaching formats for CTOs, VPs, and engineering managers"
+msgstr "Coaching formats for CTOs, VPs, and engineering managers"
+
 #: src/components/Services.tsx
 msgid "Coaching Services"
 msgstr "Coaching Services"
+
+#: src/components/RelatedPages.tsx
+msgid "Common questions about fit, format, and how we start"
+msgstr "Common questions about fit, format, and how we start"
 
 #: src/components/Footer.tsx
 msgid "Connect"
@@ -213,6 +239,7 @@ msgstr "Connect"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/Contact.tsx
 msgid "Contact"
 msgstr "Contact"
 
@@ -324,6 +351,10 @@ msgstr "erasure (Art. 17),"
 msgid "Every engagement names the result it should produce — delivery speed, retention, uptime — and we check that it did."
 msgstr "Every engagement names the result it should produce — delivery speed, retention, uptime — and we check that it did."
 
+#: src/pages/Index.tsx
+msgid "Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably — 15+ years of engineering leadership. Berlin & remote."
+msgstr "Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably — 15+ years of engineering leadership. Berlin & remote."
+
 #: src/components/Services.tsx
 msgid "Executive Leadership Coaching"
 msgstr "Executive Leadership Coaching"
@@ -342,6 +373,7 @@ msgstr "Failed to send message. Please try again or email me directly."
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/Faq.tsx
 msgid "FAQ"
 msgstr "FAQ"
 
@@ -434,6 +466,10 @@ msgstr "Head of Infrastructure & Security"
 msgid "Hiring, leveling & performance frameworks"
 msgstr "Hiring, leveling & performance frameworks"
 
+#: src/components/SeoPage.tsx
+msgid "Home"
+msgstr "Home"
+
 #: src/components/Hero.tsx
 msgid "How Coaching Works"
 msgstr "How Coaching Works"
@@ -466,6 +502,10 @@ msgstr "I typically respond within 24 hours. For urgent inquiries, please mentio
 msgid "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role."
 msgstr "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role."
 
+#: src/pages/BlogPost.tsx
+msgid "I'm Agustin — I coach engineering leaders, from first-time managers to CTOs."
+msgstr "I'm Agustin — I coach engineering leaders, from first-time managers to CTOs."
+
 #: src/components/About.tsx
 msgid "I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3 — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
 msgstr "I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3 — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
@@ -488,6 +528,7 @@ msgstr "If you use the contact form, the data you enter (name, email address, ro
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/Impact.tsx
 msgid "Impact"
 msgstr "Impact"
 
@@ -519,6 +560,10 @@ msgstr "Infrastructure & Security Lead"
 #: src/components/Services.tsx
 msgid "Interview prep for leadership roles"
 msgstr "Interview prep for leadership roles"
+
+#: src/components/RelatedPages.tsx
+msgid "Keep exploring"
+msgstr "Keep exploring"
 
 #: src/components/Impact.tsx
 msgid "Kept security controls stringent while game teams shipped features at full speed."
@@ -597,9 +642,18 @@ msgstr "Multi-region failover and DR/HA playbooks, built so a bad day in one reg
 msgid "My Coaching Philosophy"
 msgstr "My Coaching Philosophy"
 
+#: src/components/RelatedPages.tsx
+#: src/pages/BlogPost.tsx
+msgid "My story, from Haedo to Berlin"
+msgstr "My story, from Haedo to Berlin"
+
 #: src/pages/Impact.tsx
 msgid "My track record leading engineering orgs — and the results coaching delivers: faster delivery, lower attrition, and teams that run without heroics."
 msgstr "My track record leading engineering orgs — and the results coaching delivers: faster delivery, lower attrition, and teams that run without heroics."
+
+#: src/components/RelatedPages.tsx
+msgid "My track record: 15+ years leading engineering teams"
+msgstr "My track record: 15+ years leading engineering teams"
 
 #: src/components/Contact.tsx
 msgid "Name *"
@@ -659,6 +713,7 @@ msgstr "Outcomes Over Optics"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/Philosophy.tsx
 msgid "Philosophy"
 msgstr "Philosophy"
 
@@ -761,6 +816,7 @@ msgstr "Senior Engineering Manager"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/Services.tsx
 msgid "Services"
 msgstr "Services"
 
@@ -831,6 +887,10 @@ msgstr "The site is served over HTTPS. You are not legally or contractually obli
 #: src/pages/Legal.tsx
 msgid "The site links to an external booking page at <0>calendar.app.google</0> (Google Appointment Scheduling). No data is transmitted to Google by merely viewing this website; only when you click the link and use the booking page does Google process the data you enter there, under Google's own privacy policy and as an independent controller. Legal basis for any data I receive from a booking (name, email, chosen time): Art. 6(1)(b) GDPR."
 msgstr "The site links to an external booking page at <0>calendar.app.google</0> (Google Appointment Scheduling). No data is transmitted to Google by merely viewing this website; only when you click the link and use the booking page does Google process the data you enter there, under Google's own privacy policy and as an independent controller. Legal basis for any data I receive from a booking (name, email, chosen time): Art. 6(1)(b) GDPR."
+
+#: src/components/RelatedPages.tsx
+msgid "The three pillars behind my coaching"
+msgstr "The three pillars behind my coaching"
 
 #: src/components/blog/MachineTranslationNotice.tsx
 msgid "This article was translated automatically. <0>Read the original in English</0>."

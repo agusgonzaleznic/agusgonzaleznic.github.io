@@ -1,6 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
 import { SeoPage } from "@/components/SeoPage";
 import { FAQ } from "@/components/FAQ";
+import { RelatedPages } from "@/components/RelatedPages";
 import { faqs } from "@/lib/faq-data";
 import { SITE_URL } from "@/lib/blog";
 
@@ -27,10 +28,12 @@ const FaqPage = () => {
       path="/faq"
       title={t`Engineering Leadership Coaching FAQ — Agustin Gonzalez Nicolini`}
       description={t`Answers on engineering leadership coaching — who I work with, what sessions cover, remote coaching, languages, and how to get started.`}
-      crumb="FAQ"
+      crumb={t`FAQ`}
+      about={{ "@id": `${SITE_URL}/#faq` }}
       extraSchema={[faqPageLd]}
     >
       <FAQ />
+      <RelatedPages page="faq" />
     </SeoPage>
   );
 };

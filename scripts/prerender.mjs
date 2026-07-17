@@ -116,17 +116,59 @@ function setCanonical(html, url) {
   return html.replace(/(<link\b[^>]*\brel="canonical"[^>]*\bhref=")[^"]*(")/, `$1${url}$2`);
 }
 
+// Replace exactly one occurrence or fail the build — a silent non-match would
+// ship a half-localized (or stale-English) home head for a published locale.
+function replaceExactlyOnce(html, re, replacement, what, locale) {
+  let n = 0;
+  const out = html.replace(re, (...m) => {
+    n += 1;
+    return replacement(...m);
+  });
+  if (n !== 1) {
+    throw new Error(
+      `localizeHomeHead(${locale}): expected exactly 1 match for ${what}, got ${n}.`,
+    );
+  }
+  return out;
+}
+
 // Localize the STATIC homepage head for a prefixed locale. The "/" route keeps
 // the template head verbatim (it doubles as the SPA shell), so the locale-
 // declaring tags hard-coded to English there must be swapped to match
 // <html lang> / the localized URL — otherwise a published /de/ home advertises
 // og:locale=en_US, og:url=<root>, and JSON-LD inLanguage="en" on a lang="de"
-// page. Human-readable copy (title/description, JSON-LD name/description) is
-// intentionally left until a translated catalog exists — the source strings for
-// the static head are not yet extracted. English never runs this.
-function localizeHomeHead(html, locale) {
+// page. The human-readable title/description now localize too: Index.tsx emits
+// them through Lingui, so this per-locale render's helmet output carries the
+// translated (and already HTML-escaped) strings — inject them into all seven
+// title/description tags of the static block. English never runs this (its
+// helmet text is byte-identical to the template anyway).
+function localizeHomeHead(html, locale, helmet) {
   const meta = LOCALE_META[locale];
   const homeUrl = `${SITE_URL}${localizePath("/", locale)}`;
+
+  // react-helmet output is already HTML-escaped — extract and inject verbatim.
+  const title = helmet.title.toString().replace(/<[^>]*>/g, "").trim();
+  const description = helmet.meta
+    .toString()
+    .match(/<meta[^>]*name="description"[^>]*content="([^"]*)"/)?.[1];
+  if (!title || !description) {
+    throw new Error(
+      `localizeHomeHead(${locale}): could not extract localized title/description from the helmet output.`,
+    );
+  }
+
+  html = replaceExactlyOnce(html, /(<title>)[^<]*(<\/title>)/, (_, a, b) => `${a}${title}${b}`, "<title>", locale);
+  for (const [what, re, value] of [
+    ["meta name=title", /(<meta name="title" content=")[^"]*(")/, title],
+    ["meta description", /(<meta name="description" content=")[^"]*(")/, description],
+    ["og:title", /(<meta property="og:title" content=")[^"]*(")/, title],
+    ["og:description", /(<meta property="og:description" content=")[^"]*(")/, description],
+    ["twitter:title", /(<meta name="twitter:title" content=")[^"]*(")/, title],
+    ["twitter:description", /(<meta name="twitter:description" content=")[^"]*(")/, description],
+  ]) {
+    html = replaceExactlyOnce(html, re, (_, a, b) => `${a}${value}${b}`, what, locale);
+  }
+
   return html
     .replace('<meta name="language" content="English" />', `<meta name="language" content="${meta.name}" />`)
     .replace('<meta property="og:locale" content="en_US" />', `<meta property="og:locale" content="${meta.ogLocale}" />`)
@@ -219,7 +261,7 @@ for (const locale of PUBLISHED_LOCALES) {
     if (locale !== SOURCE_LOCALE) {
       const wantCanonical = `${SITE_URL}${localizePath(route.canonical, locale)}`;
       html = setCanonical(html, wantCanonical);
-      if (route.path === "/") html = localizeHomeHead(html, locale);
+      if (route.path === "/") html = localizeHomeHead(html, locale, helmet);
 
       // Guard: a prefixed page MUST self-canonicalize to its /{locale}/ URL. If
       // setCanonical failed to match (e.g. helmet changed its tag shape), a
