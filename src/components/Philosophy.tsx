@@ -32,7 +32,7 @@ export const Philosophy = () => {
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h2 className="text-fluid-3xl font-bold mb-6"><Trans>My Coaching Philosophy</Trans></h2>
+            <h1 className="text-fluid-3xl font-bold mb-6"><Trans>My Coaching Philosophy</Trans></h1>
             <p className="text-fluid-lg text-muted-foreground">
               <Trans>Three pillars behind every engagement — and what each one changes for your team</Trans>
             </p>
@@ -61,9 +61,9 @@ export const Philosophy = () => {
 
                     {/* Content */}
                     <div className="flex-1">
-                      <h3 className="text-fluid-xl font-bold mb-3 group-hover:text-accent transition-colors">
+                      <h2 className="text-fluid-xl font-bold mb-3 group-hover:text-accent transition-colors">
                         {i18n._(pillar.title)}
-                      </h3>
+                      </h2>
                       <p className="text-fluid-base text-muted-foreground leading-relaxed">
                         {i18n._(pillar.description)}
                       </p>

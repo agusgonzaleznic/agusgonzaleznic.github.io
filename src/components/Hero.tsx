@@ -1,18 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Trans, useLingui } from "@lingui/react/macro";
 import profileImage from "@/assets/profile.jpg";
+import { useLocalizedTo } from "@/i18n/useLocalizedTo";
 import { HERO_CTA_ID, SECTION_PADDING } from "@/lib/layout";
 
 export const Hero = () => {
   const { t } = useLingui();
+  const navigate = useNavigate();
+  const localize = useLocalizedTo();
   const handleBooking = () => {
     window.open("https://calendar.app.google/kFaanhSae5WefLnD7", "_blank");
   };
 
-  const scrollToServices = () => {
-    document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
-  };
+  // Services is its own page now — navigate there (locale-aware) instead of
+  // scrolling to an on-page section.
+  const goToServices = () => navigate(localize("/services"));
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-secondary/30 to-background">
@@ -66,7 +70,7 @@ export const Hero = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  onClick={scrollToServices}
+                  onClick={goToServices}
                   className="border-2 hover:bg-secondary"
                 >
                   <Trans>How Coaching Works</Trans>

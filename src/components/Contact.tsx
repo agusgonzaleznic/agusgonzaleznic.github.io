@@ -253,7 +253,7 @@ export const Contact = () => {
         <div className="max-w-5xl mx-auto">
           {/* Section header */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h2 className="text-fluid-3xl font-bold mb-6"><Trans>What's the Hardest Part of the Job Right Now?</Trans></h2>
+            <h1 className="text-fluid-3xl font-bold mb-6"><Trans>What's the Hardest Part of the Job Right Now?</Trans></h1>
             <p className="text-fluid-lg text-muted-foreground">
               <Trans>Tell me in a few lines — a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for.</Trans>
             </p>
@@ -393,7 +393,7 @@ export const Contact = () => {
             {/* Contact info */}
             <div className="lg:col-span-2 space-y-6 animate-fade-in-up delay-200">
               <Card className="p-6 border-2">
-                <h3 className="font-bold mb-4"><Trans>Get in Touch</Trans></h3>
+                <h2 className="font-bold mb-4"><Trans>Get in Touch</Trans></h2>
                 <div className="space-y-4">
                   <a
                     href="mailto:info@agusgonzaleznic.com"
@@ -432,14 +432,14 @@ export const Contact = () => {
               </Card>
 
               <Card className="p-6 bg-accent/5 border-accent/20">
-                <h3 className="font-bold mb-3 text-foreground"><Trans>Response Time</Trans></h3>
+                <h2 className="font-bold mb-3 text-foreground"><Trans>Response Time</Trans></h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   <Trans>I typically respond within 24 hours. For urgent inquiries, please mention it in your message.</Trans>
                 </p>
               </Card>
 
               <Card className="p-6 bg-primary/5 border-primary/20">
-                <h3 className="font-bold mb-3 text-foreground"><Trans>Free Discovery Call</Trans></h3>
+                <h2 className="font-bold mb-3 text-foreground"><Trans>Free Discovery Call</Trans></h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   <Trans>The first 30 minutes are on me: a working session on your situation, not a sales pitch. If I'm not the right coach for the problem, I'll say so.</Trans>
                 </p>

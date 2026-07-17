@@ -1,5 +1,15 @@
 msgid ""
-msgstr "POT-Creation-Date: 2026-07-12 10:38+0200\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\nContent-Transfer-Encoding: 8bit\nX-Generator: @lingui/cli\nLanguage: de\nProject-Id-Version: \nReport-Msgid-Bugs-To: \nPO-Revision-Date: \nLast-Translator: \nLanguage-Team: \nPlural-Forms: \n"
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language: \n"
+"Language-Team: \n"
+"Content-Type: \n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
 
 #: src/components/blog/PostMeta.tsx
 msgid "{minutes} min read"
@@ -70,6 +80,10 @@ msgstr "Eine AWS-Migration über mehrere Accounts mit durchgängig automatisiert
 msgid "About"
 msgstr "Über mich"
 
+#: src/pages/About.tsx
+msgid "About Agustin Gonzalez Nicolini — Engineering Leadership Coach"
+msgstr "Über Agustin Gonzalez Nicolini — Engineering Leadership Coach"
+
 #: src/components/CookieNotice.tsx
 msgid "Accept"
 msgstr "Akzeptieren"
@@ -93,6 +107,10 @@ msgstr "Alle Texte"
 #: src/pages/Legal.tsx
 msgid "Angaben gemäß § 5 DDG"
 msgstr "Angaben gemäß § 5 DDG"
+
+#: src/pages/Faq.tsx
+msgid "Answers on engineering leadership coaching — who I work with, what sessions cover, remote coaching, languages, and how to get started."
+msgstr "Antworten rund ums Engineering Leadership Coaching — mit wem ich arbeite, was Sessions abdecken, Remote-Coaching, Sprachen und wie du loslegst."
 
 #: src/pages/Legal.tsx
 msgid "As a service provider, I am responsible for my own content on these pages in accordance with general laws (§ 7 Abs. 1 DDG). This website contains links to external third-party websites, over whose content I have no influence; the respective provider or operator is always responsible for the content of linked pages."
@@ -134,6 +152,10 @@ msgstr "Board-Präsentationen und Executive Presence"
 #: src/components/FAQ.tsx
 msgid "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way."
 msgstr "Buche über diese Seite ein kostenloses 30-minütiges Kennenlerngespräch oder schreib mir eine E-Mail an info@agusgonzaleznic.com – Vorbereitung ist nicht nötig. In dem Gespräch schauen wir uns an, wo du gerade feststeckst und ob Coaching das richtige Werkzeug für dich ist; du gehst so oder so mit einem konkreten nächsten Schritt raus."
+
+#: src/pages/Contact.tsx
+msgid "Book a free 30-minute intro call with Agustin Gonzalez Nicolini, or email me. Remote coaching for engineering leaders worldwide, in EN, ES, and DE."
+msgstr "Buche ein kostenloses 30-minütiges Kennenlerngespräch mit Agustin Gonzalez Nicolini oder schreib mir eine E-Mail. Remote-Coaching für Engineering Leader weltweit — auf EN, ES und DE."
 
 #: src/components/Hero.tsx
 #: src/components/Navigation.tsx
@@ -180,6 +202,10 @@ msgstr "Coaching-Gespräche sind standardmäßig vertraulich, daher erscheinen n
 msgid "Coaching for engineering leaders, from someone who has held the pager."
 msgstr "Coaching für Engineering Leaders – von jemandem, der selbst den Pager getragen hat."
 
+#: src/pages/Impact.tsx
+msgid "Coaching Impact & Results — Engineering Leadership"
+msgstr "Wirkung & Ergebnisse des Coachings — Engineering Leadership"
+
 #: src/components/Services.tsx
 msgid "Coaching Services"
 msgstr "Coaching-Angebote"
@@ -192,6 +218,10 @@ msgstr "Vernetzen"
 #: src/components/Navigation.tsx
 msgid "Contact"
 msgstr "Kontakt"
+
+#: src/pages/Contact.tsx
+msgid "Contact & Book a Session — Engineering Leadership Coaching"
+msgstr "Kontakt & Session buchen — Engineering Leadership Coaching"
 
 #: src/components/Services.tsx
 msgid "CTO & VP Level"
@@ -269,6 +299,18 @@ msgstr "E-Mail *"
 msgid "Empowerment through Systems"
 msgstr "Empowerment durch Systeme"
 
+#: src/pages/Services.tsx
+msgid "Engineering Leadership Coaching — CTO, VP & Manager"
+msgstr "Engineering Leadership Coaching — CTOs, VPs & Manager"
+
+#: src/pages/Faq.tsx
+msgid "Engineering Leadership Coaching FAQ — Agustin Gonzalez Nicolini"
+msgstr "FAQ zum Engineering Leadership Coaching — Agustin Gonzalez Nicolini"
+
+#: src/pages/Philosophy.tsx
+msgid "Engineering Leadership Coaching Philosophy"
+msgstr "Meine Coaching-Philosophie fürs Engineering Leadership"
+
 #: src/components/Services.tsx
 msgid "Engineering managers, directors, and team leads"
 msgstr "Engineering Manager, Directors und Team Leads"
@@ -297,6 +339,7 @@ msgstr "Werdegang"
 msgid "Failed to send message. Please try again or email me directly."
 msgstr "Die Nachricht konnte nicht gesendet werden. Bitte versuch es erneut oder schreib mir direkt eine E-Mail."
 
+#: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 msgid "FAQ"
 msgstr "FAQ"
@@ -397,6 +440,10 @@ msgstr "So läuft Coaching ab"
 #: src/components/FAQ.tsx
 msgid "How do I start working with Agustin?"
 msgstr "Wie starte ich die Zusammenarbeit mit Agustin?"
+
+#: src/pages/Philosophy.tsx
+msgid "How I coach engineering leaders: clarity over noise, systems over heroics, and empathy that scales. The principles behind every session."
+msgstr "Wie ich Engineering Leader coache: Klarheit statt Lärm, Systeme statt Heldentaten und Empathie, die skaliert. Die Prinzipien hinter jeder Session."
 
 #: src/components/About.tsx
 msgid "How I Work"
@@ -525,6 +572,10 @@ msgstr "Manager- und Director-Level"
 msgid "Manager → Director: Scaling impact through others"
 msgstr "Manager → Director: Wirkung durch andere skalieren"
 
+#: src/pages/About.tsx
+msgid "Meet Agustin Gonzalez Nicolini — engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3."
+msgstr "Lern Agustin Gonzalez Nicolini kennen — Engineering Leader und Coach in Berlin. Seit über 15 Jahren skaliere ich Teams in Fintech, Gaming, E-Mobility und Web3."
+
 #: src/components/Contact.tsx
 msgid "Message sent — I typically reply within 24 hours."
 msgstr "Nachricht gesendet – ich antworte in der Regel innerhalb von 24 Stunden."
@@ -581,6 +632,10 @@ msgstr "OKRs kombiniert mit DORA-Metriken – als echte Arbeitswerkzeuge, nicht 
 msgid "One team became four in a year and everything got slower — it usually does. We sketched an org structure early on, then stress-tested and adjusted it over the following quarters as the company kept growing."
 msgstr "Aus einem Team wurden in einem Jahr vier, und alles wurde langsamer – so läuft das meistens. Wir haben früh eine Org-Struktur skizziert, sie dann in den folgenden Quartalen unter Last getestet und angepasst, während die Firma weiter wuchs."
 
+#: src/pages/Services.tsx
+msgid "One-on-one coaching for CTOs, VPs, directors, and engineering managers — executive coaching, delivery and team coaching, and IC-to-manager programs."
+msgstr "One-on-One-Coaching für CTOs, VPs, Directors und Engineering Manager — Executive Coaching, Delivery- und Team-Coaching sowie Programme für den Schritt vom IC zum Manager."
+
 #: src/components/Hero.tsx
 msgid "One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics."
 msgstr "One-on-One-Coaching für Senior Engineering Leaders – vom erstmaligen Manager bis zum CTO. Wir arbeiten an dem, woran du gemessen wirst: Delivery, Retention und einer Org, die ohne Heldentaten läuft."
@@ -597,6 +652,7 @@ msgstr "Ursprünglich veröffentlicht auf <0>Medium</0>."
 msgid "Outcomes Over Optics"
 msgstr "Ergebnisse statt Schein"
 
+#: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 msgid "Philosophy"
 msgstr "Philosophie"
@@ -762,6 +818,10 @@ msgstr "Die ersten Beiträge sind unterwegs. Schau bald wieder vorbei."
 #: src/pages/Legal.tsx
 msgid "The fonts used on this website are <0>self-hosted</0>: they are served directly from this website's own domain as part of the site itself. Loading them causes no request to Google or any other third-party font service, and no data about you is transmitted to a font provider."
 msgstr "Die auf dieser Website verwendeten Schriftarten sind <0>self-hosted</0>: Sie werden direkt von der eigenen Domain dieser Website als Teil der Seite selbst ausgeliefert. Ihr Laden löst keine Anfrage an Google oder einen anderen Font-Dienst von Drittanbietern aus, und es werden keine Daten über dich an einen Font-Anbieter übermittelt."
+
+#: src/pages/Impact.tsx
+msgid "The results engineering leaders get from coaching: faster delivery, lower attrition, and orgs that run without heroics. Numbers I stand behind."
+msgstr "Was Engineering Leader durchs Coaching erreichen: schnellere Delivery, weniger Fluktuation und Orgs, die ohne Heldentaten laufen. Zahlen, hinter denen ich stehe."
 
 #: src/pages/Legal.tsx
 msgid "The site is served over HTTPS. You are not legally or contractually obliged to provide personal data; however, without contact details I cannot respond to inquiries."

@@ -63,7 +63,7 @@ export const Services = () => {
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h2 className="text-fluid-3xl font-bold mb-6"><Trans>Coaching Services</Trans></h2>
+            <h1 className="text-fluid-3xl font-bold mb-6"><Trans>Coaching Services</Trans></h1>
             <p className="text-fluid-lg text-muted-foreground">
               <Trans>Three formats. Pick by the problem you have, not the title you hold.</Trans>
             </p>
@@ -89,7 +89,7 @@ export const Services = () => {
                 )}
 
                 <div className="mb-6">
-                  <h3 className="text-2xl font-bold mb-2">{i18n._(service.title)}</h3>
+                  <h2 className="text-2xl font-bold mb-2">{i18n._(service.title)}</h2>
                   <p className="text-sm text-accent font-medium">{i18n._(service.subtitle)}</p>
                 </div>
 

@@ -132,6 +132,12 @@ function buildSitemap(posts, cfg) {
 
   const pages = [
     { canonical: "/", lastmod: today, changefreq: "weekly", priority: "1.0", images: homeImages },
+    { canonical: "/about", lastmod: today, changefreq: "monthly", priority: "0.9" },
+    { canonical: "/philosophy", lastmod: today, changefreq: "monthly", priority: "0.8" },
+    { canonical: "/services", lastmod: today, changefreq: "monthly", priority: "0.9" },
+    { canonical: "/impact", lastmod: today, changefreq: "monthly", priority: "0.8" },
+    { canonical: "/faq", lastmod: today, changefreq: "monthly", priority: "0.7" },
+    { canonical: "/contact", lastmod: today, changefreq: "monthly", priority: "0.8" },
     { canonical: "/impressum", lastmod: today, changefreq: "yearly", priority: "0.3" },
     { canonical: "/privacy", lastmod: today, changefreq: "yearly", priority: "0.3" },
     { canonical: "/blog/", lastmod: today, changefreq: "weekly", priority: "0.8" },

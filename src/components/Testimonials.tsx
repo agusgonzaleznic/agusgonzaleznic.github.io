@@ -25,8 +25,11 @@ const engagements = [
 
 export const Testimonials = () => {
   const { i18n } = useLingui();
+  // Tinted bloom: on /services this sits after the plain <Services/> section, so
+  // the plain→tinted alternation avoids two plain sections' padding reading as
+  // one oversized gap. Testimonials renders only on /services.
   return (
-    <section id="testimonials" className={`${SECTION_PADDING} bg-background`}>
+    <section id="testimonials" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}

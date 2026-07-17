@@ -3,6 +3,12 @@ import { Helmet } from "react-helmet";
 import { StaticRouter } from "react-router-dom/server";
 import { AppProviders, AppRoutes, type RoutePages } from "./App";
 import Index from "./pages/Index";
+import About from "./pages/About";
+import Philosophy from "./pages/Philosophy";
+import Services from "./pages/Services";
+import Impact from "./pages/Impact";
+import Faq from "./pages/Faq";
+import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import { Impressum, Privacy } from "./pages/Legal";
@@ -17,6 +23,12 @@ import { SOURCE_LOCALE } from "./i18n/locales";
 // trees' Suspense boundaries match so hydration keeps the prerendered markup.
 const serverPages: RoutePages = {
   Index,
+  About,
+  Philosophy,
+  Services,
+  Impact,
+  Faq,
+  Contact,
   Blog,
   BlogPost,
   Impressum,

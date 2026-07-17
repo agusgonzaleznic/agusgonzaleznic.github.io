@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LocaleLink } from "@/components/LocaleLink";
-import { useLocalizedTo } from "@/i18n/useLocalizedTo";
 import { delocalizePath } from "@/i18n/locales";
 import {
   CONTACT_CTA_ID,
@@ -13,11 +12,10 @@ import {
   setStickyCtaVisible,
 } from "@/lib/layout";
 
-// Section links scroll in place on the home page; on any other route they
-// navigate to "/" with router state { scrollTo } and ScrollManager performs
-// the scroll after arrival — never a /#hash, so the address bar stays clean
-// (owner preference; fragments are SEO-neutral but linger for the session).
-type NavLink = { label: string; id?: string; to?: string };
+// Every nav entry is now its own route (About, Philosophy, … each have a page).
+// They render as locale-aware <LocaleLink>s and navigate client-side (content
+// swaps in place, no reload) — bare paths, never a /#hash.
+type NavLink = { label: string; to: string };
 
 // Static class names so Tailwind's scanner keeps them; index.css only defines
 // .delay-100 through .delay-400, so the stagger caps there.
@@ -33,10 +31,8 @@ export const Navigation = () => {
   // would flash on top of the hero CTA before hydration).
   const [isStickyCtaVisible, setIsStickyCtaVisible] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const localize = useLocalizedTo();
   // Locale-aware: treat /{locale}/ and /{locale}/blog like their English roots
-  // so home-scroll and blog-specific behaviour work under every language.
+  // so the logo and blog-specific behaviour work under every language.
   const basePath = delocalizePath(location.pathname);
   const isHome = basePath === "/";
   const isBlog = basePath.startsWith("/blog");
@@ -100,13 +96,9 @@ export const Navigation = () => {
     return () => setStickyCtaVisible(false);
   }, [showStickyCta]);
 
-  const scrollToSection = (id: string) => {
+  const scrollToTop = () => {
     setIsMobileMenuOpen(false);
-    if (id === "top") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleContact = () => {
@@ -115,52 +107,25 @@ export const Navigation = () => {
   };
 
   const navLinks: NavLink[] = [
-    { label: t`About`, id: "about" },
-    { label: t`Philosophy`, id: "philosophy" },
-    { label: t`Services`, id: "services" },
-    { label: t`Impact`, id: "impact" },
-    { label: t`FAQ`, id: "faq" },
+    { label: t`About`, to: "/about" },
+    { label: t`Philosophy`, to: "/philosophy" },
+    { label: t`Services`, to: "/services" },
+    { label: t`Impact`, to: "/impact" },
+    { label: t`FAQ`, to: "/faq" },
     { label: t`Blog`, to: "/blog/" },
-    { label: t`Contact`, id: "contact" },
+    { label: t`Contact`, to: "/contact" },
   ];
 
-  const renderNavLink = (link: NavLink, className: string) => {
-    if (link.to) {
-      return (
-        <LocaleLink
-          key={link.id ?? link.to}
-          to={link.to}
-          onClick={() => setIsMobileMenuOpen(false)}
-          className={className}
-        >
-          {link.label}
-        </LocaleLink>
-      );
-    }
-    if (isHome) {
-      return (
-        <button
-          key={link.id ?? link.to}
-          onClick={() => scrollToSection(link.id!)}
-          className={className}
-        >
-          {link.label}
-        </button>
-      );
-    }
-    return (
-      <button
-        key={link.label}
-        onClick={() => {
-          setIsMobileMenuOpen(false);
-          navigate(localize("/"), { state: { scrollTo: link.id } });
-        }}
-        className={className}
-      >
-        {link.label}
-      </button>
-    );
-  };
+  const renderNavLink = (link: NavLink, className: string) => (
+    <LocaleLink
+      key={link.to}
+      to={link.to}
+      onClick={() => setIsMobileMenuOpen(false)}
+      className={className}
+    >
+      {link.label}
+    </LocaleLink>
+  );
 
   return (
     <>
@@ -180,7 +145,7 @@ export const Navigation = () => {
             {/* Logo / Brand */}
             {isHome ? (
               <button
-                onClick={() => scrollToSection("top")}
+                onClick={scrollToTop}
                 className="text-xl font-serif font-bold text-foreground hover:text-accent transition-colors"
               >
                 AGN
@@ -266,7 +231,7 @@ export const Navigation = () => {
             size="lg"
             className="w-full bg-accent hover:bg-accent-hover text-accent-foreground shadow-accent"
           >
-            Book a Session
+            <Trans>Book a Session</Trans>
           </Button>
         </div>
       )}
