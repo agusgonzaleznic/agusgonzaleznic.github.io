@@ -292,26 +292,29 @@ resource "aws_cloudfront_response_headers_policy" "immutable_assets" {
 resource "aws_cloudfront_function" "www_redirect" {
   name    = "${replace(local.domain_name, ".", "-")}-www-redirect"
   runtime = "cloudfront-js-2.0"
-  comment = "Redirect www to apex; add trailing slash to extensionless paths"
+  comment = "www to apex; canonical URL forms (bare pages, slash blog) served 200"
   publish = true
 
-  # The trailing-slash 301 must happen HERE, not at the origin: CloudFront
-  # sends Host = agusgonzaleznic.github.io to GitHub Pages (see the cache
-  # behavior comment above), so any origin-generated directory redirect
-  # carries the github.io domain in its Location and teleports visitors off
-  # the apex. Prerendered routes are directories (/blog/<slug>/index.html),
-  # so every extensionless path needs the slash before it reaches Pages.
+  # URL normalization must happen HERE, not at the origin: CloudFront sends
+  # Host = agusgonzaleznic.github.io to GitHub Pages (see the cache behavior
+  # comment above), so any origin-generated directory redirect carries the
+  # github.io domain in its Location and teleports visitors off the apex.
+  #
+  # CANONICAL FORMS (must serve 200 — canonical/hreflang/sitemap URLs that
+  # 301 get dropped from locale clusters and flagged in Search Console):
+  #   - marketing/legal pages are BARE (/about, /de/faq, /impressum): the
+  #     extensionless URI is REWRITTEN internally to <uri>/index.html (the
+  #     prerendered file), and the slash variant 301s to the bare form.
+  #   - the blog subtree and the locale homes are SLASH (/blog/, /de/blog/x/,
+  #     /de/): the slash URI passes through (Pages serves the directory
+  #     index), and the bare variant 301s to the slash form.
   code = <<-EOF
     function handler(event) {
       var request = event.request;
       var host = request.headers.host.value;
       var uri = request.uri;
 
-      var needsSlash =
-        !uri.endsWith('/') && !uri.split('/').pop().includes('.');
-      var isWww = host.startsWith('www.');
-
-      if (isWww || needsSlash) {
+      function redirect(to) {
         var qs = '';
         for (var key in request.querystring) {
           qs += (qs === '' ? '?' : '&') + key;
@@ -325,13 +328,35 @@ resource "aws_cloudfront_function" "www_redirect" {
         return {
           statusCode: 301,
           statusDescription: 'Moved Permanently',
-          headers: {
-            location: {
-              value: 'https://${local.domain_name}' + uri + (needsSlash ? '/' : '') + qs
-            }
-          }
+          headers: { location: { value: 'https://${local.domain_name}' + to + qs } }
         };
       }
+
+      if (host.startsWith('www.')) {
+        return redirect(uri);
+      }
+
+      // Locale-stripped path decides the subtree; e.g. /de/blog/x -> /blog/x.
+      var base = uri.replace(/^\/(de|es|fr|it|pt)(?=\/|$)/, '');
+      if (base === '') base = '/';
+      var slashCanonical =
+        base === '/' ||                                   // root + locale homes (/de)
+        base === '/blog' || base.startsWith('/blog/');    // blog index + posts + feeds
+
+      var lastSegment = uri.split('/').pop();
+      var extensionless = !uri.endsWith('/') && !lastSegment.includes('.');
+
+      if (slashCanonical) {
+        // Canonical form ends in "/": add it ( /blog -> /blog/, /de -> /de/ ).
+        if (extensionless) return redirect(uri + '/');
+        return request;
+      }
+
+      // Canonical form is bare: strip stray trailing slashes ( /about/ -> /about )...
+      if (uri.endsWith('/')) return redirect(uri.replace(/\/+$/, ''));
+      // ...and serve the bare URL 200 by fetching the prerendered directory
+      // index directly (no origin redirect involved).
+      if (extensionless) request.uri = uri + '/index.html';
       return request;
     }
   EOF
