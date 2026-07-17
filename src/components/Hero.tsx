@@ -40,7 +40,7 @@ export const Hero = ({ block }: { block?: HeroBlock }) => {
 
       <div className={`container relative z-10 px-6 ${SECTION_PADDING}`}>
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
             {/* Content */}
             <div className="space-y-8 animate-fade-in-up">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full border border-accent/20">
@@ -106,8 +106,11 @@ export const Hero = ({ block }: { block?: HeroBlock }) => {
               </div>
             </div>
 
-            {/* Profile Image */}
-            <div className="relative animate-fade-in delay-200">
+            {/* Profile Image — on the 2-col (lg) layout the columns top-align
+                (items-start) and the image is nudged down by the badge pill +
+                its gap so its top sits at the H1's first line, not below the
+                whole text column. No offset on the stacked mobile layout. */}
+            <div className="relative animate-fade-in delay-200 lg:mt-[70px]">
               <div className="relative aspect-square max-w-lg mx-auto">
                 {/* Glow effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-accent/5 rounded-3xl blur-2xl" />
