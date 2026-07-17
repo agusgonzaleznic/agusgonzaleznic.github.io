@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LocaleLink } from "@/components/LocaleLink";
+import { BOOKING_URL } from "@/lib/booking";
 import { delocalizePath } from "@/i18n/locales";
 import { CONTACT_CTA_ID, SERVICES_CTA_ID, setStickyCtaVisible } from "@/lib/layout";
 
@@ -103,10 +104,9 @@ export const Navigation = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleContact = () => {
-    setIsMobileMenuOpen(false);
-    window.open("https://calendar.app.google/kFaanhSae5WefLnD7", "_blank");
-  };
+  // Booking CTAs render as real anchors (crawlable, cmd/middle-click) — this
+  // just closes the mobile menu when one is followed from there.
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const navLinks: NavLink[] = [
     { label: t`About`, to: "/about" },
@@ -170,10 +170,12 @@ export const Navigation = () => {
                 ),
               )}
               <Button
-                onClick={handleContact}
+                asChild
                 className="bg-accent hover:bg-accent-hover text-accent-foreground"
               >
-                <Trans>Book a Session</Trans>
+                <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
+                  <Trans>Book a Session</Trans>
+                </a>
               </Button>
               {/* Crawlable locale links (compact dropdown) — renders nothing until
                   >=2 locales are published, so the English DOM is unchanged today. */}
@@ -211,11 +213,18 @@ export const Navigation = () => {
               ),
             )}
             <Button
-              onClick={handleContact}
+              asChild
               size="lg"
               className="bg-accent hover:bg-accent-hover text-accent-foreground animate-fade-in-up delay-400"
             >
-              <Trans>Book a Session</Trans>
+              <a
+                href={BOOKING_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={closeMobileMenu}
+              >
+                <Trans>Book a Session</Trans>
+              </a>
             </Button>
           </div>
         </div>
@@ -229,11 +238,13 @@ export const Navigation = () => {
       {showStickyCta && (
         <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden p-4 bg-gradient-to-t from-background via-background to-transparent">
           <Button
-            onClick={handleContact}
+            asChild
             size="lg"
             className="w-full bg-accent hover:bg-accent-hover text-accent-foreground shadow-accent"
           >
-            <Trans>Book a Session</Trans>
+            <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
+              <Trans>Book a Session</Trans>
+            </a>
           </Button>
         </div>
       )}

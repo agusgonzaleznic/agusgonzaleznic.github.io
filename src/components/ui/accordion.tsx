@@ -38,9 +38,20 @@ const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
+  // forceMount keeps closed content IN THE DOM — without it the prerendered
+  // HTML contains no answer text at all; collapsed content that exists in the
+  // HTML is indexed (full weight under mobile-first indexing), unmounted
+  // content is invisible to crawlers. Radix does NOT hide force-mounted
+  // closed content itself, so data-[state=closed]:hidden does it (effective
+  // from first paint — the class is in the prerendered markup). Opening still
+  // animates: Radix re-measures the content height after the state flips
+  // (display restored) and before the open animation runs. The close
+  // animation is skipped (display:none applies immediately) — accepted
+  // tradeoff for indexable answers.
   <AccordionPrimitive.Content
     ref={ref}
-    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    forceMount
+    className="overflow-hidden text-sm transition-all data-[state=closed]:hidden data-[state=open]:animate-accordion-down"
     {...props}
   >
     <div className={cn("pb-4 pt-0", className)}>{children}</div>

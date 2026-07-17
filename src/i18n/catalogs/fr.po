@@ -77,12 +77,13 @@ msgstr "Une migration AWS multi-comptes avec des déploiements automatisés de b
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/About.tsx
 msgid "About"
 msgstr "À propos"
 
 #: src/pages/About.tsx
 msgid "About Agustin Gonzalez Nicolini — Engineering Leadership Coach"
-msgstr "À propos d'Agustin Gonzalez Nicolini — Coach en leadership technique"
+msgstr "Agustin Gonzalez Nicolini — Coach en leadership technique"
 
 #: src/components/CookieNotice.tsx
 msgid "Accept"
@@ -99,6 +100,14 @@ msgstr "Une fois ton consentement retiré, la bannière de consentement réappar
 #: src/components/Hero.tsx
 msgid "Agustin Gonzalez Nicolini - Engineering Leadership Coach"
 msgstr "Agustin Gonzalez Nicolini - Engineering Leadership Coach"
+
+#: src/components/About.tsx
+msgid "Agustin Gonzalez Nicolini — engineering leadership coach in Berlin"
+msgstr "Agustin Gonzalez Nicolini — coach en leadership technique à Berlin"
+
+#: src/pages/Index.tsx
+msgid "Agustin Gonzalez Nicolini | Engineering Leadership Coach"
+msgstr "Agustin Gonzalez Nicolini | Coach en leadership technique"
 
 #: src/pages/BlogPost.tsx
 msgid "All writing"
@@ -124,6 +133,10 @@ msgstr "À jour en juillet 2026 — vérifié par le propriétaire du site. Cett
 msgid "B2B SaaS Company"
 msgstr "Entreprise SaaS B2B"
 
+#: src/components/About.tsx
+msgid "Based in Berlin — coaching engineering leaders remotely worldwide, in English, Spanish, or German."
+msgstr "Basé à Berlin — coaching pour leaders techniques, à distance et partout dans le monde, en anglais, espagnol ou allemand."
+
 #: src/components/Footer.tsx
 msgid "Based in Berlin, from Haedo • Coaching globally"
 msgstr "Basé à Berlin, originaire de Haedo • Coaching à l'échelle mondiale"
@@ -148,6 +161,10 @@ msgstr "Blog"
 #: src/components/Services.tsx
 msgid "Board presentations & executive presence"
 msgstr "Présentations au conseil d'administration et prestance de dirigeant"
+
+#: src/components/RelatedPages.tsx
+msgid "Book a free 30-minute intro call"
+msgstr "Réserve un entretien de présentation gratuit de 30 minutes"
 
 #: src/lib/faq-data.ts
 msgid "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way."
@@ -201,9 +218,18 @@ msgstr "Les conversations de coaching sont confidentielles par défaut ; par con
 msgid "Coaching for engineering leaders, from someone who has held the pager."
 msgstr "Du coaching pour les leaders techniques, par quelqu'un qui a lui-même porté le pager."
 
+#: src/components/RelatedPages.tsx
+#: src/pages/BlogPost.tsx
+msgid "Coaching formats for CTOs, VPs, and engineering managers"
+msgstr "Formats de coaching pour CTO, VP et engineering managers"
+
 #: src/components/Services.tsx
 msgid "Coaching Services"
 msgstr "Services de Coaching"
+
+#: src/components/RelatedPages.tsx
+msgid "Common questions about fit, format, and how we start"
+msgstr "Questions fréquentes : fit, format et comment on démarre"
 
 #: src/components/Footer.tsx
 msgid "Connect"
@@ -211,6 +237,7 @@ msgstr "Restons en contact"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/Contact.tsx
 msgid "Contact"
 msgstr "Contact"
 
@@ -322,6 +349,10 @@ msgstr "effacement (art. 17),"
 msgid "Every engagement names the result it should produce — delivery speed, retention, uptime — and we check that it did."
 msgstr "Chaque mission définit le résultat qu'elle doit produire — rapidité de livraison, rétention, disponibilité — et nous vérifions qu'il est bien atteint."
 
+#: src/pages/Index.tsx
+msgid "Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably — 15+ years of engineering leadership. Berlin & remote."
+msgstr "Executive Coaching pour CTO, VP et engineering managers. Fais grandir ton équipe, réduis le lead time, livre avec fiabilité — 15+ ans d'Engineering Leadership. Berlin et à distance."
+
 #: src/components/Services.tsx
 msgid "Executive Leadership Coaching"
 msgstr "Executive Leadership Coaching"
@@ -340,6 +371,7 @@ msgstr "Échec de l'envoi du message. Réessaie ou écris-moi directement par e-
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/Faq.tsx
 msgid "FAQ"
 msgstr "FAQ"
 
@@ -432,6 +464,10 @@ msgstr "Head of Infrastructure & Security"
 msgid "Hiring, leveling & performance frameworks"
 msgstr "Cadres de recrutement, de leveling et de performance"
 
+#: src/components/SeoPage.tsx
+msgid "Home"
+msgstr "Accueil"
+
 #: src/components/Hero.tsx
 msgid "How Coaching Works"
 msgstr "Comment se déroule le coaching"
@@ -464,6 +500,10 @@ msgstr "Je réponds généralement dans les 24 heures. Pour toute demande urgent
 msgid "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role."
 msgstr "Je travaille avec des CTOs et des VPs of Engineering, des directeurs, des engineering managers, des tech leads et des individual contributors qui se préparent à leur premier poste de leadership."
 
+#: src/pages/BlogPost.tsx
+msgid "I'm Agustin — I coach engineering leaders, from first-time managers to CTOs."
+msgstr "Je suis Agustin — je coache des leaders techniques, du premier poste de manager jusqu'au CTO."
+
 #: src/components/About.tsx
 msgid "I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3 — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
 msgstr "Je m'appelle Agustin Gonzalez Nicolini. Depuis plus de 15 ans, je construis et dirige des équipes pluridisciplinaires dans la fintech, le gaming, l'e-mobility, la healthtech et le Web3 — en livrant des architectures REST et GraphQL sur des systèmes cloud-native serverless et conteneurisés, dont une plateforme de core banking."
@@ -486,6 +526,7 @@ msgstr "Si tu utilises le formulaire de contact, les données que tu saisis (nom
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/Impact.tsx
 msgid "Impact"
 msgstr "Impact"
 
@@ -517,6 +558,10 @@ msgstr "Responsable des infrastructures et de la sécurité"
 #: src/components/Services.tsx
 msgid "Interview prep for leadership roles"
 msgstr "Préparation aux entretiens pour des postes de Leadership"
+
+#: src/components/RelatedPages.tsx
+msgid "Keep exploring"
+msgstr "Pour aller plus loin"
 
 #: src/components/Impact.tsx
 msgid "Kept security controls stringent while game teams shipped features at full speed."
@@ -595,9 +640,18 @@ msgstr "Procédures de basculement multirégional et de reprise après sinistre/
 msgid "My Coaching Philosophy"
 msgstr "Ma philosophie du Coaching"
 
+#: src/components/RelatedPages.tsx
+#: src/pages/BlogPost.tsx
+msgid "My story, from Haedo to Berlin"
+msgstr "Mon parcours, de Haedo à Berlin"
+
 #: src/pages/Impact.tsx
 msgid "My track record leading engineering orgs — and the results coaching delivers: faster delivery, lower attrition, and teams that run without heroics."
 msgstr "Mon parcours à la tête d'orgs d'ingénierie — et les résultats du coaching : une livraison plus rapide, moins de turnover et des équipes qui tournent sans héroïsme."
+
+#: src/components/RelatedPages.tsx
+msgid "My track record: 15+ years leading engineering teams"
+msgstr "Mon track record : 15+ ans à diriger des équipes d'ingénierie"
 
 #: src/components/Contact.tsx
 msgid "Name *"
@@ -657,6 +711,7 @@ msgstr "Les résultats avant les apparences"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/Philosophy.tsx
 msgid "Philosophy"
 msgstr "Philosophie"
 
@@ -759,6 +814,7 @@ msgstr "Senior Engineering Manager"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/Services.tsx
 msgid "Services"
 msgstr "Services"
 
@@ -829,6 +885,10 @@ msgstr "Le site est servi via HTTPS. Tu n'es pas tenu, ni légalement ni contrac
 #: src/pages/Legal.tsx
 msgid "The site links to an external booking page at <0>calendar.app.google</0> (Google Appointment Scheduling). No data is transmitted to Google by merely viewing this website; only when you click the link and use the booking page does Google process the data you enter there, under Google's own privacy policy and as an independent controller. Legal basis for any data I receive from a booking (name, email, chosen time): Art. 6(1)(b) GDPR."
 msgstr "Le site renvoie vers une page de réservation externe hébergée à l'adresse <0>calendar.app.google</0> (Google Appointment Scheduling). La simple consultation de ce site web n'entraîne aucune transmission de données à Google ; ce n'est que lorsque tu cliques sur le lien et utilises la page de réservation que Google traite les données que tu y saisis, conformément à sa propre politique de confidentialité et en tant que responsable du traitement indépendant. Base juridique pour toute donnée que je reçois à la suite d'une réservation (nom, adresse e-mail, créneau choisi) : article 6, paragraphe 1, point b) du RGPD."
+
+#: src/components/RelatedPages.tsx
+msgid "The three pillars behind my coaching"
+msgstr "Les trois piliers de mon coaching"
 
 #: src/components/blog/MachineTranslationNotice.tsx
 msgid "This article was translated automatically. <0>Read the original in English</0>."

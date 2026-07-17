@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet";
+import { useLingui } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
 import { Footer } from "@/components/Footer";
@@ -18,17 +19,22 @@ import { Footer } from "@/components/Footer";
 // fallback and defeat the prerender.
 
 const Index = () => {
+  const { t } = useLingui();
   return (
     <div className="min-h-screen">
       {/* Restores the homepage head after client-side navigation back from
-          another route (react-helmet never resets titles on its own). Must stay
-          textually identical to the static head in index.html — prerender keeps
-          the template head for "/", so a mismatch would flash on hydration. */}
+          another route (react-helmet never resets titles on its own). The
+          ENGLISH text must stay byte-identical to the static head in
+          index.html (prerender keeps the template head for "/", so a mismatch
+          would flash on hydration) — with Lingui, EN renders the msgid
+          verbatim, so that contract holds; prefixed locales get the
+          translated head (prerender injects the same strings statically via
+          localizeHomeHead, so the rendered head matches in every locale). */}
       <Helmet>
-        <title>Agustin Gonzalez Nicolini | Engineering Leadership Coach</title>
+        <title>{t`Agustin Gonzalez Nicolini | Engineering Leadership Coach`}</title>
         <meta
           name="description"
-          content="Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably — 15+ years of engineering leadership. Berlin & remote."
+          content={t`Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably — 15+ years of engineering leadership. Berlin & remote.`}
         />
       </Helmet>
       <Navigation />

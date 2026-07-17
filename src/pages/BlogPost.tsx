@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { useLocation, useParams } from "react-router-dom";
+import profileImage from "@/assets/profile.jpg";
 import { LocaleLink } from "@/components/LocaleLink";
 import { ArrowLeft } from "lucide-react";
 import { Trans } from "@lingui/react/macro";
@@ -177,6 +178,40 @@ const BlogPostPage = () => {
 
               <div className="max-w-[70ch]">
                 <RichText document={post.body} />
+              </div>
+
+              {/* Author box — every post links back to the coaching pages
+                  (locale-aware, descriptive anchors shared with RelatedPages). */}
+              <div className="mt-16 border-t border-border pt-8">
+                <div className="flex items-start gap-4">
+                  <img
+                    src={profileImage}
+                    alt=""
+                    width="56"
+                    height="56"
+                    loading="lazy"
+                    className="w-14 h-14 rounded-full object-cover shrink-0"
+                  />
+                  <div>
+                    <p className="font-medium text-foreground">
+                      <Trans>I'm Agustin — I coach engineering leaders, from first-time managers to CTOs.</Trans>
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                      <LocaleLink
+                        to="/about"
+                        className="text-accent underline-offset-4 hover:underline"
+                      >
+                        <Trans>My story, from Haedo to Berlin</Trans>
+                      </LocaleLink>
+                      <LocaleLink
+                        to="/services"
+                        className="text-accent underline-offset-4 hover:underline"
+                      >
+                        <Trans>Coaching formats for CTOs, VPs, and engineering managers</Trans>
+                      </LocaleLink>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

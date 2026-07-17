@@ -1,16 +1,53 @@
 import type { ReactNode } from "react";
 import { Helmet } from "react-helmet";
 import { useLocation } from "react-router-dom";
+import { useLingui } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SITE_URL } from "@/lib/blog";
-import { localeFromPath, localizePath, LOCALE_META, SOURCE_LOCALE } from "@/i18n/locales";
+import { localeFromPath, localizePath, LOCALE_META } from "@/i18n/locales";
 
 // react-helmet emits <script> children as raw innerHTML (it only escapes
 // attributes), so an unescaped "<" inside a JSON-LD string could break out of
 // the block in the prerendered HTML. "<" is valid JSON and renders identically,
 // so escape every "<" before embedding. Same helper as BlogPost.tsx.
 const jsonLd = (data: unknown) => JSON.stringify(data).replace(/</g, "\\u003c");
+
+// Site-name signals must agree across surfaces (og:site_name here, the
+// WebSite JSON-LD name in index.html): short proper name as the primary,
+// long form as the alternate.
+const SITE_NAME = "Agustin Gonzalez Nicolini";
+const SITE_NAME_LONG = "Agustin Gonzalez Nicolini — Leadership & Engineering Coaching";
+
+// Compact copies of the site-global entities, embedded in EVERY page's @graph
+// under the SAME @id as the home page's full nodes (index.html) — Google
+// resolves @id per page, so a reference like provider:{@id:…#person} is inert
+// unless the node is defined on that page; the shared @id merges these with
+// the richer home nodes into one entity. Facts mirror index.html — nothing
+// invented; keep the two in sync.
+const PERSON_ID = `${SITE_URL}/#person`;
+const WEBSITE_ID = `${SITE_URL}/#website`;
+const personNode = {
+  "@type": "Person",
+  "@id": PERSON_ID,
+  name: "Agustin Gonzalez Nicolini",
+  alternateName: "Agus Gonzalez Nicolini",
+  url: `${SITE_URL}/`,
+  image: `${SITE_URL}/profile.jpg`,
+  jobTitle: "Engineering Leader & Leadership Coach",
+  sameAs: [
+    "https://www.linkedin.com/in/agusgonzaleznic/",
+    "https://github.com/agusgonzaleznic",
+  ],
+};
+const websiteNode = {
+  "@type": "WebSite",
+  "@id": WEBSITE_ID,
+  name: SITE_NAME,
+  alternateName: SITE_NAME_LONG,
+  url: `${SITE_URL}/`,
+  publisher: { "@id": PERSON_ID },
+};
 
 type SeoPageProps = {
   /** English (root) canonical path, e.g. "/about". localizePath adds the prefix. */
@@ -19,7 +56,7 @@ type SeoPageProps = {
   title: string;
   /** Meta description. */
   description: string;
-  /** Breadcrumb name for this page (Home is prepended). English, like BlogPost. */
+  /** Breadcrumb name for this page (Home is prepended) — pass it localized. */
   crumb: string;
   /** schema.org page type for the auto WebPage node (AboutPage, ContactPage, …). */
   pageType?: string;
@@ -34,9 +71,10 @@ type SeoPageProps = {
 // Impact, FAQ, Contact). Mirrors Blog.tsx (Navigation + Helmet + <main> +
 // Footer) but centralizes the locale-aware head: self canonical (localized so
 // the prerender's prefixed-locale canonical guard passes), og/twitter tags, and
-// JSON-LD (BreadcrumbList + a WebPage node + any page-specific nodes). Client
-// navigation between these swaps content in place with no reload — same
-// mechanism as the existing Home↔Blog nav.
+// a JSON-LD @graph (WebPage + BreadcrumbList + compact Person/WebSite entity
+// nodes) plus any page-specific nodes. Client navigation between these swaps
+// content in place with no reload — same mechanism as the existing Home↔Blog
+// nav.
 export const SeoPage = ({
   path,
   title,
@@ -47,6 +85,7 @@ export const SeoPage = ({
   extraSchema = [],
   children,
 }: SeoPageProps) => {
+  const { t } = useLingui();
   // Locale from the URL prefix — drives localized self URLs + og:locale. English
   // (root) is unchanged: localizePath(p, "en") === p.
   const locale = localeFromPath(useLocation().pathname);
@@ -58,28 +97,33 @@ export const SeoPage = ({
   const ogImageWebp = `${SITE_URL}/og-image.webp`;
   const ogImageJpg = `${SITE_URL}/og-image.jpg`;
   const ogAlt = "Agustin Gonzalez Nicolini — Engineering Leadership Coach";
-  // Only claim a language on prefixed locales (keeps English output stable).
-  const langLd = locale !== SOURCE_LOCALE ? { inLanguage: locale } : {};
 
-  const webPageLd = {
+  const breadcrumbId = `${canonical}#breadcrumb`;
+  const graph = {
     "@context": "https://schema.org",
-    "@type": pageType,
-    "@id": `${canonical}#webpage`,
-    url: canonical,
-    name: title,
-    description,
-    ...langLd,
-    isPartOf: { "@id": `${SITE_URL}/#website` },
-    ...(about ? { about, mainEntity: about } : {}),
-  };
-
-  const breadcrumbLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    ...langLd,
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: abs("/") },
-      { "@type": "ListItem", position: 2, name: crumb, item: canonical },
+    "@graph": [
+      {
+        "@type": pageType,
+        "@id": `${canonical}#webpage`,
+        url: canonical,
+        name: title,
+        description,
+        inLanguage: locale,
+        isPartOf: { "@id": WEBSITE_ID },
+        breadcrumb: { "@id": breadcrumbId },
+        ...(about ? { about, mainEntity: about } : {}),
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumbId,
+        inLanguage: locale,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: t`Home`, item: abs("/") },
+          { "@type": "ListItem", position: 2, name: crumb, item: canonical },
+        ],
+      },
+      personNode,
+      websiteNode,
     ],
   };
 
@@ -90,6 +134,7 @@ export const SeoPage = ({
         <meta name="description" content={description} />
         <link rel="canonical" href={canonical} />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={SITE_NAME} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonical} />
@@ -102,12 +147,12 @@ export const SeoPage = ({
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:locale" content={LOCALE_META[locale].ogLocale} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:creator" content="@agusgonzaleznic" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={ogImageWebp} />
         <meta name="twitter:image:alt" content={ogAlt} />
-        <script type="application/ld+json">{jsonLd(webPageLd)}</script>
-        <script type="application/ld+json">{jsonLd(breadcrumbLd)}</script>
+        <script type="application/ld+json">{jsonLd(graph)}</script>
         {extraSchema.map((node, i) => (
           <script key={i} type="application/ld+json">
             {jsonLd(node)}

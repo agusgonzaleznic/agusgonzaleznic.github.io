@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Check, ArrowRight } from "lucide-react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { msg } from "@lingui/core/macro";
+import { BOOKING_URL } from "@/lib/booking";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING, SERVICES_CTA_ID } from "@/lib/layout";
 
 const services = [
@@ -53,10 +54,6 @@ const services = [
 
 export const Services = () => {
   const { i18n } = useLingui();
-  const handleContact = () => {
-    window.open("https://calendar.app.google/kFaanhSae5WefLnD7", "_blank");
-  };
-
   return (
     <section id="services" className={`${SECTION_PADDING} bg-background`}>
       <div className="container px-6">
@@ -117,8 +114,9 @@ export const Services = () => {
                     <p className="text-xs text-muted-foreground mb-1"><Trans>Best for</Trans></p>
                     <p className="text-sm font-medium">{i18n._(service.bestFor)}</p>
                   </div>
+                  {/* Real anchor (crawlable, cmd/middle-click) styled as the button. */}
                   <Button
-                    onClick={handleContact}
+                    asChild
                     className={
                       service.featured
                         ? "w-full bg-accent hover:bg-accent-hover text-accent-foreground"
@@ -126,8 +124,10 @@ export const Services = () => {
                     }
                     variant={service.featured ? "default" : "outline"}
                   >
-                    <Trans>Get Started</Trans>
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
+                      <Trans>Get Started</Trans>
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </a>
                   </Button>
                 </div>
               </Card>
@@ -140,8 +140,10 @@ export const Services = () => {
             <p className="text-muted-foreground mb-4">
               <Trans>Not sure which format fits your situation?</Trans>
             </p>
-            <Button onClick={handleContact} size="lg" variant="outline">
-              <Trans>Book an Intro Call</Trans>
+            <Button asChild size="lg" variant="outline">
+              <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
+                <Trans>Book an Intro Call</Trans>
+              </a>
             </Button>
           </div>
         </div>

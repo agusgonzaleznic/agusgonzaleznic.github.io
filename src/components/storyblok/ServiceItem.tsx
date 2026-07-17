@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, ArrowRight } from "lucide-react";
 import * as LucideIcons from "lucide-react";
+import { BOOKING_URL } from "@/lib/booking";
 
 interface ServiceItemProps {
   blok: ServiceItemStoryblok;
@@ -19,7 +20,7 @@ export const ServiceItem = ({ blok }: ServiceItemProps) => {
 
   const handleCTA = () => {
     // Default booking link - can be made configurable via Storyblok if needed
-    window.open("https://calendar.app.google/kFaanhSae5WefLnD7", "_blank");
+    window.open(BOOKING_URL, "_blank");
   };
 
   return (
