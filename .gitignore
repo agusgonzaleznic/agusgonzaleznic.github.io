@@ -35,6 +35,10 @@ localhost.pem
 # per-locale blog-data.<locale>.json produced by the i18n translation pipeline.
 src/generated/blog-data.json
 src/generated/blog-data.*.json
+# Build-time generated marketing page data (scripts/fetch-pages.mjs): English
+# page-data.json plus per-locale page-data.<locale>.json.
+src/generated/page-data.json
+src/generated/page-data.*.json
 
 # Compiled Lingui catalogs — derived from the .po sources by @lingui/vite-plugin
 # at build time (the app imports the .po, never the .js). The .po files are the

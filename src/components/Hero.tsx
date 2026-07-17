@@ -1,12 +1,34 @@
+import { Fragment } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import profileImage from "@/assets/profile.jpg";
 import { LocaleLink } from "@/components/LocaleLink";
+import type { PageBlock } from "@/lib/pages";
 import { SECTION_PADDING } from "@/lib/layout";
 
-export const Hero = () => {
+// The H1 stays in code (a single headline with load-bearing inline emphasis
+// spans + underline-squiggle, translated as ONE reorderable unit via <Trans> —
+// decomposing it into CMS fields would break the exact non-English rendering).
+// Everything else in the hero is CMS-managed. Industries are NOT translated
+// (loanword-ish labels, identical in every locale).
+const DEFAULT_INDUSTRIES = ["Fintech", "Gaming", "E-Mobility", "HealthTech", "Web3"];
+
+export interface HeroBlock extends PageBlock {
+  badge?: string;
+  subheading?: string;
+  cta_text?: string;
+  industries_label?: string;
+  industries?: string;
+  image_alt?: string;
+}
+
+export const Hero = ({ block }: { block?: HeroBlock }) => {
   const { t } = useLingui();
+  if (block?.show_section === false) return null;
+  const industries = block?.industries
+    ? block.industries.split("\n").map((s) => s.trim()).filter(Boolean)
+    : DEFAULT_INDUSTRIES;
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-secondary/30 to-background">
@@ -23,7 +45,9 @@ export const Hero = () => {
             <div className="space-y-8 animate-fade-in-up">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full border border-accent/20">
                 <Sparkles className="w-4 h-4 text-accent" />
-                <span className="text-sm font-medium text-foreground"><Trans>15+ years leading engineering teams</Trans></span>
+                <span className="text-sm font-medium text-foreground">
+                  {block?.badge ?? <Trans>15+ years leading engineering teams</Trans>}
+                </span>
               </div>
 
               <h1 className="text-fluid-4xl font-bold leading-tight">
@@ -45,7 +69,9 @@ export const Hero = () => {
               </h1>
 
               <p className="text-fluid-lg text-muted-foreground leading-relaxed">
-                <Trans>One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics.</Trans>
+                {block?.subheading ?? (
+                  <Trans>One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics.</Trans>
+                )}
               </p>
 
               {/* Booking lives in the nav bar (desktop CTA / mobile sticky CTA),
@@ -60,23 +86,22 @@ export const Hero = () => {
                   className="border-2 hover:bg-secondary"
                 >
                   <LocaleLink to="/services">
-                    <Trans>How Coaching Works</Trans>
+                    {block?.cta_text ?? <Trans>How Coaching Works</Trans>}
                   </LocaleLink>
                 </Button>
               </div>
 
               <div className="pt-8 border-t border-border">
-                <p className="text-sm text-muted-foreground mb-3"><Trans>Industries where I've led teams:</Trans></p>
+                <p className="text-sm text-muted-foreground mb-3">
+                  {block?.industries_label ?? <Trans>Industries where I've led teams:</Trans>}
+                </p>
                 <div className="flex flex-wrap gap-4 text-sm font-medium text-muted-foreground">
-                  <span>Fintech</span>
-                  <span>•</span>
-                  <span>Gaming</span>
-                  <span>•</span>
-                  <span>E-Mobility</span>
-                  <span>•</span>
-                  <span>HealthTech</span>
-                  <span>•</span>
-                  <span>Web3</span>
+                  {industries.map((industry, index) => (
+                    <Fragment key={index}>
+                      {index > 0 && <span>•</span>}
+                      <span>{industry}</span>
+                    </Fragment>
+                  ))}
                 </div>
               </div>
             </div>
@@ -91,7 +116,7 @@ export const Hero = () => {
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl hover-lift">
                   <img
                     src={profileImage}
-                    alt={t`Agustin Gonzalez Nicolini - Engineering Leadership Coach`}
+                    alt={block?.image_alt || t`Agustin Gonzalez Nicolini - Engineering Leadership Coach`}
                     className="w-full h-full object-cover"
                     loading="eager"
                     // React 18 only forwards the lowercase spelling ("fetchPriority"

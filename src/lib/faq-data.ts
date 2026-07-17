@@ -1,9 +1,8 @@
 import { msg } from "@lingui/core/macro";
+import type { I18n } from "@lingui/core";
+import type { PageBlock } from "@/lib/pages";
 
-// Single source of truth for both the visible FAQ accordion (src/components/FAQ.tsx)
-// AND the FAQPage JSON-LD emitted on /faq (src/pages/Faq.tsx builds the schema
-// from these same msg`` descriptors via i18n._(), so the structured data is
-// byte-identical to what humans read — in every language, no cloaking).
+// Hardcoded FALLBACK Q&A + seed source. Used when no CMS faq_block is present.
 export const faqs = [
   {
     question: msg`Who is Agustin Gonzalez Nicolini?`,
@@ -26,3 +25,26 @@ export const faqs = [
     answer: msg`Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way.`,
   },
 ];
+
+export interface FaqItemField {
+  question?: string;
+  answer?: string;
+}
+export interface FaqBlock extends PageBlock {
+  heading?: string;
+  subheading?: string;
+  faqs?: FaqItemField[];
+}
+
+/**
+ * Resolve the Q&A list from EITHER the CMS block OR the hardcoded fallback,
+ * localized for the active locale. Both the visible accordion (FAQ.tsx) and the
+ * FAQPage JSON-LD (pages/Faq.tsx) call this, so the structured data stays
+ * byte-identical to the visible answers in every locale (no cloaking).
+ */
+export function resolveFaqs(block: FaqBlock | undefined, i18n: I18n): { question: string; answer: string }[] {
+  if (block?.faqs?.length) {
+    return block.faqs.map((f) => ({ question: f.question ?? "", answer: f.answer ?? "" }));
+  }
+  return faqs.map((f) => ({ question: i18n._(f.question), answer: i18n._(f.answer) }));
+}

@@ -64,6 +64,8 @@ type SeoPageProps = {
   about?: Record<string, unknown>;
   /** Extra JSON-LD nodes (FAQPage, ProfessionalService) emitted verbatim. */
   extraSchema?: Record<string, unknown>[];
+  /** Optional per-page social image URL (CMS); "" / undefined → the site banner. */
+  ogImage?: string;
   children: ReactNode;
 };
 
@@ -83,6 +85,7 @@ export const SeoPage = ({
   pageType = "WebPage",
   about,
   extraSchema = [],
+  ogImage,
   children,
 }: SeoPageProps) => {
   const { t } = useLingui();
@@ -127,6 +130,24 @@ export const SeoPage = ({
     ],
   };
 
+  // A CMS per-page image (if set) replaces the dual-format banner; otherwise the
+  // banner ships exactly as before. An array child is how react-helmet takes a
+  // dynamic set of head tags (same pattern as extraSchema below).
+  const ogImageMetas = ogImage
+    ? [
+        <meta key="ogi" property="og:image" content={ogImage} />,
+        <meta key="ogia" property="og:image:alt" content={ogAlt} />,
+      ]
+    : [
+        <meta key="ogi" property="og:image" content={ogImageWebp} />,
+        <meta key="ogit" property="og:image:type" content="image/webp" />,
+        <meta key="ogiw" property="og:image:width" content="1500" />,
+        <meta key="ogih" property="og:image:height" content="500" />,
+        <meta key="ogia" property="og:image:alt" content={ogAlt} />,
+        <meta key="ogij" property="og:image" content={ogImageJpg} />,
+        <meta key="ogijt" property="og:image:type" content="image/jpeg" />,
+      ];
+
   return (
     <div className="min-h-screen">
       <Helmet>
@@ -138,19 +159,13 @@ export const SeoPage = ({
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonical} />
-        <meta property="og:image" content={ogImageWebp} />
-        <meta property="og:image:type" content="image/webp" />
-        <meta property="og:image:width" content="1500" />
-        <meta property="og:image:height" content="500" />
-        <meta property="og:image:alt" content={ogAlt} />
-        <meta property="og:image" content={ogImageJpg} />
-        <meta property="og:image:type" content="image/jpeg" />
+        {ogImageMetas}
         <meta property="og:locale" content={LOCALE_META[locale].ogLocale} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:creator" content="@agusgonzaleznic" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content={ogImageWebp} />
+        <meta name="twitter:image" content={ogImage || ogImageWebp} />
         <meta name="twitter:image:alt" content={ogAlt} />
         <script type="application/ld+json">{jsonLd(graph)}</script>
         {extraSchema.map((node, i) => (

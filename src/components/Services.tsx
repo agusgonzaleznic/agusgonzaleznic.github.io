@@ -3,10 +3,24 @@ import { Card } from "@/components/ui/card";
 import { Check, ArrowRight } from "lucide-react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { msg } from "@lingui/core/macro";
+import type { MessageDescriptor } from "@lingui/core";
 import { BOOKING_URL } from "@/lib/booking";
+import type { PageBlock } from "@/lib/pages";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING, SERVICES_CTA_ID } from "@/lib/layout";
 
-const services = [
+// Hardcoded fallback — also the seed source for Storyblok. `featured` drives the
+// accent border + "Most Popular" badge; the small labels (Get Started / Format /
+// Best for / Most Popular / Book an Intro Call) stay Lingui chrome.
+type DefaultService = {
+  title: MessageDescriptor;
+  subtitle: MessageDescriptor;
+  description: MessageDescriptor;
+  features: MessageDescriptor[];
+  format: MessageDescriptor;
+  bestFor: MessageDescriptor;
+  featured?: boolean;
+};
+const DEFAULT_SERVICES: DefaultService[] = [
   {
     title: msg`Executive Leadership Coaching`,
     subtitle: msg`CTO & VP Level`,
@@ -52,17 +66,56 @@ const services = [
   },
 ];
 
-export const Services = () => {
+export interface ServiceField {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  features?: { text?: string }[];
+  format?: string;
+  best_for?: string;
+  featured?: boolean;
+}
+export interface ServicesBlock extends PageBlock {
+  heading?: string;
+  subheading?: string;
+  bottom_prompt?: string;
+  services?: ServiceField[];
+}
+
+export const Services = ({ block }: { block?: ServicesBlock }) => {
   const { i18n } = useLingui();
+  if (block?.show_section === false) return null;
+  const services = block?.services?.length
+    ? block.services.map((s) => ({
+        title: s.title ?? "",
+        subtitle: s.subtitle ?? "",
+        description: s.description ?? "",
+        features: (s.features ?? []).map((f) => f.text ?? ""),
+        format: s.format ?? "",
+        bestFor: s.best_for ?? "",
+        featured: !!s.featured,
+      }))
+    : DEFAULT_SERVICES.map((s) => ({
+        title: i18n._(s.title),
+        subtitle: i18n._(s.subtitle),
+        description: i18n._(s.description),
+        features: s.features.map((f) => i18n._(f)),
+        format: i18n._(s.format),
+        bestFor: i18n._(s.bestFor),
+        featured: !!s.featured,
+      }));
+
   return (
     <section id="services" className={`${SECTION_PADDING} bg-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h1 className="text-fluid-3xl font-bold mb-6"><Trans>Coaching Services</Trans></h1>
+            <h1 className="text-fluid-3xl font-bold mb-6">
+              {block?.heading ?? <Trans>Coaching Services</Trans>}
+            </h1>
             <p className="text-fluid-lg text-muted-foreground">
-              <Trans>Three formats. Pick by the problem you have, not the title you hold.</Trans>
+              {block?.subheading ?? <Trans>Three formats. Pick by the problem you have, not the title you hold.</Trans>}
             </p>
           </div>
 
@@ -86,12 +139,12 @@ export const Services = () => {
                 )}
 
                 <div className="mb-6">
-                  <h2 className="text-2xl font-bold mb-2">{i18n._(service.title)}</h2>
-                  <p className="text-sm text-accent font-medium">{i18n._(service.subtitle)}</p>
+                  <h2 className="text-2xl font-bold mb-2">{service.title}</h2>
+                  <p className="text-sm text-accent font-medium">{service.subtitle}</p>
                 </div>
 
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  {i18n._(service.description)}
+                  {service.description}
                 </p>
 
                 <div className="mb-6 space-y-3">
@@ -100,7 +153,7 @@ export const Services = () => {
                       <div className="shrink-0 w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center mt-0.5">
                         <Check className="w-3 h-3 text-accent" strokeWidth={3} />
                       </div>
-                      <span className="text-sm text-foreground">{i18n._(feature)}</span>
+                      <span className="text-sm text-foreground">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -108,11 +161,11 @@ export const Services = () => {
                 <div className="pt-6 border-t border-border space-y-4">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1"><Trans>Format</Trans></p>
-                    <p className="text-sm font-medium">{i18n._(service.format)}</p>
+                    <p className="text-sm font-medium">{service.format}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1"><Trans>Best for</Trans></p>
-                    <p className="text-sm font-medium">{i18n._(service.bestFor)}</p>
+                    <p className="text-sm font-medium">{service.bestFor}</p>
                   </div>
                   {/* Real anchor (crawlable, cmd/middle-click) styled as the button. */}
                   <Button
@@ -138,7 +191,7 @@ export const Services = () => {
               sticky CTA while this inline booking button is on screen. */}
           <div id={SERVICES_CTA_ID} className="mt-16 text-center">
             <p className="text-muted-foreground mb-4">
-              <Trans>Not sure which format fits your situation?</Trans>
+              {block?.bottom_prompt ?? <Trans>Not sure which format fits your situation?</Trans>}
             </p>
             <Button asChild size="lg" variant="outline">
               <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer">

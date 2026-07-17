@@ -1,8 +1,11 @@
 import { Helmet } from "react-helmet";
+import { useLocation } from "react-router-dom";
 import { useLingui } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
-import { Hero } from "@/components/Hero";
+import { Hero, type HeroBlock } from "@/components/Hero";
 import { Footer } from "@/components/Footer";
+import { getPageContent, getBlock } from "@/lib/pages";
+import { localeFromPath } from "@/i18n/locales";
 
 // The home page is now strictly the Hero. The former one-page sections (About,
 // Philosophy, Services, Impact, Testimonials, FAQ, Contact) are their own
@@ -20,6 +23,10 @@ import { Footer } from "@/components/Footer";
 
 const Index = () => {
   const { t } = useLingui();
+  // Hero CONTENT is CMS-managed (badge, subhead, industries, CTA); the H1 and
+  // the home <head> below stay in code (see Hero.tsx / the Helmet note).
+  const locale = localeFromPath(useLocation().pathname);
+  const heroBlock = getBlock<HeroBlock>(getPageContent("home", locale), "hero_block");
   return (
     <div className="min-h-screen">
       {/* Restores the homepage head after client-side navigation back from
@@ -39,7 +46,7 @@ const Index = () => {
       </Helmet>
       <Navigation />
       <main>
-        <Hero />
+        <Hero block={heroBlock} />
       </main>
       <Footer />
     </div>
