@@ -1,25 +1,30 @@
 import { useLocation } from "react-router-dom";
 import { useLingui } from "@lingui/react/macro";
 import { SeoPage } from "@/components/SeoPage";
-import { Services } from "@/components/Services";
-import { Testimonials } from "@/components/Testimonials";
+import { Services, type ServicesBlock } from "@/components/Services";
+import { Testimonials, type TestimonialsBlock } from "@/components/Testimonials";
 import { RelatedPages } from "@/components/RelatedPages";
 import { SITE_URL } from "@/lib/blog";
+import { getPageContent, getBlock } from "@/lib/pages";
 import { localeFromPath, localizePath, SOURCE_LOCALE } from "@/i18n/locales";
 
 const ServicesPage = () => {
   const { t } = useLingui();
   const locale = localeFromPath(useLocation().pathname);
+  const content = getPageContent("services", locale);
+  const servicesBlock = getBlock<ServicesBlock>(content, "services_block");
+  const testimonialsBlock = getBlock<TestimonialsBlock>(content, "testimonials_block");
 
-  const title = t`Engineering Leadership Coaching — CTO, VP & Manager`;
-  const description = t`One-on-one coaching for CTOs, VPs, directors, and engineering managers — executive coaching, delivery and team coaching, and IC-to-manager programs.`;
+  const title = content?.seo_title || t`Engineering Leadership Coaching — CTO, VP & Manager`;
+  const description =
+    content?.seo_description ||
+    t`One-on-one coaching for CTOs, VPs, directors, and engineering managers — executive coaching, delivery and team coaching, and IC-to-manager programs.`;
 
-  // ProfessionalService + offer catalog. Relocated here from index.html's @graph
-  // (the services live on this page). The @id stays the site-global entity id so
-  // every locale page's copy merges into ONE entity; description reuses the
-  // page's meta-description string (already translated), and url points at the
-  // locale-local services page. Offer names stay English on purpose (the
-  // loanword convention keeps service names in English site-wide).
+  // ProfessionalService + offer catalog. The @id stays the site-global entity id
+  // so every locale page's copy merges into ONE entity; description reuses the
+  // page's meta-description (CMS-sourced, translated), url points at the locale
+  // services page. The offer catalog names/descriptions stay English by the
+  // loanword convention (SEO structured data, not visible copy).
   const professionalServiceLd = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -82,14 +87,15 @@ const ServicesPage = () => {
   return (
     <SeoPage
       path="/services"
+      ogImage={content?.og_image}
       title={title}
       description={description}
       crumb={t`Services`}
       about={{ "@id": `${SITE_URL}/#service` }}
       extraSchema={[professionalServiceLd]}
     >
-      <Services />
-      <Testimonials />
+      <Services block={servicesBlock} />
+      <Testimonials block={testimonialsBlock} />
       <RelatedPages page="services" />
     </SeoPage>
   );

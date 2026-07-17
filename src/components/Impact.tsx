@@ -1,83 +1,62 @@
 import { Card } from "@/components/ui/card";
-import { TrendingDown, Zap, Shield, Users, Rocket, Target } from "lucide-react";
+import { TrendingDown, Zap, Shield, Users, Rocket, Target, type LucideIcon } from "lucide-react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { msg } from "@lingui/core/macro";
+import type { MessageDescriptor } from "@lingui/core";
+import { resolveIcon } from "@/lib/storyblok-icons";
+import type { PageBlock } from "@/lib/pages";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
-const stats = [
-  {
-    icon: TrendingDown,
-    value: "40%",
-    label: msg`Cloud Cost Reduction`,
-    description: msg`FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap`,
-  },
-  {
-    icon: Shield,
-    value: "99.99%",
-    label: msg`System Uptime`,
-    description: msg`Multi-region failover and DR/HA playbooks, built so a bad day in one region stays invisible to users`,
-  },
-  {
-    icon: Rocket,
-    value: "3×",
-    label: msg`Faster Releases`,
-    description: msg`Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event`,
-  },
-  {
-    icon: Zap,
-    value: "75%",
-    label: msg`Reduced Lead Time`,
-    description: msg`A multi-account AWS migration with deployments automated end to end`,
-  },
-  {
-    icon: Users,
-    value: "50%",
-    label: msg`Team Velocity Boost`,
-    description: msg`OKRs paired with DORA metrics, used as working tools rather than dashboards`,
-  },
-  {
-    icon: Target,
-    value: "60%",
-    label: msg`Faster Onboarding`,
-    description: msg`Standardized processes and documentation a new hire can follow on day one`,
-  },
+// Hardcoded fallback + seed source. `value` (e.g. "40%"), `period`, and
+// `company` are deliberately NOT translated (locale-neutral / proper nouns) —
+// the field-aware translator leaves them byte-identical across locales.
+const DEFAULT_STATS: { icon: LucideIcon; value: string; label: MessageDescriptor; description: MessageDescriptor }[] = [
+  { icon: TrendingDown, value: "40%", label: msg`Cloud Cost Reduction`, description: msg`FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap` },
+  { icon: Shield, value: "99.99%", label: msg`System Uptime`, description: msg`Multi-region failover and DR/HA playbooks, built so a bad day in one region stays invisible to users` },
+  { icon: Rocket, value: "3×", label: msg`Faster Releases`, description: msg`Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event` },
+  { icon: Zap, value: "75%", label: msg`Reduced Lead Time`, description: msg`A multi-account AWS migration with deployments automated end to end` },
+  { icon: Users, value: "50%", label: msg`Team Velocity Boost`, description: msg`OKRs paired with DORA metrics, used as working tools rather than dashboards` },
+  { icon: Target, value: "60%", label: msg`Faster Onboarding`, description: msg`Standardized processes and documentation a new hire can follow on day one` },
 ];
 
-const timeline = [
-  {
-    period: "2025-Present",
-    company: "Confidential (Web3)",
-    role: msg`Head of Infrastructure & Security`,
-    achievement: msg`Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now.`,
-  },
-  {
-    period: "2022-2025",
-    company: "JUCR GmbH (EV Charging)",
-    role: msg`VP of Engineering`,
-    achievement: msg`Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime.`,
-  },
-  {
-    period: "2020-2022",
-    company: "Wildlife Studios (Gaming)",
-    role: msg`Cloud Security Manager`,
-    achievement: msg`Kept security controls stringent while game teams shipped features at full speed.`,
-  },
-  {
-    period: "2018-2021",
-    company: "Ualá (FinTech)",
-    role: msg`DevOps Lead`,
-    achievement: msg`Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout.`,
-  },
-  {
-    period: "2014-2018",
-    company: "Bdev (HealthTech)",
-    role: msg`Infrastructure & Security Lead`,
-    achievement: msg`Migrated on-premise infrastructure to AWS and implemented SOC 2 and ISO 27001 compliance.`,
-  },
+const DEFAULT_TIMELINE: { period: string; company: string; role: MessageDescriptor; achievement: MessageDescriptor }[] = [
+  { period: "2025-Present", company: "Confidential (Web3)", role: msg`Head of Infrastructure & Security`, achievement: msg`Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now.` },
+  { period: "2022-2025", company: "JUCR GmbH (EV Charging)", role: msg`VP of Engineering`, achievement: msg`Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime.` },
+  { period: "2020-2022", company: "Wildlife Studios (Gaming)", role: msg`Cloud Security Manager`, achievement: msg`Kept security controls stringent while game teams shipped features at full speed.` },
+  { period: "2018-2021", company: "Ualá (FinTech)", role: msg`DevOps Lead`, achievement: msg`Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout.` },
+  { period: "2014-2018", company: "Bdev (HealthTech)", role: msg`Infrastructure & Security Lead`, achievement: msg`Migrated on-premise infrastructure to AWS and implemented SOC 2 and ISO 27001 compliance.` },
 ];
 
-export const Impact = () => {
+export interface StatField {
+  icon?: string;
+  value?: string;
+  label?: string;
+  description?: string;
+}
+export interface TimelineField {
+  period?: string;
+  company?: string;
+  role?: string;
+  achievement?: string;
+}
+export interface ImpactBlock extends PageBlock {
+  timeline_heading?: string;
+  stats_heading?: string;
+  stats_subheading?: string;
+  timeline?: TimelineField[];
+  stats?: StatField[];
+}
+
+export const Impact = ({ block }: { block?: ImpactBlock }) => {
   const { i18n } = useLingui();
+  if (block?.show_section === false) return null;
+  const timeline = block?.timeline?.length
+    ? block.timeline.map((t) => ({ period: t.period ?? "", company: t.company ?? "", role: t.role ?? "", achievement: t.achievement ?? "" }))
+    : DEFAULT_TIMELINE.map((t) => ({ period: t.period, company: t.company, role: i18n._(t.role), achievement: i18n._(t.achievement) }));
+  const stats = block?.stats?.length
+    ? block.stats.map((s) => ({ Icon: resolveIcon(s.icon, Target), value: s.value ?? "", label: s.label ?? "", description: s.description ?? "" }))
+    : DEFAULT_STATS.map((s) => ({ Icon: s.icon, value: s.value, label: i18n._(s.label), description: i18n._(s.description) }));
+
   return (
     <section id="impact" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
       <div className="container px-6">
@@ -85,7 +64,7 @@ export const Impact = () => {
           {/* Page header — the experience timeline leads the page */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             <h1 className="text-fluid-3xl font-bold">
-              <Trans>Experience Timeline</Trans>
+              {block?.timeline_heading ?? <Trans>Experience Timeline</Trans>}
             </h1>
           </div>
 
@@ -119,11 +98,11 @@ export const Impact = () => {
                             {/* h2: peers of the Numbers section heading under the
                                 page h1 — keeps the outline free of h1→h3 skips
                                 (same pattern as the /philosophy pillar cards). */}
-                            <h2 className="text-lg font-bold text-foreground">{i18n._(item.role)}</h2>
+                            <h2 className="text-lg font-bold text-foreground">{item.role}</h2>
                             <p className="text-sm text-muted-foreground">{item.company}</p>
                           </div>
                           <p className="text-sm text-muted-foreground leading-relaxed">
-                            {i18n._(item.achievement)}
+                            {item.achievement}
                           </p>
                         </div>
                       </div>
@@ -137,9 +116,11 @@ export const Impact = () => {
           {/* Numbers — the internal pivot scales at md like every other gap
               (one SECTION_PADDING unit: 4rem/6rem). */}
           <div className={`mt-16 md:mt-24 text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <h2 className="text-fluid-2xl font-bold mb-6"><Trans>Numbers I Stand Behind</Trans></h2>
+            <h2 className="text-fluid-2xl font-bold mb-6">
+              {block?.stats_heading ?? <Trans>Numbers I Stand Behind</Trans>}
+            </h2>
             <p className="text-fluid-lg text-muted-foreground">
-              <Trans>Results from teams I've led as an operator — the same playbooks we'll work from</Trans>
+              {block?.stats_subheading ?? <Trans>Results from teams I've led as an operator — the same playbooks we'll work from</Trans>}
             </p>
           </div>
 
@@ -152,13 +133,13 @@ export const Impact = () => {
               >
                 <div className="flex items-start gap-4">
                   <div className="shrink-0 w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
-                    <stat.icon className="w-6 h-6 text-accent" strokeWidth={2} />
+                    <stat.Icon className="w-6 h-6 text-accent" strokeWidth={2} />
                   </div>
                   <div className="flex-1">
                     <div className="text-3xl font-bold text-accent mb-1">{stat.value}</div>
-                    <div className="text-sm font-medium text-foreground mb-2">{i18n._(stat.label)}</div>
+                    <div className="text-sm font-medium text-foreground mb-2">{stat.label}</div>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      {i18n._(stat.description)}
+                      {stat.description}
                     </p>
                   </div>
                 </div>

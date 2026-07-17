@@ -4,10 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "npm run fetch-blog",
+    "predev": "npm run fetch-blog && npm run fetch-pages",
     "dev": "vite",
     "fetch-blog": "node scripts/fetch-blog.mjs",
-    "build": "npm run assert-no-client-secrets && npm run fetch-blog && npm run build:client && npm run build:server && npm run prerender",
+    "fetch-pages": "node scripts/fetch-pages.mjs",
+    "build": "npm run assert-no-client-secrets && npm run fetch-blog && npm run fetch-pages && npm run build:client && npm run build:server && npm run prerender",
     "build:client": "vite build",
     "build:server": "vite build --ssr src/entry-server.tsx --outDir dist-server",
     "prerender": "node scripts/prerender.mjs",
