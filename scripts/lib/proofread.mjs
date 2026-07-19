@@ -84,6 +84,59 @@ export async function proofread(text) {
   }
 }
 
+/**
+ * Suggest 4-6 language-agnostic topic tags for a post, preferring to reuse the
+ * tags already in use (passed as `existing`) so the taxonomy stays consistent.
+ * Returns [] with no key/SDK; never throws.
+ */
+export async function suggestTags(text, existing = []) {
+  if (!hasAnthropicKey() || !text.trim()) return [];
+  let Anthropic;
+  try {
+    Anthropic = (await import("@anthropic-ai/sdk")).default;
+  } catch {
+    return [];
+  }
+  const system = [
+    "You suggest topic tags for a blog post about engineering leadership and coaching.",
+    "Return 4-6 concise, reusable tags in Title Case (e.g. \"Engineering Management\", \"Incident Response\", \"Psychological Safety\").",
+    "STRONGLY prefer reusing an existing tag verbatim when it fits, rather than inventing a near-duplicate.",
+    "Tags are language-agnostic categories kept in English. No hashtags, no punctuation.",
+  ].join(" ");
+  try {
+    const client = new Anthropic({ apiKey: resolveAnthropicKey() });
+    const res = await client.messages.create({
+      model: MODEL,
+      max_tokens: 512,
+      system,
+      output_config: {
+        format: {
+          type: "json_schema",
+          schema: {
+            type: "object",
+            properties: { tags: { type: "array", items: { type: "string" } } },
+            required: ["tags"],
+            additionalProperties: false,
+          },
+        },
+      },
+      messages: [
+        {
+          role: "user",
+          content: `Existing tags to reuse where they fit: ${existing.join(", ") || "(none yet)"}\n\nPost:\n${text.slice(0, 6000)}`,
+        },
+      ],
+    });
+    if (res.stop_reason === "refusal") return [];
+    const out = res.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+    const parsed = JSON.parse(out);
+    return Array.isArray(parsed?.tags) ? parsed.tags.map((t) => String(t).trim()).filter(Boolean).slice(0, 6) : [];
+  } catch (err) {
+    console.warn(`  tag suggestion: skipped (${err?.message ?? err}).`);
+    return [];
+  }
+}
+
 // Common all-caps English words that are never do-not-translate terms — filtered
 // out of candidates to cut noise. (Real terms like SRE/SEV-1/TTL are NOT here.)
 const STOP_CAPS = new Set(["STOP", "ASAP", "NOW", "OK", "OKAY", "YES", "NO", "TLDR", "FYI", "AKA", "ETA", "DIY"]);

@@ -39,7 +39,7 @@ import { fileURLToPath } from "node:url";
 import { createInterface } from "node:readline/promises";
 import MarkdownIt from "markdown-it";
 import { parse, NodeType } from "node-html-parser";
-import { proofread, glossaryCandidates } from "./lib/proofread.mjs";
+import { proofread, glossaryCandidates, suggestTags } from "./lib/proofread.mjs";
 
 const SPACE = "288632938663524";
 const API = `https://mapi.storyblok.com/v1/spaces/${SPACE}`;
@@ -374,6 +374,40 @@ async function runSourceChecks({ file, data, body, raw, dryRun }) {
   return { data, body, raw };
 }
 
+// ── tags (global, language-agnostic story tag_list) ─────────────────────────
+async function fetchExistingTags() {
+  try {
+    const q = await api("GET", "/tags");
+    return (q.tags ?? []).map((t) => t.name);
+  } catch {
+    return [];
+  }
+}
+
+// frontmatter `tags:` (comma-separated) wins; else auto-suggest (Claude, reusing
+// the space's existing tags) and let the author confirm/replace interactively.
+async function resolveTags(data, text) {
+  if (data.tags) return data.tags.split(",").map((s) => s.trim()).filter(Boolean);
+  let tags = await suggestTags(text, await fetchExistingTags());
+  if (!tags.length) return [];
+  if (process.stdin.isTTY && !process.argv.includes("--no-prompt")) {
+    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    const ans = (await rl.question(`  Suggested tags: ${tags.join(", ")}\n  Enter to accept, or type a comma-separated replacement: `)).trim();
+    rl.close();
+    if (ans) tags = ans.split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  return tags;
+}
+
+// Flatten a richtext doc to plain text (for the tag prompt).
+function richtextText(node, acc = []) {
+  if (!node || typeof node !== "object") return acc;
+  if (Array.isArray(node)) { node.forEach((n) => richtextText(n, acc)); return acc; }
+  if (node.type === "text" && node.text) acc.push(node.text);
+  if (node.content) richtextText(node.content, acc);
+  return acc;
+}
+
 // ── main ────────────────────────────────────────────────────────────────────
 const file = process.argv[2];
 const dryRun = process.argv.includes("--dry-run");
@@ -431,14 +465,19 @@ if (dryRun) {
   process.exit(0);
 }
 
+// Tags (global, language-agnostic): frontmatter `tags:` or auto-suggested.
+const tagText = [data.title, data.excerpt, richtextText(richtext).join(" ")].filter(Boolean).join("\n");
+const tag_list = await resolveTags(data, tagText);
+if (tag_list.length) console.log(`   tags: ${tag_list.join(", ")}`);
+
 const fullSlug = `blog/${slug}`;
 const existing = await findStory(fullSlug);
 if (existing) {
-  await api("PUT", `/stories/${existing.id}`, { story: { name: content.title, slug, content } });
+  await api("PUT", `/stories/${existing.id}`, { story: { name: content.title, slug, content, tag_list } });
   console.log(`\n✓ updated DRAFT ${fullSlug} (id ${existing.id})`);
 } else {
   const parent_id = await blogFolderId();
-  const created = await api("POST", "/stories", { story: { name: content.title, slug, parent_id, content } });
+  const created = await api("POST", "/stories", { story: { name: content.title, slug, parent_id, content, tag_list } });
   console.log(`\n✓ created DRAFT ${fullSlug} (id ${created.story.id})`);
 }
 console.log("   Review it in Storyblok, then Publish to go live (auto-translates on rebuild).");
