@@ -145,3 +145,4 @@ migration to in-Storyblok review is scoped and ready to revisit.
 - `scripts/lib/llm-postedit.mjs` — the Claude voice pass over DeepL (informal register, profanity, foreign-quote, glossary rules).
 - `scripts/i18n-glossary.json` — do-not-translate terms.
 - `content/translations/` + `content/i18n-approvals.json` — reviewed translations + approval state.
+- `content/tag-translations.json` — localized tag labels (Storyblok's `tag_list` is global/English; this map gives per-locale display labels, keeping loanwords in English). The importer fills it for new tags; `scripts/translate-tags.mjs` backfills every published post's tags. Editable — fix any label by hand.

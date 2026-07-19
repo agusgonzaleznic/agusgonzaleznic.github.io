@@ -2,7 +2,7 @@
   "slug": "alert-fatigue-and-fuck-bingo",
   "full_slug": "blog/alert-fatigue-and-fuck-bingo",
   "title": "Alert Fatigue y el Fuck Bingo",
-  "excerpt": "Un CTO que trataba cada problema como si fuera un SEV-1 le enseñó a su equipo a llevar una tarjeta de «fuck bingo». Sobre las puteadas, el poder y la alert fatigue: cómo los líderes, sin darse cuenta, entrenan a la gente para que deje de contarles lo que anda mal.",
+  "excerpt": "Un CTO que trataba cada problema como si fuera un SEV-1 le enseñó a su equipo a llevar una tarjeta de “fuck bingo”. Sobre las puteadas, el poder y la alert fatigue: cómo los líderes, sin darse cuenta, entrenan a la gente para que deje de contarles lo que anda mal.",
   "body": {
     "type": "doc",
     "content": [
@@ -42,7 +42,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "«Esto es una pelotudez. Ustedes no quieren ponerse a laburar y ya está».",
+            "text": "“Esto es una pelotudez. Ustedes no quieren ponerse a laburar y ya está”.",
             "type": "text"
           }
         ]
@@ -135,7 +135,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Un deploy roto podía disparar un «¿Por qué carajo no probaste esto antes?». Un problema en la app móvil se convertía en «Muchachos, no funciona nada. Nada. Estamos caídos ahora mismo». Los desarrolladores escuchaban que el producto era vergonzoso, que la calidad era mala y que a nadie parecía importarle.",
+            "text": "Un deploy roto podía disparar un “¿Por qué carajo no probaste esto antes?”. Un problema en la app móvil se convertía en “Muchachos, no funciona nada. Nada. Estamos caídos ahora mismo”. Los desarrolladores escuchaban que el producto era vergonzoso, que la calidad era mala y que a nadie parecía importarle.",
             "type": "text"
           }
         ]
@@ -171,7 +171,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "«Esto es lo que diría el CTO», escribía alguien en privado. Un ingeniero bromeó con armar un «fuck bingo» para todo el mes.",
+            "text": "“Esto es lo que diría el CTO”, escribía alguien en privado. Un ingeniero bromeó con armar un “fuck bingo” para todo el mes.",
             "type": "text"
           }
         ]
@@ -233,7 +233,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Cada «STOP», cada «ASAP», cada «no funciona nada» asigna una gravedad. Si todo suena como un SEV-1, tarde o temprano la organización se queda sin lenguaje para una emergencia de verdad.",
+            "text": "Cada “STOP”, cada “ASAP”, cada “no funciona nada” asigna una gravedad. Si todo suena como un SEV-1, tarde o temprano la organización se queda sin lenguaje para una emergencia de verdad.",
             "type": "text"
           }
         ]
@@ -251,7 +251,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Hay una diferencia entre «esta puta caída» y «¿qué carajo estás haciendo?». La primera pone al que habla y al que escucha del mismo lado ante una situación de mierda. La segunda convierte al que escucha en el incidente.",
+            "text": "Hay una diferencia entre “esta puta caída” y “¿qué carajo estás haciendo?”. La primera pone al que habla y al que escucha del mismo lado ante una situación de mierda. La segunda convierte al que escucha en el incidente.",
             "type": "text"
           }
         ]
@@ -273,7 +273,7 @@
             "type": "text"
           },
           {
-            "text": "«An Engineer’s Bill of Rights (and Responsibilities)»",
+            "text": "“An Engineer’s Bill of Rights (and Responsibilities)”",
             "type": "text",
             "marks": [
               {
@@ -453,7 +453,7 @@
             "type": "text"
           },
           {
-            "text": "«Management via Worry and Crisis»",
+            "text": "“Management via Worry and Crisis”",
             "type": "text",
             "marks": [
               {
@@ -527,7 +527,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "«Dejen de deployar».",
+            "text": "“Dejen de deployar”.",
             "type": "text"
           }
         ]
@@ -642,7 +642,7 @@
             "type": "text"
           },
           {
-            "text": "«Ingrid Rivera»",
+            "text": "“Ingrid Rivera”",
             "type": "text",
             "marks": [
               {
@@ -749,7 +749,7 @@
   "published_at": "2026-07-19T12:53:06.880Z",
   "original_url": "",
   "seo_title": "Alert Fatigue y el Fuck Bingo: puteadas y poder en el trabajo",
-  "seo_description": "El uso constante del lenguaje SEV-1 por parte de un CTO generó alert fatigue y una tarjeta de «fuck bingo». Sobre las puteadas, el poder y cómo castigar las malas noticias inutiliza tu propia observability.",
+  "seo_description": "El uso constante del lenguaje SEV-1 por parte de un CTO generó alert fatigue y una tarjeta de “fuck bingo”. Sobre las puteadas, el poder y cómo castigar las malas noticias inutiliza tu propia observability.",
   "canonical_override": "",
   "tag_list": [],
   "uuid": "817959ca-c56c-454e-9566-0e537ad1a659"

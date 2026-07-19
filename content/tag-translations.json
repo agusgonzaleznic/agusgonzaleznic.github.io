@@ -1,0 +1,100 @@
+{
+  "Communication": {
+    "de": "Kommunikation",
+    "es": "Comunicación",
+    "fr": "Communication",
+    "it": "Comunicazione",
+    "pt": "Comunicação"
+  },
+  "Engineering Management": {
+    "de": "Engineering Management",
+    "es": "Gestión de Ingeniería",
+    "fr": "Management d'Ingénierie",
+    "it": "Engineering Management",
+    "pt": "Gestão de Engenharia"
+  },
+  "enshittification": {
+    "de": "Enshittification",
+    "es": "Enshittification",
+    "fr": "Merdification",
+    "it": "Enshittification",
+    "pt": "Enshittification"
+  },
+  "github": {
+    "de": "GitHub",
+    "es": "GitHub",
+    "fr": "GitHub",
+    "it": "GitHub",
+    "pt": "GitHub"
+  },
+  "github-actions": {
+    "de": "GitHub Actions",
+    "es": "GitHub Actions",
+    "fr": "GitHub Actions",
+    "it": "GitHub Actions",
+    "pt": "GitHub Actions"
+  },
+  "immobilienscout24": {
+    "de": "ImmobilienScout24",
+    "es": "ImmobilienScout24",
+    "fr": "ImmobilienScout24",
+    "it": "ImmobilienScout24",
+    "pt": "ImmobilienScout24"
+  },
+  "immoscout": {
+    "de": "ImmoScout",
+    "es": "ImmoScout",
+    "fr": "ImmoScout",
+    "it": "ImmoScout",
+    "pt": "ImmoScout"
+  },
+  "Incident Response": {
+    "de": "Incident Response",
+    "es": "Incident Response",
+    "fr": "Incident Response",
+    "it": "Incident Response",
+    "pt": "Incident Response"
+  },
+  "Leadership": {
+    "de": "Leadership",
+    "es": "Leadership",
+    "fr": "Leadership",
+    "it": "Leadership",
+    "pt": "Leadership"
+  },
+  "open-source": {
+    "de": "Open Source",
+    "es": "Open Source",
+    "fr": "Open Source",
+    "it": "Open Source",
+    "pt": "Open Source"
+  },
+  "opinion": {
+    "de": "Meinung",
+    "es": "Opinión",
+    "fr": "Opinion",
+    "it": "Opinioni",
+    "pt": "Opinião"
+  },
+  "Psychological Safety": {
+    "de": "Psychologische Sicherheit",
+    "es": "Seguridad Psicológica",
+    "fr": "Sécurité Psychologique",
+    "it": "Sicurezza Psicologica",
+    "pt": "Segurança Psicológica"
+  },
+  "terraform": {
+    "de": "Terraform",
+    "es": "Terraform",
+    "fr": "Terraform",
+    "it": "Terraform",
+    "pt": "Terraform"
+  },
+  "terraform-provider": {
+    "de": "Terraform-Provider",
+    "es": "Terraform Provider",
+    "fr": "Fournisseur Terraform",
+    "it": "Terraform Provider",
+    "pt": "Terraform Provider"
+  }
+}
