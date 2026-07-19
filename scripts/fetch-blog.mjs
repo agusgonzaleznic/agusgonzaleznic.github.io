@@ -24,6 +24,7 @@ import {
   AUTO_LOCALES,
   REVIEW_GATED_LOCALES,
   approvedLocalesFor,
+  enSourceHash,
   loadApprovals,
 } from "./lib/blog-gate.mjs";
 import { fetchPublishedPosts } from "./lib/storyblok-fetch.mjs";
@@ -120,11 +121,29 @@ async function translateBlog(posts) {
     postEditor,
     cacheSalt: postEditor ? POSTEDIT_VERSION : "",
   });
+  // A human-reviewed file (from scripts/review-translations.mjs) overrides the
+  // machine translation for ANY locale when it's approved + hash-fresh; otherwise
+  // the auto locale is machine-translated. (Un-reviewed today → identical output.)
+  const approvals = loadApprovals(approvalsPath);
   for (const locale of targets) {
-    const localized = await translateStories(posts, locale, translator);
+    const localized = [];
+    let reviewed = 0;
+    for (const post of posts) {
+      const appr = approvals[post.uuid]?.[locale];
+      const file = resolve(reviewedDir, `${post.uuid}.${locale}.json`);
+      if (appr?.status === "approved" && appr.sourceHash === enSourceHash(post) && existsSync(file)) {
+        localized.push(JSON.parse(readFileSync(file, "utf-8")));
+        reviewed += 1;
+      } else {
+        localized.push((await translateStories([post], locale, translator))[0]);
+      }
+    }
     const localeFile = resolve(generatedDir, blogDataFilename(locale));
     writeFileSync(localeFile, `${JSON.stringify(localized, null, 2)}\n`);
-    console.log(`✓ fetch-blog: ${localized.length} post(s) → src/generated/${blogDataFilename(locale)}`);
+    console.log(
+      `✓ fetch-blog: ${localized.length} post(s) → src/generated/${blogDataFilename(locale)}` +
+        `${reviewed ? ` (${reviewed} reviewed)` : ""}`,
+    );
   }
   saveCache(cachePath, cache);
   if (postEditor) {

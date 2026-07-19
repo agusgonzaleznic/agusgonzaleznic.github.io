@@ -14,7 +14,6 @@ on:
       - "terraform/**"
       - ".github/workflows/terraform.yml"
       - ".github/workflows/ci.yml"
-      - ".github/workflows/translate-pr.yml"
       - "**.md"
       - ".env.example"
       - ".gitignore"

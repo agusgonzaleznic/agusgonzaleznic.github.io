@@ -1,7 +1,7 @@
 // Shared Storyblok CDA fetch + post mapping. Used by BOTH fetch-blog.mjs (the
-// build) and translate-pr.mjs (the review-PR automation) so the two can never
-// drift on the post shape — the reviewed DE/ES content that translate-pr writes
-// MUST match the schema fetch-blog serves.
+// build) and review-translations.mjs (the local review tool) so the two can never
+// drift on the post shape — the reviewed content the review tool writes MUST
+// match the schema fetch-blog serves.
 //
 // SECURITY: the token travels only in the query string; a non-OK response never
 // echoes the URL (it holds the token).
