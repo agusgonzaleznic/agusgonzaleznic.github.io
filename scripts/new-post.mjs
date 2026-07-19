@@ -1,37 +1,17 @@
 // scripts/new-post.mjs — author a blog post from a Markdown OR HTML file.
+// Full guide: docs/publishing-a-post.md.
 //
-// Converts the body to Storyblok richtext (only the node types the site's
-// renderer supports — see src/components/blog/RichText.tsx) and creates or
-// updates the DRAFT story `blog/<slug>` via the Management API. Nothing is
-// published: review it in Storyblok, then hit Publish (that fires the rebuild
-// webhook, which fetches + auto-translates it like every other post).
+// Converts the body to Storyblok richtext (only the node types
+// src/components/blog/RichText.tsx renders) and creates/updates the DRAFT story
+// `blog/<slug>` via the Management API. Frontmatter is OPTIONAL — a raw article
+// works: title comes from the leading <h1>, slug/date are derived, and
+// excerpt/SEO + tags are generated (Claude). A leading <h1> is dropped (the
+// title field owns it). Nothing is published — review in Storyblok, then Publish.
 //
-// USAGE
-//   op run --env-file="$HOME/.env" --no-masking -- \
-//     node scripts/new-post.mjs path/to/post.md          # create/update the draft
-//   node scripts/new-post.mjs path/to/post.md --dry-run  # print the richtext, no API call
+//   op run --env-file="$HOME/.env" --no-masking -- node scripts/new-post.mjs post.md
+//   node scripts/new-post.mjs post.md --dry-run   # print richtext, no API call
 //
-// INPUT FILE: an optional YAML-ish frontmatter fence, then the body (md or html
-// by file extension). Frontmatter is flat `key: value` (first colon splits, so
-// values may contain colons; surrounding quotes are stripped):
-//   ---
-//   slug: alert-fatigue-and-fuck-bingo
-//   title: Alert Fatigue and Fuck Bingo
-//   excerpt: A short teaser (<=200) — also the default meta description.
-//   seo_title: Optional <title> override (<=60)
-//   seo_description: Optional meta description override (<=160)
-//   published_date: 2026-07-19 09:00
-//   original_url:          # ONLY if republished elsewhere; empty = self-canonical
-//   canonical_override:    # leave empty
-//   ---
-//   <body>
-//
-// BODY NOTES: a leading <h1> is dropped (the `title` field owns the headline).
-// Unsupported elements degrade to their text content so nothing is silently
-// lost. Tables and raw embeds aren't supported by the renderer — avoid them.
-//
-// SECURITY: the management token is read ONLY from the environment
-// (STORYBLOK_MANAGEMENT_TOKEN, injected by `op run`). Never hardcode it.
+// SECURITY: STORYBLOK_MANAGEMENT_TOKEN is read only from the env (op run).
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { extname, resolve, basename } from "node:path";
@@ -39,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import { createInterface } from "node:readline/promises";
 import MarkdownIt from "markdown-it";
 import { parse, NodeType } from "node-html-parser";
-import { proofread, glossaryCandidates, suggestTags } from "./lib/proofread.mjs";
+import { proofread, glossaryCandidates, suggestTags, suggestMetadata } from "./lib/proofread.mjs";
 
 const SPACE = "288632938663524";
 const API = `https://mapi.storyblok.com/v1/spaces/${SPACE}`;
@@ -399,6 +379,25 @@ async function resolveTags(data, text) {
   return tags;
 }
 
+// Auto-derive/generate any missing frontmatter so a raw article needs no manual
+// fence: title from the leading <h1>, slug from title, date = today, and
+// excerpt/SEO via Claude. Anything the frontmatter already provides is kept.
+const todayStamp = () => {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} 09:00`;
+};
+async function autofillFrontmatter(data, html) {
+  if (!data.title) data.title = parse(html).querySelector("h1")?.text.trim() || "";
+  if (!data.slug && data.title) data.slug = slugify(data.title);
+  if (!data.published_date) data.published_date = todayStamp();
+  const need = ["excerpt", "seo_title", "seo_description"].filter((k) => !data[k]);
+  if (need.length) {
+    const meta = await suggestMetadata(parse(html).text);
+    for (const k of need) if (meta[k]) data[k] = meta[k];
+  }
+}
+
 // Flatten a richtext doc to plain text (for the tag prompt).
 function richtextText(node, acc = []) {
   if (!node || typeof node !== "object") return acc;
@@ -419,6 +418,7 @@ if (!file) {
 let raw = readFileSync(resolve(file), "utf8");
 let { data, body } = parseFrontmatter(raw);
 const ext = extname(file).toLowerCase();
+await autofillFrontmatter(data, toHtml(body, ext));
 await promptMissing(data, basename(file, ext));
 
 ({ data, body, raw } = await runSourceChecks({ file, data, body, raw, dryRun }));
@@ -451,6 +451,8 @@ console.log(
     `${count("blockquote")} quote(s), ${count("bullet_list") + count("ordered_list")} list(s), ` +
     `${count("code_block")} code block(s), ${count("image")} image(s), ${count("link")} link(s)`,
 );
+console.log(`   date: ${content.published_date || "?"} · seo_title: ${JSON.stringify(content.seo_title || "")}`);
+console.log(`   excerpt: ${JSON.stringify((content.excerpt || "").slice(0, 100))}${content.excerpt.length > 100 ? "…" : ""}`);
 const warn = [];
 for (const [f, max] of [["title", 999], ["excerpt", 200], ["seo_title", 60], ["seo_description", 160]]) {
   if (!content[f] && (f === "title" || f === "excerpt")) warn.push(`missing ${f}`);
