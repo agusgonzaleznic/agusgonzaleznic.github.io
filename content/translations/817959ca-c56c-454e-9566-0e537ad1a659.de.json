@@ -1,0 +1,765 @@
+{
+  "slug": "alert-fatigue-and-fuck-bingo",
+  "full_slug": "blog/alert-fatigue-and-fuck-bingo",
+  "title": "Alert Fatigue und Fuck Bingo",
+  "excerpt": "Ein CTO, der jedes Problem wie einen SEV-1 behandelte, brachte seinem Team bei, eine „Fuck-Bingo“-Karte zu führen. Über Schimpfwörter, Macht und Alert Fatigue – wie Führungskräfte ihren Leuten still und leise abgewöhnen, ihnen zu sagen, was schiefläuft.",
+  "body": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Über Profanität, Macht und darüber, was passiert, wenn ein Leader zum lautesten Alert im System wird",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Der CTO beendete den Streit mit seiner Handfläche.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Sie knallte so hart auf den Konferenztisch, dass wir beide augenblicklich verstummten.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "„Das ist doch Bullshit. Ihr wollt einfach nicht die Arbeit machen.“",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Dann verließ er den Raum.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Ich war der VP of Engineering. Mein Gegenüber war unser Head of Backend Engineering, und wir hatten uns über mehr gestritten als nur die technische Entscheidung, die vor uns lag. Er sah das Infrastructure- und Security-Team als Blocker: Leute, die Aufgaben anhäufen, Regeln einführen und Entwickler ausbremsen. Ich sah in ihm jemanden, der jede Grenze als Einladung zum Verhandeln und jeden Vorschlag als etwas betrachtete, das man umgehen musste.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Als der CTO auf den Tisch schlug, hörte keiner von uns beiden mehr zu. Ich hatte meine Autorität ausgespielt. Ich hatte dem Head of Backend gesagt, dass die Ausrichtung der Engineering-Org meine Verantwortung sei und ich ihm nicht für jede Entscheidung eine Erklärung schulde. Er grub sich ein. Ich grub mich noch tiefer ein.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Der CTO hat den Konflikt nicht erzeugt. Was er tat, war, ihn von einer Meinungsverschiedenheit in einen Befehl zu verwandeln.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Er kam später zurück, nachdem er sich beruhigt hatte. Keine Entschuldigung, kein Versuch, aufzudröseln, was passiert war. Wir einigten uns darauf, etwas zu tun, das er ohnehin schon vorgeschlagen hatte. Auf dem Papier hatte das Meeting eine Entscheidung hervorgebracht. In der Praxis hatte es eine Lektion hervorgebracht: Konflikt war nur so lange akzeptabel, bis die mächtigste Person im Raum genug davon hatte.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Ich habe die Lektion gelernt. Ich habe dafür gesorgt, dass es vor ihm nicht noch einmal zu so einer Meinungsverschiedenheit kam. Ich hörte auf, den Head of Backend zu führen, und bat den CTO, die Beziehung zu übernehmen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Damals nannte ich das Deeskalation. Rückblickend hatte ich mich kleiner gemacht, um eine weitere Explosion zu vermeiden.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Das menschliche Alerting-System",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Man hätte den Ausbruch leichter abtun können, wäre er selten gewesen. War er aber nicht.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Ein kaputtes Deployment konnte ein „Warum zum Teufel hast du das nicht vorher getestet?“ auslösen. Aus einem Problem in der Mobile App wurde „Leute, nichts funktioniert. Nichts. Wir sind gerade komplett down.“ Die Entwickler hörten, dass das Produkt peinlich sei, die Qualität schlecht und dass es offenbar niemanden interessierte.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Irgendwann startete das Unternehmen einen 30-tägigen Hackathon, um das Release eines Produkts durchzudrücken. Die Führung schaffte große Countdown-Uhren an. Einen Monat lang wurde das Verstreichen der Zeit selbst zum Alarm.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Bei Ausfällen oder Incidents reagierte das Infrastruktur-Team so, wie Site Reliability Teams es gelernt haben: ruhig stürzten sie sich auf die Herausforderung, untersuchten sie und blieben wachsam. Das waren Engineers auf der Ebene, auf der schon eine kleine Änderung die größten Auswirkungen haben kann – die Möglichkeit eines Ausfalls war also real, gerade während eines 30-tägigen Hackathons mit kaum bis gar keinen klaren Anforderungen von einem nicht existenten Produktteam. Aber jeder Defekt, jedes Experiment und jede Meinungsverschiedenheit landete auf ungefähr demselben rhetorischen Schweregrad.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Mit der Zeit fingen die Witze an.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "„So würde es der CTO sagen“, schrieb dann jemand privat. Ein Engineer scherzte, er würde für den Monat ein „Fuck-Bingo“ führen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Fuck-Bingo war nicht nur Galgenhumor. Es war Deduplizierung. Die Engineers hatten sich einen sozialen Filter für das Rauschen der Führungsebene gebaut.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Im Site Reliability Engineering ist ein Alert nicht bloß die Beschreibung dessen, was ein Monitoring-System beobachtet hat. Er ist ein Anspruch auf die Aufmerksamkeit eines Menschen. Ein guter Alert signalisiert eine relevante Auswirkung und fordert eine Handlung ein. Ein schlechter feuert, weil sich eine Zahl bewegt hat.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Googles SRE-Leitfaden",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://sre.google/workbook/on-call/",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": " warnt davor, dass ein niedriges Signal-Rausch-Verhältnis zu Alert Fatigue führt. Menschen werden nicht wachsamer, wenn ein System sie ständig alarmiert. Sie lernen, dass man dem Alarm nicht trauen kann.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Führungssprache funktioniert genauso, nur dass Hierarchie zusätzliche Spannung reinbringt. Eine Nachricht von einem CTO wird nicht so gelesen wie eine von einem Kollegen auf Augenhöhe. Sie kommt von jemandem, der eine Roadmap umlenken, eine technische Entscheidung überstimmen und beeinflussen oder entscheiden kann, ob du noch einen Job hast.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Jedes „STOP“, jedes „ASAP“, jedes „Nichts funktioniert“ vergibt einen Schweregrad. Wenn alles wie ein SEV-1 klingt, gehen der Organisation irgendwann die Worte für einen echten Notfall aus.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Die naheliegende Schlussfolgerung wäre, dass Führungskräfte aufhören sollten zu fluchen, aber ehrlich gesagt halte ich das nicht für die richtige.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Es gibt einen Unterschied zwischen „dieser verdammte Outage“ und „Was zum Teufel machst du da?“. Das Erste stellt Sprecher und Zuhörer auf dieselbe Seite einer beschissenen Situation. Das Zweite macht den Zuhörer zum Incident.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Fluchen kann Humor, Vertrautheit, Überraschung oder gemeinsame Frustration signalisieren. Es kann aber auch demütigen. Was die Bedeutung verändert, ist nicht das Wort allein, sondern seine Richtung und die Macht dahinter. Slack macht diese Unterscheidung schwerer: Es nimmt das Grinsen und den Tonfall weg, bewahrt aber die Hierarchie.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Charity Majors flucht reichlich in ihren Texten. Sie gibt Managern aber auch eine viel bessere Regel an die Hand in ",
+            "type": "text"
+          },
+          {
+            "text": "„An Engineer’s Bill of Rights (and Responsibilities)“",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://charity.wtf/p/an-engineers-bill-of-rights-and-responsibilities",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": ": Sprich die harten Dinge aus, bring Dringlichkeit rein, wenn es sie braucht, und versuch, deine Emotionen nicht zum Problem aller anderen zu machen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Und genau bei diesem letzten Teil scheitert alarmierende Sprache. Sie überträgt den inneren Zustand der Führungskraft auf die Organisation und nennt das Ergebnis Alignment.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Ein ruhigeres Unternehmen ist kein sichereres",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Im Unternehmen wurde es schließlich ruhiger. Sicherer wurde es dadurch nicht.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Die Engineers lernten, Vorschläge erst dann einzubringen, wenn jede Annahme wasserdicht war. Neue Architekturideen und Proofs of Concept blieben so lange unsichtbar, bis sie kaum noch angreifbar waren – was den Iterationsprozess verlangsamte. Manche Pipeline-Failures wurden behoben, ohne dass sie je zur Sprache kamen. Sicherheitsprobleme wurden nicht immer so offen gemeldet, wie es nötig gewesen wäre. Und am schlimmsten: Konflikte zwischen Menschen in ihren Rollen wurden gar nicht mehr ans C-Level herangetragen – außer natürlich, das C-Level setzte dich mit HR im Raum zusammen und bat dich um Feedback zu jemandem, den sie ohnehin feuern wollten.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Die Bugs verschwanden. Die Umstände, die sie hervorbrachten, nicht.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Genau diesen Kreislauf beschrieb John Allspaw in Etsys ",
+            "type": "text"
+          },
+          {
+            "text": "„Blameless PostMortems and a Just Culture“",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://www.etsy.com/codeascraft/blameless-postmortems/",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": ". Wenn Menschen mit Bestrafung oder Demütigung rechnen, verschweigen sie genau die Details, die man braucht, um zu verstehen, warum ein Fehler für sie im Moment sinnvoll erschien. Allspaw nannte das Ergebnis „Cover-Your-Ass-Engineering“: Das Management weiß weniger, latente Probleme bleiben unsichtbar, und dieselbe Art von Fehler wird umso wahrscheinlicher wieder auftauchen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Das Team machte nicht weniger Fehler. Es lieferte nur keine brauchbaren Erkenntnisse mehr darüber.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Eine Führungskraft, die schlechte Nachrichten bestraft, legt am Ende ihre eigene Observability lahm.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Das ist – mehr noch als die Kraftausdrücke selbst – der Preis. Die Organisation beginnt, den Anschein von Kontrolle zu optimieren. Führungskräfte bekommen sauberere Status-Updates und ausgefeiltere Vorschläge. Sie hören weniger Einwände. Von oben sieht das nach Disziplin aus. Von unten fühlt es sich an, als lernte man, welche Informationen sicher zu teilen sind.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Es wäre verlockend, den CTO in dieser Geschichte zum simplen Bösewicht zu machen. War er aber nicht.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Er gehörte zu den technisch begabtesten Leuten im Unternehmen. Eine fachliche Diskussion mit ihm konnte wirklich großartig sein. Sein Beharren auf Standards machte den Code meistens besser. Das Produkt lag ihm sehr am Herzen, und er verstand Teile des Systems besser als jeder andere.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Genau das machte es schwieriger, dieses Verhalten in Frage zu stellen – und zugleich lehrreicher.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Führungsversagen beginnt oft als Stärke ohne Bremse. Fachliches Urteilsvermögen wird zum Bedürfnis, alles zu reviewen. Hohe Standards werden zur Geringschätzung unfertiger Arbeit. Die Fähigkeit, ein Projekt zu retten, wird zur Gewohnheit, es zu übernehmen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Manchmal verschwand der CTO in einem Solo-Arbeitsrausch und schrieb neu, woran die Entwickler eine Woche gebaut hatten. Der Rewrite war vielleicht sogar besser. Er brachte dem Team aber auch bei, dass Ownership nur vorläufig war: Deine Arbeit gehörte dir, bis die Person mit mehr Autorität beschloss, wieder Individual Contributor zu werden.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Michael Lopp bezeichnet dies als ",
+            "type": "text"
+          },
+          {
+            "text": "„Management via Worry and Crisis“",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://randsinrepose.com/archives/management-via-worry-and-crisis/",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": ". Seine nützlichste Beobachtung ist nicht, dass krisengetriebene Manager irrational handeln. Sondern dass eine Krise zum Bewältigungsmechanismus für den Kontrollverlust werden kann, der mit Führung einhergeht. Die Organisation wächst; die Arbeit rückt weiter weg; andere treffen Entscheidungen, die du nicht getroffen hättest. Eine Krise heraufzubeschwören holt die Arbeit – und die Aufmerksamkeit aller – zurück zu dir.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Es funktioniert – kurz. Deshalb überlebt die Gewohnheit.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Die Leute halten inne. Sie hören zu. Sie handeln. Die Führungskraft spürt, wie die Organisation reagiert.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Doch Bewegung ist nicht dasselbe wie Verständnis, und Gehorsam ist nicht dasselbe wie Commitment.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Befehle brauchen ein Ablaufdatum",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Den größten Teil meiner Karriere habe ich in Infrastructure und Security verbracht – dort gebaut und dafür programmiert … Systeme fangen tatsächlich Feuer. Manchmal ist der richtige Satz ein Imperativ.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "„Stopp mit dem Deployen.“",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Während eines Incidents kann dieser Befehl verhindern, dass fünf gut gemeinte Leute fünf neue Variablen einbringen. Wenn die Rolle des Incident Commander verstanden ist, weiß das Team, wer die Response koordiniert und wann die normale Entscheidungsfindung ausgesetzt ist. Ein gutes Incident Command liefert genug Kontext zum Handeln: Deployments stoppen, der Checkout schlägt fehl, Maria ist Incident Commander, Erkenntnisse in den Incident-Channel, nächstes Update um 14:25.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Die Legitimität kommt nicht aus der Lautstärke. Sie kommt aus dem Protokoll. Die Autorität wird deklariert, ist auf den Incident begrenzt und nützt den Leuten, die die Arbeit machen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Imperativische Sprache sollte eine TTL haben.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Joel Spolsky hat in ",
+            "type": "text"
+          },
+          {
+            "text": "„The Command and Control Management Method“",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://www.joelonsoftware.com/2006/08/08/the-command-and-control-management-method/",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": ". eine verwandte Unterscheidung getroffen. Command and Control kann sinnvoll sein, wenn Soldaten in einer Situation auf Leben und Tod sofort handeln müssen. Software-Organisationen sind anders: Die Person, die am dichtesten an der Arbeit dran ist, hat meist relevantere Informationen als die Führungskraft, die gerade den Raum betritt. Spolsky nannte die darauf folgende Unterbrechung durch die Führungskraft „Hit-and-run-Mikromanagement“. Die Führungskraft wirft die Arbeit aus der Bahn und zieht weiter, bevor sie mit den Konsequenzen leben muss.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "„Mach es einfach und stell es nicht infrage“ hat kein Protokoll und kein Ablaufdatum. Es behandelt ganz normale Wissensarbeit als Dauer-Incident und Widerspruch als Versagen bei der Umsetzung.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Entschlossenheit verlangt diesen Deal nicht.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "In dem Meeting, in dem der CTO auf den Tisch haute, hätte er uns immer noch unterbrechen können. Er hätte sagen können: Stopp. Ihr streitet über Zuständigkeit, nicht über das Problem. Jeder von euch fasst das Anliegen des anderen zusammen. Dann wählen wir den kleinsten Proof of Concept. Wenn ihr euch dann immer noch uneinig seid, treffe ich die Entscheidung und erkläre, warum.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Das sind Kommandos. Aber sie hätten dem Konflikt auch einen Ort gegeben, an den er kann.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Die härtere Wahrheit ist: Ich wollte, dass der CTO eine Form von Leadership zeigt, die ich selbst schon versäumt hatte zu zeigen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Ich hatte meinen Titel benutzt, um einen Streit zu beenden. Meine Sprache war ruhiger, aber die Botschaft war verwandt: Ich entscheide; du fügst dich. Am Anfang meiner Karriere dachte ich, Autorität bedeute, dass ich mich nicht mehr mit so vielen Leuten abstimmen muss. Als ich wuchs, mich weiterbildete, Mentoring und Coaching von Menschen bekam, die ich immer noch bewundere, wie ",
+            "type": "text"
+          },
+          {
+            "text": "„Ingrid Rivera“",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://ar.linkedin.com/in/ingrid-rivera-2211563b",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": " habe ich gelernt, dass Autorität die Pflicht vergrößert, Kontext zu liefern – besonders dann, wenn andere gar nicht die Macht haben, deine Entscheidung abzulehnen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Kontext ist kein Konsens. Rücksprache ist kein Veto. Eine Führungskraft kann sagen, dass ein Projekt bereits läuft und ohne neue Belege nicht gestoppt wird. Die Tür, die offen bleiben muss, ist schmaler: Zeig mir, welche Annahme falsch ist, und wir korrigieren den Kurs.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Ich arbeite ständig daran. Coaching und Journaling helfen, aber der nützliche Moment ist viel kleiner: die Pause zwischen dem Gefühl, übergangen zu werden, und dem Versuch, zu beweisen, dass ich die Autorität im Raum bin. Verteidige ich die Entscheidung, oder verteidige ich mich selbst?",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Wenn ich diesen Moment verpasse, muss auch die Wiedergutmachung klar sein: Ich habe meinen Rang ausgespielt. Das hat das Gespräch abgewürgt. Tut mir leid. Lass es uns wieder öffnen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Mein Vater hatte eine weniger technische Version von all dem:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "blockquote",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Tenés dos orejas y una boca: escuchá el doble de lo que hablás.",
+                "type": "text"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Du hast zwei Ohren und einen Mund. Hör doppelt so viel zu, wie du redest.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Das sagte er immer, als ich jung war und dazu neigte, mich in eine Situation zu stürzen, bevor ich sie verstanden hatte. Ich habe Jahre gebraucht, um zu erkennen, dass dieser Rat umso wichtiger wird, je mehr Autorität du bekommst. Je höher du steigst, desto weniger Leute sagen dir, dass du zu laut bist. Stattdessen bauen sie Filter.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Führungskräfte merken selten den Moment, in dem ihre Dringlichkeit zu Lärm wird. Das Team merkt es zuerst.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Wenn du Glück hast, machen sie dann eine Bingo-Karte. Wenn nicht, hören sie einfach auf, dir zu sagen, was schiefläuft.",
+            "type": "text"
+          }
+        ]
+      }
+    ]
+  },
+  "cover_image": null,
+  "published_date": "2026-07-19 09:00",
+  "first_published_at": "2026-07-19T12:53:06.880Z",
+  "published_at": "2026-07-19T12:53:06.880Z",
+  "original_url": "",
+  "seo_title": "Alert Fatigue und Fuck Bingo: Schimpfwörter und Macht bei der Arbeit",
+  "seo_description": "Die ständige SEV-1-Sprache eines CTOs führte zu Alert Fatigue und einer „Fuck-Bingo“-Karte. Über Schimpfwörter, Macht und darüber, wie du deine eigene Observability lahmlegst, wenn du schlechte Nachrichten bestrafst.",
+  "canonical_override": "",
+  "tag_list": [],
+  "uuid": "817959ca-c56c-454e-9566-0e537ad1a659"
+}

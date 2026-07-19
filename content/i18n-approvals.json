@@ -30,5 +30,19 @@
       "reviewedAt": null,
       "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
     }
+  },
+  "817959ca-c56c-454e-9566-0e537ad1a659": {
+    "de": {
+      "status": "pending",
+      "sourceHash": "02585da3b0c45d13e5a44233",
+      "provenance": "auto-mt",
+      "reviewedAt": null
+    },
+    "es": {
+      "status": "pending",
+      "sourceHash": "02585da3b0c45d13e5a44233",
+      "provenance": "auto-mt",
+      "reviewedAt": null
+    }
   }
 }
