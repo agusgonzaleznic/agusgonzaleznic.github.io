@@ -85,6 +85,59 @@ export async function proofread(text) {
 }
 
 /**
+ * Generate the SEO/teaser metadata for a post from its text: { excerpt (<=200,
+ * also the default meta description), seo_title (<=60), seo_description (<=160) }.
+ * Returns {} with no key/SDK; never throws. Lengths are enforced.
+ */
+export async function suggestMetadata(text) {
+  if (!hasAnthropicKey() || !text.trim()) return {};
+  let Anthropic;
+  try {
+    Anthropic = (await import("@anthropic-ai/sdk")).default;
+  } catch {
+    return {};
+  }
+  const system = [
+    "You write publication metadata for a blog post by a senior engineering-leadership coach.",
+    "Return: excerpt (one or two sentences, <=200 chars, a teaser that also works as the default meta description); seo_title (<=60 chars, specific and compelling); seo_description (<=160 chars, a meta description).",
+    "Match the author's voice: direct, warm, informal-professional — never clickbait or corporate filler.",
+    "Keep English tech/coaching loanwords and any profanity from the source as-is. Do NOT wrap terms in quotation marks that the source doesn't quote.",
+  ].join(" ");
+  try {
+    const client = new Anthropic({ apiKey: resolveAnthropicKey() });
+    const res = await client.messages.create({
+      model: MODEL,
+      max_tokens: 1024,
+      system,
+      output_config: {
+        format: {
+          type: "json_schema",
+          schema: {
+            type: "object",
+            properties: {
+              excerpt: { type: "string" },
+              seo_title: { type: "string" },
+              seo_description: { type: "string" },
+            },
+            required: ["excerpt", "seo_title", "seo_description"],
+            additionalProperties: false,
+          },
+        },
+      },
+      messages: [{ role: "user", content: text.slice(0, 8000) }],
+    });
+    if (res.stop_reason === "refusal") return {};
+    const out = res.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+    const m = JSON.parse(out);
+    const clip = (s, n) => (typeof s === "string" ? s.trim().slice(0, n) : "");
+    return { excerpt: clip(m.excerpt, 200), seo_title: clip(m.seo_title, 60), seo_description: clip(m.seo_description, 160) };
+  } catch (err) {
+    console.warn(`  metadata suggestion: skipped (${err?.message ?? err}).`);
+    return {};
+  }
+}
+
+/**
  * Suggest 4-6 language-agnostic topic tags for a post, preferring to reuse the
  * tags already in use (passed as `existing`) so the taxonomy stays consistent.
  * Returns [] with no key/SDK; never throws.

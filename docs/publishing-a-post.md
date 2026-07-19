@@ -23,7 +23,7 @@ That's it. Everything below is detail.
 | Proofread the English source | **automated** (`new-post.mjs`, needs `ANTHROPIC_API_KEY`) |
 | Suggest do-not-translate glossary terms | **automated** (`new-post.mjs`) |
 | Generate + attach tags | **automated** (`new-post.mjs`) |
-| Fill SEO / metadata fields | **automated** from frontmatter, **prompts** for anything missing |
+| Title/slug/date + excerpt/SEO metadata | **automated** (title from `# H1`, excerpt/SEO via Claude); frontmatter optional and overrides |
 | Translate FR / IT / PT | **automated** at build (DeepL + Claude voice pass), ships immediately, disclosed as machine translation |
 | Translate DE / ES | **automated** draft, but **gated** — not shown until you review + approve them |
 | Review any language | **you**, in the local review app (`review-translations.mjs`) — no GitHub PRs |
@@ -41,30 +41,38 @@ That's it. Everything below is detail.
 
 ## Step 1 — Write the article
 
-A Markdown or HTML file. Add a frontmatter fence for the metadata (any field you
-omit, the importer will prompt for):
+Just write a Markdown or HTML file with a normal `# Title` heading and the body.
+**No frontmatter needed** — the importer derives everything: title from the `# H1`,
+slug from the title, `published_date` = today, and it generates the excerpt + SEO
+fields + tags with Claude. You review it all in Storyblok afterward.
 
-```yaml
----
-slug: my-post                 # URL segment → /blog/my-post
-title: My Post Title
-excerpt: One-sentence teaser (<=200 chars; also the default meta description).
-seo_title: Optional <title> override (<=60)
-seo_description: Optional meta description override (<=160)
-published_date: 2026-07-19 09:00
-original_url:                 # ONLY if republished elsewhere first; empty = canonical to your site
-canonical_override:           # leave empty
-tags:                         # optional; empty = auto-suggested from the content
----
-
+```markdown
 # My Post Title
+
 Body goes here…
 ```
 
-- A leading `# H1` is dropped automatically (the `title` field owns the headline).
+Frontmatter is still **optional** — add a fence to override any auto-derived value
+(and it's the only way to set a few things):
+
+```yaml
+---
+slug: my-post                 # override the auto slug
+excerpt: …                    # override the generated teaser / meta description (<=200)
+seo_title: …                  # override (<=60)
+seo_description: …            # override (<=160)
+published_date: 2026-07-19 09:00
+original_url:                 # ONLY if republished elsewhere first; empty = canonical to your site
+tags:                         # comma-separated; empty = auto-suggested
+---
+```
+
+- A leading `# H1` is dropped from the body (the `title` field owns the headline).
 - **`original_url`**: leave it **empty** for posts original to your site (they
   self-canonical). Only set it if the post was published somewhere else first —
   then the canonical points there. Getting this wrong hands your SEO to another site.
+- Without `ANTHROPIC_API_KEY`, generation is skipped and the importer prompts for
+  the missing fields instead.
 
 ## Step 2 — Import
 
@@ -78,7 +86,7 @@ This creates the **draft** story `blog/<slug>` in Storyblok and, along the way:
 - **proofreads** the English source and offers to apply fixes;
 - flags **glossary candidates** (acronyms/product names not in the do-not-translate list) to add;
 - **suggests tags** (reusing existing ones) and attaches them;
-- fills SEO/metadata from frontmatter, prompting for anything missing.
+- derives title/slug/date and generates excerpt + SEO (frontmatter overrides; prompts only if there's no key).
 
 Flags: `--dry-run` (preview the Richtext, no API call), `--no-prompt`, `--no-proofread`.
 
