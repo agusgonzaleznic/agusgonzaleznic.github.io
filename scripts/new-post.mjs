@@ -20,11 +20,14 @@ import { createInterface } from "node:readline/promises";
 import MarkdownIt from "markdown-it";
 import { parse, NodeType } from "node-html-parser";
 import { proofread, glossaryCandidates, suggestTags, suggestMetadata } from "./lib/proofread.mjs";
+import { ensureTagTranslations } from "./lib/tag-i18n.mjs";
 
 const SPACE = "288632938663524";
 const API = `https://mapi.storyblok.com/v1/spaces/${SPACE}`;
 const BLOG_FOLDER_SLUG = "blog";
 const GLOSSARY_PATH = fileURLToPath(new URL("./i18n-glossary.json", import.meta.url));
+const TAGMAP_PATH = fileURLToPath(new URL("../content/tag-translations.json", import.meta.url));
+const NON_EN_LOCALES = ["de", "es", "fr", "it", "pt"];
 
 // ── frontmatter ─────────────────────────────────────────────────────────────
 function parseFrontmatter(raw) {
@@ -470,7 +473,11 @@ if (dryRun) {
 // Tags (global, language-agnostic): frontmatter `tags:` or auto-suggested.
 const tagText = [data.title, data.excerpt, richtextText(richtext).join(" ")].filter(Boolean).join("\n");
 const tag_list = await resolveTags(data, tagText);
-if (tag_list.length) console.log(`   tags: ${tag_list.join(", ")}`);
+if (tag_list.length) {
+  console.log(`   tags: ${tag_list.join(", ")}`);
+  const added = await ensureTagTranslations(tag_list, NON_EN_LOCALES, TAGMAP_PATH);
+  if (added) console.log(`   ✓ localized ${added} tag/locale label(s) → content/tag-translations.json (commit it)`);
+}
 
 const fullSlug = `blog/${slug}`;
 const existing = await findStory(fullSlug);

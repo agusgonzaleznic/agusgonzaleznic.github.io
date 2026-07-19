@@ -28,6 +28,7 @@ import {
   loadApprovals,
 } from "./lib/blog-gate.mjs";
 import { fetchPublishedPosts } from "./lib/storyblok-fetch.mjs";
+import { loadTagMap, localizeTags, unmappedTags } from "./lib/tag-i18n.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const generatedDir = resolve(__dirname, "../src/generated");
@@ -38,6 +39,7 @@ const localesTsPath = resolve(__dirname, "../src/i18n/locales.ts");
 // Review-gate state (see scripts/lib/blog-gate.mjs).
 const approvalsPath = resolve(__dirname, "../content/i18n-approvals.json");
 const reviewedDir = resolve(__dirname, "../content/translations");
+const tagMapPath = resolve(__dirname, "../content/tag-translations.json");
 
 const token = process.env.STORYBLOK_PUBLIC_TOKEN;
 // draft override is for local preview builds only (requires a preview token).
@@ -82,8 +84,25 @@ function withCurrentGlobals(reviewedObj, post) {
   };
 }
 
+// Replace each post's (English) tag_list with localized labels for `locale`,
+// warning once about any tag missing from the map (falls back to English).
+function localizePostTags(arr, locale, tagMap) {
+  const missing = new Set();
+  for (const p of arr) {
+    for (const t of unmappedTags(p.tag_list, locale, tagMap)) missing.add(t);
+    p.tag_list = localizeTags(p.tag_list, locale, tagMap);
+  }
+  if (missing.size) {
+    console.warn(
+      `  ⚠ fetch-blog: ${locale} tags with no translation (English fallback): ${[...missing].join(", ")} ` +
+        "— run the importer or edit content/tag-translations.json",
+    );
+  }
+}
+
 async function translateBlog(posts) {
   const published = readPublishedLocales(localesTsPath);
+  const tagMap = loadTagMap(tagMapPath);
 
   // Review-gated locales: assemble from committed reviewed content. A post is
   // included only when its approved_locales set contains the locale (approved +
@@ -103,6 +122,7 @@ async function translateBlog(posts) {
       }
       reviewed.push(withCurrentGlobals(JSON.parse(readFileSync(file, "utf-8")), post));
     }
+    localizePostTags(reviewed, locale, tagMap);
     writeFileSync(
       resolve(generatedDir, blogDataFilename(locale)),
       `${JSON.stringify(reviewed, null, 2)}\n`,
@@ -158,6 +178,7 @@ async function translateBlog(posts) {
         localized.push((await translateStories([post], locale, translator))[0]);
       }
     }
+    localizePostTags(localized, locale, tagMap);
     const localeFile = resolve(generatedDir, blogDataFilename(locale));
     writeFileSync(localeFile, `${JSON.stringify(localized, null, 2)}\n`);
     console.log(
