@@ -33,15 +33,18 @@
 // SECURITY: the management token is read ONLY from the environment
 // (STORYBLOK_MANAGEMENT_TOKEN, injected by `op run`). Never hardcode it.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { extname, resolve, basename } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createInterface } from "node:readline/promises";
 import MarkdownIt from "markdown-it";
 import { parse, NodeType } from "node-html-parser";
+import { proofread, glossaryCandidates } from "./lib/proofread.mjs";
 
 const SPACE = "288632938663524";
 const API = `https://mapi.storyblok.com/v1/spaces/${SPACE}`;
 const BLOG_FOLDER_SLUG = "blog";
+const GLOSSARY_PATH = fileURLToPath(new URL("./i18n-glossary.json", import.meta.url));
 
 // ── frontmatter ─────────────────────────────────────────────────────────────
 function parseFrontmatter(raw) {
@@ -302,18 +305,89 @@ async function promptMissing(data, fallbackName) {
   rl.close();
 }
 
+// ── source checks (proofread + glossary), before the draft is created ─────────
+const occurrences = (s, sub) => (sub ? s.split(sub).length - 1 : 0);
+
+// Proofread the English source and surface do-not-translate candidates BEFORE the
+// content reaches Storyblok / translation. Mutates data/body in place for fixes
+// the author accepts (and best-effort-syncs the source file); returns the raw.
+// Everything is advisory — proofread degrades to a no-op without ANTHROPIC_API_KEY.
+async function runSourceChecks({ file, data, body, raw, dryRun }) {
+  const interactive = process.stdin.isTTY && !process.argv.includes("--no-prompt") && !dryRun;
+  const prose = [data.title, data.excerpt, data.seo_title, data.seo_description, body]
+    .filter(Boolean)
+    .join("\n\n");
+
+  if (!process.argv.includes("--no-proofread")) {
+    const { ran, issues } = await proofread(prose);
+    if (!ran) console.log("  proofread: skipped (no ANTHROPIC_API_KEY / SDK).");
+    else if (!issues.length) console.log("  ✓ proofread: no issues.");
+    else {
+      console.log(`  ⚠ proofread found ${issues.length} issue(s):`);
+      for (const it of issues) console.log(`     • "${it.original}" → "${it.suggestion}"  (${it.reason})`);
+      let apply = false;
+      if (interactive) {
+        const rl = createInterface({ input: process.stdin, output: process.stdout });
+        const ans = (await rl.question("  Apply these fixes to the source before importing? [Y/n] ")).trim().toLowerCase();
+        rl.close();
+        apply = ans === "" || ans === "y" || ans === "yes";
+      } else {
+        console.log("  (not applying automatically — fix the source and re-run)");
+      }
+      if (apply) {
+        let applied = 0;
+        const stuck = [];
+        for (const it of issues) {
+          if (occurrences(body, it.original) === 1) body = body.replace(it.original, it.suggestion);
+          else {
+            const f = ["title", "excerpt", "seo_title", "seo_description"].find(
+              (k) => data[k] && occurrences(data[k], it.original) === 1,
+            );
+            if (f) data[f] = data[f].replace(it.original, it.suggestion);
+            else { stuck.push(it.original); continue; }
+          }
+          if (occurrences(raw, it.original) === 1) raw = raw.replace(it.original, it.suggestion); // sync file
+          applied += 1;
+        }
+        writeFileSync(resolve(file), raw);
+        console.log(`  ✓ applied ${applied} fix(es)` + (stuck.length ? `; ${stuck.length} couldn't be auto-located — fix manually` : ""));
+      }
+    }
+  }
+
+  const gloss = JSON.parse(readFileSync(GLOSSARY_PATH, "utf8"));
+  const candidates = glossaryCandidates(prose, gloss.terms);
+  if (candidates.length) {
+    console.log(`  glossary candidates (not in the do-not-translate list): ${candidates.join(", ")}`);
+    if (interactive) {
+      const rl = createInterface({ input: process.stdin, output: process.stdout });
+      const ans = (await rl.question("  Add any to the glossary? (comma-separated, or Enter to skip) ")).trim();
+      rl.close();
+      const add = ans.split(",").map((s) => s.trim()).filter(Boolean).filter((t) => !gloss.terms.includes(t));
+      if (add.length) {
+        gloss.terms.push(...add);
+        writeFileSync(GLOSSARY_PATH, `${JSON.stringify(gloss, null, 2)}\n`);
+        console.log(`  ✓ added ${add.join(", ")} to scripts/i18n-glossary.json — remember to commit it`);
+      }
+    }
+  }
+  return { data, body, raw };
+}
+
 // ── main ────────────────────────────────────────────────────────────────────
 const file = process.argv[2];
 const dryRun = process.argv.includes("--dry-run");
 if (!file) {
-  console.error("Usage: node scripts/new-post.mjs <file.md|file.html> [--dry-run] [--no-prompt]");
+  console.error("Usage: node scripts/new-post.mjs <file.md|file.html> [--dry-run] [--no-prompt] [--no-proofread]");
   process.exit(1);
 }
 
-const raw = readFileSync(resolve(file), "utf8");
-const { data, body } = parseFrontmatter(raw);
+let raw = readFileSync(resolve(file), "utf8");
+let { data, body } = parseFrontmatter(raw);
 const ext = extname(file).toLowerCase();
 await promptMissing(data, basename(file, ext));
+
+({ data, body, raw } = await runSourceChecks({ file, data, body, raw, dryRun }));
 
 const richtext = htmlToRichtext(toHtml(body, ext));
 
