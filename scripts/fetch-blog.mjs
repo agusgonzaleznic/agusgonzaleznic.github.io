@@ -62,6 +62,26 @@ function writeOutput(posts) {
 //     post-edit). KEYLESS → skipped, so those files fall back to English.
 // English (blog-data.json) is written by writeOutput() before this runs; each
 // post already carries its baked `approved_locales`.
+
+// A reviewed translation file is a frozen snapshot: it holds the correct
+// TRANSLATED text but its GLOBAL, non-translated fields (tags, cover image,
+// dates, urls) are stale if the story changed after review. Always take those
+// from the CURRENT English story so every locale — reviewed or auto — stays in
+// sync. (tag_list is global in Storyblok: one set of tags shared by all locales.)
+function withCurrentGlobals(reviewedObj, post) {
+  return {
+    ...reviewedObj,
+    tag_list: post.tag_list,
+    cover_image: post.cover_image,
+    published_date: post.published_date,
+    first_published_at: post.first_published_at,
+    published_at: post.published_at,
+    original_url: post.original_url,
+    canonical_override: post.canonical_override,
+    approved_locales: post.approved_locales,
+  };
+}
+
 async function translateBlog(posts) {
   const published = readPublishedLocales(localesTsPath);
 
@@ -81,7 +101,7 @@ async function translateBlog(posts) {
           `fetch-blog: ${post.uuid} is approved for "${locale}" but ${file} is missing.`,
         );
       }
-      reviewed.push(JSON.parse(readFileSync(file, "utf-8")));
+      reviewed.push(withCurrentGlobals(JSON.parse(readFileSync(file, "utf-8")), post));
     }
     writeFileSync(
       resolve(generatedDir, blogDataFilename(locale)),
@@ -132,7 +152,7 @@ async function translateBlog(posts) {
       const appr = approvals[post.uuid]?.[locale];
       const file = resolve(reviewedDir, `${post.uuid}.${locale}.json`);
       if (appr?.status === "approved" && appr.sourceHash === enSourceHash(post) && existsSync(file)) {
-        localized.push(JSON.parse(readFileSync(file, "utf-8")));
+        localized.push(withCurrentGlobals(JSON.parse(readFileSync(file, "utf-8")), post));
         reviewed += 1;
       } else {
         localized.push((await translateStories([post], locale, translator))[0]);
