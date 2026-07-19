@@ -34,7 +34,8 @@
 // (STORYBLOK_MANAGEMENT_TOKEN, injected by `op run`). Never hardcode it.
 
 import { readFileSync } from "node:fs";
-import { extname, resolve } from "node:path";
+import { extname, resolve, basename } from "node:path";
+import { createInterface } from "node:readline/promises";
 import MarkdownIt from "markdown-it";
 import { parse, NodeType } from "node-html-parser";
 
@@ -264,22 +265,61 @@ async function blogFolderId() {
   return folder.id;
 }
 
+// ── interactive prompts for missing frontmatter ─────────────────────────────
+const slugify = (s) =>
+  s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+
+// Ask, one field at a time, for anything the frontmatter didn't supply. Only in
+// an interactive terminal (skipped under a pipe / CI, or with --no-prompt), so
+// automated runs still work off frontmatter alone.
+async function promptMissing(data, fallbackName) {
+  const fields = ["title", "slug", "excerpt", "published_date", "seo_title", "seo_description", "original_url"];
+  if (process.argv.includes("--no-prompt") || !process.stdin.isTTY) return;
+  if (fields.every((k) => data[k])) return;
+  const now = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  const today = `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())} 09:00`;
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  const ask = async (key, label, def = "") => {
+    if (data[key]) return;
+    const ans = (await rl.question(`  ${label}${def ? `  [${def}]` : ""}\n  > `)).trim();
+    data[key] = ans || def;
+  };
+  try {
+    console.log("\nMissing frontmatter — press Enter to accept a [default]:");
+    await ask("title", "Title");
+    await ask("slug", "Slug (URL segment under /blog/)", slugify(data.title || fallbackName));
+    await ask("excerpt", "Excerpt (<=200 — also the default meta description)");
+    await ask("published_date", "Published date (YYYY-MM-DD HH:MM)", today);
+    await ask("seo_title", "SEO title (<=60 — blank falls back to Title)");
+    await ask("seo_description", "SEO description (<=160 — blank falls back to Excerpt)");
+    await ask("original_url", "Original URL (only if republished first elsewhere — blank = self-canonical)");
+  } catch {
+    rl.close();
+    console.error("\nCancelled.");
+    process.exit(1);
+  }
+  rl.close();
+}
+
 // ── main ────────────────────────────────────────────────────────────────────
 const file = process.argv[2];
 const dryRun = process.argv.includes("--dry-run");
 if (!file) {
-  console.error("Usage: node scripts/new-post.mjs <file.md|file.html> [--dry-run]");
+  console.error("Usage: node scripts/new-post.mjs <file.md|file.html> [--dry-run] [--no-prompt]");
   process.exit(1);
 }
 
 const raw = readFileSync(resolve(file), "utf8");
 const { data, body } = parseFrontmatter(raw);
 const ext = extname(file).toLowerCase();
+await promptMissing(data, basename(file, ext));
+
 const richtext = htmlToRichtext(toHtml(body, ext));
 
 const slug = data.slug;
 if (!slug) {
-  console.error("Frontmatter needs a `slug:` (the URL segment under /blog/).");
+  console.error("A `slug` is required (provide it in frontmatter or at the prompt).");
   process.exit(1);
 }
 const content = {
