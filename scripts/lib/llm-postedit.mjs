@@ -33,11 +33,12 @@
 // Bump when the prompt, model, or recipe changes so the salted cache regenerates
 // post-edited entries on the next keyed build instead of serving stale ones.
 // pe2: register switched to informal German (du) + Argentine voseo Spanish.
-// NOT bumped for the profanity + foreign-language-quotation rules (added later):
-// those are ADDITIVE and only fire on strings that contain profanity or a
-// non-target-language quote — none of the already-cached content does, so
-// re-translating it would produce identical output while risking drift. New/
-// edited strings are uncached and pick up the new rules on their first pass.
+// NOT bumped for the profanity / foreign-quote / quotation-marks rules: rather
+// than re-translate every locale, we regenerate ONLY the affected locale on a
+// one-off build with REGEN_LOCALES=<locale> (which drops that locale's cache so
+// it re-translates with the current prompt at the same salt). The quotation-marks
+// rule was added to fix French over-quoting unquoted English loanwords
+// («Fuck Bingo»); FR was regenerated that way, IT/PT/de/es were unaffected.
 export const POSTEDIT_VERSION = "pe2";
 
 // Post-editing is a well-scoped rewrite, not deep reasoning — the widely-used
@@ -176,6 +177,7 @@ function buildSystemPrompt(locale, glossaryTerms) {
     'CTAs / IMPERATIVE: for HEADLINES and persuasive MARKETING / conversion CTAs (e.g. "Lead an Engineering Org…", "Book a Session", "Book an Intro Call", "Get Started") use the target\'s SECOND-PERSON INFORMAL IMPERATIVE — never the infinitive or a formal form. E.g. "Lead" → de "Führe", es voseo "Dirigí", fr "Dirige" (not "Diriger"), it "Guida", pt "Lidera"; "Book a Session" → de "Buche eine Session", fr "Réserve une séance", pt "Marca uma sessão". BUT functional / system UI controls (form submit, cookie Accept / Decline, "Read" / "Read more" links, "Back to home", menu / settings actions) follow the target language\'s standard UI convention — in de / fr / pt that is the INFINITIVE (de "Akzeptieren" / "Ablehnen" / "Nachricht senden" / "Lesen", fr "Accepter" / "Refuser", pt "Aceitar" / "Ler"), NOT the imperative, which reads oddly commanding on a functional control. The informal register (du / tu / voseo, never a formal form) applies to BOTH.',
     'PROFANITY & STRONG LANGUAGE: when the source swears or uses strong language, keep it — render an equally strong, natural equivalent in the target; never soften, censor, euphemize, or drop it. Preserve its DIRECTION, which carries the meaning: profanity aimed at a SITUATION and shared with the reader ("this fucking outage") stays solidary/inclusive, while profanity aimed AT a person ("what the fuck are you doing?") stays confrontational. The informal register still applies.',
     "FOREIGN-LANGUAGE QUOTATIONS: if the source contains a quotation already written in a language OTHER than the target (e.g. a Spanish saying quoted inside English prose), reproduce that quotation VERBATIM — do not translate it — and translate only the surrounding narration. If the target IS that quotation's language, keep the quote exactly as written in the source.",
+    "QUOTATION MARKS: reproduce the source's quotation EXACTLY — the same spans are quoted, nothing more and nothing less — rendered in the target language's convention (French «guillemets» with non-breaking spaces inside, German „low-high“, Spanish «angulares», Italian «», European Portuguese «» or “”). Do NOT add quotation marks around English loanwords, brand/tech terms, titles, or any phrase that is NOT quoted in the source — e.g. an unquoted “Fuck Bingo” in a title stays unquoted (never «Fuck Bingo»). And do NOT drop quotation marks the source has.",
     ...(REGISTER_RULES[locale] ?? []),
   ];
   if (glossaryTerms.length) {
