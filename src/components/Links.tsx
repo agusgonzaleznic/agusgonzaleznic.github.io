@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { LocaleLink } from "@/components/LocaleLink";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { resolveLinkIcon } from "@/lib/storyblok-icons";
 import type { PageBlock } from "@/lib/pages";
 import profileImage from "@/assets/profile.jpg";
@@ -131,13 +132,16 @@ export const Links = ({ block }: { block?: LinksBlock }) => {
           ))}
         </nav>
 
-        <div className="mt-12 text-center">
+        <div className="mt-12 flex flex-col items-center gap-4">
           <LocaleLink
             to="/"
             className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-accent hover:underline"
           >
             agusgonzaleznic.com
           </LocaleLink>
+          {/* Minimal on-page language switch — the page has no nav, so this is
+              the only affordance to change language. Crawlable + instant. */}
+          <LanguageSwitcher variant="inline" />
         </div>
       </div>
     </div>
