@@ -218,8 +218,9 @@ resource "storyblok_component" "link_item" {
     label       = { type = "text", position = 0, display_name = "Label", required = true }
     url         = { type = "text", position = 1, display_name = "URL", required = true, description = "https URL, mailto:, or internal path like /blog" }
     description = { type = "text", position = 2, display_name = "Description (optional)" }
-    icon        = { type = "option", position = 3, display_name = "Icon", options = [{ name = "LinkedIn", value = "Linkedin" }, { name = "GitHub", value = "Github" }, { name = "Email", value = "Mail" }, { name = "Calendar / Booking", value = "Calendar" }, { name = "Blog / Book", value = "BookOpen" }, { name = "Writing (Medium)", value = "PenLine" }, { name = "Website", value = "Globe" }, { name = "YouTube", value = "Youtube" }, { name = "Twitter", value = "Twitter" }, { name = "X", value = "X" }, { name = "RSS", value = "Rss" }, { name = "Generic link", value = "Link" }] }
+    icon        = { type = "option", position = 3, display_name = "Icon", options = [{ name = "LinkedIn", value = "Linkedin" }, { name = "GitHub", value = "Github" }, { name = "Email", value = "Mail" }, { name = "Calendar / Booking", value = "Calendar" }, { name = "Blog / Book", value = "BookOpen" }, { name = "Writing (Medium)", value = "PenLine" }, { name = "Website", value = "Globe" }, { name = "YouTube", value = "Youtube" }, { name = "Twitter", value = "Twitter" }, { name = "X", value = "X" }, { name = "RSS", value = "Rss" }, { name = "Generic link", value = "Link" }, { name = "Coffee / Buy Me a Coffee", value = "Coffee" }] }
     is_profile  = { type = "boolean", position = 4, display_name = "Identity link (adds to sameAs + rel=me)", default_value = "false" }
+    image       = { type = "asset", position = 5, display_name = "Custom logo (optional)", filetypes = ["images"], description = "Overrides the icon. Upload a single-colour SVG or transparent PNG — rendered monochrome to match." }
   }
 }
 

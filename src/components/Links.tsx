@@ -12,6 +12,8 @@ export interface LinkField {
   icon?: string;
   /** Identity link ("me elsewhere") → gets rel="me" + feeds Person.sameAs. */
   is_profile?: boolean;
+  /** Optional uploaded logo (Storyblok asset). Overrides `icon`; rendered monochrome. */
+  image?: { filename?: string | null; alt?: string | null } | null;
 }
 
 // The /links page content (links_block blok on a `page` story).
@@ -35,10 +37,34 @@ const LinkRow = ({ link }: { link: LinkField }) => {
   const url = (link.url ?? "").trim();
   if (!link.label || !url || !isSafeUrl(url)) return null;
   const Icon = resolveLinkIcon(link.icon);
+  // A custom uploaded logo overrides the icon. It's painted as a single-colour
+  // CSS mask (bg-current), so any SVG / transparent-PNG comes out monochrome and
+  // matches the built-in lucide icons regardless of the asset's own colours.
+  const rawLogo = link.image?.filename ?? "";
+  const logo = /^(https?:)?\/\//.test(rawLogo) ? rawLogo : "";
+  const glyph = logo ? (
+    <span
+      className="h-5 w-5 bg-current"
+      role="img"
+      aria-label={link.image?.alt || link.label}
+      style={{
+        maskImage: `url("${logo}")`,
+        WebkitMaskImage: `url("${logo}")`,
+        maskRepeat: "no-repeat",
+        WebkitMaskRepeat: "no-repeat",
+        maskPosition: "center",
+        WebkitMaskPosition: "center",
+        maskSize: "contain",
+        WebkitMaskSize: "contain",
+      }}
+    />
+  ) : (
+    <Icon className="h-5 w-5" aria-hidden="true" />
+  );
   const inner = (
     <>
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary text-foreground">
-        <Icon className="h-5 w-5" aria-hidden="true" />
+        {glyph}
       </span>
       <span className="min-w-0 flex-1">
         <span className="block font-medium text-foreground">{link.label}</span>

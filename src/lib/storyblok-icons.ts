@@ -29,6 +29,7 @@ import {
   Twitter,
   X,
   Rss,
+  Coffee,
   Link as LinkIcon,
   ExternalLink,
   type LucideIcon,
@@ -73,6 +74,7 @@ export const LINK_ICON_MAP: Record<string, LucideIcon> = {
   Twitter,
   X,
   Rss,
+  Coffee,
   Link: LinkIcon,
 };
 
