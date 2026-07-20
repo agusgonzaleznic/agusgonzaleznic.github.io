@@ -5,13 +5,13 @@ import { Services, type ServicesBlock } from "@/components/Services";
 import { Testimonials, type TestimonialsBlock } from "@/components/Testimonials";
 import { RelatedPages } from "@/components/RelatedPages";
 import { SITE_URL } from "@/lib/blog";
-import { getPageContent, getBlock } from "@/lib/pages";
+import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
 import { localeFromPath, localizePath, SOURCE_LOCALE } from "@/i18n/locales";
 
-const ServicesPage = () => {
+const ServicesPage = ({ previewContent }: PagePreviewProps) => {
   const { t } = useLingui();
   const locale = localeFromPath(useLocation().pathname);
-  const content = getPageContent("services", locale);
+  const content = previewContent ?? getPageContent("services", locale);
   const servicesBlock = getBlock<ServicesBlock>(content, "services_block");
   const testimonialsBlock = getBlock<TestimonialsBlock>(content, "testimonials_block");
 

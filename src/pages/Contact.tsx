@@ -4,13 +4,13 @@ import { SeoPage } from "@/components/SeoPage";
 import { Contact, type ContactBlock } from "@/components/Contact";
 import { RelatedPages } from "@/components/RelatedPages";
 import { SITE_URL } from "@/lib/blog";
-import { getPageContent, getBlock } from "@/lib/pages";
+import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
 import { localeFromPath } from "@/i18n/locales";
 
-const ContactPage = () => {
+const ContactPage = ({ previewContent }: PagePreviewProps) => {
   const { t } = useLingui();
   const locale = localeFromPath(useLocation().pathname);
-  const content = getPageContent("contact", locale);
+  const content = previewContent ?? getPageContent("contact", locale);
   const contactBlock = getBlock<ContactBlock>(content, "contact_block");
 
   return (

@@ -4,7 +4,7 @@ import { useLingui } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
 import { Hero, type HeroBlock } from "@/components/Hero";
 import { Footer } from "@/components/Footer";
-import { getPageContent, getBlock } from "@/lib/pages";
+import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
 import { localeFromPath } from "@/i18n/locales";
 
 // The home page is now strictly the Hero. The former one-page sections (About,
@@ -21,12 +21,12 @@ import { localeFromPath } from "@/i18n/locales";
 // eagerly-imported components — a lazy one would render as an empty Suspense
 // fallback and defeat the prerender.
 
-const Index = () => {
+const Index = ({ previewContent }: PagePreviewProps) => {
   const { t } = useLingui();
   // Hero CONTENT is CMS-managed (badge, subhead, industries, CTA); the H1 and
   // the home <head> below stay in code (see Hero.tsx / the Helmet note).
   const locale = localeFromPath(useLocation().pathname);
-  const heroBlock = getBlock<HeroBlock>(getPageContent("home", locale), "hero_block");
+  const heroBlock = getBlock<HeroBlock>(previewContent ?? getPageContent("home", locale), "hero_block");
   return (
     <div className="min-h-screen">
       {/* Restores the homepage head after client-side navigation back from

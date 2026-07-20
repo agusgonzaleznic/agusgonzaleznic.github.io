@@ -4,13 +4,13 @@ import { SeoPage } from "@/components/SeoPage";
 import { About, type AboutBlock } from "@/components/About";
 import { RelatedPages } from "@/components/RelatedPages";
 import { SITE_URL } from "@/lib/blog";
-import { getPageContent, getBlock } from "@/lib/pages";
+import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
 import { localeFromPath } from "@/i18n/locales";
 
-const AboutPage = () => {
+const AboutPage = ({ previewContent }: PagePreviewProps) => {
   const { t } = useLingui();
   const locale = localeFromPath(useLocation().pathname);
-  const content = getPageContent("about", locale);
+  const content = previewContent ?? getPageContent("about", locale);
   const aboutBlock = getBlock<AboutBlock>(content, "about_block");
 
   return (

@@ -4,13 +4,13 @@ import { SeoPage } from "@/components/SeoPage";
 import { Impact, type ImpactBlock } from "@/components/Impact";
 import { RelatedPages } from "@/components/RelatedPages";
 import { SITE_URL } from "@/lib/blog";
-import { getPageContent, getBlock } from "@/lib/pages";
+import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
 import { localeFromPath } from "@/i18n/locales";
 
-const ImpactPage = () => {
+const ImpactPage = ({ previewContent }: PagePreviewProps) => {
   const { t } = useLingui();
   const locale = localeFromPath(useLocation().pathname);
-  const content = getPageContent("impact", locale);
+  const content = previewContent ?? getPageContent("impact", locale);
   const impactBlock = getBlock<ImpactBlock>(content, "impact_block");
 
   return (

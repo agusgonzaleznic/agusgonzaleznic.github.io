@@ -5,14 +5,14 @@ import { Philosophy, type PhilosophyBlock } from "@/components/Philosophy";
 import { HowIWork, type HowIWorkBlock } from "@/components/HowIWork";
 import { RelatedPages } from "@/components/RelatedPages";
 import { SITE_URL } from "@/lib/blog";
-import { getPageContent, getBlock } from "@/lib/pages";
+import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
 import { localeFromPath } from "@/i18n/locales";
 
-const PhilosophyPage = () => {
+const PhilosophyPage = ({ previewContent }: PagePreviewProps) => {
   const { t } = useLingui();
   // CMS content for the active locale (null → components render their fallback).
   const locale = localeFromPath(useLocation().pathname);
-  const content = getPageContent("philosophy", locale);
+  const content = previewContent ?? getPageContent("philosophy", locale);
   const philosophyBlock = getBlock<PhilosophyBlock>(content, "philosophy_block");
   const howIWorkBlock = getBlock<HowIWorkBlock>(content, "how_i_work_block");
 

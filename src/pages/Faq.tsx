@@ -5,13 +5,13 @@ import { FAQ } from "@/components/FAQ";
 import { resolveFaqs, type FaqBlock } from "@/lib/faq-data";
 import { RelatedPages } from "@/components/RelatedPages";
 import { SITE_URL } from "@/lib/blog";
-import { getPageContent, getBlock } from "@/lib/pages";
+import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
 import { localeFromPath } from "@/i18n/locales";
 
-const FaqPage = () => {
+const FaqPage = ({ previewContent }: PagePreviewProps) => {
   const { t, i18n } = useLingui();
   const locale = localeFromPath(useLocation().pathname);
-  const content = getPageContent("faq", locale);
+  const content = previewContent ?? getPageContent("faq", locale);
   const faqBlock = getBlock<FaqBlock>(content, "faq_block");
 
   // FAQPage schema built from the SAME resolved Q&A the accordion renders (CMS

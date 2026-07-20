@@ -67,6 +67,16 @@ export function getPageContent(slug: string, locale: string = SOURCE_LOCALE): Pa
   return find(rawFor(locale), slug) ?? (locale !== SOURCE_LOCALE ? find(rawPages, slug) : null);
 }
 
+/**
+ * Prop accepted by every marketing page wrapper. In production it's never
+ * passed (the wrapper reads baked content via getPageContent); the Storyblok
+ * Visual Editor preview route (src/pages/StoryblokPage.tsx) passes the LIVE
+ * draft so the preview renders the real page design with unsaved edits.
+ */
+export interface PagePreviewProps {
+  previewContent?: PageContent;
+}
+
 /** First block of a given component type in a page, typed by the caller. */
 export function getBlock<T extends PageBlock = PageBlock>(
   content: PageContent | null,
