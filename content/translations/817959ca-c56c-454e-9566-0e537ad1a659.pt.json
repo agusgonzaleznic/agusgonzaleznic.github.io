@@ -42,7 +42,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "«Isto é uma treta. Vocês simplesmente não querem fazer o trabalho.»",
+            "text": "«Isto é uma merda. Vocês simplesmente não querem fazer o trabalho.»",
             "type": "text"
           }
         ]
@@ -69,7 +69,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Quando o CTO bateu na mesa, nenhum de nós estava a ouvir. Eu tinha feito valer a minha autoridade. Disse ao Head of Backend que a direção da organização de engenharia era da minha responsabilidade e que não lhe devia uma explicação por cada decisão. Ele não cedeu. Eu cedi ainda menos.",
+            "text": "Quando o CTO bateu na mesa, nenhum de nós estava a ouvir. Eu tinha feito valer a minha autoridade. Disse ao Head of Backend que a direção da organização de engenharia era da minha responsabilidade e que não lhe devia uma explicação por cada decisão. Ele empacou. Eu empaquei ainda mais.",
             "type": "text"
           }
         ]
@@ -126,7 +126,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "O rebentamento teria sido mais fácil de ignorar se fosse raro. Não era.",
+            "text": "O desabafo teria sido mais fácil de ignorar se fosse raro. Não era.",
             "type": "text"
           }
         ]
@@ -135,7 +135,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Um deployment falhado podia provocar um «Por que raio é que não testaste isto antes?» Um problema na app móvel tornava-se «Malta, nada está a funcionar. Nada. Estamos em baixo neste momento.» Os programadores ouviam que o produto era vergonhoso, que a qualidade era má e que as pessoas pareciam não se importar.",
+            "text": "Um deployment falhado podia provocar um «Por que caralho é que não testaste isto antes?» Um problema na app móvel tornava-se «Malta, nada está a funcionar. Nada. Estamos em baixo neste momento.» Os programadores ouviam que o produto era vergonhoso, que a qualidade era má e que as pessoas pareciam não se importar.",
             "type": "text"
           }
         ]
@@ -171,7 +171,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "«Era isto que o CTO diria», escrevia alguém em privado. Um engenheiro brincou com a ideia de manter um fuck bingo durante o mês.",
+            "text": "«Era isto que o CTO diria», escrevia alguém em privado. Um engenheiro brincou com a ideia de manter um «fuck bingo» durante o mês.",
             "type": "text"
           }
         ]
@@ -251,7 +251,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Há uma diferença entre «esta merda de falha» e «Que caralho estás a fazer?». A primeira coloca quem fala e quem ouve do mesmo lado de uma situação má. A segunda transforma quem ouve no próprio incidente.",
+            "text": "Há uma diferença entre «esta merda de queda» e «Que caralho estás a fazer?». A primeira coloca quem fala e quem ouve do mesmo lado de uma situação má. A segunda transforma quem ouve no próprio incidente.",
             "type": "text"
           }
         ]
@@ -453,7 +453,7 @@
             "type": "text"
           },
           {
-            "text": "«Gestão por preocupação e crise»",
+            "text": "«Management via Worry and Crisis»",
             "type": "text",
             "marks": [
               {
@@ -567,7 +567,7 @@
             "type": "text"
           },
           {
-            "text": "“The Command and Control Management Method”",
+            "text": "«The Command and Control Management Method»",
             "type": "text",
             "marks": [
               {
@@ -584,7 +584,7 @@
             ]
           },
           {
-            "text": ". O comando e controlo podem fazer sentido quando os soldados têm de agir de imediato numa situação de vida ou morte. As organizações de software são diferentes: a pessoa mais próxima do trabalho tem, normalmente, informação mais relevante do que o executivo que entra na sala. Spolsky chamou à interrupção executiva que se segue “micromanagement do tipo bate e foge”. O líder desvia o trabalho do seu rumo e depois segue em frente antes de ter de viver com as consequências.",
+            "text": ". O comando e controlo podem fazer sentido quando os soldados têm de agir de imediato numa situação de vida ou morte. As organizações de software são diferentes: a pessoa mais próxima do trabalho tem, normalmente, informação mais relevante do que o executivo que entra na sala. Spolsky chamou à interrupção executiva que se segue «micromanagement do tipo bate e foge». O líder desvia o trabalho do seu rumo e depois segue em frente antes de ter de viver com as consequências.",
             "type": "text"
           }
         ]
@@ -593,7 +593,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "“Faz e não questiones” não tem protocolo nem prazo de validade. Trata o trabalho intelectual corrente como um incidente permanente e a discordância como uma falha de execução.",
+            "text": "«Faz e não questiones» não tem protocolo nem prazo de validade. Trata o trabalho intelectual corrente como um incidente permanente e a discordância como uma falha de execução.",
             "type": "text"
           }
         ]
