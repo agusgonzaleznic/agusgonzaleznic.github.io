@@ -384,3 +384,19 @@ resource "storyblok_component" "value_item" {
     description = { type = "textarea", position = 2, display_name = "Description", required = true }
   }
 }
+
+################################################################################
+# Import the /links components (created via the Management API) into state so the
+# gated apply reconciles them instead of trying to re-create them (they already
+# exist in the space). Remove these blocks after one clean apply.
+################################################################################
+
+import {
+  to = storyblok_component.links_block
+  id = "288632938663524/200195489899438"
+}
+
+import {
+  to = storyblok_component.link_item
+  id = "288632938663524/200195489514413"
+}
