@@ -90,11 +90,18 @@ jobs:
       # outage/refusal degrades to raw DeepL per-string and never fails the build.
       # (The Lingui catalog post-edit runs offline via `node scripts/translate.mjs`,
       # not in this workflow — the committed .po files are the source of truth.)
+      # DEEPL_QUOTA_RESET_DAY (optional, NON-secret): the day-of-month (1–28) your
+      # DeepL character quota renews, from your DeepL account. If DeepL returns a
+      # quota error (HTTP 456) mid-build, the pipeline falls back to Claude-only
+      # translation (no build failure) and logs a warning; this variable lets that
+      # warning show the exact renewal date (DeepL's API doesn't expose it). Unset
+      # → the warning says "renews monthly" instead.
       build-env-vars: |
         STORYBLOK_PUBLIC_TOKEN=${{ secrets.STORYBLOK_PUBLIC_TOKEN }}
         STORYBLOK_REQUIRE_TOKEN=1
         DEEPL_API_KEY=${{ secrets.DEEPL_API_KEY }}
         ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+        DEEPL_QUOTA_RESET_DAY=${{ vars.DEEPL_QUOTA_RESET_DAY }}
         VITE_GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID }}
         VITE_TURNSTILE_SITE_KEY=${{ vars.TURNSTILE_SITE_KEY }}
 

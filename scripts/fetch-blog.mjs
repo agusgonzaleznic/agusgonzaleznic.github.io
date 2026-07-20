@@ -10,6 +10,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   createTranslator,
+  deeplQuotaNotice,
   hasApiKey,
   loadCache,
   loadGlossary,
@@ -185,6 +186,13 @@ async function translateBlog(posts) {
       `✓ fetch-blog: ${localized.length} post(s) → src/generated/${blogDataFilename(locale)}` +
         `${reviewed ? ` (${reviewed} reviewed)` : ""}`,
     );
+  }
+  // DeepL quota fallback: if DeepL ran out mid-build, the strings above were
+  // translated by Claude instead (no build failure) — surface it loudly.
+  if (translator.stats.deeplExhausted) {
+    const notice = await deeplQuotaNotice(process.env.DEEPL_API_KEY.trim());
+    console.log(`::warning title=DeepL quota exhausted::${notice}`);
+    console.warn(`⚠ fetch-blog: ${notice} (${translator.stats.claudeFromScratch} string(s) translated by Claude)`);
   }
   saveCache(cachePath, cache);
   if (postEditor) {

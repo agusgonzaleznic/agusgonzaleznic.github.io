@@ -18,6 +18,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   createTranslator,
+  deeplQuotaNotice,
   hasApiKey,
   loadCache,
   loadGlossary,
@@ -88,6 +89,13 @@ async function translatePagesForLocales(pages) {
     const localized = await translatePages(pages, locale, translator);
     writeOutput(pageDataFilename(locale), localized);
     console.log(`✓ fetch-pages: ${localized.length} page(s) → src/generated/${pageDataFilename(locale)}`);
+  }
+  // DeepL quota fallback: if DeepL ran out mid-build, the strings above were
+  // translated by Claude instead (no build failure) — surface it loudly.
+  if (translator.stats.deeplExhausted) {
+    const notice = await deeplQuotaNotice((process.env.DEEPL_API_KEY ?? "").trim());
+    console.log(`::warning title=DeepL quota exhausted::${notice}`);
+    console.warn(`⚠ fetch-pages: ${notice} (${translator.stats.claudeFromScratch} string(s) translated by Claude)`);
   }
   saveCache(cachePath, cache);
   if (postEditor) {
