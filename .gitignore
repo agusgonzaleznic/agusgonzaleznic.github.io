@@ -16,6 +16,10 @@ bun.lockb
 # Environment variables
 .env
 .env.local
+# All local env overrides, incl. .env.development.local (holds the dev-only
+# VITE_STORYBLOK_ACCESS_TOKEN for the Visual Editor preview). vite loads
+# .env.development.local only in dev — never in a production build.
+.env*.local
 
 # Editor directories and files
 .vscode/*
