@@ -43,6 +43,18 @@
       "sourceHash": "02585da3b0c45d13e5a44233",
       "provenance": "auto-mt",
       "reviewedAt": "2026-07-19T16:52:20.624Z"
+    },
+    "fr": {
+      "status": "approved",
+      "sourceHash": "02585da3b0c45d13e5a44233",
+      "provenance": "human-reviewed",
+      "reviewedAt": "2026-07-20T10:36:18.985Z"
+    },
+    "it": {
+      "status": "approved",
+      "sourceHash": "02585da3b0c45d13e5a44233",
+      "provenance": "human-reviewed",
+      "reviewedAt": "2026-07-20T10:36:18.985Z"
     }
   }
 }
