@@ -14,6 +14,7 @@ import Services from "@/pages/Services";
 import Impact from "@/pages/Impact";
 import Faq from "@/pages/Faq";
 import Contact from "@/pages/Contact";
+import Links from "@/pages/Links";
 import Philosophy from "@/pages/Philosophy";
 
 interface StoryblokPageProps {
@@ -90,6 +91,7 @@ const PAGE_WRAPPERS: Record<string, ComponentType<PagePreviewProps>> = {
   faq: Faq,
   contact: Contact,
   philosophy: Philosophy,
+  links: Links,
 };
 
 // Map a live (bridge-updated) `page` story to the PageContent shape the real

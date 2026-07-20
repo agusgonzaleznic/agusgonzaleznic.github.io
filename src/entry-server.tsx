@@ -9,6 +9,7 @@ import Services from "./pages/Services";
 import Impact from "./pages/Impact";
 import Faq from "./pages/Faq";
 import Contact from "./pages/Contact";
+import Links from "./pages/Links";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import { Impressum, Privacy } from "./pages/Legal";
@@ -29,6 +30,7 @@ const serverPages: RoutePages = {
   Impact,
   Faq,
   Contact,
+  Links,
   Blog,
   BlogPost,
   Impressum,

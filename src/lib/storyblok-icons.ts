@@ -18,6 +18,19 @@ import {
   Rocket,
   Zap,
   Users,
+  Linkedin,
+  Github,
+  Mail,
+  Calendar,
+  BookOpen,
+  PenLine,
+  Globe,
+  Youtube,
+  Twitter,
+  X,
+  Rss,
+  Link as LinkIcon,
+  ExternalLink,
   type LucideIcon,
 } from "lucide-react";
 
@@ -45,9 +58,32 @@ export const THEME_MAP: Record<string, string> = {
   primary: "from-primary/20 to-primary/5",
 };
 
+// Bounded icon set for the /links page (link_item.icon option in Storyblok).
+// Keys are the exact Storyblok option values; kept separate from ICON_MAP so the
+// marketing-section icon set stays closed and unchanged.
+export const LINK_ICON_MAP: Record<string, LucideIcon> = {
+  Linkedin,
+  Github,
+  Mail,
+  Calendar,
+  BookOpen,
+  PenLine,
+  Globe,
+  Youtube,
+  Twitter,
+  X,
+  Rss,
+  Link: LinkIcon,
+};
+
 /** Resolve an icon name to its lucide component, falling back to `fallback`. */
 export function resolveIcon(name: string | undefined, fallback: LucideIcon): LucideIcon {
   return (name && ICON_MAP[name]) || fallback;
+}
+
+/** Resolve a link_item icon name to its lucide component; defaults to a generic link glyph. */
+export function resolveLinkIcon(name: string | undefined): LucideIcon {
+  return (name && LINK_ICON_MAP[name]) || ExternalLink;
 }
 
 /** Resolve a theme key to its gradient class, defaulting to the accent theme. */
