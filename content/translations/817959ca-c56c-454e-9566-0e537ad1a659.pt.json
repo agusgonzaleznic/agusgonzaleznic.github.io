@@ -1,0 +1,779 @@
+{
+  "slug": "alert-fatigue-and-fuck-bingo",
+  "full_slug": "blog/alert-fatigue-and-fuck-bingo",
+  "title": "Alert Fatigue e Fuck Bingo",
+  "excerpt": "Um CTO que tratava todos os problemas como se fossem um SEV-1 ensinou a sua equipa a manter um cartão de «fuck bingo». Sobre palavrões, poder e alert fatigue — como os líderes, sem darem por isso, treinam as pessoas a deixarem de lhes dizer o que está errado.",
+  "body": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Sobre palavrões, poder e o que acontece quando um líder se torna o alerta mais estridente do sistema",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "O CTO pôs fim à discussão com a palma da mão.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Bateu na mesa de reuniões com força suficiente para nos calar a ambos.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "«Isto é uma treta. Vocês simplesmente não querem fazer o trabalho.»",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Depois, saiu da sala.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Eu era o VP of Engineering. A pessoa à minha frente era o nosso Head of Backend Engineering, e andávamos a discutir sobre bem mais do que a decisão técnica que tínhamos em mãos. Ele via a equipa de Infraestrutura e Segurança como um obstáculo: pessoas que acumulavam tarefas, impunham regras e atrasavam os programadores. Eu via-o como alguém que tratava cada limite como um convite à negociação e cada proposta como algo a contornar.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Quando o CTO bateu na mesa, nenhum de nós estava a ouvir. Eu tinha feito valer a minha autoridade. Disse ao Head of Backend que a direção da organização de engenharia era da minha responsabilidade e que não lhe devia uma explicação por cada decisão. Ele não cedeu. Eu cedi ainda menos.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "O CTO não criou o conflito. O que ele fez foi transformá-lo de um desacordo numa ordem.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Voltou mais tarde, depois de se ter acalmado. Não houve pedido de desculpas nem qualquer tentativa de esclarecer o que se tinha passado. Concordámos em fazer algo que ele já tinha proposto. No papel, a reunião tinha produzido uma decisão. Na prática, tinha produzido uma lição: o conflito só era aceitável até que a pessoa mais poderosa na sala se cansasse dele.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Aprendi a lição. Tratei de não voltar a ter esse tipo de desacordo à frente dele. Deixei de tentar liderar o Head of Backend e pedi ao CTO que assumisse a relação.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Na altura, chamei-lhe desanuviamento. Olhando para trás, tinha-me feito mais pequeno para evitar outra explosão.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "O sistema de alerta humano",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "O rebentamento teria sido mais fácil de ignorar se fosse raro. Não era.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Um deployment falhado podia provocar um «Por que raio é que não testaste isto antes?» Um problema na app móvel tornava-se «Malta, nada está a funcionar. Nada. Estamos em baixo neste momento.» Os programadores ouviam que o produto era vergonhoso, que a qualidade era má e que as pessoas pareciam não se importar.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A certa altura, a empresa lançou um Hackathon de 30 dias para forçar o lançamento de um produto. A liderança comprou grandes relógios de contagem decrescente. Durante um mês, a própria passagem do tempo tornou-se um alarme.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Durante quedas ou incidentes, a equipa de infraestrutura reagia como as Site Reliability Teams são treinadas para reagir: com calma, agarravam o desafio, investigavam e mantinham-se atentos. Eram engenheiros a trabalhar na camada com maior probabilidade de causar um impacto alargado com uma pequena alteração, portanto a possibilidade de falha era real, sobretudo durante um hackathon de 30 dias com requisitos pouco ou nada claros de uma equipa de produto inexistente. Mas cada defeito, experiência e desacordo chegava com sensivelmente a mesma gravidade retórica.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Com o tempo, começaram as piadas.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "«Era isto que o CTO diria», escrevia alguém em privado. Um engenheiro brincou com a ideia de manter um fuck bingo durante o mês.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "O fuck bingo não era só humor negro. Era deduplicação. Os engenheiros tinham construído um filtro social para o ruído dos executivos.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Em Site Reliability Engineering, um alerta não é apenas a descrição de algo que um sistema de monitorização observou. É uma exigência sobre a atenção de um ser humano. Um bom alerta sinaliza um impacto significativo e pede uma ação. Um mau alerta dispara porque um número mexeu.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A orientação de SRE da Google",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://sre.google/workbook/on-call/",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": " avisa que uma baixa relação sinal-ruído produz fadiga de alertas. As pessoas não se tornam mais vigilantes quando um sistema as alerta constantemente. Aprendem que não se pode confiar no alerta.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A linguagem da liderança funciona da mesma forma, exceto que a hierarquia acrescenta voltagem. Uma mensagem de um CTO não é interpretada como uma mensagem de um colega. Vem de alguém que pode reorientar um roadmap, anular uma decisão técnica e influenciar ou decidir se ainda tens emprego.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Cada «STOP», cada «ASAP», cada «nada está a funcionar» atribui um nível de gravidade. Se tudo soa a SEV-1, a organização acaba por ficar sem linguagem para uma emergência a sério.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A conclusão óbvia seria que os líderes deviam deixar de dizer palavrões, mas, para ser sincero, não acho que seja a certa.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Há uma diferença entre «esta merda de falha» e «Que caralho estás a fazer?». A primeira coloca quem fala e quem ouve do mesmo lado de uma situação má. A segunda transforma quem ouve no próprio incidente.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Os palavrões podem sinalizar humor, intimidade, surpresa ou frustração partilhada. Também podem humilhar. O que muda o significado não é a palavra em si, mas a sua direção e o poder que está por trás. O Slack torna essa distinção mais difícil: elimina o sorriso e a cadência, mas preserva a hierarquia.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A Charity Majors usa imensos palavrões nos seus textos. Também dá aos gestores uma regra muito melhor em ",
+            "type": "text"
+          },
+          {
+            "text": "«An Engineer’s Bill of Rights (and Responsibilities)»",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://charity.wtf/p/an-engineers-bill-of-rights-and-responsibilities",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": ": diz as coisas difíceis, acrescenta urgência quando é preciso e tenta não fazer das tuas emoções o problema de toda a gente.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "É nessa última parte que a linguagem alarmante falha. Transfere o estado interno do líder para a organização e chama a isso alinhamento.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Uma empresa mais silenciosa não é uma empresa mais segura",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A empresa acabou mesmo por ficar mais silenciosa. Não ficou mais segura.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Os engenheiros aprenderam a só apresentar propostas quando todas as premissas fossem defensáveis. As novas ideias arquitetónicas e as provas de conceito ficavam escondidas até se tornarem difíceis de contestar, o que resultou num processo de iteração mais lento. Algumas falhas no pipeline eram corrigidas sem nunca virem a público. As questões de segurança nem sempre eram comunicadas com a transparência que deviam. E, pior de tudo, os conflitos entre pessoas no exercício das suas funções já não chegavam ao C-Level, a menos, claro, que o próprio C-Level te sentasse numa reunião com HR na sala e te pedisse feedback sobre alguém que queria despedir.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Os bugs desapareceram. As circunstâncias que os produziam, não.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Este é o ciclo que John Allspaw descreveu no documento da Etsy ",
+            "type": "text"
+          },
+          {
+            "text": "«Blameless PostMortems and a Just Culture»",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://www.etsy.com/codeascraft/blameless-postmortems/",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": ". Quando as pessoas esperam ser punidas ou humilhadas, escondem os detalhes necessários para se perceber por que razão uma falha lhes fazia sentido naquele momento. Allspaw chamou ao resultado «Cover-Your-Ass engineering»: a gestão sabe menos, os problemas latentes continuam invisíveis e o mesmo tipo de falha torna-se mais provável de voltar a acontecer.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A equipa não deixou de cometer erros. Deixou foi de produzir provas úteis sobre eles.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Um líder que castiga as más notícias acaba por desligar a sua própria observabilidade.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "É isso, mais do que a linguagem em si, que sai caro. A organização começa a otimizar a aparência de controlo. Os líderes recebem status updates mais limpos e propostas mais polidas. Ouvem menos objeções. Visto de cima, isto pode parecer disciplina. Visto de baixo, é aprender que informação é seguro partilhar.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "É tentador fazer do CTO um simples vilão nesta história. Não era.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Era uma das pessoas com maior talento técnico da empresa. Uma discussão técnica com ele podia ser genuinamente fantástica. A sua insistência nos padrões, na maioria das vezes, tornava o código melhor. Preocupava-se profundamente com o produto e compreendia partes do sistema melhor do que qualquer outra pessoa.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Foi isso que tornou esse comportamento mais difícil de contestar e mais instrutivo.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "As falhas de liderança começam frequentemente por ser pontos fortes sem freio. O discernimento técnico transforma-se na necessidade de rever tudo. Os padrões elevados transformam-se em desprezo pelo trabalho inacabado. A capacidade de salvar um projeto transforma-se no hábito de o assumir.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Por vezes, o CTO desaparecia num surto de trabalho a solo e reescrevia o que os programadores tinham levado uma semana a construir. A reescrita podia até ser melhor. Mas também ensinava à equipa que a autoria era provisória: o teu trabalho era teu até que a pessoa com mais autoridade decidisse voltar a ser um contribuidor individual.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Michael Lopp chama a isto ",
+            "type": "text"
+          },
+          {
+            "text": "«Gestão por preocupação e crise»",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://randsinrepose.com/archives/management-via-worry-and-crisis/",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": ". A sua observação mais útil não é que os gestores movidos pela crise sejam irracionais. É que a crise pode tornar-se um mecanismo de defesa face à perda de controlo que vem com a liderança. A organização cresce; o trabalho afasta-se cada vez mais; outras pessoas tomam decisões que tu não terias tomado. Criar uma crise traz o trabalho — e a atenção de todos — de volta para ti.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Funciona, por breves momentos. É por isso que o hábito perdura.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "As pessoas param. Ouvem. Agem. O líder sente a organização a responder.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Mas movimento não é o mesmo que compreensão, e cumprir ordens não é o mesmo que estar comprometido.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "As ordens precisam de uma data de validade",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Passei a maior parte da minha carreira em Infraestrutura e Segurança, a construir e a programar para essas áreas... Os sistemas chegam mesmo a incendiar-se. Por vezes, a frase certa é um imperativo.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "«Parem os deploys.»",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Durante um incidente, essa ordem pode impedir que cinco pessoas bem-intencionadas introduzam cinco novas variáveis. Se o papel de Incident Commander for compreendido, a equipa sabe quem está a coordenar a resposta e quando o processo normal de tomada de decisão foi suspenso. Um bom comando de incidente inclui contexto suficiente para agir: parem os deployments, o checkout está a falhar, a Maria é a Incident Commander, enviem as conclusões para o canal do incidente, próxima atualização às 14:25.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A legitimidade não vem do volume. Vem do protocolo. A autoridade é declarada, limitada ao incidente e útil para quem está a fazer o trabalho.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A linguagem imperativa devia ter um TTL.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Joel Spolsky fez uma distinção relacionada em ",
+            "type": "text"
+          },
+          {
+            "text": "“The Command and Control Management Method”",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://www.joelonsoftware.com/2006/08/08/the-command-and-control-management-method/",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": ". O comando e controlo podem fazer sentido quando os soldados têm de agir de imediato numa situação de vida ou morte. As organizações de software são diferentes: a pessoa mais próxima do trabalho tem, normalmente, informação mais relevante do que o executivo que entra na sala. Spolsky chamou à interrupção executiva que se segue “micromanagement do tipo bate e foge”. O líder desvia o trabalho do seu rumo e depois segue em frente antes de ter de viver com as consequências.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "“Faz e não questiones” não tem protocolo nem prazo de validade. Trata o trabalho intelectual corrente como um incidente permanente e a discordância como uma falha de execução.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A determinação não exige esse compromisso.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Na reunião em que o CTO bateu na mesa, ele ainda podia ter-nos interrompido. Podia ter dito: Parem. Estão a discutir sobre autoridade, não sobre o problema. Cada um de vós vai resumir a preocupação do outro. Depois escolhemos a menor prova de conceito. Se continuarem a discordar, decido eu e explico porquê.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Isto são comandos. E também teriam dado ao conflito um sítio para onde ir.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "A verdade mais difícil de aceitar é que eu queria que o CTO desse um tipo de liderança que eu próprio já não tinha conseguido dar.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Tinha usado o meu cargo para pôr fim a uma discussão. A minha forma de falar era mais calma, mas a mensagem era a mesma: eu decido; tu obedeces. Quando comecei a minha carreira, pensava que autoridade significava que já não tinha de consultar tanta gente. À medida que fui crescendo, recebendo formação, mentoria e coaching de pessoas que ainda admiro, como ",
+            "type": "text"
+          },
+          {
+            "text": "\"Ingrid Rivera\"",
+            "type": "text",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://ar.linkedin.com/in/ingrid-rivera-2211563b",
+                  "uuid": null,
+                  "anchor": null,
+                  "custom": {},
+                  "target": "_blank",
+                  "linktype": "url"
+                }
+              }
+            ]
+          },
+          {
+            "text": " percebi que a autoridade aumenta a obrigação de dar contexto, sobretudo quando as outras pessoas não têm o poder de recusar a tua decisão.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Contexto não é consenso. Consulta não é veto. Um líder pode dizer que um projeto já está em andamento e que não vai ser travado sem novas evidências. A porta que tem de ficar aberta é mais estreita: mostra-me que pressuposto está errado e corrigimos o rumo.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Trabalho nisto continuamente. O coaching e escrever num diário ajudam, mas o momento útil é muito mais pequeno: a pausa entre sentir-me menosprezado e tentar provar que sou a autoridade na sala. Estarei a defender a decisão, ou a defender-me a mim próprio?",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Quando deixo escapar esse momento, a reparação também tem de ser direta: usei o meu cargo para me impor. Isso pôs fim à conversa. Peço desculpa. Vamos retomá-la.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "O meu pai tinha uma versão menos técnica de tudo isto:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "blockquote",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Tenés dos orejas y una boca: escuchá el doble de lo que hablás.",
+                "type": "text"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Tens dois ouvidos e uma boca. Ouve o dobro do que falas.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Costumava dizer-mo quando eu era novo e tinha tendência para me atirar a uma situação antes de a perceber. Levei anos a ver que o conselho se torna mais importante à medida que ganhas autoridade. Quanto mais alto sobes, menos pessoas te vão dizer que falas alto demais. Em vez disso, vão criar filtros.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Os líderes raramente reparam no momento em que a sua urgência se transforma em ruído. A equipa repara primeiro.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Então, se tiveres sorte, fazem um cartão de bingo. Se não tiveres, simplesmente deixam de te dizer o que está mal.",
+            "type": "text"
+          }
+        ]
+      }
+    ]
+  },
+  "cover_image": null,
+  "published_date": "2026-07-19 09:00",
+  "first_published_at": "2026-07-19T12:53:06.880Z",
+  "published_at": "2026-07-19T15:43:42.077Z",
+  "original_url": "",
+  "seo_title": "Alert Fatigue e Fuck Bingo: palavrões e poder no trabalho",
+  "seo_description": "A constante linguagem de SEV-1 de um CTO gerou alert fatigue e um cartão de «fuck bingo». Sobre palavrões, poder e como castigar as más notícias desliga a tua própria observability.",
+  "canonical_override": "",
+  "tag_list": [
+    "Comunicação",
+    "Gestão de Engenharia",
+    "Incident Response",
+    "Leadership",
+    "Segurança Psicológica"
+  ],
+  "uuid": "817959ca-c56c-454e-9566-0e537ad1a659",
+  "approved_locales": [
+    "en",
+    "fr",
+    "it",
+    "pt",
+    "de",
+    "es"
+  ]
+}
