@@ -68,5 +68,7 @@ than mirrors on-page copy.
 
 - [LinkedIn](https://www.linkedin.com/in/agusgonzaleznic/): professional profile
 - [GitHub](https://github.com/agusgonzaleznic): open-source work
+- [Medium](https://agusgonzaleznic.medium.com): long-form writing
+- [Links](https://agusgonzaleznic.com/links): every profile and link in one place
 - [Impressum](https://agusgonzaleznic.com/impressum): legal notice (Impressum)
 - [Privacy](https://agusgonzaleznic.com/privacy): privacy policy

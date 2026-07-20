@@ -43,6 +43,7 @@ const routes = [
   { path: "/impact", file: "impact/index.html", canonical: "/impact" },
   { path: "/faq", file: "faq/index.html", canonical: "/faq" },
   { path: "/contact", file: "contact/index.html", canonical: "/contact" },
+  { path: "/links", file: "links/index.html", canonical: "/links" },
   { path: "/impressum", file: "impressum/index.html", canonical: "/impressum" },
   { path: "/privacy", file: "privacy/index.html", canonical: "/privacy" },
 ];

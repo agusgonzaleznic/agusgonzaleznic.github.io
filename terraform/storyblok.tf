@@ -192,6 +192,38 @@ resource "storyblok_component" "impact_block" {
   }
 }
 
+resource "storyblok_component" "links_block" {
+  space_id     = var.space_id
+  name         = "links_block"
+  display_name = "Links Block"
+  is_root      = false
+  is_nestable  = true
+
+  schema = {
+    heading      = { type = "text", position = 0, display_name = "Heading (name)" }
+    subheading   = { type = "textarea", position = 1, display_name = "Tagline" }
+    links        = { type = "bloks", position = 2, display_name = "Links", restrict_components = true, component_whitelist = ["link_item"] }
+    show_section = { type = "boolean", position = 3, display_name = "Show This Section", default_value = "true" }
+  }
+}
+
+resource "storyblok_component" "link_item" {
+  space_id     = var.space_id
+  name         = "link_item"
+  display_name = "Link"
+  is_root      = false
+  is_nestable  = true
+
+  schema = {
+    label       = { type = "text", position = 0, display_name = "Label", required = true }
+    url         = { type = "text", position = 1, display_name = "URL", required = true, description = "https URL, mailto:, or internal path like /blog" }
+    description = { type = "text", position = 2, display_name = "Description (optional)" }
+    icon        = { type = "option", position = 3, display_name = "Icon", options = [{ name = "LinkedIn", value = "Linkedin" }, { name = "GitHub", value = "Github" }, { name = "Email", value = "Mail" }, { name = "Calendar / Booking", value = "Calendar" }, { name = "Blog / Book", value = "BookOpen" }, { name = "Writing (Medium)", value = "PenLine" }, { name = "Website", value = "Globe" }, { name = "YouTube", value = "Youtube" }, { name = "Twitter", value = "Twitter" }, { name = "X", value = "X" }, { name = "RSS", value = "Rss" }, { name = "Generic link", value = "Link" }, { name = "Coffee / Buy Me a Coffee", value = "Coffee" }] }
+    is_profile  = { type = "boolean", position = 4, display_name = "Identity link (adds to sameAs + rel=me)", default_value = "false" }
+    image       = { type = "asset", position = 5, display_name = "Custom logo (optional)", filetypes = ["images"], description = "Overrides the icon. Upload a single-colour SVG or transparent PNG — rendered monochrome to match." }
+  }
+}
+
 resource "storyblok_component" "page" {
   space_id     = var.space_id
   name         = "page"
@@ -201,7 +233,7 @@ resource "storyblok_component" "page" {
   is_nestable  = false
 
   schema = {
-    body            = { type = "bloks", position = 0, display_name = "Page Content", restrict_components = true, component_whitelist = ["hero_block", "about_block", "philosophy_block", "how_i_work_block", "services_block", "impact_block", "testimonials_block", "faq_block", "contact_block"] }
+    body            = { type = "bloks", position = 0, display_name = "Page Content", restrict_components = true, component_whitelist = ["hero_block", "about_block", "philosophy_block", "how_i_work_block", "services_block", "impact_block", "testimonials_block", "faq_block", "contact_block", "links_block"] }
     seo_title       = { type = "text", position = 1, display_name = "SEO Title", max_length = 60 }
     seo_description = { type = "textarea", position = 2, display_name = "SEO Description", max_length = 160 }
     og_image        = { type = "asset", position = 3, display_name = "Social Media Image", filetypes = ["images"] }
@@ -351,4 +383,20 @@ resource "storyblok_component" "value_item" {
     title       = { type = "text", position = 1, display_name = "Title", required = true }
     description = { type = "textarea", position = 2, display_name = "Description", required = true }
   }
+}
+
+################################################################################
+# Import the /links components (created via the Management API) into state so the
+# gated apply reconciles them instead of trying to re-create them (they already
+# exist in the space). Remove these blocks after one clean apply.
+################################################################################
+
+import {
+  to = storyblok_component.links_block
+  id = "288632938663524/200195489899438"
+}
+
+import {
+  to = storyblok_component.link_item
+  id = "288632938663524/200195489514413"
 }

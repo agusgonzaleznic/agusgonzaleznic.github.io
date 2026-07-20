@@ -22,6 +22,7 @@ export type RoutePages = {
   Impact: React.ComponentType;
   Faq: React.ComponentType;
   Contact: React.ComponentType;
+  Links: React.ComponentType;
   Blog: React.ComponentType;
   BlogPost: React.ComponentType;
   Impressum: React.ComponentType;
@@ -45,6 +46,7 @@ const clientPages: RoutePages = {
   Impact: lazy(() => import("./pages/Impact")),
   Faq: lazy(() => import("./pages/Faq")),
   Contact: lazy(() => import("./pages/Contact")),
+  Links: lazy(() => import("./pages/Links")),
   Blog: lazy(() => import("./pages/Blog")),
   BlogPost: lazy(() => import("./pages/BlogPost")),
   Impressum: lazy(() => import("./pages/Legal").then((m) => ({ default: m.Impressum }))),
@@ -114,6 +116,8 @@ export const AppRoutes = ({ pages }: { pages: RoutePages }) => (
         <Route path="/impact" element={<pages.Impact />} />
         <Route path="/faq" element={<pages.Faq />} />
         <Route path="/contact" element={<pages.Contact />} />
+        {/* Linktree — standalone shareable page, intentionally not in the nav. */}
+        <Route path="/links" element={<pages.Links />} />
         {/* Blog */}
         <Route path="/blog" element={<pages.Blog />} />
         <Route path="/blog/:slug" element={<pages.BlogPost />} />
@@ -132,6 +136,7 @@ export const AppRoutes = ({ pages }: { pages: RoutePages }) => (
             <Route path="impact" element={<pages.Impact />} />
             <Route path="faq" element={<pages.Faq />} />
             <Route path="contact" element={<pages.Contact />} />
+            <Route path="links" element={<pages.Links />} />
             <Route path="blog" element={<pages.Blog />} />
             <Route path="blog/:slug" element={<pages.BlogPost />} />
             <Route path="impressum" element={<pages.Impressum />} />

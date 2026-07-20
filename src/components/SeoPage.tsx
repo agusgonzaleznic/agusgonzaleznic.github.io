@@ -66,6 +66,10 @@ type SeoPageProps = {
   extraSchema?: Record<string, unknown>[];
   /** Optional per-page social image URL (CMS); "" / undefined → the site banner. */
   ogImage?: string;
+  /** Extra identity URLs merged into the Person node's sameAs (e.g. the /links profiles). */
+  sameAs?: string[];
+  /** Render the site Navigation + Footer (default). false → standalone page (e.g. /links). */
+  chrome?: boolean;
   children: ReactNode;
 };
 
@@ -86,6 +90,8 @@ export const SeoPage = ({
   about,
   extraSchema = [],
   ogImage,
+  sameAs,
+  chrome = true,
   children,
 }: SeoPageProps) => {
   const { t } = useLingui();
@@ -125,7 +131,9 @@ export const SeoPage = ({
           { "@type": "ListItem", position: 2, name: crumb, item: canonical },
         ],
       },
-      personNode,
+      sameAs?.length
+        ? { ...personNode, sameAs: [...new Set([...personNode.sameAs, ...sameAs])] }
+        : personNode,
       websiteNode,
     ],
   };
@@ -174,9 +182,15 @@ export const SeoPage = ({
           </script>
         ))}
       </Helmet>
-      <Navigation />
-      <main className="pt-16">{children}</main>
-      <Footer />
+      {chrome ? (
+        <>
+          <Navigation />
+          <main className="pt-16">{children}</main>
+          <Footer />
+        </>
+      ) : (
+        children
+      )}
     </div>
   );
 };

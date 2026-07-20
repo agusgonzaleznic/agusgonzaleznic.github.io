@@ -39,7 +39,9 @@ function collect(node, acc) {
   for (const [key, value] of Object.entries(node)) {
     if (typeof value === "string") {
       if (value.trim() && !NON_TEXT_FIELDS.has(key)) acc.push({ obj: node, key });
-    } else if (value && typeof value === "object") {
+    } else if (value && typeof value === "object" && !NON_TEXT_FIELDS.has(key)) {
+      // Don't descend into non-text subtrees (e.g. an `image` asset object) —
+      // their metadata (alt, title, copyright…) must not be translated.
       collect(value, acc);
     }
   }
