@@ -1,10 +1,20 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { useStoryblokApi, StoryblokComponent, useStoryblokState } from "@storyblok/react";
 import type { StoryblokStory } from "@/lib/types/storyblok";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { RichText } from "@/components/blog/RichText";
 import { storyblokImage, type BlogImage, type RichtextNode } from "@/lib/blog";
+import type { PageBlock, PageContent, PagePreviewProps } from "@/lib/pages";
+// The real production page wrappers — rendered (fed the draft) so a page
+// preview is pixel-identical to the live site instead of the divergent bloks.
+import Index from "@/pages/Index";
+import About from "@/pages/About";
+import Services from "@/pages/Services";
+import Impact from "@/pages/Impact";
+import Faq from "@/pages/Faq";
+import Contact from "@/pages/Contact";
+import Philosophy from "@/pages/Philosophy";
 
 interface StoryblokPageProps {
   /** The story's full_slug, e.g. "blog/my-post" or "pages/philosophy". */
@@ -68,6 +78,36 @@ const BlogPostPreview = ({ content }: { content: BlogPostContent }) => {
       </article>
     </main>
   );
+};
+
+// story.slug → the real production page component. Rendered with the draft as
+// previewContent, so a page preview matches prod exactly (no divergent bloks).
+const PAGE_WRAPPERS: Record<string, ComponentType<PagePreviewProps>> = {
+  home: Index,
+  about: About,
+  services: Services,
+  impact: Impact,
+  faq: Faq,
+  contact: Contact,
+  philosophy: Philosophy,
+};
+
+// Map a live (bridge-updated) `page` story to the PageContent shape the real
+// wrappers read via getPageContent — mirrors mapPage in scripts/lib.
+const pageContentFromStory = (story: StoryblokStory): PageContent => {
+  const c = story.content as unknown as {
+    seo_title?: string;
+    seo_description?: string;
+    og_image?: { filename?: string } | null;
+    body?: PageBlock[];
+  };
+  return {
+    slug: story.slug,
+    seo_title: c.seo_title ?? "",
+    seo_description: c.seo_description ?? "",
+    og_image: c.og_image?.filename ?? "",
+    blocks: Array.isArray(c.body) ? c.body : [],
+  };
 };
 
 /**
@@ -145,16 +185,26 @@ export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
     );
   }
 
-  const content = story.content as unknown as BlogPostContent;
-  if (content?.component === "blog_post") {
+  const component = (story.content as unknown as { component?: string })?.component;
+
+  if (component === "blog_post") {
     return (
       <Shell>
-        <BlogPostPreview content={content} />
+        <BlogPostPreview content={story.content as unknown as BlogPostContent} />
       </Shell>
     );
   }
 
-  // Pages and any other registered component render through the blok map.
+  if (component === "page") {
+    const pageContent = pageContentFromStory(story as unknown as StoryblokStory);
+    const Wrapper = PAGE_WRAPPERS[pageContent.slug];
+    // Real wrappers render their own Navigation/Footer (via SeoPage), so no
+    // <Shell> here — this is the exact production page fed the live draft.
+    if (Wrapper) return <Wrapper previewContent={pageContent} />;
+  }
+
+  // Unknown component, or a page slug with no wrapper: fall back to the blok
+  // registry so something still renders.
   return (
     <Shell>
       <StoryblokComponent blok={story.content} />
