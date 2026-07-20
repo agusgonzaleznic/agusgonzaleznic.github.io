@@ -34,33 +34,33 @@
   "817959ca-c56c-454e-9566-0e537ad1a659": {
     "de": {
       "status": "approved",
-      "sourceHash": "02585da3b0c45d13e5a44233",
+      "sourceHash": "ce14a595b9fa58529d855e2c",
       "provenance": "auto-mt",
-      "reviewedAt": "2026-07-19T16:52:20.624Z"
+      "reviewedAt": "2026-07-20T14:18:14.474Z"
     },
     "es": {
       "status": "approved",
-      "sourceHash": "02585da3b0c45d13e5a44233",
+      "sourceHash": "ce14a595b9fa58529d855e2c",
       "provenance": "auto-mt",
-      "reviewedAt": "2026-07-19T16:52:20.624Z"
+      "reviewedAt": "2026-07-20T14:18:14.474Z"
     },
     "fr": {
       "status": "approved",
-      "sourceHash": "02585da3b0c45d13e5a44233",
+      "sourceHash": "ce14a595b9fa58529d855e2c",
       "provenance": "human-reviewed",
-      "reviewedAt": "2026-07-20T10:36:18.985Z"
+      "reviewedAt": "2026-07-20T14:18:14.474Z"
     },
     "it": {
       "status": "approved",
-      "sourceHash": "02585da3b0c45d13e5a44233",
+      "sourceHash": "ce14a595b9fa58529d855e2c",
       "provenance": "human-reviewed",
-      "reviewedAt": "2026-07-20T10:36:18.985Z"
+      "reviewedAt": "2026-07-20T14:18:14.474Z"
     },
     "pt": {
       "status": "approved",
-      "sourceHash": "02585da3b0c45d13e5a44233",
+      "sourceHash": "ce14a595b9fa58529d855e2c",
       "provenance": "human-reviewed",
-      "reviewedAt": "2026-07-20T10:44:58.191Z"
+      "reviewedAt": "2026-07-20T14:18:14.474Z"
     }
   }
 }
