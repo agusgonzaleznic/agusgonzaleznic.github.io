@@ -55,11 +55,14 @@ const clientPages: RoutePages = {
   NotFound: lazy(() => import("./pages/NotFound")),
 };
 
-// Extracts the slug for the Storyblok preview route. Module-level (not nested)
-// so it keeps a stable component identity across renders.
+// Extracts the story full_slug for the Storyblok preview route from the splat
+// param, so nested paths like "blog/<slug>" and "pages/<slug>" are captured
+// (a single ":slug" segment can't). Module-level (not nested) so it keeps a
+// stable component identity across renders.
 const PreviewSlug = ({ Comp }: { Comp: React.ComponentType<{ slug?: string }> }) => {
-  const { slug } = useParams<{ slug: string }>();
-  return <Comp slug={slug || "home"} />;
+  const params = useParams();
+  const fullSlug = (params["*"] || "").replace(/^\/+|\/+$/g, "");
+  return <Comp slug={fullSlug || "home"} />;
 };
 
 // Shared providers/shell. Rendered identically on the server (prerender) and the
@@ -135,9 +138,10 @@ export const AppRoutes = ({ pages }: { pages: RoutePages }) => (
             <Route path="privacy" element={<pages.Privacy />} />
           </Route>
         ))}
-        {/* Storyblok preview routes */}
-        <Route path="/preview" element={<pages.StoryblokPage slug="home" />} />
-        <Route path="/preview/:slug" element={<PreviewSlug Comp={pages.StoryblokPage} />} />
+        {/* Storyblok Visual Editor preview (dev-only; excluded from prerender).
+            Splat captures the story full_slug: /preview/blog/<slug>,
+            /preview/pages/<slug>, or bare /preview → home. */}
+        <Route path="/preview/*" element={<PreviewSlug Comp={pages.StoryblokPage} />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<pages.NotFound />} />
       </Routes>

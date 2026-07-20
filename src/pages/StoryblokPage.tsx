@@ -1,84 +1,163 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useStoryblokApi, StoryblokComponent, useStoryblokState } from "@storyblok/react";
-import { StoryblokStory } from "@/lib/types/storyblok";
+import type { StoryblokStory } from "@/lib/types/storyblok";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { RichText } from "@/components/blog/RichText";
+import { storyblokImage, type BlogImage, type RichtextNode } from "@/lib/blog";
 
 interface StoryblokPageProps {
+  /** The story's full_slug, e.g. "blog/my-post" or "pages/philosophy". */
   slug?: string;
 }
 
+// The blog_post fields the preview reads off the LIVE (bridge-updated) story.
+interface BlogPostContent {
+  component?: string;
+  title?: string;
+  body?: RichtextNode | null;
+  cover_image?: BlogImage | null;
+  published_date?: string;
+}
+
+const Shell = ({ children }: { children: ReactNode }) => (
+  <>
+    <Navigation />
+    {children}
+    <Footer />
+  </>
+);
+
+const Centered = ({ children }: { children: ReactNode }) => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="text-center max-w-md px-6">{children}</div>
+  </div>
+);
+
+// Render a live blog_post draft with the SAME RichText renderer + article
+// container the production /blog/:slug page uses, so the preview matches what
+// ships. Page stories render through <StoryblokComponent> (the blok registry)
+// instead — see the dispatch in StoryblokPage below.
+const BlogPostPreview = ({ content }: { content: BlogPostContent }) => {
+  const cover = content.cover_image?.filename ? content.cover_image : null;
+  return (
+    <main className="pt-16">
+      <article className="bg-background">
+        <div className="container px-6 py-16 md:py-24">
+          <div className="mx-auto max-w-3xl">
+            <header className="mb-10">
+              <h1 className="mb-6 text-fluid-3xl font-bold leading-tight">{content.title}</h1>
+              {content.published_date && (
+                <p className="text-sm text-muted-foreground">{content.published_date}</p>
+              )}
+            </header>
+            {cover && (
+              <figure className="mb-12">
+                <img
+                  src={storyblokImage(cover.filename, 1536)}
+                  alt={cover.alt || content.title || ""}
+                  className="w-full max-w-full rounded-lg"
+                />
+              </figure>
+            )}
+            <div className="max-w-[70ch]">
+              <RichText document={content.body ?? null} />
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+  );
+};
+
+/**
+ * Storyblok Visual Editor preview host (dev-only; excluded from prerender).
+ *
+ * The Visual Editor loads {preview URL}/{story.full_slug} in an iframe — with
+ * the Dev environment set to https://localhost:8080/preview/, that becomes
+ * /preview/blog/<slug> or /preview/pages/<slug>. The App route captures the
+ * full_slug (splat) and passes it here. We fetch the DRAFT once for the first
+ * paint, then useStoryblokState subscribes to the bridge for live edits, and
+ * dispatch by content type: blog_post → the blog article render, everything
+ * else → the registered blok components.
+ *
+ * Requires VITE_STORYBLOK_ACCESS_TOKEN (a draft-capable preview token) in
+ * .env.development.local — loaded by `vite` in dev, never by a prod build.
+ */
 export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
   const [initialStory, setInitialStory] = useState<StoryblokStory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const storyblokApi = useStoryblokApi();
 
-  // Fetch initial story
   useEffect(() => {
+    let cancelled = false;
     const fetchStory = async () => {
       if (!storyblokApi) {
-        setError("Storyblok API not initialized. Please configure VITE_STORYBLOK_ACCESS_TOKEN.");
+        setError(
+          "Storyblok is disabled. Set VITE_STORYBLOK_ACCESS_TOKEN in .env.development.local, then restart the dev server.",
+        );
         setLoading(false);
         return;
       }
-
       try {
         setLoading(true);
-        const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
-          version: "draft", // Use "published" in production
-          resolve_relations: [],
-        });
-
-        setInitialStory(data.story);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching story:", err);
-        setError("Failed to load content from Storyblok. Make sure the story exists and your access token is valid.");
+        const { data } = await storyblokApi.get(`cdn/stories/${slug}`, { version: "draft" });
+        if (!cancelled) {
+          setInitialStory(data.story);
+          setError(null);
+        }
+      } catch {
+        if (!cancelled) {
+          setError(`Couldn't load draft "${slug}". Check the slug and that the token can read drafts.`);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
-
     fetchStory();
+    return () => {
+      cancelled = true;
+    };
   }, [slug, storyblokApi]);
 
-  // Use bridge for live updates in Visual Editor
+  // Bridge: live updates as content is edited in the Visual Editor.
   const story = useStoryblokState(initialStory);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading content from Storyblok...</p>
-        </div>
-      </div>
+      <Centered>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4" />
+        <p className="text-muted-foreground">Loading draft from Storyblok…</p>
+      </Centered>
     );
   }
 
   if (error || !story) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center max-w-md px-6">
-          <h1 className="text-2xl font-bold mb-4">Content Not Available</h1>
-          <p className="text-muted-foreground mb-6">
-            {error || "The requested page could not be loaded."}
-          </p>
-          <a href="/" className="text-accent hover:underline font-medium">
-            Return to homepage
-          </a>
-        </div>
-      </div>
+      <Centered>
+        <h1 className="text-2xl font-bold mb-4">Preview unavailable</h1>
+        <p className="text-muted-foreground mb-6">{error || "The requested story could not be loaded."}</p>
+        <a href="/" className="text-accent hover:underline font-medium">
+          Return to homepage
+        </a>
+      </Centered>
     );
   }
 
+  const content = story.content as unknown as BlogPostContent;
+  if (content?.component === "blog_post") {
+    return (
+      <Shell>
+        <BlogPostPreview content={content} />
+      </Shell>
+    );
+  }
+
+  // Pages and any other registered component render through the blok map.
   return (
-    <>
-      <Navigation />
+    <Shell>
       <StoryblokComponent blok={story.content} />
-      <Footer />
-    </>
+    </Shell>
   );
 };
