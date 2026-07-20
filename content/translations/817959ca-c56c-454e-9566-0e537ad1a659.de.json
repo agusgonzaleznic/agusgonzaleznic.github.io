@@ -78,7 +78,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Der CTO hat den Konflikt nicht erzeugt. Was er tat, war, ihn von einer Meinungsverschiedenheit in einen Befehl zu verwandeln.",
+            "text": "Der CTO hat den Konflikt nicht ausgelöst. Was er tat, war, ihn von einer Meinungsverschiedenheit in einen Befehl zu verwandeln.",
             "type": "text"
           }
         ]
@@ -135,7 +135,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Ein kaputtes Deployment konnte ein „Warum zum Teufel hast du das nicht vorher getestet?“ auslösen. Aus einem Problem in der Mobile App wurde „Leute, nichts funktioniert. Nichts. Wir sind gerade komplett down.“ Die Entwickler hörten, dass das Produkt peinlich sei, die Qualität schlecht und dass es offenbar niemanden interessierte.",
+            "text": "Ein kaputtes Deployment konnte ein „Warum hast du das nicht vorher getestet, verdammt noch mal?“ auslösen. Aus einem Problem in der Mobile App wurde „Leute, nichts funktioniert. Nichts. Wir sind gerade komplett down.“ Die Entwickler hörten, dass das Produkt peinlich sei, die Qualität schlecht und dass es offenbar niemanden interessierte.",
             "type": "text"
           }
         ]
@@ -251,7 +251,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Es gibt einen Unterschied zwischen „dieser verdammte Outage“ und „Was zum Teufel machst du da?“. Das Erste stellt Sprecher und Zuhörer auf dieselbe Seite einer beschissenen Situation. Das Zweite macht den Zuhörer zum Incident.",
+            "text": "Es gibt einen Unterschied zwischen „dieser verdammte Ausfall“ und „Was machst du da, verdammt noch mal?“. Das Erste stellt Sprecher und Zuhörer auf dieselbe Seite einer beschissenen Situation. Das Zweite macht den Zuhörer zum Incident.",
             "type": "text"
           }
         ]
@@ -290,7 +290,7 @@
             ]
           },
           {
-            "text": ": Sprich die harten Dinge aus, bring Dringlichkeit rein, wenn es sie braucht, und versuch, deine Emotionen nicht zum Problem aller anderen zu machen.",
+            "text": ": Sprich die harten Dinge aus, bring Dringlichkeit rein, wenn sie nötig ist, und versuch, deine Emotionen nicht zum Problem aller anderen zu machen.",
             "type": "text"
           }
         ]
@@ -329,7 +329,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Die Engineers lernten, Vorschläge erst dann einzubringen, wenn jede Annahme wasserdicht war. Neue Architekturideen und Proofs of Concept blieben so lange unsichtbar, bis sie kaum noch angreifbar waren – was den Iterationsprozess verlangsamte. Manche Pipeline-Failures wurden behoben, ohne dass sie je zur Sprache kamen. Sicherheitsprobleme wurden nicht immer so offen gemeldet, wie es nötig gewesen wäre. Und am schlimmsten: Konflikte zwischen Menschen in ihren Rollen wurden gar nicht mehr ans C-Level herangetragen – außer natürlich, das C-Level setzte dich mit HR im Raum zusammen und bat dich um Feedback zu jemandem, den sie ohnehin feuern wollten.",
+            "text": "Die Engineers lernten, Vorschläge erst dann einzubringen, wenn jede Annahme wasserdicht war. Neue Architekturideen und Proofs of Concept blieben so lange unsichtbar, bis sie kaum noch angreifbar waren – was den Iterationsprozess verlangsamte. Manche Pipeline-Failures wurden behoben, ohne dass sie je zur Sprache kamen. Sicherheitsprobleme wurden nicht immer so offen gemeldet, wie es nötig gewesen wäre. Und am schlimmsten: Konflikte zwischen Menschen in ihren Rollen wurden gar nicht mehr ans C-Level herangetragen – außer natürlich, das C-Level holte dich mit HR ins Zimmer und bat dich um Feedback zu jemandem, den es ohnehin feuern wollte.",
             "type": "text"
           }
         ]
@@ -584,7 +584,7 @@
             ]
           },
           {
-            "text": ". eine verwandte Unterscheidung getroffen. Command and Control kann sinnvoll sein, wenn Soldaten in einer Situation auf Leben und Tod sofort handeln müssen. Software-Organisationen sind anders: Die Person, die am dichtesten an der Arbeit dran ist, hat meist relevantere Informationen als die Führungskraft, die gerade den Raum betritt. Spolsky nannte die darauf folgende Unterbrechung durch die Führungskraft „Hit-and-run-Mikromanagement“. Die Führungskraft wirft die Arbeit aus der Bahn und zieht weiter, bevor sie mit den Konsequenzen leben muss.",
+            "text": " eine verwandte Unterscheidung getroffen. Command and Control kann sinnvoll sein, wenn Soldaten in einer Situation auf Leben und Tod sofort handeln müssen. Software-Organisationen sind anders: Die Person, die am dichtesten an der Arbeit dran ist, hat meist relevantere Informationen als die Führungskraft, die gerade den Raum betritt. Spolsky nannte die darauf folgende Unterbrechung durch die Führungskraft „Hit-and-run-Mikromanagement“. Die Führungskraft wirft die Arbeit aus der Bahn und zieht weiter, bevor sie mit den Konsequenzen leben muss.",
             "type": "text"
           }
         ]
@@ -620,7 +620,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Das sind Kommandos. Aber sie hätten dem Konflikt auch einen Ort gegeben, an den er kann.",
+            "text": "Das sind Kommandos. Aber sie hätten dem Konflikt auch einen Ort gegeben, an den er gehen kann.",
             "type": "text"
           }
         ]
@@ -638,7 +638,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Ich hatte meinen Titel benutzt, um einen Streit zu beenden. Meine Sprache war ruhiger, aber die Botschaft war verwandt: Ich entscheide; du fügst dich. Am Anfang meiner Karriere dachte ich, Autorität bedeute, dass ich mich nicht mehr mit so vielen Leuten abstimmen muss. Als ich wuchs, mich weiterbildete, Mentoring und Coaching von Menschen bekam, die ich immer noch bewundere, wie ",
+            "text": "Ich hatte meinen Titel benutzt, um einen Streit zu beenden. Meine Sprache war ruhiger, aber die Botschaft war dieselbe: Ich entscheide; du fügst dich. Am Anfang meiner Karriere dachte ich, Autorität bedeute, dass ich mich nicht mehr mit so vielen Leuten abstimmen muss. Als ich wuchs, mich weiterbildete, Mentoring und Coaching von Menschen bekam, die ich immer noch bewundere, wie ",
             "type": "text"
           },
           {

@@ -189,7 +189,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "En Site Reliability Engineering, una alerta no es simplemente la descripción de algo que un sistema de monitoreo observó. Es una demanda sobre la atención de una persona. Una buena alerta señala un impacto real y pide una acción. Una mala se dispara porque un número se movió.",
+            "text": "En Site Reliability Engineering, una alerta no es simplemente la descripción de algo que un sistema de monitoreo observó. Es una exigencia sobre la atención de una persona. Una buena alerta señala un impacto real y pide una acción. Una mala se dispara porque un número se movió.",
             "type": "text"
           }
         ]
@@ -215,7 +215,7 @@
             ]
           },
           {
-            "text": " advierte que una baja relación señal-ruido produce fatiga por alertas. La gente no se vuelve más vigilante cuando un sistema le manda avisos constantemente. Aprenden que no se puede confiar en el aviso.",
+            "text": " advierte que una baja relación señal-ruido produce fatiga por alertas. La gente no se vuelve más vigilante cuando un sistema le manda avisos constantemente. Aprende que no se puede confiar en el aviso.",
             "type": "text"
           }
         ]
@@ -584,7 +584,7 @@
             ]
           },
           {
-            "text": ". El mando y control puede tener sentido cuando los soldados tienen que actuar de inmediato en una situación de vida o muerte. Las orgs de software son distintas: la persona más cercana al trabajo suele tener más información relevante que el ejecutivo que entra a la sala. Spolsky llamó a esa interrupción del ejecutivo \"micromanagement de pegar y salir corriendo\". El líder saca el trabajo de sus rieles y después sigue de largo, antes de convivir con las consecuencias.",
+            "text": ". El mando y control puede tener sentido cuando los soldados tienen que actuar de inmediato en una situación de vida o muerte. Las organizaciones de software son distintas: la persona más cercana al trabajo suele tener más información relevante que el ejecutivo que entra a la sala. Spolsky llamó a esa interrupción del ejecutivo \"micromanagement de pegar y salir corriendo\". El líder saca el trabajo de sus rieles y después sigue de largo, antes de convivir con las consecuencias.",
             "type": "text"
           }
         ]
@@ -602,7 +602,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "La determinación no requiere ese canje.",
+            "text": "La determinación no requiere esa concesión.",
             "type": "text"
           }
         ]
@@ -629,7 +629,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "La verdad más difícil de digerir es que quería que el CTO ejerciera un tipo de liderazgo que yo mismo ya había fallado en ejercer.",
+            "text": "La verdad más difícil de digerir es que quería que el CTO ejerciera un tipo de liderazgo que yo mismo no había sabido ejercer.",
             "type": "text"
           }
         ]
