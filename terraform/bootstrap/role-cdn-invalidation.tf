@@ -27,14 +27,22 @@ data "aws_iam_policy_document" "cdn_invalidation_trust" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_org}/${var.github_repo}:ref:refs/heads/main"]
+      # The site's own deploy workflow, plus the drive-berlin app, which is
+      # published to GitHub Pages and proxied at /drive-berlin/ through the same
+      # distribution. Its deploy has to clear that subtree or the canonical URL
+      # serves stale HTML for the CDN's 600s TTL, which is indistinguishable from
+      # a failed deploy.
+      values = [
+        "repo:${var.github_org}/${var.github_repo}:ref:refs/heads/main",
+        "repo:${var.github_org}/drive-berlin:ref:refs/heads/main",
+      ]
     }
   }
 }
 
 resource "aws_iam_role" "cdn_invalidation" {
   name                 = "github-cdn-invalidation"
-  description          = "Assumed by the deploy workflow (${var.github_org}/${var.github_repo}, main) to invalidate the site CloudFront cache after a Pages deployment."
+  description          = "Assumed by the deploy workflows of ${var.github_org}/${var.github_repo} and ${var.github_org}/drive-berlin (main only) to invalidate the CloudFront cache after a Pages deployment."
   assume_role_policy   = data.aws_iam_policy_document.cdn_invalidation_trust.json
   max_session_duration = 3600
 }
