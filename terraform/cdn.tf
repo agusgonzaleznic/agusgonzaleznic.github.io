@@ -292,7 +292,7 @@ resource "aws_cloudfront_response_headers_policy" "immutable_assets" {
 resource "aws_cloudfront_function" "www_redirect" {
   name    = "${replace(local.domain_name, ".", "-")}-www-redirect"
   runtime = "cloudfront-js-2.0"
-  comment = "www to apex; canonical URL forms (bare pages, slash blog) served 200"
+  comment = "www redirect + canonical URLs; keeps trailing slash for proxied GitHub Pages project sites"
   publish = true
 
   # URL normalization must happen HERE, not at the origin: CloudFront sends
@@ -308,6 +308,9 @@ resource "aws_cloudfront_function" "www_redirect" {
   #   - the blog subtree and the locale homes are SLASH (/blog/, /de/blog/x/,
   #     /de/): the slash URI passes through (Pages serves the directory
   #     index), and the bare variant 301s to the slash form.
+  #   - proxied GitHub Pages PROJECT sites are SLASH (/drive-berlin/): the
+  #     slash URI passes through untouched so the app's own relative asset
+  #     links resolve inside its subtree. See the projectSites note below.
   code = <<-EOF
     function handler(event) {
       var request = event.request;
@@ -339,9 +342,24 @@ resource "aws_cloudfront_function" "www_redirect" {
       // Locale-stripped path decides the subtree; e.g. /de/blog/x -> /blog/x.
       var base = uri.replace(/^\/(de|es|fr|it|pt)(?=\/|$)/, '');
       if (base === '') base = '/';
+
+      // GitHub Pages PROJECT sites proxied through this distribution. These must keep
+      // a trailing slash, unlike the prerendered site pages below, because the app's
+      // own HTML links its assets with RELATIVE paths. Served at a bare /drive-berlin
+      // the browser resolves "css/base.css" against the DOMAIN ROOT, those requests
+      // 404 at the origin, the 404 -> /index.html rule returns this site's HTML with
+      // status 200, and the browser then refuses every stylesheet and module on strict
+      // MIME checking. The app loads but renders unstyled and dead. Add a path here
+      // when proxying another project site.
+      var projectSites = ['/drive-berlin'];
+      var isProjectSite = projectSites.some(function (p) {
+        return base === p || base.indexOf(p + '/') === 0;
+      });
+
       var slashCanonical =
         base === '/' ||                                   // root + locale homes (/de)
-        base === '/blog' || base.startsWith('/blog/');    // blog index + posts + feeds
+        base === '/blog' || base.startsWith('/blog/') ||  // blog index + posts + feeds
+        isProjectSite;                                    // proxied GitHub Pages apps
 
       var lastSegment = uri.split('/').pop();
       var extensionless = !uri.endsWith('/') && !lastSegment.includes('.');
@@ -349,6 +367,8 @@ resource "aws_cloudfront_function" "www_redirect" {
       if (slashCanonical) {
         // Canonical form ends in "/": add it ( /blog -> /blog/, /de -> /de/ ).
         if (extensionless) return redirect(uri + '/');
+        // Pass through untouched. For a project site the origin already serves the
+        // directory index, so appending /index.html here would break it.
         return request;
       }
 
