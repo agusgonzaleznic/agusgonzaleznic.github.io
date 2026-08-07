@@ -24,7 +24,7 @@ Each **Link** block has:
 
 | Field | What it does |
 |-------|--------------|
-| **Label** | The button text (e.g. `LinkedIn`, `Buy Me a Coffee`). |
+| **Label** | The button text (e.g. `LinkedIn`, `Ko-fi`). |
 | **URL** | `https://…` (opens in a new tab), `mailto:…`, or an internal path like `/blog` (stays in-site, locale-aware). |
 | **Description** | Optional subtitle under the label. |
 | **Icon** | Pick from the built-in set (see below). Ignored if a Custom logo is set. |
@@ -39,20 +39,19 @@ If one of these fits, just pick it — no upload needed.
 
 ---
 
-## Adding a link that needs its own logo (e.g. Buy Me a Coffee)
+## Adding a link that needs its own logo (e.g. Ko-fi)
 
-Worked example: `https://buymeacoffee.com/agusgonzaleznic`.
+Worked example: `https://ko-fi.com/agusgonzaleznic`.
 
 1. **Get a logo.** For the best look, use a **single-colour SVG**:
    - Go to **[simpleicons.org](https://simpleicons.org)**, search the brand
-     (e.g. "Buy Me a Coffee"), and **download the SVG**. Simple Icons are
+     (e.g. "Ko-fi" — its Simple Icons slug is `kofi`), and **download the SVG**. Simple Icons are
      monochrome silhouettes, which is exactly what this page wants.
    - A transparent **PNG** works too. Avoid JPEGs (no transparency).
-   - *(Shortcut: "Buy Me a Coffee" also has a built-in **Coffee** icon option — pick
-     that from the Icon dropdown and skip the upload entirely.)*
+   - *(Ko-fi has no built-in icon, so a Custom logo upload is the way to go.)*
 2. **Upload it to Storyblok.** In the Link block, open **Custom logo** → *Add asset*
    → upload the SVG/PNG (or pick it from the Asset Library).
-3. **Fill the rest:** Label `Buy Me a Coffee`, URL `https://buymeacoffee.com/agusgonzaleznic`.
+3. **Fill the rest:** Label `Ko-fi`, URL `https://ko-fi.com/agusgonzaleznic`.
    Leave the Icon dropdown alone — the Custom logo takes precedence.
 4. **Publish** and refresh (below).
 

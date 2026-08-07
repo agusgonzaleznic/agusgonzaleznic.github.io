@@ -111,6 +111,10 @@ msgstr "Agustin Gonzalez Nicolini — engineering leadership coach in Berlin"
 msgid "Agustin Gonzalez Nicolini | Engineering Leadership Coach"
 msgstr "Agustin Gonzalez Nicolini | Engineering Leadership Coach"
 
+#: src/pages/Links.tsx
+msgid "All my links in one place: LinkedIn, GitHub, my blog, Medium, and how to book an intro call."
+msgstr "All my links in one place: LinkedIn, GitHub, my blog, Medium, and how to book an intro call."
+
 #: src/pages/BlogPost.tsx
 msgid "All writing"
 msgstr "All writing"
@@ -610,6 +614,14 @@ msgstr "Liability for Content and Links"
 msgid "LinkedIn Profile"
 msgstr "LinkedIn Profile"
 
+#: src/pages/Links.tsx
+msgid "Links"
+msgstr "Links"
+
+#: src/pages/Links.tsx
+msgid "Links & Profiles — Agustin Gonzalez Nicolini"
+msgstr "Links & Profiles — Agustin Gonzalez Nicolini"
+
 #: src/components/Services.tsx
 msgid "Manager & Director Level"
 msgstr "Manager & Director Level"
@@ -728,6 +740,10 @@ msgstr "Please enter a valid email address"
 #: src/components/Contact.tsx
 msgid "Please fill in all required fields"
 msgstr "Please fill in all required fields"
+
+#: src/components/Contact.tsx
+msgid "Please remove these characters — they aren't allowed for security reasons: {list}"
+msgstr "Please remove these characters — they aren't allowed for security reasons: {list}"
 
 #: src/components/FAQ.tsx
 msgid "Practical answers on fit, format, and how we'd start"
@@ -1042,5 +1058,25 @@ msgid "You'll hear what I actually think, specifically and early. That candor is
 msgstr "You'll hear what I actually think, specifically and early. That candor is most of the value."
 
 #: src/components/Contact.tsx
+msgid "Your email is too long — please use {EMAIL_MAX} characters or fewer."
+msgstr "Your email is too long — please use {EMAIL_MAX} characters or fewer."
+
+#: src/components/Contact.tsx
 msgid "Your full name"
 msgstr "Your full name"
+
+#: src/components/Contact.tsx
+msgid "Your message is too long — please use {MESSAGE_MAX} characters or fewer."
+msgstr "Your message is too long — please use {MESSAGE_MAX} characters or fewer."
+
+#: src/components/Contact.tsx
+msgid "Your message is too short — please write at least {MESSAGE_MIN} characters."
+msgstr "Your message is too short — please write at least {MESSAGE_MIN} characters."
+
+#: src/components/Contact.tsx
+msgid "Your name is too long — please use {NAME_MAX} characters or fewer."
+msgstr "Your name is too long — please use {NAME_MAX} characters or fewer."
+
+#: src/components/Contact.tsx
+msgid "Your role is too long — please use {ROLE_MAX} characters or fewer."
+msgstr "Your role is too long — please use {ROLE_MAX} characters or fewer."
