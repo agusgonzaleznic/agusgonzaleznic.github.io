@@ -126,9 +126,10 @@ function corsHeaders(origin) {
   };
 }
 
-function respond(statusCode, body, origin) {
+function respond(statusCode, body, origin, extraHeaders = undefined) {
   const headers = { "content-type": "application/json" };
   if (origin) Object.assign(headers, corsHeaders(origin));
+  if (extraHeaders) Object.assign(headers, extraHeaders);
   return { statusCode, headers, body: JSON.stringify(body) };
 }
 
@@ -242,7 +243,11 @@ async function bumpCounter(table, pk, windowS) {
     },
     ReturnValues: "UPDATED_NEW",
   });
-  return Number(res?.Attributes?.cnt?.N ?? "0");
+  // expires_at is in the SET clause, so it is echoed back on every call.
+  return {
+    count: Number(res?.Attributes?.cnt?.N ?? "0"),
+    expiresAt: Number(res?.Attributes?.expires_at?.N ?? "0"),
+  };
 }
 
 // Conditional insert; resolves true if newly written, false if it already
@@ -371,19 +376,37 @@ export const handler = async (event) => {
   // rate rule on /api/* is the recommended additional layer (see README).
   const ipKey = ipRateKey(trueIp);
   try {
-    const burst = await bumpCounter(
+    const { count, expiresAt } = await bumpCounter(
       cfg.DDB_TABLE,
       "GLOBAL#siteverify",
       GLOBAL_WINDOW_S,
     );
-    if (burst > GLOBAL_MAX) {
+    if (count > GLOBAL_MAX) {
       outcome("global_burst", 429);
-      return respond(429, { ok: false, error: "rate_limited" }, origin);
+      // retryAfter is how long until the tripped bucket's window expires.
+      const retryAfter = Math.max(1, expiresAt - nowS());
+      return respond(
+        429,
+        { ok: false, error: "rate_limited", retryAfter },
+        origin,
+        { "retry-after": String(retryAfter) },
+      );
     }
-    const ipCount = await bumpCounter(cfg.DDB_TABLE, `IP#${ipKey}`, IP_WINDOW_S);
+    const { count: ipCount, expiresAt: ipExpiresAt } = await bumpCounter(
+      cfg.DDB_TABLE,
+      `IP#${ipKey}`,
+      IP_WINDOW_S,
+    );
     if (ipCount > IP_MAX) {
       outcome("ip_rate", 429);
-      return respond(429, { ok: false, error: "rate_limited" }, origin);
+      // retryAfter is how long until the tripped bucket's window expires.
+      const retryAfter = Math.max(1, ipExpiresAt - nowS());
+      return respond(
+        429,
+        { ok: false, error: "rate_limited", retryAfter },
+        origin,
+        { "retry-after": String(retryAfter) },
+      );
     }
   } catch (err) {
     log({ reqId, trueIp, control: "pre_rate", status: "ddb_error" });
@@ -437,14 +460,21 @@ export const handler = async (event) => {
   // --- Control 9: per-email rate limit ---------------------------------------
   const emailLower = input.email.toLowerCase();
   try {
-    const emailCount = await bumpCounter(
+    const { count: emailCount, expiresAt: emailExpiresAt } = await bumpCounter(
       cfg.DDB_TABLE,
       `EMAIL#${emailLower}`,
       EMAIL_WINDOW_S,
     );
     if (emailCount > EMAIL_MAX) {
       outcome("email_rate", 429);
-      return respond(429, { ok: false, error: "rate_limited" }, origin);
+      // retryAfter is how long until the tripped bucket's window expires.
+      const retryAfter = Math.max(1, emailExpiresAt - nowS());
+      return respond(
+        429,
+        { ok: false, error: "rate_limited", retryAfter },
+        origin,
+        { "retry-after": String(retryAfter) },
+      );
     }
   } catch (err) {
     log({ reqId, trueIp, control: "email_rate", status: "ddb_error" });

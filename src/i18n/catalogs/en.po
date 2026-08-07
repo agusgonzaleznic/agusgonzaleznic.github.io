@@ -13,9 +13,18 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. placeholder {0}: Math.ceil(seconds / 60)
+#: src/components/Contact.tsx
+msgid "{0, plural, one {about # minute} other {about # minutes}}"
+msgstr "{0, plural, one {about # minute} other {about # minutes}}"
+
 #: src/components/blog/PostMeta.tsx
 msgid "{minutes} min read"
 msgstr "{minutes} min read"
+
+#: src/components/Contact.tsx
+msgid "{seconds, plural, one {# second} other {# seconds}}"
+msgstr "{seconds, plural, one {# second} other {# seconds}}"
 
 #: src/components/Footer.tsx
 msgid "© {currentYear} Agustin Gonzalez Nicolini. All rights reserved."
@@ -167,6 +176,10 @@ msgstr "Blog"
 #: src/components/Services.tsx
 msgid "Board presentations & executive presence"
 msgstr "Board presentations & executive presence"
+
+#: src/components/Contact.tsx
+msgid "Book a call"
+msgstr "Book a call"
 
 #: src/components/RelatedPages.tsx
 msgid "Book a free 30-minute intro call"
@@ -711,6 +724,10 @@ msgstr "One-on-one coaching for CTOs, VPs, directors, and engineering managers �
 msgid "One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics."
 msgstr "One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics."
 
+#: src/components/Contact.tsx
+msgid "or"
+msgstr "or"
+
 #: src/components/Services.tsx
 msgid "Organization design & scaling strategies"
 msgstr "Organization design & scaling strategies"
@@ -959,6 +976,10 @@ msgstr "To exercise these rights, contact <0>info@agusgonzaleznic.com</0>."
 #: src/components/Navigation.tsx
 msgid "Toggle menu"
 msgstr "Toggle menu"
+
+#: src/components/Contact.tsx
+msgid "Too many requests — please wait {wait} before trying again, or email me directly."
+msgstr "Too many requests — please wait {wait} before trying again, or email me directly."
 
 #: src/components/Contact.tsx
 msgid "Too many requests. Please wait a moment, or email me directly."

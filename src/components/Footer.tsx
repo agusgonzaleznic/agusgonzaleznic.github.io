@@ -1,11 +1,24 @@
+import { useSyncExternalStore } from "react";
 import { Mail, Linkedin, Github } from "lucide-react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LocaleLink } from "@/components/LocaleLink";
+import { getStickyCtaVisible, subscribeStickyCtaVisible } from "@/lib/layout";
 
 export const Footer = () => {
   const { t } = useLingui();
   const currentYear = new Date().getFullYear();
+  // Navigation publishes whether the mobile sticky "Book a Session" CTA is
+  // rendered (fixed bottom-0, md:hidden). When it is, reserve extra bottom
+  // space on mobile so the fixed CTA sits in that gap instead of covering the
+  // language switcher at the very bottom of the footer. The server snapshot is
+  // false so the prerendered HTML carries no extra padding and hydration
+  // matches — mirrors how CookieNotice consumes this store.
+  const ctaVisible = useSyncExternalStore(
+    subscribeStickyCtaVisible,
+    getStickyCtaVisible,
+    () => false,
+  );
 
   // Each section is its own route now, so every quick link is a locale-aware
   // <LocaleLink> that navigates client-side (no reload) — bare paths, no /#hash.
@@ -22,7 +35,9 @@ export const Footer = () => {
   const quickLinkColumns = [quickLinks.slice(0, 4), quickLinks.slice(4)];
 
   return (
-    <footer className="bg-primary text-primary-foreground py-12 md:py-16">
+    <footer
+      className={`bg-primary text-primary-foreground py-12 md:py-16 ${ctaVisible ? "pb-28 md:pb-16" : ""}`}
+    >
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* The Quick Links track is auto (content-sized): its two fixed-width

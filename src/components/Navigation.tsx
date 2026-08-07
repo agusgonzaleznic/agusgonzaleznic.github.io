@@ -7,7 +7,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LocaleLink } from "@/components/LocaleLink";
 import { BOOKING_URL } from "@/lib/booking";
 import { delocalizePath } from "@/i18n/locales";
-import { CONTACT_CTA_ID, SERVICES_CTA_ID, setStickyCtaVisible } from "@/lib/layout";
+import { setStickyCtaVisible } from "@/lib/layout";
 
 // Every nav entry is now its own route (About, Philosophy, … each have a page).
 // They render as locale-aware <LocaleLink>s and navigate client-side (content
@@ -24,20 +24,14 @@ export const Navigation = () => {
   const { t } = useLingui();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // Starts hidden so the prerendered HTML never carries the sticky CTA (it
-  // would flash on top of the hero CTA before hydration).
-  const [isStickyCtaVisible, setIsStickyCtaVisible] = useState(false);
-  // Whether the footer is currently on screen. While it is, the mobile sticky
-  // CTA is suppressed so it can't cover the footer's language switcher (which
-  // sits at the very bottom of the footer). Starts false — at the top of a
-  // fresh page the footer is below the fold.
-  const [isFooterInView, setIsFooterInView] = useState(false);
   const location = useLocation();
   // Locale-aware: treat /{locale}/ and /{locale}/blog like their English roots
   // so the logo and blog-specific behaviour work under every language.
   const basePath = delocalizePath(location.pathname);
   const isHome = basePath === "/";
   const isBlog = basePath.startsWith("/blog");
+  const isContact = basePath === "/contact";
+  const isServices = basePath === "/services";
 
   useEffect(() => {
     // Hysteresis (dead-band) so the bar can't flicker. A single `scrollY > 50`
@@ -58,75 +52,22 @@ export const Navigation = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Show the sticky CTA only while no inline booking affordance is on screen —
-  // the contact form's submit button (/contact) and the Services bottom
-  // "Book an Intro Call" CTA (/services). Pages without one always show it.
-  useEffect(() => {
-    // Every route change starts from hidden: without this, state left over
-    // from a branch below flashes the sticky CTA on top of an inline CTA
-    // until the new observer's first async callback fires.
-    setIsStickyCtaVisible(false);
-    if (isBlog) return;
-    const targets = [CONTACT_CTA_ID, SERVICES_CTA_ID]
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
-    if (targets.length === 0) {
-      // Route without an inline booking CTA (home, content and legal pages):
-      // always show it.
-      setIsStickyCtaVisible(true);
-      return () => setIsStickyCtaVisible(false);
-    }
-    const inView = new Set<Element>();
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) inView.add(entry.target);
-        else inView.delete(entry.target);
-      }
-      setIsStickyCtaVisible(inView.size === 0);
-    });
-    targets.forEach((el) => observer.observe(el));
-    return () => {
-      observer.disconnect();
-      setIsStickyCtaVisible(false);
-    };
-  }, [isBlog, location.pathname]);
-
-  // Suppress the mobile sticky CTA while the footer is on screen so it never
-  // covers the footer's language switcher at the bottom of the page. A
-  // dedicated IntersectionObserver on the single <footer> element flips the
-  // flag; it's folded into showStickyCta below, so near the page bottom the
-  // bar simply isn't rendered and the switcher is fully reachable. Mid-page
-  // the footer is below the fold, so the "appears on scroll" behaviour is
-  // untouched. Effects never run during SSR (prerender), and the observer
-  // no-ops where IntersectionObserver is unavailable, so the static HTML is
-  // unaffected. Re-runs per route to re-observe the current footer node.
-  useEffect(() => {
-    setIsFooterInView(false);
-    if (typeof IntersectionObserver === "undefined") return;
-    const footer = document.querySelector("footer");
-    if (!footer) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsFooterInView(entry.isIntersecting);
-    });
-    observer.observe(footer);
-    return () => {
-      observer.disconnect();
-      setIsFooterInView(false);
-    };
-  }, [location.pathname]);
-
   // Publish whether the sticky CTA is actually rendered (same condition as
-  // the JSX below) so CookieNotice can stack the consent banner above it
-  // only when it exists — see the store in src/lib/layout.ts.
-  // On home the CTA additionally waits for the first scroll (isScrolled):
-  // the landing fold stays clean — especially on a first visit, when the
-  // consent banner is also on screen — and the CTA appears with engagement.
+  // the JSX below) so CookieNotice and Footer can react — CookieNotice stacks
+  // the consent banner above it, and the Footer reserves bottom space for it —
+  // only when it exists (see the store in src/lib/layout.ts). Route-gated:
+  // /contact and /services carry their own inline booking affordances and
+  // /blog would cover long-form reading, so the floating CTA is redundant on
+  // all three. On home the CTA additionally waits for the first scroll
+  // (isScrolled): the landing fold stays clean — especially on a first visit,
+  // when the consent banner is also on screen — and the CTA appears with
+  // engagement.
   const showStickyCta =
     !isMobileMenuOpen &&
     !isBlog &&
-    isStickyCtaVisible &&
-    (!isHome || isScrolled) &&
-    !isFooterInView;
+    !isContact &&
+    !isServices &&
+    (!isHome || isScrolled);
   useEffect(() => {
     setStickyCtaVisible(showStickyCta);
     return () => setStickyCtaVisible(false);
@@ -263,11 +204,11 @@ export const Navigation = () => {
         </div>
       )}
 
-      {/* Sticky CTA on mobile — suppressed on blog routes so it doesn't
-          permanently cover the bottom of long-form reading, and while an
-          inline booking CTA is already visible. Stays bottom-0 z-40: the
-          CookieNotice (z-50) reads the store above and moves to bottom-24
-          on mobile only while this is rendered. */}
+      {/* Sticky CTA on mobile — route-gated in showStickyCta above (hidden on
+          /blog, /contact and /services). Stays bottom-0 z-40: the CookieNotice
+          (z-50) reads the store above and moves to bottom-24 on mobile only
+          while this is rendered, and the Footer reserves bottom space so this
+          never covers its language switcher at the page bottom. */}
       {showStickyCta && (
         <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden p-4 bg-gradient-to-t from-background via-background to-transparent">
           <Button

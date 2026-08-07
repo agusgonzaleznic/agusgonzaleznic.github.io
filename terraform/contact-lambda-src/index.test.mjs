@@ -25,6 +25,7 @@ function tsAgo(seconds) {
 function makeDdb() {
   const puts = new Set();
   const counts = new Map();
+  const expiries = new Map();
   const calls = [];
   const send = async (op, params) => {
     calls.push({ op, params });
@@ -42,11 +43,21 @@ function makeDdb() {
       const pk = params.Key.pk.S;
       const next = (counts.get(pk) ?? 0) + 1;
       counts.set(pk, next);
-      return { Attributes: { cnt: { N: String(next) } } };
+      // Mirror real DynamoDB ReturnValues:"UPDATED_NEW": the SET clause writes
+      // expires_at via if_not_exists, so it's anchored on the first hit and
+      // echoed back on every bump. The handler derives retryAfter from it, so
+      // the stub MUST return it — otherwise retryAfter silently collapses to 1
+      // and the derivation goes untested.
+      if (!expiries.has(pk)) {
+        expiries.set(pk, params.ExpressionAttributeValues?.[":exp"]?.N ?? "0");
+      }
+      return {
+        Attributes: { cnt: { N: String(next) }, expires_at: { N: expiries.get(pk) } },
+      };
     }
     throw new Error(`unexpected op ${op}`);
   };
-  return { send, puts, counts, calls };
+  return { send, puts, counts, expiries, calls };
 }
 
 // Configurable fetch stub for siteverify + Apps Script.
@@ -349,7 +360,15 @@ test("per-IP over limit -> 429", async () => {
   ddb.counts.set("IP#203.0.113.5", 5); // next bump -> 6 > 5
   const res = await handler(event());
   assert.equal(res.statusCode, 429);
-  assert.deepEqual(parse(res), { ok: false, error: "rate_limited" });
+  const b = parse(res);
+  assert.equal(b.ok, false);
+  assert.equal(b.error, "rate_limited");
+  // retryAfter (seconds to wait) is derived from the tripped bucket's
+  // expires_at (= first hit + IP window). Assert it reflects the real window,
+  // not the constant-1 fallback that a stub omitting expires_at would produce,
+  // and that the Retry-After header mirrors it.
+  assert.ok(Number.isInteger(b.retryAfter) && b.retryAfter > 1 && b.retryAfter <= 600);
+  assert.equal(res.headers["retry-after"], String(b.retryAfter));
 });
 
 test("IPv6 callers in the same /64 share one per-IP bucket", async () => {
@@ -358,7 +377,15 @@ test("IPv6 callers in the same /64 share one per-IP bucket", async () => {
   // A different interface id inside the same /64 must map to the same bucket.
   const res = await handler(event({ ip: "2001:db8:1:2:aaaa:bbbb:cccc:dddd:443" }));
   assert.equal(res.statusCode, 429);
-  assert.deepEqual(parse(res), { ok: false, error: "rate_limited" });
+  const b = parse(res);
+  assert.equal(b.ok, false);
+  assert.equal(b.error, "rate_limited");
+  // retryAfter (seconds to wait) is derived from the tripped bucket's
+  // expires_at (= first hit + IP window). Assert it reflects the real window,
+  // not the constant-1 fallback that a stub omitting expires_at would produce,
+  // and that the Retry-After header mirrors it.
+  assert.ok(Number.isInteger(b.retryAfter) && b.retryAfter > 1 && b.retryAfter <= 600);
+  assert.equal(res.headers["retry-after"], String(b.retryAfter));
 });
 
 test("per-IP rate limit is enforced BEFORE the siteverify network call", async () => {
