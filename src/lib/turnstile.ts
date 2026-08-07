@@ -1,7 +1,8 @@
 // Cloudflare Turnstile client loader.
 //
 // api.js is loaded LAZILY (never at initial page load) so the site ships zero
-// third-party JavaScript until a visitor actually reaches the contact form.
+// third-party JavaScript until a visitor actually interacts with the contact
+// form. Reaching it is not enough: reading the page contacts nobody.
 // Every entry point guards on `typeof window` so this module is import-safe
 // during SSR / prerender (the widget only ever initialises in the browser).
 //

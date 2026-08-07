@@ -73,13 +73,12 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileError, setTurnstileError] = useState(false);
   const widgetContainerRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const initTriggeredRef = useRef(false);
 
-  // Load api.js + render the widget. Idempotent: only the first trigger (viewport
-  // proximity or first field focus) does any work, so nothing third-party loads
-  // at initial page load.
+  // Load api.js + render the widget. Idempotent: only the first interaction with
+  // the form does any work, so a visitor who merely reads the page never touches
+  // Cloudflare at all.
   const initTurnstile = useCallback(() => {
     if (initTriggeredRef.current) return;
     initTriggeredRef.current = true;
@@ -114,25 +113,19 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
       .catch(() => setTurnstileError(true));
   }, []);
 
-  // Lazy trigger #1: load when the form nears the viewport.
-  useEffect(() => {
-    const target = formRef.current;
-    if (!target || typeof IntersectionObserver === "undefined") {
-      initTurnstile();
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          initTurnstile();
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "200px" },
-    );
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [initTurnstile]);
+  // The only trigger is a real interaction with the form, wired on the <form>
+  // element itself (see onFocus/onPointerDown below).
+  //
+  // There used to be a second trigger that loaded the widget once the form came
+  // within 200px of the viewport. On /contact the form is above the fold, so
+  // that fired during initial layout and every visitor hit Cloudflare whether or
+  // not they intended to write anything. Turnstile then runs its fingerprinting
+  // probes on load, which is both a privacy cost the visitor did not opt into
+  // and around fifty console messages on a page nobody has touched. Waiting for
+  // an interaction costs nothing: filling three required fields takes far longer
+  // than the challenge needs to solve, so the token is ready before the message
+  // is, and the container below reserves its height either way so nothing
+  // shifts when the widget appears.
 
   // Tear the widget down on unmount so a remount renders a fresh one.
   useEffect(() => {
@@ -281,10 +274,18 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
           <div className="grid lg:grid-cols-5 gap-12">
             {/* Contact form */}
             <Card className="lg:col-span-3 p-8 animate-fade-in-up delay-100">
+              {/*
+                Both handlers are on the <form> and both bubble, so any field
+                inside it arms the widget. onFocus (React delegates it to
+                focusin) covers keyboard and assistive-tech users tabbing in;
+                onPointerDown covers mouse and touch, and fires a moment earlier
+                than focus does, including on a tap that lands on a label or the
+                padding rather than an input.
+              */}
               <form
-                ref={formRef}
                 onSubmit={handleSubmit}
                 onFocus={initTurnstile}
+                onPointerDown={initTurnstile}
                 className="space-y-6"
               >
                 <div>
