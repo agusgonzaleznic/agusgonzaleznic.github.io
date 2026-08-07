@@ -1,15 +1,5 @@
 msgid ""
-msgstr ""
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language: \n"
-"Language-Team: \n"
-"Content-Type: \n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+msgstr "POT-Creation-Date: 2026-07-12 10:38+0200\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\nContent-Transfer-Encoding: 8bit\nX-Generator: @lingui/cli\nLanguage: fr\nProject-Id-Version: \nReport-Msgid-Bugs-To: \nPO-Revision-Date: \nLast-Translator: \nLanguage-Team: \nPlural-Forms: \n"
 
 #: src/components/blog/PostMeta.tsx
 msgid "{minutes} min read"
@@ -108,6 +98,10 @@ msgstr "Agustin Gonzalez Nicolini — coach en leadership technique à Berlin"
 #: src/pages/Index.tsx
 msgid "Agustin Gonzalez Nicolini | Engineering Leadership Coach"
 msgstr "Agustin Gonzalez Nicolini | Coach en leadership technique"
+
+#: src/pages/Links.tsx
+msgid "All my links in one place: LinkedIn, GitHub, my blog, Medium, and how to book an intro call."
+msgstr "Tous mes liens au même endroit : LinkedIn, GitHub, mon blog, Medium, et comment réserver un intro call."
 
 #: src/pages/BlogPost.tsx
 msgid "All writing"
@@ -608,6 +602,14 @@ msgstr "Responsabilité relative au contenu et aux liens"
 msgid "LinkedIn Profile"
 msgstr "Profil LinkedIn"
 
+#: src/pages/Links.tsx
+msgid "Links"
+msgstr "Liens"
+
+#: src/pages/Links.tsx
+msgid "Links & Profiles — Agustin Gonzalez Nicolini"
+msgstr "Liens & profils — Agustin Gonzalez Nicolini"
+
 #: src/components/Services.tsx
 msgid "Manager & Director Level"
 msgstr "Niveau Manager et Director"
@@ -726,6 +728,10 @@ msgstr "Saisis une adresse e-mail valide"
 #: src/components/Contact.tsx
 msgid "Please fill in all required fields"
 msgstr "Remplis tous les champs obligatoires"
+
+#: src/components/Contact.tsx
+msgid "Please remove these characters — they aren't allowed for security reasons: {list}"
+msgstr "Merci de retirer ces caractères — ils ne sont pas autorisés pour des raisons de sécurité : {list}"
 
 #: src/components/FAQ.tsx
 msgid "Practical answers on fit, format, and how we'd start"
@@ -1040,5 +1046,25 @@ msgid "You'll hear what I actually think, specifically and early. That candor is
 msgstr "Tu sauras vraiment ce que je pense, de manière précise et dès le début. Cette franchise, c'est là que réside l'essentiel de la valeur."
 
 #: src/components/Contact.tsx
+msgid "Your email is too long — please use {EMAIL_MAX} characters or fewer."
+msgstr "Ton email est trop long — merci d'utiliser {EMAIL_MAX} caractères ou moins."
+
+#: src/components/Contact.tsx
 msgid "Your full name"
 msgstr "Ton nom complet"
+
+#: src/components/Contact.tsx
+msgid "Your message is too long — please use {MESSAGE_MAX} characters or fewer."
+msgstr "Ton message est trop long — merci d'utiliser {MESSAGE_MAX} caractères ou moins."
+
+#: src/components/Contact.tsx
+msgid "Your message is too short — please write at least {MESSAGE_MIN} characters."
+msgstr "Ton message est trop court — merci d'écrire au moins {MESSAGE_MIN} caractères."
+
+#: src/components/Contact.tsx
+msgid "Your name is too long — please use {NAME_MAX} characters or fewer."
+msgstr "Ton nom est trop long — merci d'utiliser {NAME_MAX} caractères ou moins."
+
+#: src/components/Contact.tsx
+msgid "Your role is too long — please use {ROLE_MAX} characters or fewer."
+msgstr "Ton rôle est trop long — merci d'utiliser {ROLE_MAX} caractères ou moins."

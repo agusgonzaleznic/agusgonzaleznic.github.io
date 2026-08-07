@@ -27,6 +27,11 @@ export const Navigation = () => {
   // Starts hidden so the prerendered HTML never carries the sticky CTA (it
   // would flash on top of the hero CTA before hydration).
   const [isStickyCtaVisible, setIsStickyCtaVisible] = useState(false);
+  // Whether the footer is currently on screen. While it is, the mobile sticky
+  // CTA is suppressed so it can't cover the footer's language switcher (which
+  // sits at the very bottom of the footer). Starts false — at the top of a
+  // fresh page the footer is below the fold.
+  const [isFooterInView, setIsFooterInView] = useState(false);
   const location = useLocation();
   // Locale-aware: treat /{locale}/ and /{locale}/blog like their English roots
   // so the logo and blog-specific behaviour work under every language.
@@ -86,6 +91,30 @@ export const Navigation = () => {
     };
   }, [isBlog, location.pathname]);
 
+  // Suppress the mobile sticky CTA while the footer is on screen so it never
+  // covers the footer's language switcher at the bottom of the page. A
+  // dedicated IntersectionObserver on the single <footer> element flips the
+  // flag; it's folded into showStickyCta below, so near the page bottom the
+  // bar simply isn't rendered and the switcher is fully reachable. Mid-page
+  // the footer is below the fold, so the "appears on scroll" behaviour is
+  // untouched. Effects never run during SSR (prerender), and the observer
+  // no-ops where IntersectionObserver is unavailable, so the static HTML is
+  // unaffected. Re-runs per route to re-observe the current footer node.
+  useEffect(() => {
+    setIsFooterInView(false);
+    if (typeof IntersectionObserver === "undefined") return;
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsFooterInView(entry.isIntersecting);
+    });
+    observer.observe(footer);
+    return () => {
+      observer.disconnect();
+      setIsFooterInView(false);
+    };
+  }, [location.pathname]);
+
   // Publish whether the sticky CTA is actually rendered (same condition as
   // the JSX below) so CookieNotice can stack the consent banner above it
   // only when it exists — see the store in src/lib/layout.ts.
@@ -93,7 +122,11 @@ export const Navigation = () => {
   // the landing fold stays clean — especially on a first visit, when the
   // consent banner is also on screen — and the CTA appears with engagement.
   const showStickyCta =
-    !isMobileMenuOpen && !isBlog && isStickyCtaVisible && (!isHome || isScrolled);
+    !isMobileMenuOpen &&
+    !isBlog &&
+    isStickyCtaVisible &&
+    (!isHome || isScrolled) &&
+    !isFooterInView;
   useEffect(() => {
     setStickyCtaVisible(showStickyCta);
     return () => setStickyCtaVisible(false);

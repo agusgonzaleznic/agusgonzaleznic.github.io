@@ -38,6 +38,35 @@ async function sha256Hex(body: string): Promise<string> {
     .join("");
 }
 
+// Client-side validation limits — MIRROR the Lambda schema (control 4,
+// `validate()` in terraform/contact-lambda-src/index.mjs). Everything is
+// checked against the TRIMMED value, exactly as the server does, so anything
+// that passes here also passes there. We only enforce what the server enforces:
+// length bounds + rejection of control characters. Ordinary text — apostrophes,
+// accents, punctuation, and newlines in the message — is never rejected.
+const NAME_MAX = 100;
+const EMAIL_MAX = 200;
+const ROLE_MAX = 100;
+const MESSAGE_MIN = 10;
+const MESSAGE_MAX = 4000;
+
+// The Lambda rejects C0 control chars + DEL (its CTRL_ANY); the message field
+// additionally tolerates tab/newline/carriage-return (its CTRL_MULTILINE). We
+// detect them by codepoint (no control-char regex) and return the offending
+// ones as U+XXXX codes so the visitor can see exactly what to remove.
+function findControlChars(value: string, allowNewlines: boolean): string[] {
+  const seen = new Set<string>();
+  for (const ch of value) {
+    const code = ch.codePointAt(0);
+    if (code === undefined) continue;
+    const isControl = code <= 0x1f || code === 0x7f;
+    if (!isControl) continue;
+    if (allowNewlines && (ch === "\t" || ch === "\n" || ch === "\r")) continue;
+    seen.add(`U+${code.toString(16).toUpperCase().padStart(4, "0")}`);
+  }
+  return [...seen];
+}
+
 // Only the MARKETING copy (header + info cards) is CMS-managed. The form, its
 // labels/placeholders/validation/toasts, the Turnstile flow, and every URL stay
 // in code (security-critical / functional), rendered via Lingui as before.
@@ -161,20 +190,86 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
       document.getElementById(field)?.focus();
     };
 
-    // Basic validation — focus the first offending field.
-    if (!formData.name || !formData.email || !formData.message) {
+    // Field-level validation — each failure says exactly what's wrong and puts
+    // focus on the offending field. We validate the TRIMMED value and mirror the
+    // Lambda schema so the client never rejects anything the server would accept
+    // (or vice versa). See findControlChars + the *_MAX/*_MIN constants above.
+    const name = formData.name.trim();
+    const email = formData.email.trim();
+    const role = formData.role.trim();
+    const message = formData.message.trim();
+
+    // Required fields first — focus the first empty one.
+    if (!name || !email || !message) {
       toast.error(t`Please fill in all required fields`);
-      focusInvalid(!formData.name ? "name" : !formData.email ? "email" : "message");
+      focusInvalid(!name ? "name" : !email ? "email" : "message");
       return;
     }
 
-    // Email validation
+    // Shared handler for the server's control-character rule. Returns true (and
+    // toasts + focuses) when the field carries characters the server forbids.
+    const rejectControlChars = (field: string, chars: string[]): boolean => {
+      if (chars.length === 0) return false;
+      const list = chars.join(", ");
+      toast.error(
+        t`Please remove these characters — they aren't allowed for security reasons: ${list}`,
+      );
+      focusInvalid(field);
+      return true;
+    };
+
+    // Name: length bound + control chars.
+    if (name.length > NAME_MAX) {
+      toast.error(
+        t`Your name is too long — please use ${NAME_MAX} characters or fewer.`,
+      );
+      focusInvalid("name");
+      return;
+    }
+    if (rejectControlChars("name", findControlChars(name, false))) return;
+
+    // Email: length bound, control chars, then format.
+    if (email.length > EMAIL_MAX) {
+      toast.error(
+        t`Your email is too long — please use ${EMAIL_MAX} characters or fewer.`,
+      );
+      focusInvalid("email");
+      return;
+    }
+    if (rejectControlChars("email", findControlChars(email, false))) return;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
+    if (!emailRegex.test(email)) {
       toast.error(t`Please enter a valid email address`);
       focusInvalid("email");
       return;
     }
+
+    // Role: optional, but the server still bounds its length + rejects controls.
+    if (role.length > ROLE_MAX) {
+      toast.error(
+        t`Your role is too long — please use ${ROLE_MAX} characters or fewer.`,
+      );
+      focusInvalid("role");
+      return;
+    }
+    if (rejectControlChars("role", findControlChars(role, false))) return;
+
+    // Message: minimum + maximum length, then control chars (newlines allowed).
+    if (message.length < MESSAGE_MIN) {
+      toast.error(
+        t`Your message is too short — please write at least ${MESSAGE_MIN} characters.`,
+      );
+      focusInvalid("message");
+      return;
+    }
+    if (message.length > MESSAGE_MAX) {
+      toast.error(
+        t`Your message is too long — please use ${MESSAGE_MAX} characters or fewer.`,
+      );
+      focusInvalid("message");
+      return;
+    }
+    if (rejectControlChars("message", findControlChars(message, true))) return;
 
     if (!turnstileToken) {
       toast.error(t`Please complete the verification challenge and try again.`);
@@ -332,8 +427,12 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                     name="role"
                     autoComplete="organization-title"
                     value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                    onChange={(e) => {
+                      setInvalidField(null);
+                      setFormData({ ...formData, role: e.target.value });
+                    }}
                     placeholder={t`e.g., Engineering Manager, VP of Engineering`}
+                    aria-invalid={invalidField === "role"}
                     className="mt-2"
                   />
                 </div>
