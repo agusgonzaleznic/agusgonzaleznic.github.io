@@ -1,9 +1,18 @@
 msgid ""
 msgstr "POT-Creation-Date: 2026-07-12 10:38+0200\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\nContent-Transfer-Encoding: 8bit\nX-Generator: @lingui/cli\nLanguage: it\nProject-Id-Version: \nReport-Msgid-Bugs-To: \nPO-Revision-Date: \nLast-Translator: \nLanguage-Team: \nPlural-Forms: \n"
 
+#. placeholder {0}: Math.ceil(seconds / 60)
+#: src/components/Contact.tsx
+msgid "{0, plural, one {about # minute} other {about # minutes}}"
+msgstr "{0, plural, one {circa # minuto} other {circa # minuti}}"
+
 #: src/components/blog/PostMeta.tsx
 msgid "{minutes} min read"
 msgstr "{minutes} min di lettura"
+
+#: src/components/Contact.tsx
+msgid "{seconds, plural, one {# second} other {# seconds}}"
+msgstr "{seconds, plural, one {# secondo} other {# secondi}}"
 
 #: src/components/Footer.tsx
 msgid "© {currentYear} Agustin Gonzalez Nicolini. All rights reserved."
@@ -155,6 +164,10 @@ msgstr "Blog"
 #: src/components/Services.tsx
 msgid "Board presentations & executive presence"
 msgstr "Presentazioni al consiglio di amministrazione e presenza da leader"
+
+#: src/components/Contact.tsx
+msgid "Book a call"
+msgstr "Prenota una call"
 
 #: src/components/RelatedPages.tsx
 msgid "Book a free 30-minute intro call"
@@ -699,6 +712,10 @@ msgstr "Coaching individuale per CTO, VP, director e engineering manager — Exe
 msgid "One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics."
 msgstr "Coaching individuale per leader senior dell’ingegneria, dai manager alle prime armi fino ai CTO. Lavoriamo su ciò in base a cui vieni valutato: delivery, retention e un’organizzazione che funziona senza eroismi."
 
+#: src/components/Contact.tsx
+msgid "or"
+msgstr "oppure"
+
 #: src/components/Services.tsx
 msgid "Organization design & scaling strategies"
 msgstr "Progettazione organizzativa e strategie di scaling"
@@ -947,6 +964,10 @@ msgstr "Per esercitare questi diritti, contatta <0>info@agusgonzaleznic.com</0>.
 #: src/components/Navigation.tsx
 msgid "Toggle menu"
 msgstr "Apri/chiudi il menu"
+
+#: src/components/Contact.tsx
+msgid "Too many requests — please wait {wait} before trying again, or email me directly."
+msgstr "Troppe richieste — aspetta {wait} prima di riprovare, oppure scrivimi direttamente via email."
 
 #: src/components/Contact.tsx
 msgid "Too many requests. Please wait a moment, or email me directly."

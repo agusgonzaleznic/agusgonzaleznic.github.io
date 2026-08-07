@@ -7,12 +7,14 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Mail, Send, Linkedin, Github } from "lucide-react";
 import { Trans, useLingui } from "@lingui/react/macro";
+import { plural } from "@lingui/core/macro";
 import {
   CONTACT_CTA_ID,
   SECTION_HEADER_MARGIN,
   SECTION_PADDING,
 } from "@/lib/layout";
 import { loadTurnstile } from "@/lib/turnstile";
+import { BOOKING_URL } from "@/lib/booking";
 import type { PageBlock } from "@/lib/pages";
 
 // Same-origin endpoint (a CloudFront behavior in front of a Lambda). The Lambda
@@ -324,12 +326,32 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
               t`Verification failed. Please complete the challenge and try again.`,
           );
           break;
-        case 429:
-          toast.error(
-            data.error ||
-              t`Too many requests. Please wait a moment, or email me directly.`,
+        case 429: {
+          // The Lambda returns `retryAfter` (seconds) in the body and a
+          // `Retry-After` header; prefer the body, fall back to the header.
+          const retryAfter = Number(
+            data.retryAfter ?? response.headers.get("retry-after"),
           );
+          if (Number.isFinite(retryAfter) && retryAfter > 0) {
+            const seconds = Math.round(retryAfter);
+            const wait =
+              seconds < 60
+                ? plural(seconds, { one: "# second", other: "# seconds" })
+                : plural(Math.ceil(seconds / 60), {
+                    one: "about # minute",
+                    other: "about # minutes",
+                  });
+            toast.error(
+              t`Too many requests — please wait ${wait} before trying again, or email me directly.`,
+            );
+          } else {
+            toast.error(
+              data.error ||
+                t`Too many requests. Please wait a moment, or email me directly.`,
+            );
+          }
           break;
+        }
         default:
           toast.error(
             data.error ||
@@ -501,6 +523,26 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                 >
                   {isSubmitting ? t`Sending...` : t`Send Message`}
                   <Send className="ml-2 h-5 w-5" />
+                </Button>
+
+                {/*
+                  Quiet "or" divider + a secondary, outline booking button. This
+                  is the intentional replacement for the mobile floating CTA
+                  (removed from /contact separately). It's a real crawlable
+                  anchor placed AFTER the submit button, so it never submits the
+                  form, and its outline styling keeps the accent "Send Message"
+                  primary as the dominant action.
+                */}
+                <div className="flex items-center gap-3" aria-hidden="true">
+                  <span className="h-px flex-1 bg-border" />
+                  <span className="text-xs text-muted-foreground"><Trans>or</Trans></span>
+                  <span className="h-px flex-1 bg-border" />
+                </div>
+
+                <Button asChild variant="outline" size="lg" className="w-full">
+                  <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
+                    <Trans>Book a call</Trans>
+                  </a>
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center">
