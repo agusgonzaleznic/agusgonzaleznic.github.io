@@ -38,6 +38,9 @@ const personNode = {
   sameAs: [
     "https://www.linkedin.com/in/agusgonzaleznic/",
     "https://github.com/agusgonzaleznic",
+    // Medium is syndication-for-SEO (not surfaced on /links); kept here so the
+    // Person entity still points at it site-wide.
+    "https://agusgonzaleznic.medium.com",
   ],
 };
 const websiteNode = {
