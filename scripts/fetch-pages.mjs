@@ -28,7 +28,13 @@ import {
   SOURCE_LOCALE,
 } from "./lib/deepl.mjs";
 import { createPostEditor, hasAnthropicKey, POSTEDIT_VERSION } from "./lib/llm-postedit.mjs";
-import { pageDataFilename, translatePages } from "./lib/page-translate.mjs";
+import { pageDataFilename, translatePage, applyReviewedPage } from "./lib/page-translate.mjs";
+import {
+  loadPageApprovals,
+  isPageApproved,
+  pageSlug,
+  loadReviewedPage,
+} from "./lib/page-gate.mjs";
 import { fetchStoriesByPrefix } from "./lib/storyblok-fetch.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -37,6 +43,10 @@ const outFile = resolve(generatedDir, "page-data.json");
 const cachePath = resolve(__dirname, ".i18n-cache.json");
 const glossaryPath = resolve(__dirname, "i18n-glossary.json");
 const localesTsPath = resolve(__dirname, "../src/i18n/locales.ts");
+// Human-review store + approvals for marketing pages (page analogue of the blog's
+// content/translations + content/i18n-approvals.json). See scripts/lib/page-gate.mjs.
+const contentPagesDir = resolve(__dirname, "../content/pages");
+const pageApprovalsPath = resolve(__dirname, "../content/page-approvals.json");
 
 const PAGES_PREFIX = "pages/";
 const PAGE_CONTENT_TYPE = "page";
@@ -85,10 +95,31 @@ async function translatePagesForLocales(pages) {
     cacheSalt: PAGE_CACHE_SALT,
   });
 
+  // Review gate: a (page, locale) that is approved AND hash-fresh is served
+  // VERBATIM from content/pages/<slug>.<locale>.json (reviewed copy overlaid on
+  // the live English structure), so the GitHub Actions machine translation never
+  // overwrites human-reviewed marketing copy. Everything un-reviewed/stale is
+  // machine-translated exactly as before. With no approvals present, every page
+  // is MT'd → output identical to pre-gate builds.
+  const approvals = loadPageApprovals(pageApprovalsPath);
   for (const locale of targets) {
-    const localized = await translatePages(pages, locale, translator);
+    const localized = [];
+    let verbatim = 0;
+    for (const page of pages) {
+      let out = null;
+      if (isPageApproved(page, locale, approvals)) {
+        const reviewed = loadReviewedPage(contentPagesDir, pageSlug(page), locale);
+        if (reviewed) out = applyReviewedPage(page, reviewed); // null if structure drifted → MT
+      }
+      if (out) verbatim += 1;
+      else out = await translatePage(page, locale, translator);
+      localized.push(out);
+    }
     writeOutput(pageDataFilename(locale), localized);
-    console.log(`✓ fetch-pages: ${localized.length} page(s) → src/generated/${pageDataFilename(locale)}`);
+    console.log(
+      `✓ fetch-pages: ${localized.length} page(s) → src/generated/${pageDataFilename(locale)}` +
+        (verbatim ? ` (${verbatim} reviewed verbatim, ${localized.length - verbatim} machine-translated)` : ""),
+    );
   }
   // DeepL quota fallback: if DeepL ran out mid-build, the strings above were
   // translated by Claude instead (no build failure) — surface it loudly.

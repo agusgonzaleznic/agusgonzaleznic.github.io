@@ -1,27 +1,37 @@
-// scripts/review-translations.mjs — LOCAL side-by-side translation review.
+// scripts/review-translations.mjs — ONE local tool to review ALL site copy.
 //
-// Replaces the old GitHub-PR translation-review flow. Starts a
-// local web app where you read the English source next to each machine
-// translation, edit any string in any language, and Save — which writes the
-// reviewed translation to content/translations/<uuid>.<locale>.json and marks it
-// approved (+ a sourceHash so editing the English later auto-demotes it). Then you
-// commit the changes yourself (signed) — no pull request.
+// A single local web app to read English side-by-side with each translation,
+// edit in context, and Save — covering the three places copy lives:
+//   • pages — Storyblok marketing pages (/about, /services, …), grouped by page.
+//   • blog  — Storyblok blog posts, grouped by post.
+//   • ui    — Lingui UI/chrome strings (.po catalogs), grouped by source file.
 //
-// Machine translation (DeepL + the Claude voice post-edit) is generated only for
-// (post, locale) pairs that don't already have a translation file, so you can
-// review existing ones with no API key. Generating fresh drafts needs
-// DEEPL_API_KEY (+ ANTHROPIC_API_KEY for the voice post-edit; without it you get
-// raw DeepL to edit).
+// LANGUAGES: English is the source (left column). By default you review only the
+// two languages you actually speak — Argentinian Spanish (es) and German (de).
+// French/Italian/Portuguese stay machine-translated and are never shown unless
+// you pass --all. A locale selector in the header filters the view live.
+//
+// REVIEW-LOCK: Save writes the reviewed copy to the repo AND stamps an approval
+// with a sourceHash, so the build serves it VERBATIM and the GitHub Actions
+// machine translation never overwrites it (editing the English later changes the
+// hash → the item re-opens for review). This is enforced in the build gates:
+//   • pages → content/pages/<slug>.<locale>.json + content/page-approvals.json
+//             (scripts/lib/page-gate.mjs, consumed by scripts/fetch-pages.mjs)
+//   • blog  → content/translations/<uuid>.<locale>.json + content/i18n-approvals.json
+//             (scripts/lib/blog-gate.mjs, consumed by scripts/fetch-blog.mjs)
+//   • ui    → the reviewed msgstr is written straight into src/i18n/catalogs/<locale>.po,
+//             which the build imports directly (scripts/translate.mjs is NOT in CI,
+//             so committed .po files are already safe from the automation).
 //
 // Run:
 //   op run --env-file="$HOME/.env" --no-masking -- node scripts/review-translations.mjs
-//   ... --all           review all five locales (default: only the gated de/es)
-//   ... --post <slug>    just one article
-//   ... --port <n>       (default 4477)
+//   ... --domain pages|blog|ui   review one domain (default: all three)
+//   ... --locale es|de           review one language (default: es + de)
+//   ... --all                    include fr/it/pt too
+//   ... --post <slug>            just one blog article
+//   ... --port <n>               (default 4477)
 //
-// The build (scripts/fetch-blog.mjs) already serves approved+fresh translations
-// verbatim and auto-translates the rest — this tool only produces those approved
-// files, so nothing else in the pipeline changes.
+// Then commit the changes yourself (signed): git add content/ src/i18n/catalogs/ && git commit -S
 
 import { createServer } from "node:http";
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from "node:fs";
@@ -32,78 +42,45 @@ import {
 } from "./lib/deepl.mjs";
 import { createPostEditor, hasAnthropicKey, POSTEDIT_VERSION } from "./lib/llm-postedit.mjs";
 import { translateStories } from "./lib/richtext-translate.mjs";
-import { fetchPublishedPosts } from "./lib/storyblok-fetch.mjs";
+import { fetchPublishedPosts, fetchStoriesByPrefix } from "./lib/storyblok-fetch.mjs";
+import { REVIEW_GATED_LOCALES, AUTO_LOCALES, enSourceHash, loadApprovals } from "./lib/blog-gate.mjs";
 import {
-  REVIEW_GATED_LOCALES, AUTO_LOCALES, enSourceHash, loadApprovals,
-} from "./lib/blog-gate.mjs";
+  pageSlug, pageSourceHash, loadPageApprovals, loadReviewedPage, reviewedPagePath, isPageApproved,
+} from "./lib/page-gate.mjs";
+import { translatePage } from "./lib/page-translate.mjs";
+import { parsePo, serializePo, entryKey, sourceText, isHeader } from "./lib/po.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const reviewedDir = resolve(__dirname, "../content/translations");
 const approvalsPath = resolve(__dirname, "../content/i18n-approvals.json");
+const contentPagesDir = resolve(__dirname, "../content/pages");
+const pageApprovalsPath = resolve(__dirname, "../content/page-approvals.json");
+const catalogDir = resolve(__dirname, "../src/i18n/catalogs");
+const generatedDir = resolve(__dirname, "../src/generated");
 const cachePath = resolve(__dirname, ".i18n-cache.json");
 const glossaryPath = resolve(__dirname, "i18n-glossary.json");
 
-const LOCALE_NAME = { de: "Deutsch", es: "Español", fr: "Français", it: "Italiano", pt: "Português" };
-const FIELDS = ["title", "excerpt", "seo_title", "seo_description"];
+const LOCALE_NAME = { es: "Español (Argentina)", de: "Deutsch", fr: "Français", it: "Italiano", pt: "Português" };
+const BLOG_FIELDS = ["title", "excerpt", "seo_title", "seo_description"];
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(name);
 const opt = (name, def) => { const i = args.indexOf(name); return i >= 0 && args[i + 1] ? args[i + 1] : def; };
 const port = Number(opt("--port", "4477"));
 const onlyPost = opt("--post", null);
-const locales = flag("--all") ? [...REVIEW_GATED_LOCALES, ...AUTO_LOCALES] : REVIEW_GATED_LOCALES;
+const onlyDomain = opt("--domain", null); // pages | blog | ui | null(all)
+const onlyLocale = opt("--locale", null); // es | de | null(all reviewed)
+// The languages the owner reviews. en is the source; es+de by default (--all adds fr/it/pt).
+let locales = flag("--all") ? [...REVIEW_GATED_LOCALES, ...AUTO_LOCALES] : [...REVIEW_GATED_LOCALES];
+if (onlyLocale) locales = locales.filter((l) => l === onlyLocale);
 
 const fatal = (m) => { console.error(`review-translations: ${m}`); process.exit(1); };
-const reviewedPath = (uuid, loc) => resolve(reviewedDir, `${uuid}.${loc}.json`);
-const loadReviewed = (uuid, loc) =>
-  existsSync(reviewedPath(uuid, loc)) ? JSON.parse(readFileSync(reviewedPath(uuid, loc), "utf8")) : null;
+const wantDomain = (d) => !onlyDomain || onlyDomain === d;
 
-// Ordered translatable text nodes in a story body (skips code, matches the
-// translator + gate), so extract and inject use the exact same sequence.
-function bodyTextNodes(story) {
-  const nodes = [];
-  const walk = (n) => {
-    if (!n || typeof n !== "object") return;
-    if (Array.isArray(n)) return n.forEach(walk);
-    if (n.type === "code_block") return;
-    if (n.type === "text" && typeof n.text === "string" && n.text.trim()) nodes.push(n);
-    if (Array.isArray(n.content)) walk(n.content);
-  };
-  walk(story.body);
-  return nodes;
-}
-
-// Build the display slots (EN vs current target) for one (post, locale).
-function slotsFor(enPost, targetStory) {
-  const enNodes = bodyTextNodes(enPost);
-  const tgNodes = bodyTextNodes(targetStory);
-  const slots = FIELDS.filter((f) => (enPost[f] ?? "").trim()).map((f) => ({
-    key: f, label: f, en: enPost[f] ?? "", target: targetStory[f] ?? "",
-  }));
-  enNodes.forEach((n, i) => {
-    slots.push({ key: `body:${i}`, label: `body ¶${i + 1}`, en: n.text, target: tgNodes[i]?.text ?? "" });
-  });
-  return slots;
-}
-
-// Inject reviewed strings back into a fresh EN-cloned story (preserves ALL
-// structure, marks, links, and non-text fields — only text changes).
-function rebuild(enPost, submitted) {
-  const story = structuredClone(enPost);
-  for (const f of FIELDS) if (f in submitted.fields) story[f] = submitted.fields[f];
-  const nodes = bodyTextNodes(story);
-  for (const [i, text] of Object.entries(submitted.body)) if (nodes[Number(i)]) nodes[Number(i)].text = text;
-  return story;
-}
-
-// ── gather review items ─────────────────────────────────────────────────────
 const token = process.env.STORYBLOK_PUBLIC_TOKEN;
 if (!token) fatal("STORYBLOK_PUBLIC_TOKEN is required (run under `op run`).");
-let posts = await fetchPublishedPosts({ token });
-if (onlyPost) posts = posts.filter((p) => p.slug === onlyPost);
-if (!posts.length) fatal(onlyPost ? `no published post with slug '${onlyPost}'.` : "no published posts.");
 
-// Translator is lazy: only built if we actually need to machine-translate.
+// Translator is lazy: only built if we actually machine-translate a missing pair.
 let translator = null;
 let cacheObj = null;
 function getTranslator() {
@@ -122,97 +99,295 @@ function getTranslator() {
   return translator;
 }
 
-mkdirSync(reviewedDir, { recursive: true });
-const approvals = loadApprovals(approvalsPath);
-const items = [];
-for (const post of posts) {
-  const hash = enSourceHash(post);
-  for (const loc of locales) {
-    const reviewed = loadReviewed(post.uuid, loc);
-    let targetStory = reviewed;
-    let source = reviewed ? "file" : "none";
-    if (!targetStory) {
-      const t = getTranslator();
-      if (t) {
-        console.log(`  translating ${post.slug} → ${loc} …`);
-        targetStory = (await translateStories([post], loc, t))[0];
-        source = "machine";
-      } else {
-        targetStory = structuredClone(post); // no keys: start from EN, edit manually
-        source = "empty";
-      }
+// ── shared helpers ───────────────────────────────────────────────────────────
+const readJson = (p) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : null);
+const statusOf = (approved, fresh, hasReview) =>
+  approved && fresh ? "approved" : approved ? "stale" : hasReview ? "pending" : "new";
+
+// ── PAGES ────────────────────────────────────────────────────────────────────
+// Ordered translatable slots ({obj,key}) of a page — same walk the translator +
+// hash use (mirrors page-translate.collect). De-dup by English string for display
+// (a repeated string is reviewed once; the edit applies to every occurrence).
+const PAGE_NON_TEXT = new Set([
+  "component", "_uid", "_editable", "slug", "full_slug", "uuid", "id",
+  "icon", "color", "value", "period", "company", "featured", "is_highlighted",
+  "show_section", "background_style", "industries",
+  "url", "cta_url", "secondary_cta_url", "href", "image", "og_image", "filename",
+]);
+function pageSlots(node, acc) {
+  if (Array.isArray(node)) { for (const c of node) pageSlots(c, acc); return; }
+  if (!node || typeof node !== "object") return;
+  for (const [key, value] of Object.entries(node)) {
+    if (typeof value === "string") {
+      if (value.trim() && !PAGE_NON_TEXT.has(key)) acc.push({ obj: node, key });
+    } else if (value && typeof value === "object" && !PAGE_NON_TEXT.has(key)) {
+      pageSlots(value, acc);
     }
-    const appr = approvals[post.uuid]?.[loc];
-    const status = appr?.status === "approved" && appr.sourceHash === hash ? "approved"
-      : appr?.status === "approved" ? "stale" : reviewed ? "pending" : "new";
-    items.push({ uuid: post.uuid, slug: post.slug, locale: loc, status, source, slots: slotsFor(post, targetStory) });
   }
 }
-if (cacheObj) saveCache(cachePath, cacheObj);
+// Build display slots (unique EN → current target) for one (page, locale).
+function pageDisplaySlots(enPage, targetPage) {
+  const en = []; pageSlots(enPage, en);
+  const tg = []; if (targetPage) pageSlots(targetPage, tg);
+  const aligned = en.length === tg.length;
+  const seen = new Set();
+  const slots = [];
+  en.forEach((s, i) => {
+    const enText = s.obj[s.key];
+    if (seen.has(enText)) return;
+    seen.add(enText);
+    slots.push({ key: `s:${slots.length}`, en: enText, target: aligned ? tg[i].obj[tg[i].key] : "" });
+  });
+  return slots;
+}
 
-// ── save handler ────────────────────────────────────────────────────────────
-function save({ uuid, locale, fields, body }) {
-  const post = posts.find((p) => p.uuid === uuid);
-  if (!post) throw new Error(`unknown uuid ${uuid}`);
-  const story = rebuild(post, { fields, body });
-  writeFileSync(reviewedPath(uuid, locale), `${JSON.stringify(story, null, 2)}\n`);
+async function buildPageItems() {
+  const pages = await fetchStoriesByPrefix({ token, version: "published", starts_with: "pages/", content_type: "page" });
+  const approvals = loadPageApprovals(pageApprovalsPath);
+  const items = [];
+  for (const page of pages) {
+    const slug = pageSlug(page);
+    const hash = pageSourceHash(page);
+    for (const loc of locales) {
+      const reviewed = loadReviewedPage(contentPagesDir, slug, loc);
+      const baked = reviewed ? null : (readJson(resolve(generatedDir, `page-data.${loc}.json`)) ?? []).find(
+        (p) => pageSlug(p) === slug,
+      );
+      let target = reviewed ?? baked ?? null;
+      let source = reviewed ? "reviewed" : baked ? "machine" : "none";
+      if (!target) {
+        const t = getTranslator();
+        if (t) { target = await translatePage(page, loc, t); source = "machine"; }
+      }
+      const appr = approvals[slug]?.[loc];
+      const status = statusOf(appr?.status === "approved", appr?.sourceHash === hash, !!reviewed);
+      items.push({
+        domain: "page", group: slug, title: `${slug}`, locale: loc, status, source,
+        ref: page.uuid, slug, slots: pageDisplaySlots(page, target),
+      });
+    }
+  }
+  return { items, pages };
+}
+
+function savePage(pages, { slug, locale, values }) {
+  const page = pages.find((p) => pageSlug(p) === slug);
+  if (!page) throw new Error(`unknown page ${slug}`);
+  // Rebuild the reviewed page tree: clone EN, set every translatable slot to the
+  // edited value for its English string (all occurrences of a repeated string
+  // get the same translation).
+  const tree = structuredClone(page);
+  const slots = []; pageSlots(tree, slots);
+  for (const s of slots) { const en = s.obj[s.key]; if (en in values) s.obj[s.key] = values[en]; }
+  mkdirSync(contentPagesDir, { recursive: true });
+  writeFileSync(reviewedPagePath(contentPagesDir, slug, locale), `${JSON.stringify(tree, null, 2)}\n`);
+  const manifest = loadPageApprovals(pageApprovalsPath);
+  manifest[slug] = manifest[slug] ?? {};
+  manifest[slug][locale] = { status: "approved", sourceHash: pageSourceHash(page), provenance: "human-reviewed", reviewedAt: new Date().toISOString() };
+  writeFileSync(pageApprovalsPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  return `${slug}.${locale}`;
+}
+
+// ── BLOG ─────────────────────────────────────────────────────────────────────
+function bodyTextNodes(story) {
+  const nodes = [];
+  const walk = (n) => {
+    if (!n || typeof n !== "object") return;
+    if (Array.isArray(n)) return n.forEach(walk);
+    if (n.type === "code_block") return;
+    if (n.type === "text" && typeof n.text === "string" && n.text.trim()) nodes.push(n);
+    if (Array.isArray(n.content)) walk(n.content);
+  };
+  walk(story.body);
+  return nodes;
+}
+function blogSlots(enPost, targetStory) {
+  const enNodes = bodyTextNodes(enPost);
+  const tgNodes = bodyTextNodes(targetStory);
+  const slots = BLOG_FIELDS.filter((f) => (enPost[f] ?? "").trim()).map((f) => ({
+    key: f, label: f, en: enPost[f] ?? "", target: targetStory[f] ?? "",
+  }));
+  enNodes.forEach((n, i) => slots.push({ key: `body:${i}`, label: `¶${i + 1}`, en: n.text, target: tgNodes[i]?.text ?? "" }));
+  return slots;
+}
+function rebuildBlog(enPost, submitted) {
+  const story = structuredClone(enPost);
+  for (const f of BLOG_FIELDS) if (f in submitted.fields) story[f] = submitted.fields[f];
+  const nodes = bodyTextNodes(story);
+  for (const [i, text] of Object.entries(submitted.body)) if (nodes[Number(i)]) nodes[Number(i)].text = text;
+  return story;
+}
+async function buildBlogItems() {
+  let posts = await fetchPublishedPosts({ token });
+  if (onlyPost) posts = posts.filter((p) => p.slug === onlyPost);
+  const approvals = loadApprovals(approvalsPath);
+  const items = [];
+  for (const post of posts) {
+    const hash = enSourceHash(post);
+    for (const loc of locales) {
+      const reviewed = readJson(resolve(reviewedDir, `${post.uuid}.${loc}.json`));
+      let targetStory = reviewed;
+      let source = reviewed ? "reviewed" : "none";
+      if (!targetStory) {
+        const t = getTranslator();
+        if (t) { targetStory = (await translateStories([post], loc, t))[0]; source = "machine"; }
+        else { targetStory = structuredClone(post); source = "empty"; }
+      }
+      const appr = approvals[post.uuid]?.[loc];
+      const status = statusOf(appr?.status === "approved", appr?.sourceHash === hash, !!reviewed);
+      items.push({ domain: "blog", group: post.slug, title: post.slug, locale: loc, status, source, ref: post.uuid, slug: post.slug, slots: blogSlots(post, targetStory) });
+    }
+  }
+  return { items, posts };
+}
+function saveBlog(posts, { ref, locale, fields, body }) {
+  const post = posts.find((p) => p.uuid === ref);
+  if (!post) throw new Error(`unknown post ${ref}`);
+  const story = rebuildBlog(post, { fields: fields ?? {}, body: body ?? {} });
+  mkdirSync(reviewedDir, { recursive: true });
+  writeFileSync(resolve(reviewedDir, `${ref}.${locale}.json`), `${JSON.stringify(story, null, 2)}\n`);
   const manifest = loadApprovals(approvalsPath);
-  manifest[uuid] = manifest[uuid] ?? {};
-  manifest[uuid][locale] = { status: "approved", sourceHash: enSourceHash(post), provenance: "human-reviewed", reviewedAt: new Date().toISOString() };
+  manifest[ref] = manifest[ref] ?? {};
+  manifest[ref][locale] = { status: "approved", sourceHash: enSourceHash(post), provenance: "human-reviewed", reviewedAt: new Date().toISOString() };
   writeFileSync(approvalsPath, `${JSON.stringify(manifest, null, 2)}\n`);
   return `${post.slug}.${locale}`;
 }
 
+// ── UI STRINGS (.po) ──────────────────────────────────────────────────────────
+// Group by the first `#: src/...` reference comment (the component the string
+// lives in) so UI labels are reviewed in the context of where they appear.
+const poRef = (e) => {
+  const c = (e.comments || []).find((x) => x.startsWith("#:"));
+  return c ? c.slice(2).trim().split(/\s+/)[0].replace(/:\d+$/, "") : "(no reference)";
+};
+function buildPoItems() {
+  const enEntries = parsePo(readFileSync(resolve(catalogDir, "en.po"), "utf8")).filter((e) => !isHeader(e) && e.msgid);
+  const items = [];
+  for (const loc of locales) {
+    const p = resolve(catalogDir, `${loc}.po`);
+    if (!existsSync(p)) continue;
+    const byKey = new Map(parsePo(readFileSync(p, "utf8")).map((e) => [entryKey(e), e]));
+    // group entries by source-file reference
+    const groups = new Map();
+    for (const en of enEntries) {
+      const tgt = byKey.get(entryKey(en));
+      const g = poRef(en);
+      if (!groups.has(g)) groups.set(g, []);
+      groups.get(g).push({ key: entryKey(en), en: sourceText(en), target: tgt?.msgstr ?? "" });
+    }
+    for (const [g, slots] of groups) {
+      items.push({ domain: "ui", group: g, title: g.replace(/^src\//, ""), locale: loc, status: "pending", source: "catalog", ref: g, slug: g, slots });
+    }
+  }
+  return items;
+}
+function savePo({ locale, values }) {
+  const p = resolve(catalogDir, `${locale}.po`);
+  const entries = parsePo(readFileSync(p, "utf8"));
+  let n = 0;
+  for (const e of entries) {
+    const k = entryKey(e);
+    if (!isHeader(e) && k in values && values[k] !== e.msgstr) { e.msgstr = values[k]; n += 1; }
+  }
+  writeFileSync(p, serializePo(entries));
+  return `${locale}.po (${n} string(s))`;
+}
+
+// ── gather ─────────────────────────────────────────────────────────────────
+mkdirSync(reviewedDir, { recursive: true });
+mkdirSync(contentPagesDir, { recursive: true });
+let items = [];
+let pages = [];
+let posts = [];
+if (wantDomain("pages")) { const r = await buildPageItems(); items.push(...r.items); pages = r.pages; }
+if (wantDomain("blog")) { const r = await buildBlogItems(); items.push(...r.items); posts = r.posts; }
+if (wantDomain("ui")) { items.push(...buildPoItems()); }
+if (cacheObj) saveCache(cachePath, cacheObj);
+if (!items.length) fatal("nothing to review (check --domain/--locale/--post filters).");
+
+// ── save router ───────────────────────────────────────────────────────────
+function save(body) {
+  if (body.domain === "page") return savePage(pages, body);
+  if (body.domain === "blog") return saveBlog(posts, body);
+  if (body.domain === "ui") return savePo(body);
+  throw new Error(`unknown domain ${body.domain}`);
+}
+
 // ── web app ─────────────────────────────────────────────────────────────────
-const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 function page() {
   const data = JSON.stringify(items).replace(/</g, "\\u003c");
-  return `<!doctype html><meta charset="utf8"><title>Translation review</title>
+  const locs = JSON.stringify(locales);
+  return `<!doctype html><meta charset="utf8"><title>Copy review</title>
 <style>
  body{font:15px/1.5 -apple-system,system-ui,sans-serif;margin:0;background:#f6f7f9;color:#1a1a2e}
- header{position:sticky;top:0;background:#1a1a2e;color:#fff;padding:12px 20px;font-weight:600}
+ header{position:sticky;top:0;z-index:5;background:#1a1a2e;color:#fff;padding:12px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+ header b{font-weight:700}
+ header select{font:inherit;padding:4px 8px;border-radius:6px;border:0}
+ .hint{color:#b9c0e0;font-size:13px}
  .item{background:#fff;margin:16px;border:1px solid #e2e4e8;border-radius:8px;overflow:hidden}
- .head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f0f1f4;border-bottom:1px solid #e2e4e8}
+ .head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f0f1f4;border-bottom:1px solid #e2e4e8;cursor:pointer}
+ .head .meta{display:flex;gap:8px;align-items:center}
+ .dom{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#5b6ee1;font-weight:700}
  .badge{font-size:12px;padding:2px 8px;border-radius:99px;color:#fff}
- .approved{background:#2a9d5c}.pending{background:#c98a00}.new{background:#5b6ee1}.stale{background:#c0392b}
+ .approved{background:#2a9d5c}.pending{background:#c98a00}.new{background:#5b6ee1}.stale{background:#c0392b}.catalog{background:#7a7f8c}
+ .body{display:none}.item.open .body{display:block}
  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 16px;border-bottom:1px solid #f0f1f4}
  .lbl{font-size:11px;text-transform:uppercase;color:#888;grid-column:1/3;margin-bottom:-4px}
  .en{white-space:pre-wrap;color:#444;padding:6px 8px;background:#fafbfc;border-radius:5px}
  textarea{width:100%;box-sizing:border-box;font:inherit;padding:6px 8px;border:1px solid #cdd0d6;border-radius:5px;resize:vertical;min-height:2.6em}
  .save{padding:8px 18px;border:0;border-radius:6px;background:#5b6ee1;color:#fff;font-weight:600;cursor:pointer}
  .save:disabled{opacity:.5}
+ footer{padding:10px 16px}
 </style>
-<header>Translation review — edit any string, then Save (writes content/translations/ + approves). Commit when done.</header>
+<header>
+ <b>Copy review</b>
+ <label>Language <select id=fl></select></label>
+ <label>Section <select id=fd></select></label>
+ <span class="hint">English on the left · edit the right · Save writes the reviewed copy + locks it from auto-translation. Commit when done.</span>
+</header>
 <div id=root></div>
 <script>
-const items=${data};
-const root=document.getElementById("root");
-items.forEach((it,idx)=>{
- const box=document.createElement("div");box.className="item";
- box.innerHTML='<div class=head><b>'+it.slug+' · '+it.locale.toUpperCase()+'</b>'+
-   '<span class="badge '+it.status+'">'+it.status+' · '+it.source+'</span></div>';
- it.slots.forEach((s,si)=>{
+const items=${data}, locales=${locs};
+const root=document.getElementById("root"), fl=document.getElementById("fl"), fd=document.getElementById("fd");
+const DOM={page:"Pages",blog:"Blog",ui:"UI strings"};
+fl.innerHTML='<option value=all>All ('+locales.join(", ")+')</option>'+locales.map(l=>'<option value="'+l+'">'+l.toUpperCase()+'</option>').join("");
+const doms=[...new Set(items.map(i=>i.domain))];
+fd.innerHTML='<option value=all>All</option>'+doms.map(d=>'<option value="'+d+'">'+(DOM[d]||d)+'</option>').join("");
+function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function render(){
+ const fLoc=fl.value, fDom=fd.value; root.innerHTML="";
+ const shown=items.filter(it=>(fLoc==="all"||it.locale===fLoc)&&(fDom==="all"||it.domain===fDom));
+ if(!shown.length){root.innerHTML='<p style="margin:24px">Nothing matches this filter.</p>';return;}
+ shown.forEach(it=>{
+  const box=document.createElement("div");box.className="item";
+  const open=it.status!=="approved";if(open)box.classList.add("open");
+  box.innerHTML='<div class=head><span class=meta><span class=dom>'+(DOM[it.domain]||it.domain)+'</span><b>'+esc(it.title)+' · '+it.locale.toUpperCase()+'</b></span>'+
+    '<span class="badge '+it.status+'">'+it.status+' · '+it.source+'</span></div>';
+  box.querySelector(".head").onclick=()=>box.classList.toggle("open");
+  const body=document.createElement("div");body.className="body";
+  it.slots.forEach(s=>{
    const r=document.createElement("div");r.className="row";
-   r.innerHTML='<div class=lbl>'+s.label+'</div><div class=en>'+escapeHtml(s.en)+'</div>';
-   const ta=document.createElement("textarea");ta.value=s.target;ta.dataset.key=s.key;
-   r.appendChild(ta);box.appendChild(r);
- });
- const foot=document.createElement("div");foot.style.padding="12px 16px";
- const btn=document.createElement("button");btn.className="save";btn.textContent="Save & approve";
- btn.onclick=async()=>{
+   r.innerHTML='<div class=lbl>'+esc(s.label||"")+'</div><div class=en>'+esc(s.en)+'</div>';
+   const ta=document.createElement("textarea");ta.value=s.target;ta.dataset.k=s.key;ta.dataset.en=s.en;
+   r.appendChild(ta);body.appendChild(r);
+  });
+  const foot=document.createElement("footer");
+  const btn=document.createElement("button");btn.className="save";btn.textContent="Save & approve";
+  btn.onclick=async()=>{
    btn.disabled=true;btn.textContent="Saving…";
-   const fields={},body={};
-   box.querySelectorAll("textarea").forEach(ta=>{const k=ta.dataset.key;
-     if(k.startsWith("body:"))body[k.slice(5)]=ta.value;else fields[k]=ta.value;});
-   const res=await fetch("/save",{method:"POST",headers:{"content-type":"application/json"},
-     body:JSON.stringify({uuid:it.uuid,locale:it.locale,fields,body})});
+   const payload={domain:it.domain,locale:it.locale,ref:it.ref,slug:it.slug};
+   if(it.domain==="blog"){const fields={},bodyv={};body.querySelectorAll("textarea").forEach(ta=>{const k=ta.dataset.k;if(k.startsWith("body:"))bodyv[k.slice(5)]=ta.value;else fields[k]=ta.value;});payload.fields=fields;payload.body=bodyv;}
+   else if(it.domain==="page"){const values={};body.querySelectorAll("textarea").forEach(ta=>values[ta.dataset.en]=ta.value);payload.values=values;}
+   else{const values={};body.querySelectorAll("textarea").forEach(ta=>values[ta.dataset.k]=ta.value);payload.values=values;}
+   const res=await fetch("/save",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
    const j=await res.json();
-   btn.textContent=j.ok?"Saved ✓ "+j.saved:"Error";btn.disabled=false;
-   box.querySelector(".badge").className="badge approved";box.querySelector(".badge").textContent="approved · saved";
- };
- foot.appendChild(btn);box.appendChild(foot);root.appendChild(box);
-});
-function escapeHtml(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+   btn.textContent=j.ok?"Saved ✓ "+j.saved:"Error: "+j.error;btn.disabled=false;
+   if(j.ok){const b=box.querySelector(".badge");b.className="badge approved";b.textContent="approved · saved";}
+  };
+  foot.appendChild(btn);body.appendChild(foot);box.appendChild(body);root.appendChild(box);
+ });
+}
+fl.onchange=render;fd.onchange=render;render();
 </script>`;
 }
 
@@ -237,7 +412,8 @@ const server = createServer((req, res) => {
   res.end(page());
 });
 server.listen(port, () => {
-  const n = items.filter((i) => i.status !== "approved").length;
-  console.log(`\n  Translation review — ${items.length} item(s) (${n} needing review) across ${locales.map((l) => LOCALE_NAME[l]).join(", ")}`);
-  console.log(`  ▶ open http://localhost:${port}  — edit, Save & approve, then Ctrl+C and:  git add content/ && git commit -S`);
+  const need = items.filter((i) => i.status !== "approved").length;
+  const byDom = [...new Set(items.map((i) => i.domain))].map((d) => `${items.filter((i) => i.domain === d).length} ${d}`).join(", ");
+  console.log(`\n  Copy review — ${items.length} item(s) [${byDom}] across ${locales.map((l) => LOCALE_NAME[l]).join(", ")} (${need} needing review)`);
+  console.log(`  ▶ open http://localhost:${port}  — edit, Save & approve, then Ctrl+C and:  git add content/ src/i18n/catalogs/ && git commit -S`);
 });

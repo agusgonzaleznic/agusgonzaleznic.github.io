@@ -81,3 +81,27 @@ export async function translatePages(pages, locale, translator) {
   for (const page of pages) out.push(await translatePage(page, locale, translator));
   return out;
 }
+
+/**
+ * Overlay a REVIEWED page's approved translations onto the CURRENT English page
+ * structure, aligned by translatable-slot order. Used by the page-gate path
+ * (fetch-pages.mjs): when a (page, locale) is approved AND hash-fresh, the copy
+ * is served verbatim from the human-reviewed file while non-text/structural
+ * fields (URLs, icons, images, `featured`, …) come from the LIVE English page —
+ * so a reviewed translation never goes stale on structure. Because the gate only
+ * calls this when the source hash matches, the two slot sequences are identical
+ * in count + order; if they ever differ (defensive), returns null so the caller
+ * falls back to machine translation rather than emit a misaligned page.
+ */
+export function applyReviewedPage(enPage, reviewedPage) {
+  const copy = structuredClone(enPage);
+  const enSlots = [];
+  collect(copy, enSlots);
+  const revSlots = [];
+  collect(reviewedPage, revSlots);
+  if (enSlots.length !== revSlots.length) return null;
+  enSlots.forEach((s, i) => {
+    s.obj[s.key] = revSlots[i].obj[revSlots[i].key];
+  });
+  return copy;
+}
