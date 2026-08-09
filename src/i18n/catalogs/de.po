@@ -77,6 +77,7 @@ msgstr "Eine AWS-Migration über mehrere Accounts mit durchgängig automatisiert
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 #: src/pages/About.tsx
+#: src/pages/NotFound.tsx
 msgid "About"
 msgstr "Über mich"
 
@@ -136,6 +137,10 @@ msgstr "Stand: Juli 2026 – geprüft vom Betreiber der Website. Diese Seite wur
 msgid "B2B SaaS Company"
 msgstr "B2B-SaaS-Unternehmen"
 
+#: src/pages/NotFound.tsx
+msgid "Back to home"
+msgstr "Zurück zur Startseite"
+
 #: src/components/About.tsx
 msgid "Based in Berlin — coaching engineering leaders remotely worldwide, in English, Spanish, or German."
 msgstr "In Berlin zuhause — Coaching für Engineering Leader, remote und weltweit, auf Englisch, Spanisch oder Deutsch."
@@ -158,6 +163,7 @@ msgstr "Zweiwöchentliche 60-Minuten-Sessions"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/NotFound.tsx
 msgid "Blog"
 msgstr "Blog"
 
@@ -245,6 +251,7 @@ msgstr "Vernetzen"
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 #: src/pages/Contact.tsx
+#: src/pages/NotFound.tsx
 msgid "Contact"
 msgstr "Kontakt"
 
@@ -728,6 +735,10 @@ msgstr "Ursprünglich veröffentlicht auf <0>Medium</0>."
 msgid "Outcomes Over Optics"
 msgstr "Ergebnisse statt Schein"
 
+#: src/pages/NotFound.tsx
+msgid "Page not found — Agustin Gonzalez Nicolini"
+msgstr "Seite nicht gefunden — Agustin Gonzalez Nicolini"
+
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 #: src/pages/Philosophy.tsx
@@ -749,6 +760,10 @@ msgstr "Bitte fülle alle Pflichtfelder aus"
 #: src/components/Contact.tsx
 msgid "Please remove these characters — they aren't allowed for security reasons: {list}"
 msgstr "Bitte entferne diese Zeichen — aus Sicherheitsgründen sind sie nicht erlaubt: {list}"
+
+#: src/pages/NotFound.tsx
+msgid "Popular pages"
+msgstr "Beliebte Seiten"
 
 #: src/components/FAQ.tsx
 msgid "Practical answers on fit, format, and how we'd start"
@@ -811,10 +826,6 @@ msgstr "Einschränkung der Verarbeitung (Art. 18),"
 msgid "Results from teams I've led as an operator — the same playbooks we'll work from"
 msgstr "Ergebnisse von Teams, die ich als Operator geführt habe – dieselben Playbooks, mit denen wir arbeiten werden"
 
-#: src/pages/NotFound.tsx
-msgid "Return to home"
-msgstr "Zurück zur Startseite"
-
 #: src/components/Impact.tsx
 msgid "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now."
 msgstr "Infrastruktur und Security end-to-end für eine Web3-Plattform betrieben — der Name des Unternehmens bleibt vorerst vertraulich."
@@ -837,6 +848,7 @@ msgstr "Senior Engineering Manager"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/NotFound.tsx
 #: src/pages/Services.tsx
 msgid "Services"
 msgstr "Leistungen"
@@ -901,6 +913,10 @@ msgstr "Die ersten Beiträge sind unterwegs. Schau bald wieder vorbei."
 msgid "The fonts used on this website are <0>self-hosted</0>: they are served directly from this website's own domain as part of the site itself. Loading them causes no request to Google or any other third-party font service, and no data about you is transmitted to a font provider."
 msgstr "Die auf dieser Website verwendeten Schriftarten sind <0>self-hosted</0>: Sie werden direkt von der eigenen Domain dieser Website als Teil der Seite selbst ausgeliefert. Ihr Laden löst keine Anfrage an Google oder einen anderen Font-Dienst von Drittanbietern aus, und es werden keine Daten über dich an einen Font-Anbieter übermittelt."
 
+#: src/pages/NotFound.tsx
+msgid "The link may be broken or the page may have moved — but the conversation can still start somewhere useful."
+msgstr "Vielleicht ist der Link kaputt oder die Seite ist umgezogen — aber unser Gespräch kann trotzdem an einer sinnvollen Stelle beginnen."
+
 #: src/pages/Legal.tsx
 msgid "The site is served over HTTPS. You are not legally or contractually obliged to provide personal data; however, without contact details I cannot respond to inquiries."
 msgstr "Die Website wird über HTTPS ausgeliefert. Du bist weder rechtlich noch vertraglich verpflichtet, personenbezogene Daten anzugeben; ohne Kontaktdaten kann ich jedoch nicht auf Anfragen antworten."
@@ -918,8 +934,12 @@ msgid "This article was translated automatically. <0>Read the original in Englis
 msgstr "Dieser Artikel wurde automatisch übersetzt. <0>Lies das Original auf Englisch</0>."
 
 #: src/pages/NotFound.tsx
-msgid "This page doesn't exist — but the conversation can still start somewhere useful."
-msgstr "Diese Seite existiert nicht – aber das Gespräch kann trotzdem irgendwo Sinnvolles beginnen."
+msgid "This page doesn't exist"
+msgstr "Diese Seite existiert nicht"
+
+#: src/pages/NotFound.tsx
+msgid "This page doesn't exist. Head back to the homepage, or jump to about, services, the blog, or contact."
+msgstr "Diese Seite existiert nicht. Geh zurück zur Startseite oder spring direkt zu About, Services, Blog oder Kontakt."
 
 #: src/pages/Legal.tsx
 msgid "This privacy policy explains how personal data is processed when you visit this website, in accordance with the EU General Data Protection Regulation (GDPR)."

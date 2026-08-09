@@ -112,11 +112,17 @@ module "cloudfront" {
     }
   }
 
+  # Unknown paths return a REAL 404 (not 200 + homepage). This is a fully
+  # prerendered SSG — every real route has its own /path/index.html, so nothing
+  # relies on a 200 SPA fallback. Serving 200+index.html for missing paths made
+  # every junk/stale URL a soft-404 (or a noindex once the client-side NotFound
+  # hydrated) in Search Console, and served the homepage as duplicate content on
+  # wrong URLs. /404.html is the prerendered NotFound page (robots=noindex).
   custom_error_response = [
     {
       error_code            = 404
-      response_code         = 200
-      response_page_path    = "/index.html"
+      response_code         = 404
+      response_page_path    = "/404.html"
       error_caching_min_ttl = 10
     }
   ]
