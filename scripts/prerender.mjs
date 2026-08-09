@@ -309,6 +309,35 @@ for (const locale of PUBLISHED_LOCALES) {
   }
 }
 
+// 404 page. Rendered once in the source locale to dist/404.html and served with
+// a REAL HTTP 404 for any unknown path (terraform/cdn.tf custom_error_response →
+// /404.html; GitHub Pages also uses 404.html natively). Deliberately NOT in
+// `routes` or the sitemap, and carries no canonical/hreflang. NotFound sets a
+// <title> + robots=noindex via <Helmet>, so injectRouteHead accepts it and
+// crawlers drop unknown/removed URLs cleanly instead of as soft-404s.
+await dynamicActivate(SOURCE_LOCALE);
+{
+  const { html: appHtml, helmet } = render("/__not-found__", SOURCE_LOCALE);
+  let html = injectRouteHead(template, { path: "/404" }, helmet, "");
+  html = setHtmlLang(html, SOURCE_LOCALE);
+  if (!html.includes(ROOT)) {
+    throw new Error(`Could not find "${ROOT}" in dist/index.html to inject the 404 markup.`);
+  }
+  html = html.replace(ROOT, `<div id="root">${appHtml}</div>`);
+  html = await beasties.process(html);
+  const outFile = resolve(distDir, "404.html");
+  writeFileSync(outFile, html);
+  const buf = Buffer.from(html);
+  if (buf.length > 1024) {
+    writeFileSync(`${outFile}.gz`, gzipSync(buf, { level: 9 }));
+    writeFileSync(
+      `${outFile}.br`,
+      brotliCompressSync(buf, { params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 11 } }),
+    );
+  }
+  console.log(`✓ Prerendered 404 → dist/404.html (${appHtml.length} chars)`);
+}
+
 // Feeds go last so llms.txt/sitemap.xml overwrite the copies vite made from
 // public/. Pass the locale config so sitemap/hreflang/llms.txt iterate the same
 // PUBLISHED_LOCALES as the prerender loop.

@@ -89,6 +89,7 @@ msgstr "A multi-account AWS migration with deployments automated end to end"
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 #: src/pages/About.tsx
+#: src/pages/NotFound.tsx
 msgid "About"
 msgstr "About"
 
@@ -148,6 +149,10 @@ msgstr "As of July 2026 — reviewed by the site owner. This page was drafted wi
 msgid "B2B SaaS Company"
 msgstr "B2B SaaS Company"
 
+#: src/pages/NotFound.tsx
+msgid "Back to home"
+msgstr "Back to home"
+
 #: src/components/About.tsx
 msgid "Based in Berlin — coaching engineering leaders remotely worldwide, in English, Spanish, or German."
 msgstr "Based in Berlin — coaching engineering leaders remotely worldwide, in English, Spanish, or German."
@@ -170,6 +175,7 @@ msgstr "Bi-weekly 60-minute sessions"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/NotFound.tsx
 msgid "Blog"
 msgstr "Blog"
 
@@ -257,6 +263,7 @@ msgstr "Connect"
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 #: src/pages/Contact.tsx
+#: src/pages/NotFound.tsx
 msgid "Contact"
 msgstr "Contact"
 
@@ -740,6 +747,10 @@ msgstr "Originally published on <0>Medium</0>."
 msgid "Outcomes Over Optics"
 msgstr "Outcomes Over Optics"
 
+#: src/pages/NotFound.tsx
+msgid "Page not found — Agustin Gonzalez Nicolini"
+msgstr "Page not found — Agustin Gonzalez Nicolini"
+
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 #: src/pages/Philosophy.tsx
@@ -761,6 +772,10 @@ msgstr "Please fill in all required fields"
 #: src/components/Contact.tsx
 msgid "Please remove these characters — they aren't allowed for security reasons: {list}"
 msgstr "Please remove these characters — they aren't allowed for security reasons: {list}"
+
+#: src/pages/NotFound.tsx
+msgid "Popular pages"
+msgstr "Popular pages"
 
 #: src/components/FAQ.tsx
 msgid "Practical answers on fit, format, and how we'd start"
@@ -824,8 +839,8 @@ msgid "Results from teams I've led as an operator — the same playbooks we'll w
 msgstr "Results from teams I've led as an operator — the same playbooks we'll work from"
 
 #: src/pages/NotFound.tsx
-msgid "Return to home"
-msgstr "Return to home"
+#~ msgid "Return to home"
+#~ msgstr "Return to home"
 
 #: src/components/Impact.tsx
 msgid "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now."
@@ -849,6 +864,7 @@ msgstr "Senior Engineering Manager"
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
+#: src/pages/NotFound.tsx
 #: src/pages/Services.tsx
 msgid "Services"
 msgstr "Services"
@@ -913,6 +929,10 @@ msgstr "The first posts are on their way. Check back soon."
 msgid "The fonts used on this website are <0>self-hosted</0>: they are served directly from this website's own domain as part of the site itself. Loading them causes no request to Google or any other third-party font service, and no data about you is transmitted to a font provider."
 msgstr "The fonts used on this website are <0>self-hosted</0>: they are served directly from this website's own domain as part of the site itself. Loading them causes no request to Google or any other third-party font service, and no data about you is transmitted to a font provider."
 
+#: src/pages/NotFound.tsx
+msgid "The link may be broken or the page may have moved — but the conversation can still start somewhere useful."
+msgstr "The link may be broken or the page may have moved — but the conversation can still start somewhere useful."
+
 #: src/pages/Legal.tsx
 msgid "The site is served over HTTPS. You are not legally or contractually obliged to provide personal data; however, without contact details I cannot respond to inquiries."
 msgstr "The site is served over HTTPS. You are not legally or contractually obliged to provide personal data; however, without contact details I cannot respond to inquiries."
@@ -930,8 +950,16 @@ msgid "This article was translated automatically. <0>Read the original in Englis
 msgstr "This article was translated automatically. <0>Read the original in English</0>."
 
 #: src/pages/NotFound.tsx
-msgid "This page doesn't exist — but the conversation can still start somewhere useful."
-msgstr "This page doesn't exist — but the conversation can still start somewhere useful."
+msgid "This page doesn't exist"
+msgstr "This page doesn't exist"
+
+#: src/pages/NotFound.tsx
+#~ msgid "This page doesn't exist — but the conversation can still start somewhere useful."
+#~ msgstr "This page doesn't exist — but the conversation can still start somewhere useful."
+
+#: src/pages/NotFound.tsx
+msgid "This page doesn't exist. Head back to the homepage, or jump to about, services, the blog, or contact."
+msgstr "This page doesn't exist. Head back to the homepage, or jump to about, services, the blog, or contact."
 
 #: src/pages/Legal.tsx
 msgid "This privacy policy explains how personal data is processed when you visit this website, in accordance with the EU General Data Protection Regulation (GDPR)."
