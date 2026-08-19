@@ -65,12 +65,19 @@ module "route53_records" {
         "v=spf1 include:_spf.google.com ~all",
       ]
     },
-    # DMARC
+    # DMARC. adkim=s (STRICT DKIM alignment): verified empirically that both
+    # senders sign with d=agusgonzaleznic.com EXACTLY - Google with s=google,
+    # SES with its Easy-DKIM selector - so strict costs nothing and stops a
+    # subdomain-signed forgery from aligning.
+    # aspf stays RELAXED deliberately: the SES MAIL FROM is the SUBDOMAIN
+    # mail.agusgonzaleznic.com (ses.tf), which aligns under relaxed but NOT
+    # under strict. Setting aspf=s here would silently throw away the SPF
+    # alignment that the custom MAIL FROM exists to buy.
     {
       name    = "_dmarc"
       type    = "TXT"
       ttl     = 300
-      records = ["v=DMARC1; p=reject; rua=mailto:postmaster@agusgonzaleznic.com,mailto:dmarc@agusgonzaleznic.com; pct=100; adkim=r; aspf=r"]
+      records = ["v=DMARC1; p=reject; rua=mailto:postmaster@agusgonzaleznic.com,mailto:dmarc@agusgonzaleznic.com; pct=100; adkim=s; aspf=r"]
     },
     # DKIM - default selector
     {
@@ -89,6 +96,25 @@ module "route53_records" {
       records = [
         "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqlshAhDhUYp8p7/JHZo1YKmLXw/LGg5JshiF0FH67rBYfRcoqLskikW660n0/maHV5V+2xpVqmDH6PS5Rfl3mMVzH3TmLwn55+\" \"YLpsu2uvtLjbcXvhn7RKmIbWG0T6AP9hSw0WusZDRXpLoMQvx10dr0Kh3i56FOeZY1Fs90yLA33Wa5gA/LDBdAN8zWTGU0TCjgaCwEoTpMIsI7Bdu9GzcVqtu3i0atlwRGRm5iHWoozFWW+b5C8WcanfOXF5PIQQ7m7T9HXU84EAmngnnXwVyqT8wtkMDEhdiM1Oviz2xZ7IsuVITDPkG31JoRG/zxY54ahBreeh+zhsl7sRddMwIDAQAB"
       ]
+    },
+    # SES custom MAIL FROM subdomain (ses.tf). Two records, BOTH scoped to the
+    # subdomain and never the apex:
+    #  - MX so SES can receive bounces/complaints for the envelope domain
+    #  - SPF authorising SES for THIS SUBDOMAIN only. Note what this deliberately
+    #    avoids: adding `include:amazonses.com` to the APEX SPF would authorise
+    #    every Amazon SES customer to SPF-pass as agusgonzaleznic.com. Scoping it
+    #    to mail.* gets SPF alignment (relaxed) with none of that blast radius.
+    {
+      name    = "mail"
+      type    = "MX"
+      ttl     = 300
+      records = ["10 feedback-smtp.us-east-1.amazonses.com"]
+    },
+    {
+      name    = "mail"
+      type    = "TXT"
+      ttl     = 300
+      records = ["v=spf1 include:amazonses.com ~all"]
     },
     # MTA-STS TXT
     {

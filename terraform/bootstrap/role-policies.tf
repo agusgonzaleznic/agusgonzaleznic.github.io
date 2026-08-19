@@ -536,6 +536,7 @@ data "aws_iam_policy_document" "ses" {
       "ses:GetEmailIdentity",
       "ses:PutEmailIdentityDkimAttributes",
       "ses:PutEmailIdentityDkimSigningAttributes",
+      "ses:PutEmailIdentityMailFromAttributes",
       "ses:TagResource",
       "ses:UntagResource",
       "ses:ListTagsForResource",
