@@ -9,8 +9,11 @@ terraform {
   }
 }
 
-# No profile hardcoded: this module is applied ONLY locally by a human with
-# AWS_PROFILE=root-admin (SSO). It must never run in CI.
+# No profile hardcoded. This module normally runs in CI under
+# github-terraform-bootstrap, gated by the terraform-bootstrap environment's
+# required reviewer (see role-bootstrap-ci.tf). AWS_PROFILE=root-admin is the
+# break-glass path only: the first-ever apply, and repairing CI's own identity
+# if a change here ever locks the bootstrap roles out.
 provider "aws" {
   region = "us-east-1"
 

@@ -47,8 +47,9 @@ env:
 
 defaults:
   run:
-    # Site module ONLY. terraform/bootstrap/ (state bucket + OIDC role) is
-    # human-applied with the root-admin profile and must never run in CI.
+    # Site module. The bootstrap jobs below override this per job — they are
+    # the ONLY jobs allowed to run in terraform/bootstrap/, and they use
+    # separate OIDC roles (read-only for plan, gated write for apply).
     working-directory: terraform
 
 jobs:
@@ -173,11 +174,264 @@ jobs:
           echo "::error::terraform plan output contained secret-shaped content (redacted in the posted comment). Do not merge until resolved."
           exit 1
 
+  # ---------------------------------------------------------------------------
+  # Bootstrap tier (terraform/bootstrap): the state bucket, the OIDC provider
+  # and every IAM role/policy CI itself depends on.
+  #
+  # This used to be applied by hand with AWS_PROFILE=root-admin, out of band and
+  # on a different commit than the PR that needed it. It now runs here, so
+  # adopting a new AWS service is one PR and one run. See role-bootstrap-ci.tf
+  # for why a single `terraform apply` genuinely cannot do both halves.
+  #
+  # Ordering is real, not cosmetic: bootstrap-apply must land BEFORE the site
+  # apply, because it is what grants the deploy role the permissions the site
+  # plan is about to use.
+  # ---------------------------------------------------------------------------
+  bootstrap-plan:
+    name: Bootstrap plan (PR)
+    # The AWS_TF_BOOTSTRAP_* repo variables are the adoption switch. Until the
+    # roles in role-bootstrap-ci.tf exist and the variables are set, these jobs
+    # skip instead of failing on an empty role-to-assume — which is also what
+    # makes this workflow mergeable before that first human apply.
+    if: github.event_name == 'pull_request' && vars.AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN != ''
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform/bootstrap
+    permissions:
+      id-token: write # OIDC token for configure-aws-credentials
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Guard — bootstrap dir, no CLI-arg overrides
+        run: |
+          wd="$(pwd)"
+          case "$wd" in
+            */terraform/bootstrap) ;;
+            *) echo "::error::This job must run in terraform/bootstrap, got: $wd"; exit 1 ;;
+          esac
+          if [ -n "${TF_CLI_ARGS:-}${TF_CLI_ARGS_init:-}${TF_CLI_ARGS_plan:-}${TF_CLI_ARGS_apply:-}" ]; then
+            echo "::error::TF_CLI_ARGS overrides are not allowed in CI."
+            exit 1
+          fi
+
+      # READ-ONLY role. A PR plan runs code from a branch and must never hold
+      # iam: write — that is the whole reason there are two bootstrap roles.
+      - uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
+        with:
+          role-to-assume: ${{ vars.AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: "1.14.*"
+          terraform_wrapper: false
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive -diff
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        run: terraform validate -no-color
+
+      # -lock=false: the plan role deliberately has no s3:PutObject, so it
+      # cannot write a .tflock. A read-only plan needs no lock.
+      - name: Terraform plan
+        id: plan
+        continue-on-error: true
+        run: terraform plan -no-color -input=false -lock=false > plan.txt 2>&1
+
+      - name: Publish plan to job summary
+        if: always()
+        # Job summaries are world-readable on a public repo — scrub
+        # secret-shaped substrings (defense-in-depth beyond sensitive=true).
+        run: |
+          sed -E -e 's/([?&](token|access_token|api_key|apikey|key|secret)=)[^ "'"'"'&]+/\1REDACTED/gI' -e 's/(github_pat_|ghp_|gho_|ghs_)[A-Za-z0-9_]+/\1REDACTED/g' plan.txt | head -c 60000 > plan-summary.txt || true
+          {
+            echo "## Bootstrap plan (terraform/bootstrap)"
+            echo ""
+            echo '```'
+            cat plan-summary.txt
+            echo ""
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail job if plan failed
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+  bootstrap-detect:
+    name: Bootstrap plan (main)
+    # Runs UNGATED because it is read-only, and it exists so the reviewer sees
+    # the plan BEFORE being asked to approve. An environment gate fires before
+    # its job produces anything, so without this the approval would be blind.
+    if: |
+      vars.AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN != ''
+      && github.ref == 'refs/heads/main'
+      && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform/bootstrap
+    permissions:
+      id-token: write # OIDC token for configure-aws-credentials
+      contents: read
+    outputs:
+      has_changes: ${{ steps.detect.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Guard — bootstrap dir, no CLI-arg overrides
+        run: |
+          wd="$(pwd)"
+          case "$wd" in
+            */terraform/bootstrap) ;;
+            *) echo "::error::This job must run in terraform/bootstrap, got: $wd"; exit 1 ;;
+          esac
+          if [ -n "${TF_CLI_ARGS:-}${TF_CLI_ARGS_init:-}${TF_CLI_ARGS_plan:-}${TF_CLI_ARGS_apply:-}" ]; then
+            echo "::error::TF_CLI_ARGS overrides are not allowed in CI."
+            exit 1
+          fi
+
+      - uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
+        with:
+          role-to-assume: ${{ vars.AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: "1.14.*"
+          terraform_wrapper: false
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      # Detect by PLAN, not by changed paths. A path filter is a heuristic that
+      # is wrong in both directions: it asks for an approval on a no-op merge,
+      # and it skips the apply when drift or a module bump means real changes
+      # with no file touched. -detailed-exitcode: 0 = none, 1 = error, 2 = changes.
+      - name: Detect changes
+        id: detect
+        run: |
+          code=0
+          terraform plan -no-color -input=false -lock=false -detailed-exitcode \
+            > plan.txt 2>&1 || code=$?
+          case "$code" in
+            0) echo "has_changes=false" >> "$GITHUB_OUTPUT" ;;
+            2) echo "has_changes=true"  >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::bootstrap plan failed (exit $code)"; exit 1 ;;
+          esac
+
+      - name: Publish plan to job summary
+        if: always()
+        run: |
+          sed -E -e 's/([?&](token|access_token|api_key|apikey|key|secret)=)[^ "'"'"'&]+/\1REDACTED/gI' -e 's/(github_pat_|ghp_|gho_|ghs_)[A-Za-z0-9_]+/\1REDACTED/g' plan.txt | head -c 60000 > plan-summary.txt || true
+          {
+            echo "## Bootstrap plan — changes: ${{ steps.detect.outputs.has_changes }}"
+            echo ""
+            echo '```'
+            cat plan-summary.txt
+            echo ""
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  bootstrap-apply:
+    name: Bootstrap apply (gated)
+    needs: bootstrap-detect
+    # Only when there is something to do, so routine site-only merges keep
+    # needing exactly one approval, as they do today.
+    if: needs.bootstrap-detect.outputs.has_changes == 'true' && vars.AWS_TF_BOOTSTRAP_ROLE_ARN != ''
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform/bootstrap
+    # THE REQUIRED REVIEWER ON THIS ENVIRONMENT IS THE ONLY CONTROL over an
+    # admin-equivalent role. github-terraform-bootstrap trusts exactly the
+    # subject repo:<org>/<repo>:environment:terraform-bootstrap, so removing the
+    # reviewer silently converts a review gate into an auto-apply of IAM.
+    environment: terraform-bootstrap
+    permissions:
+      id-token: write # OIDC token for configure-aws-credentials
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Guard — bootstrap dir, no CLI-arg overrides
+        run: |
+          wd="$(pwd)"
+          case "$wd" in
+            */terraform/bootstrap) ;;
+            *) echo "::error::This job must run in terraform/bootstrap, got: $wd"; exit 1 ;;
+          esac
+          if [ -n "${TF_CLI_ARGS:-}${TF_CLI_ARGS_init:-}${TF_CLI_ARGS_plan:-}${TF_CLI_ARGS_apply:-}" ]; then
+            echo "::error::TF_CLI_ARGS overrides are not allowed in CI."
+            exit 1
+          fi
+
+      - uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
+        with:
+          role-to-assume: ${{ vars.AWS_TF_BOOTSTRAP_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: "1.14.*"
+          terraform_wrapper: false
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      # Re-plan under the WRITE role and apply that saved plan. The detect job's
+      # plan cannot be reused: different role, and an unlocked plan is not a safe
+      # apply input.
+      - name: Terraform plan
+        run: terraform plan -no-color -input=false -lock-timeout=60s -out=tfplan
+
+      - name: Publish plan to job summary
+        run: |
+          terraform show -no-color tfplan \
+            | sed -E -e 's/([?&](token|access_token|api_key|apikey|key|secret)=)[^ "'"'"'&]+/\1REDACTED/gI' -e 's/(github_pat_|ghp_|gho_|ghs_)[A-Za-z0-9_]+/\1REDACTED/g' \
+            | head -c 60000 > plan-summary.txt
+          {
+            echo "## Bootstrap plan (about to apply)"
+            echo ""
+            echo '```'
+            cat plan-summary.txt
+            echo ""
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Terraform apply
+        run: terraform apply -auto-approve -input=false -lock-timeout=60s tfplan
+
+      # IAM is eventually consistent, and the site plan that follows is about to
+      # use whatever was just granted. Cheaper than debugging a flaky
+      # AccessDenied on a first-adoption run.
+      - name: Let IAM propagate
+        run: sleep 20
+
   apply:
     name: Apply (main)
     # main only — including manual dispatch, so the gated apply can never run
     # a non-main branch's version of the Terraform code.
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [bootstrap-detect, bootstrap-apply]
+    # `!failure() && !cancelled()` rather than the default success(): bootstrap-apply
+    # is SKIPPED whenever the bootstrap tier has no changes, and a skipped need
+    # would otherwise skip this job too. A genuine bootstrap failure still stops
+    # the site apply, which is the point of the ordering.
+    if: |
+      !failure() && !cancelled()
+      && github.ref == 'refs/heads/main'
+      && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     # Add a required reviewer on this environment to gate applies.
     # NOTE: with an environment, the OIDC subject becomes
