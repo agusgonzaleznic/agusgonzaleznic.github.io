@@ -1,13 +1,14 @@
 // Unit tests for the contact Lambda: exercises every control's pass AND fail
-// path. DynamoDB, SSM, and fetch are stubbed (no network, no AWS).
+// path. DynamoDB, SSM, SES, and fetch are stubbed (no network, no AWS).
 //   node --test
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { handler, __setTestDeps, __resetTestDeps } from "./index.mjs";
 
 process.env.TURNSTILE_SECRET_PARAM = "/p/turnstile-secret";
-process.env.APPS_SCRIPT_URL_PARAM = "/p/apps-script-url";
-process.env.APPS_SCRIPT_SECRET_PARAM = "/p/apps-script-secret";
+process.env.MAIL_FROM = "noreply@agusgonzaleznic.com";
+process.env.MAIL_FROM_NAME = "agusgonzaleznic.com contact form";
+process.env.MAIL_TO = "me@agusgonzaleznic.com";
 process.env.DDB_TABLE = "agusgonzaleznic-contact";
 process.env.ALLOWED_ORIGINS =
   "https://agusgonzaleznic.com,https://www.agusgonzaleznic.com";
@@ -60,8 +61,9 @@ function makeDdb() {
   return { send, puts, counts, expiries, calls };
 }
 
-// Configurable fetch stub for siteverify + Apps Script.
-function makeFetch({ verify, verifyStatus = 200, forwardOk = true } = {}) {
+// Configurable fetch stub. Siteverify is now the ONLY outbound fetch: the owner
+// notification goes through the SES stub below, not the network.
+function makeFetch({ verify, verifyStatus = 200 } = {}) {
   const calls = [];
   const fn = async (url, opts) => {
     calls.push({ url, opts });
@@ -72,14 +74,30 @@ function makeFetch({ verify, verifyStatus = 200, forwardOk = true } = {}) {
         json: async () => verify,
       };
     }
-    // Apps Script forward
-    return { ok: forwardOk, status: forwardOk ? 200 : 500, json: async () => ({}) };
+    throw new Error(`unexpected fetch ${url}`);
   };
   return { fn, calls };
 }
 
-function install({ ddb, verify, verifyStatus, forwardOk } = {}) {
+// SESv2 stub. `sendFails` simulates an AWS-side rejection (unverified identity,
+// ses:FromAddress mismatch, sandbox recipient) so the 502 path stays covered.
+function makeSes({ sendFails = false } = {}) {
+  const calls = [];
+  const send = async (params) => {
+    calls.push(params);
+    if (sendFails) {
+      const err = new Error("MessageRejected");
+      err.name = "MessageRejected";
+      throw err;
+    }
+    return { MessageId: `stub-${calls.length}` };
+  };
+  return { send, calls };
+}
+
+function install({ ddb, verify, verifyStatus, sendFails } = {}) {
   const d = ddb ?? makeDdb();
+  const ses = makeSes({ sendFails });
   const goodVerify = {
     success: true,
     hostname: "agusgonzaleznic.com",
@@ -89,19 +107,18 @@ function install({ ddb, verify, verifyStatus, forwardOk } = {}) {
   const f = makeFetch({
     verify: verify ?? goodVerify,
     verifyStatus,
-    forwardOk,
   });
   __resetTestDeps();
   __setTestDeps({
     ddbSend: d.send,
+    sesSend: ses.send,
     getParam: async (name) => {
       if (name === process.env.TURNSTILE_SECRET_PARAM) return "SECRET";
-      if (name === process.env.APPS_SCRIPT_SECRET_PARAM) return "FWD-SECRET";
-      return "https://script/exec";
+      return "UNEXPECTED-PARAM";
     },
   });
   globalThis.fetch = f.fn;
-  return { ddb: d, fetch: f };
+  return { ddb: d, fetch: f, ses };
 }
 
 let tokenSeq = 0;
@@ -406,53 +423,56 @@ test("per-email over limit -> 429", async () => {
 });
 
 // --- Control 10: duplicate suppression ---------------------------------------
-test("duplicate message -> silent 200, not forwarded", async () => {
-  const { ddb, fetch } = install();
+test("duplicate message -> silent 200, not emailed twice", async () => {
+  const { ses } = install();
   const dupBody = body({ message: "This exact message repeats across sends." });
   // Pre-seed the DUP# row so the first request in THIS test is a duplicate.
   // Compute the same key the handler would (email lowercased + normalized msg).
   const r1 = await handler(event({ bodyObj: dupBody }));
   assert.equal(r1.statusCode, 200);
-  const forwardsAfterFirst = fetch.calls.filter((c) =>
-    String(c.url).includes("script"),
-  ).length;
+  const sendsAfterFirst = ses.calls.length;
   // Second send, same email+message, fresh token -> duplicate -> 200 silent.
   const r2 = await handler(
     event({ bodyObj: { ...dupBody, turnstileToken: `tok-fresh-${tokenSeq++}` } }),
   );
   assert.equal(r2.statusCode, 200);
-  const forwardsAfterSecond = fetch.calls.filter((c) =>
-    String(c.url).includes("script"),
-  ).length;
-  assert.equal(forwardsAfterFirst, 1);
-  assert.equal(forwardsAfterSecond, 1); // no additional forward
+  const sendsAfterSecond = ses.calls.length;
+  assert.equal(sendsAfterFirst, 1);
+  assert.equal(sendsAfterSecond, 1); // no additional email
 });
 
-// --- Forward failure ---------------------------------------------------------
-test("Apps Script non-2xx -> 502", async () => {
-  install({ forwardOk: false });
+// --- Send failure ------------------------------------------------------------
+test("SES send rejected -> 502 delivery, no detail leaked to the browser", async () => {
+  install({ sendFails: true });
   const res = await handler(event());
   assert.equal(res.statusCode, 502);
   assert.deepEqual(parse(res), { ok: false, error: "delivery" });
 });
 
 // --- Happy path --------------------------------------------------------------
-test("happy path -> 200 ok, forwards sanitized payload", async () => {
-  const { fetch } = install();
+test("happy path -> 200 ok, emails the owner with submitter as Reply-To", async () => {
+  const { ses } = install();
   const res = await handler(event());
   assert.equal(res.statusCode, 200);
   assert.deepEqual(parse(res), { ok: true });
-  const fwd = fetch.calls.find((c) => String(c.url).includes("script"));
-  assert.ok(fwd, "forwarded to Apps Script");
-  const sent = JSON.parse(fwd.opts.body);
-  assert.deepEqual(
-    Object.keys(sent).sort(),
-    ["email", "message", "name", "role", "secret"],
-  );
-  assert.equal(sent.email, "ada@example.com");
-  // Server-only shared secret is injected so the Apps Script can reject any
-  // POST that doesn't carry it (the /exec URL alone is not a secret).
-  assert.equal(sent.secret, "FWD-SECRET");
+  assert.equal(ses.calls.length, 1);
+  const sent = ses.calls[0];
+
+  // From must be the pinned identity: the ses:FromAddress condition on both the
+  // role policy and the permissions boundary denies anything else at runtime.
+  assert.match(sent.FromEmailAddress, /<noreply@agusgonzaleznic\.com>$/);
+  assert.deepEqual(sent.Destination.ToAddresses, ["me@agusgonzaleznic.com"]);
+
+  // The whole point of the SES migration: replying answers the SUBMITTER, and
+  // the mail is genuinely inbound rather than self-sent (which Gmail used to
+  // dedupe into Sent, hiding submissions entirely).
+  assert.deepEqual(sent.ReplyToAddresses, ["ada@example.com"]);
+
+  const text = sent.Content.Simple.Body.Text.Data;
+  assert.match(sent.Content.Simple.Subject.Data, /^Coaching inquiry from /);
+  assert.match(text, /ada@example\.com/);
+  // Sanitized fields are carried through, and no secret is embedded any more.
+  assert.doesNotMatch(text, /secret/i);
 });
 
 test("true IP is parsed from CloudFront-Viewer-Address (port stripped)", async () => {

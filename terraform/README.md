@@ -227,55 +227,72 @@ Bootstrap changes (state bucket, OIDC role/trust) stay human-applied:
 
 ## Contact form + Turnstile activation
 
-The contact backend (`contact.tf`, `cdn.tf`) needs these secrets/variables
-before the CI apply can run. The three SSM SecureStrings under
-`/agusgonzaleznic-site/contact/*` are **Terraform-managed** (values come from
-the Cloudflare widget resource, `var.apps_script_url`, and
-`var.apps_script_shared_secret`) — do NOT create them by hand, unlike the
-webhook params.
+The contact backend (`contact.tf`, `ses.tf`, `cdn.tf`) needs these
+secrets/variables before the CI apply can run. The ONE SSM SecureString under
+`/agusgonzaleznic-site/contact/*` is **Terraform-managed** (value comes from the
+Cloudflare widget resource) — do NOT create it by hand, unlike the webhook
+params.
 
-**SECURITY — the Apps Script URL is not a secret.** The `/exec` URL was
-historically inlined into the public client bundle (old
-`VITE_GOOGLE_APPS_SCRIPT_URL`), so it lives in git history, CDN caches, and
-users' browsers. The Lambda's 10 controls are worthless if an attacker can POST
-straight to that URL. Two things make the endpoint unreachable without the
-Lambda, and BOTH are required:
+**Mail delivery is SES, not Apps Script.** The Lambda calls `ses:SendEmail`
+itself. There is no `/exec` URL and no shared secret any more: the previous
+design hung on an Apps Script deployment id that Terraform could not derive, so
+it had to be hand-copied into SSM, and two live deployments on different code
+versions silently diverged (one kept running the old sender while the other was
+being edited). Nothing in this path is hand-fed now.
 
-- **Rotate the deployment**: in the Apps Script editor, deploy a brand-new Web
-  App version so a fresh `/exec` URL (new deployment id) is minted, and delete
-  the old deployment so the previously-public URL is dead. Put the new URL in
-  the dedicated `CONTACT_APPS_SCRIPT_URL` GitHub secret (NOT the old VITE one).
-- **Gate on a shared secret**: `doPost(e)` must read
-  `JSON.parse(e.postData.contents).secret` and `return` early (no email) on any
-  mismatch. It must be a body FIELD, not a header — Apps Script's `doPost`
-  cannot read arbitrary request headers. The Lambda injects this field from the
-  SSM param; set the same value in the `CONTACT_APPS_SCRIPT_SHARED_SECRET`
-  GitHub secret and inside the Apps Script.
-- After deploying, confirm a direct `curl -X POST` to the `/exec` URL WITHOUT
-  the secret does not send mail (and that the deployment's execute access is not
-  broader than intended).
+**DMARC is `p=reject`, so DKIM is load-bearing.** SES mail that is not
+DKIM-signed with `d=agusgonzaleznic.com` aligns on neither SPF (`amazonses.com`)
+nor DKIM and is REJECTED, not merely spam-filed. `ses.tf` therefore creates the
+domain identity with Easy DKIM plus its three CNAMEs, and **the identity must
+report `Verified` BEFORE the Lambda starts sending** — see the two-stage apply
+below. The apex MX stays Google Workspace and is untouched.
 
-1. **Re-apply bootstrap** (human, `root-admin`) so the deploy role gains the
-   new DynamoDB / CloudFront-OAC / contact-SSM grants and the lambda-exec
-   boundary allows the table. The CI apply fails `AccessDenied` without this:
+**SES sandbox is fine and permanent here.** The sandbox restricts RECIPIENTS to
+verified identities, and a verified DOMAIN identity covers every address on it,
+so notifying `me@agusgonzaleznic.com` needs no production-access request. If you
+ever want to CC the submitter, that is a different domain and DOES require
+production access.
+
+1. **Re-apply bootstrap** (human, `root-admin`) so the deploy role gains the new
+   SES grants and — critically — the lambda-exec boundary allows `ses:SendEmail`.
+   The boundary is the ceiling: without it the site apply SUCCEEDS and the
+   function is denied at RUNTIME. The CI apply fails `AccessDenied` on
+   `CreateEmailIdentity` without the deploy policy, and even `terraform plan`
+   fails without `ses:GetEmailIdentity` (the DKIM tokens are read every plan):
 
    ```sh
    cd terraform/bootstrap && AWS_PROFILE=root-admin terraform apply
    ```
 
-2. **Create the Cloudflare API token** (Account > Turnstile > Edit) and wire
-   the CI secrets/variables (values never echoed):
+2. **Create the Cloudflare API token** (Account > Turnstile > Edit) and wire the
+   CI secrets/variables (values never echoed):
 
    ```sh
    gh secret set CLOUDFLARE_API_TOKEN            # scoped Turnstile:Edit token
    gh variable set CLOUDFLARE_ACCOUNT_ID --body "<cloudflare account id>"
-   gh secret set CONTACT_APPS_SCRIPT_URL         # freshly-rotated /exec URL
-   gh secret set CONTACT_APPS_SCRIPT_SHARED_SECRET   # e.g. openssl rand -hex 32
    ```
 
+   The former `CONTACT_APPS_SCRIPT_URL` / `CONTACT_APPS_SCRIPT_SHARED_SECRET`
+   secrets are unused and should be deleted.
+
 3. **Run the site apply** (`terraform.yml` / merge to main). It creates the
-   widget, the three SSM params, the DynamoDB table, the Lambda + Function URL,
-   the OAC, and the `/api/*` CloudFront behavior.
+   widget, the Turnstile SSM param, the DynamoDB table, the Lambda + Function
+   URL, the OAC, the `/api/*` CloudFront behavior, the SES domain identity and
+   its three DKIM CNAMEs.
+
+   **Then wait for DKIM before trusting the form.** SES verifies
+   asynchronously (usually minutes once the CNAMEs resolve):
+
+   ```sh
+   aws sesv2 get-email-identity --email-identity agusgonzaleznic.com \
+     --region us-east-1 \
+     --query '{Verified:VerifiedForSendingStatus,Dkim:DkimAttributes.Status}'
+   ```
+
+   Both must read `true` / `SUCCESS`. Until then every send fails closed: the
+   Lambda returns 502 `{"ok":false,"error":"delivery"}` and logs
+   `control:"ses_send"`. On a first-time rollout, apply this BEFORE cutting the
+   client over, or accept a short window where submissions error.
 
 4. **Publish the public sitekey** so the client renders the widget. This is a
    deliberate **two-step bootstrap**: the sitekey does not exist until the first

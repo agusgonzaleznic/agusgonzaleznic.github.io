@@ -69,23 +69,8 @@ variable "cloudflare_account_id" {
 # Contact form (server-side Lambda)
 ################################################################################
 
-# Google Apps Script web-app URL the contact Lambda forwards sanitized
-# submissions to. Stored server-side (SSM SecureString) so it never ships in
-# the public bundle. No default — pass via op: TF_VAR_apps_script_url=...
-# (CI: secrets.VITE_GOOGLE_APPS_SCRIPT_URL — reuses the existing secret).
-variable "apps_script_url" {
-  description = "Google Apps Script web-app URL the contact Lambda posts to"
-  type        = string
-  sensitive   = true
-}
-
-# Server-only shared secret the contact Lambda injects into the forward payload
-# so the Apps Script can reject direct POSTs (its /exec URL is not a secret).
-# Must match the secret configured inside the Apps Script doPost(). No default —
-# pass via op: TF_VAR_apps_script_shared_secret=... (CI: a dedicated secret,
-# NOT the old public VITE_ value). See README runbook.
-variable "apps_script_shared_secret" {
-  description = "Shared secret the contact Lambda sends to the Apps Script"
-  type        = string
-  sensitive   = true
-}
+# The contact Lambda now sends its owner-notification directly via SESv2, so
+# the former apps_script_url / apps_script_shared_secret variables are gone.
+# Both the sender identity and the From/To addresses are derived in Terraform
+# (ses.tf, contact.tf) — there is deliberately nothing left to hand-feed here,
+# and correspondingly no CONTACT_APPS_SCRIPT_* GitHub secrets to maintain.

@@ -11,6 +11,7 @@ locals {
   cloudfront_rhp_arn          = "arn:aws:cloudfront::${local.account_id}:response-headers-policy/a21003ee-2c03-4474-b6d9-23c6fe505af7"
   cloudfront_function_arn     = "arn:aws:cloudfront::${local.account_id}:function/agusgonzaleznic-com-www-redirect"
   hosted_zone_arn             = "arn:aws:route53:::hostedzone/Z01244412JIHKLB4766PS"
+  ses_identity_arn            = "arn:aws:ses:us-east-1:${local.account_id}:identity/agusgonzaleznic.com"
   acm_certificate_arn         = "arn:aws:acm:us-east-1:${local.account_id}:certificate/5252733a-e6e7-4161-bf9e-83b791bb885a"
   lambda_function_arns        = ["arn:aws:lambda:us-east-1:${local.account_id}:function:agusgonzaleznic-*"]
   lambda_exec_role_arns       = ["arn:aws:iam::${local.account_id}:role/agusgonzaleznic-*"]
@@ -430,6 +431,24 @@ data "aws_iam_policy_document" "lambda_exec_boundary" {
     ]
     resources = local.dynamodb_table_arns
   }
+
+  # Ceiling for the contact Lambda sending its own notification mail. Without
+  # this the site apply SUCCEEDS and the function is denied at RUNTIME, because
+  # effective permissions are the INTERSECTION of role policy and boundary.
+  # Scoped to the one identity AND pinned to the one From address, so an
+  # injected policy cannot turn this role into an open relay for the domain.
+  statement {
+    sid       = "SendContactEmail"
+    effect    = "Allow"
+    actions   = ["ses:SendEmail"]
+    resources = [local.ses_identity_arn]
+
+    condition {
+      test     = "StringEquals"
+      variable = "ses:FromAddress"
+      values   = ["noreply@agusgonzaleznic.com"]
+    }
+  }
 }
 
 resource "aws_iam_policy" "lambda_exec_boundary" {
@@ -447,8 +466,8 @@ data "aws_iam_policy_document" "ssm" {
     resources = ["arn:aws:ssm:us-east-1:${local.account_id}:parameter/agusgonzaleznic-site/*"]
   }
 
-  # The contact module MANAGES these params in Terraform (values from the
-  # Cloudflare widget secret + var.apps_script_url), unlike the webhook params
+  # The contact module MANAGES this param in Terraform (value from the
+  # Cloudflare widget secret), unlike the webhook params
   # which are human-managed and read-only. Write access is scoped to the
   # contact/ prefix ONLY — CI must never write the human-managed secrets
   # elsewhere under /agusgonzaleznic-site/*.
@@ -500,6 +519,31 @@ data "aws_iam_policy_document" "ssm" {
   }
 }
 
+# --- SES (contact-form sender identity) -------------------------------------
+# The contact Lambda sends the owner-notification itself via SESv2; the domain
+# identity and its Easy-DKIM CNAMEs are managed by the site module (ses.tf).
+# NOTE the IAM prefix is `ses:` for BOTH the v1 and v2 APIs - there is no
+# `sesv2:` prefix. GetEmailIdentity is read on EVERY plan (the DKIM tokens are
+# a resource attribute), so without it even `terraform plan` fails on a PR.
+
+data "aws_iam_policy_document" "ses" {
+  statement {
+    sid    = "ManageSenderIdentity"
+    effect = "Allow"
+    actions = [
+      "ses:CreateEmailIdentity",
+      "ses:DeleteEmailIdentity",
+      "ses:GetEmailIdentity",
+      "ses:PutEmailIdentityDkimAttributes",
+      "ses:PutEmailIdentityDkimSigningAttributes",
+      "ses:TagResource",
+      "ses:UntagResource",
+      "ses:ListTagsForResource",
+    ]
+    resources = [local.ses_identity_arn]
+  }
+}
+
 # --- Policies + attachments -------------------------------------------------
 
 locals {
@@ -512,6 +556,7 @@ locals {
     lambda       = data.aws_iam_policy_document.lambda.json
     dynamodb     = data.aws_iam_policy_document.dynamodb.json
     ssm          = data.aws_iam_policy_document.ssm.json
+    ses          = data.aws_iam_policy_document.ses.json
   }
 }
 
