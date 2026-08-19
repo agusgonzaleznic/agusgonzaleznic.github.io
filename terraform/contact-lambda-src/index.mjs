@@ -1,14 +1,19 @@
 // Contact form gateway Lambda (Function URL, payload v2.0).
 // Runs 10 anti-abuse controls IN ORDER (cheapest-first / fail-fast), then
-// forwards the sanitized message to a Google Apps Script that emails the owner.
-// ZERO npm deps: node:crypto, global fetch, @aws-sdk/client-{ssm,dynamodb}
-// (both bundled in the nodejs22.x runtime, imported dynamically).
+// emails the owner directly via SESv2.
+// ZERO npm deps: node:crypto, global fetch, @aws-sdk/client-{ssm,dynamodb,sesv2}
+// (all bundled in the nodejs22.x runtime, imported dynamically — verified on
+// nodejs22.x/arm64, not assumed).
 //
 // Env contract (set by infra / terraform):
 //   TURNSTILE_SECRET_PARAM   SSM SecureString name holding the Turnstile secret
-//   APPS_SCRIPT_URL_PARAM     SSM SecureString name holding the Apps Script URL
-//   APPS_SCRIPT_SECRET_PARAM  SSM SecureString name holding the server-only
-//                             shared secret injected into the forward payload
+//   MAIL_FROM                 verified SES sender, e.g. noreply@<domain>. Pinned
+//                             by a ses:FromAddress condition on BOTH the role
+//                             policy and the permissions boundary — changing it
+//                             here alone gets sends denied at runtime.
+//   MAIL_FROM_NAME            display name for the From header
+//   MAIL_TO                   owner notification recipient (must be on a
+//                             verified domain while SES is in the sandbox)
 //   DDB_TABLE                 DynamoDB table name (pk: S, ttl attr: expires_at)
 //   ALLOWED_ORIGINS         comma-separated exact Origins (CORS allowlist)
 //   ALLOWED_HOSTNAMES       comma-separated Turnstile hostnames to accept
@@ -42,8 +47,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function env() {
   return {
     TURNSTILE_SECRET_PARAM: process.env.TURNSTILE_SECRET_PARAM,
-    APPS_SCRIPT_URL_PARAM: process.env.APPS_SCRIPT_URL_PARAM,
-    APPS_SCRIPT_SECRET_PARAM: process.env.APPS_SCRIPT_SECRET_PARAM,
+    MAIL_FROM: process.env.MAIL_FROM,
+    MAIL_FROM_NAME: process.env.MAIL_FROM_NAME ?? "Contact form",
+    MAIL_TO: process.env.MAIL_TO,
     DDB_TABLE: process.env.DDB_TABLE,
     allowedOrigins: splitCsv(
       process.env.ALLOWED_ORIGINS ??
@@ -68,16 +74,20 @@ function splitCsv(s) {
 // Tests override these; production leaves them null and hits AWS/network.
 let _ddbSend = null; // (op, params) => Promise<result>
 let _getParamOverride = null; // (name) => Promise<string>
+let _sesSend = null; // (params) => Promise<result>
 let _ddbClient = null;
 let _ssmClient = null;
+let _sesClient = null;
 
-export function __setTestDeps({ ddbSend, getParam } = {}) {
+export function __setTestDeps({ ddbSend, getParam, sesSend } = {}) {
   if (ddbSend !== undefined) _ddbSend = ddbSend;
   if (getParam !== undefined) _getParamOverride = getParam;
+  if (sesSend !== undefined) _sesSend = sesSend;
 }
 export function __resetTestDeps() {
   _ddbSend = null;
   _getParamOverride = null;
+  _sesSend = null;
   paramCache.clear();
 }
 
@@ -106,6 +116,13 @@ async function ddb(op, params) {
   _ddbClient ??= new sdk.DynamoDBClient({});
   const Command = op === "PutItem" ? sdk.PutItemCommand : sdk.UpdateItemCommand;
   return _ddbClient.send(new Command(params));
+}
+
+async function sesSend(params) {
+  if (_sesSend) return _sesSend(params);
+  const sdk = await import("@aws-sdk/client-sesv2");
+  _sesClient ??= new sdk.SESv2Client({});
+  return _sesClient.send(new sdk.SendEmailCommand(params));
 }
 
 function isConditionalFail(err) {
@@ -496,40 +513,47 @@ export const handler = async (event) => {
     return respond(200, { ok: true }, origin);
   }
 
-  // --- All controls passed: forward to Apps Script ---------------------------
-  // The Apps Script /exec URL was historically inlined into the public client
-  // bundle, so the URL alone cannot gate access. The forward carries a
-  // server-only shared secret that ONLY this Lambda knows; doPost() MUST reject
-  // any POST whose `secret` does not match (see README runbook). It is a body
-  // FIELD, not a header, because Apps Script's doPost cannot read arbitrary
-  // request headers. Both URL and secret live in SSM, never in the bundle.
-  let scriptUrl, forwardSecret;
+  // --- All controls passed: send the owner notification via SESv2 -----------
+  // Reply-To is the SUBMITTER, so hitting reply in the mail client answers the
+  // person who wrote in. The previous Apps Script sent as the owner's own
+  // address, which meant Gmail filed the notification under Sent and
+  // suppressed the inbox copy entirely — submissions were invisible.
+  // From is a dedicated no-reply identity, so the notification is genuinely
+  // inbound mail and lands in the inbox normally.
+  const subject = `Coaching inquiry from ${input.name}`;
+  const body = [
+    "New coaching inquiry received:",
+    "",
+    `Name: ${input.name}`,
+    `Email: ${input.email}`,
+    `Role: ${input.role || "Not specified"}`,
+    "",
+    "Message:",
+    input.message,
+    "",
+    "---",
+    `Sent by the ${cfg.MAIL_FROM_NAME}. Reply to this mail to answer ${input.email}.`,
+  ].join("\n");
+
   try {
-    scriptUrl = await getParam(cfg.APPS_SCRIPT_URL_PARAM);
-    forwardSecret = await getParam(cfg.APPS_SCRIPT_SECRET_PARAM);
-  } catch {
-    outcome("forward_secret", 502);
-    return respond(502, { ok: false, error: "delivery" }, origin);
-  }
-  let fwd;
-  try {
-    fwd = await fetch(scriptUrl, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        name: input.name,
-        email: input.email,
-        role: input.role,
-        message: input.message,
-        secret: forwardSecret,
-      }),
+    await sesSend({
+      FromEmailAddress: `${cfg.MAIL_FROM_NAME} <${cfg.MAIL_FROM}>`,
+      Destination: { ToAddresses: [cfg.MAIL_TO] },
+      ReplyToAddresses: [input.email],
+      Content: {
+        Simple: {
+          Subject: { Data: subject, Charset: "UTF-8" },
+          Body: { Text: { Data: body, Charset: "UTF-8" } },
+        },
+      },
     });
-  } catch {
-    outcome("forward", 502);
-    return respond(502, { ok: false, error: "delivery" }, origin);
-  }
-  if (!fwd.ok) {
-    outcome("forward", 502);
+  } catch (err) {
+    // Most likely causes, in order: identity not yet verified, the
+    // ses:FromAddress condition not matching MAIL_FROM, or the sandbox
+    // rejecting a recipient outside a verified domain. err.name distinguishes
+    // them in CloudWatch without logging any submission content.
+    log({ reqId, trueIp, control: "ses_send", status: err?.name ?? "error" });
+    outcome("ses_send", 502);
     return respond(502, { ok: false, error: "delivery" }, origin);
   }
 

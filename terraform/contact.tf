@@ -3,13 +3,17 @@
 #
 # Flow: browser -> same-origin POST /api/contact -> CloudFront ordered behavior
 # -> Lambda Function URL (private, AWS_IAM + OAC/SigV4) -> 10 server-side
-# controls -> forwards the sanitized payload to the Google Apps Script.
+# controls -> the Lambda sends the owner-notification itself via SESv2.
 #
-# The Turnstile SECRET and the Apps Script URL are SecureString SSM params
-# MANAGED HERE by Terraform (values from the Cloudflare widget resource and
-# var.apps_script_url). This differs from webhook.tf's params, whose values are
-# human-managed and only referenced by name — hence the deploy role has scoped
-# ssm:PutParameter on /agusgonzaleznic-site/contact/* (bootstrap/role-policies.tf).
+# The Turnstile SECRET is a SecureString SSM param MANAGED HERE by Terraform
+# (value from the Cloudflare widget resource). This differs from webhook.tf's
+# params, whose values are human-managed and only referenced by name — hence
+# the deploy role has scoped ssm:PutParameter on
+# /agusgonzaleznic-site/contact/* (bootstrap/role-policies.tf).
+#
+# Mail identity + Easy-DKIM records live in ses.tf. There is no longer any
+# hand-fed value in this path: the Apps Script URL and its shared secret are
+# gone, along with the drift they invited.
 # data.aws_caller_identity.current and data.aws_kms_alias.ssm come from webhook.tf.
 ################################################################################
 
@@ -18,10 +22,15 @@ locals {
   contact_table_name    = "agusgonzaleznic-contact"
 
   contact_ssm_params = {
-    turnstile_secret   = "/agusgonzaleznic-site/contact/turnstile-secret"
-    apps_script_url    = "/agusgonzaleznic-site/contact/apps-script-url"
-    apps_script_secret = "/agusgonzaleznic-site/contact/apps-script-secret"
+    turnstile_secret = "/agusgonzaleznic-site/contact/turnstile-secret"
   }
+
+  # Derived, not variables: nothing here should need hand-feeding. The From
+  # address is pinned in the boundary's ses:FromAddress condition
+  # (bootstrap/role-policies.tf) — change both together or sends are denied.
+  contact_mail_from      = "noreply@${local.domain_name}"
+  contact_mail_from_name = "agusgonzaleznic.com contact form"
+  contact_mail_to        = "me@${local.domain_name}"
 }
 
 ################################################################################
@@ -44,24 +53,6 @@ resource "aws_ssm_parameter" "contact_turnstile_secret" {
   name  = local.contact_ssm_params.turnstile_secret
   type  = "SecureString"
   value = cloudflare_turnstile_widget.contact.secret
-  tags  = local.tags
-}
-
-resource "aws_ssm_parameter" "contact_apps_script_url" {
-  name  = local.contact_ssm_params.apps_script_url
-  type  = "SecureString"
-  value = var.apps_script_url
-  tags  = local.tags
-}
-
-# Server-only shared secret injected into the forward payload. The Apps Script
-# doPost() must reject any POST whose `secret` field does not match this value
-# (the /exec URL itself is not secret — it once shipped in the client bundle).
-# Rotate this together with the Apps Script deployment; see README runbook.
-resource "aws_ssm_parameter" "contact_apps_script_secret" {
-  name  = local.contact_ssm_params.apps_script_secret
-  type  = "SecureString"
-  value = var.apps_script_shared_secret
   tags  = local.tags
 }
 
@@ -124,13 +115,9 @@ resource "aws_iam_role_policy_attachment" "contact_logs" {
 
 data "aws_iam_policy_document" "contact" {
   statement {
-    sid     = "ReadContactParams"
-    actions = ["ssm:GetParameter"]
-    resources = [
-      aws_ssm_parameter.contact_turnstile_secret.arn,
-      aws_ssm_parameter.contact_apps_script_url.arn,
-      aws_ssm_parameter.contact_apps_script_secret.arn,
-    ]
+    sid       = "ReadContactParams"
+    actions   = ["ssm:GetParameter"]
+    resources = [aws_ssm_parameter.contact_turnstile_secret.arn]
   }
 
   # SecureStrings use the AWS-managed aws/ssm key; decrypt only via SSM.
@@ -156,6 +143,20 @@ data "aws_iam_policy_document" "contact" {
       "dynamodb:DeleteItem",
     ]
     resources = [aws_dynamodb_table.contact.arn]
+  }
+
+  # Send ONLY as the one pinned From address, ONLY via the one identity. The
+  # boundary carries the identical condition; both must allow it (intersection).
+  statement {
+    sid       = "SendContactEmail"
+    actions   = ["ses:SendEmail"]
+    resources = [aws_sesv2_email_identity.main.arn]
+
+    condition {
+      test     = "StringEquals"
+      variable = "ses:FromAddress"
+      values   = [local.contact_mail_from]
+    }
   }
 }
 
@@ -198,13 +199,14 @@ resource "aws_lambda_function" "contact" {
   # Env contract is defined by contact-lambda-src/index.mjs — keep names in sync.
   environment {
     variables = {
-      DDB_TABLE                = aws_dynamodb_table.contact.name
-      TURNSTILE_SECRET_PARAM   = local.contact_ssm_params.turnstile_secret
-      APPS_SCRIPT_URL_PARAM    = local.contact_ssm_params.apps_script_url
-      APPS_SCRIPT_SECRET_PARAM = local.contact_ssm_params.apps_script_secret
-      TURNSTILE_ACTION         = "contact"
-      ALLOWED_HOSTNAMES        = "${local.domain_name},www.${local.domain_name}"
-      ALLOWED_ORIGINS          = "https://${local.domain_name},https://www.${local.domain_name}"
+      DDB_TABLE              = aws_dynamodb_table.contact.name
+      TURNSTILE_SECRET_PARAM = local.contact_ssm_params.turnstile_secret
+      MAIL_FROM              = local.contact_mail_from
+      MAIL_FROM_NAME         = local.contact_mail_from_name
+      MAIL_TO                = local.contact_mail_to
+      TURNSTILE_ACTION       = "contact"
+      ALLOWED_HOSTNAMES      = "${local.domain_name},www.${local.domain_name}"
+      ALLOWED_ORIGINS        = "https://${local.domain_name},https://www.${local.domain_name}"
     }
   }
 
