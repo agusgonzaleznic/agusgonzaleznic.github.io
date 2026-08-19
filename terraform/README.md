@@ -10,13 +10,17 @@ Two root modules with a strict trust boundary:
 
 | Module | Path | State | Who applies |
 |---|---|---|---|
-| **bootstrap** | `terraform/bootstrap/` | S3 (self-migrated, see runbook) | **Human only**, locally with `AWS_PROFILE=root-admin` |
+| **bootstrap** | `terraform/bootstrap/` | S3 (self-migrated, see runbook) | **CI**, gated on the `terraform-bootstrap` environment. `AWS_PROFILE=root-admin` is break-glass only |
 | **site** | `terraform/` | S3 backend, `use_lockfile = true` (native S3 locking, no DynamoDB) | **CI only** (`.github/workflows/terraform.yml`) via GitHub OIDC |
 
 - `bootstrap/` owns the chicken-and-egg pieces: the S3 state bucket, the
-  GitHub OIDC identity provider, and the IAM role CI assumes. It is never
-  planned or applied by CI — the workflow has an explicit guard step that
-  fails if it ever targets `bootstrap/`.
+  GitHub OIDC identity provider, and every IAM role/policy CI assumes —
+  including the deploy role's permission surface and the Lambda execution
+  boundary. It runs in CI through its OWN roles (`github-terraform-bootstrap`
+  for the gated apply, `github-terraform-bootstrap-plan`, read-only, for plans),
+  never through the site deploy role: the site jobs still carry a guard step
+  that fails if they ever target `bootstrap/`. See `bootstrap/README.md` for
+  why the two tiers cannot collapse into one apply.
 - The site module owns everything else: DNS zone + records, ACM cert,
   CloudFront distribution / function / response-headers policy, S3 website
   buckets, and Storyblok webhook resources.
@@ -78,6 +82,23 @@ signed in.
    gh variable set CLOUDFRONT_DISTRIBUTION_ID --body "E33TSNW29S4RDQ"
    gh variable set STORYBLOK_SPACE_ID --body "288632938663524"
    ```
+
+   Then hand the bootstrap tier itself over to CI. Create the environment
+   **with its required reviewer first** — an existing environment with no
+   reviewer would auto-apply IAM:
+
+   ```sh
+   gh api -X PUT repos/agusgonzaleznic/agusgonzaleznic.github.io/environments/terraform-bootstrap \
+     -f 'reviewers[][type=User]' -F "reviewers[][id]=$(gh api user --jq .id)"
+
+   gh variable set AWS_TF_BOOTSTRAP_ROLE_ARN \
+     --body "$(AWS_PROFILE=root-admin terraform output -raw bootstrap_role_arn)"
+   gh variable set AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN \
+     --body "$(AWS_PROFILE=root-admin terraform output -raw bootstrap_plan_role_arn)"
+   ```
+
+   Until both `AWS_TF_BOOTSTRAP_*` variables are set the bootstrap CI jobs skip
+   rather than fail, so this step is what switches them on.
 
 4. **Ensure the webhook SSM SecureStrings exist, then wire the GitHub
    secrets** (never echo these values). Both parameters were created
@@ -212,8 +233,12 @@ Runs are serialized by the `terraform-state` concurrency group and the S3
 native lockfile (`-lock-timeout=60s`); an in-flight apply is never
 cancelled.
 
-Bootstrap changes (state bucket, OIDC role/trust) stay human-applied:
-`AWS_PROFILE=root-admin terraform apply` inside `terraform/bootstrap/`.
+Bootstrap changes ride the same PR as the site change that needs them. On
+merge, `bootstrap-detect` re-plans read-only and publishes the diff, then
+`bootstrap-apply` (gated on `terraform-bootstrap`) applies it **before** the
+site apply — the ordering matters, because it is what grants the deploy role the
+permissions the site plan is about to use. `bootstrap-apply` is skipped when that
+module has no changes, so routine merges still need exactly one approval.
 
 ## Known CLI-managed drift
 
@@ -253,16 +278,18 @@ so notifying `me@agusgonzaleznic.com` needs no production-access request. If you
 ever want to CC the submitter, that is a different domain and DOES require
 production access.
 
-1. **Re-apply bootstrap** (human, `root-admin`) so the deploy role gains the new
-   SES grants and — critically — the lambda-exec boundary allows `ses:SendEmail`.
+1. **Widen bootstrap in the same PR** so the deploy role gains the new SES
+   grants and — critically — the lambda-exec boundary allows `ses:SendEmail`.
    The boundary is the ceiling: without it the site apply SUCCEEDS and the
    function is denied at RUNTIME. The CI apply fails `AccessDenied` on
    `CreateEmailIdentity` without the deploy policy, and even `terraform plan`
-   fails without `ses:GetEmailIdentity` (the DKIM tokens are read every plan):
+   fails without `ses:GetEmailIdentity` (the DKIM tokens are read every plan).
 
-   ```sh
-   cd terraform/bootstrap && AWS_PROFILE=root-admin terraform apply
-   ```
+   No local command: edit `terraform/bootstrap/role-policies.tf` in the PR and
+   approve `terraform-bootstrap` on merge. Note the ordering constraint this
+   creates — a first-adoption PR's *site* plan runs before that grant exists, so
+   it will show the `AccessDenied`. That is expected; the authoritative plan is
+   the one `bootstrap-apply` unblocks on merge.
 
 2. **Create the Cloudflare API token** (Account > Turnstile > Edit) and wire the
    CI secrets/variables (values never echoed):
