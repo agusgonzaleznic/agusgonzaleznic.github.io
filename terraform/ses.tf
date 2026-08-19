@@ -50,6 +50,21 @@ resource "aws_route53_record" "ses_dkim" {
   records = ["${aws_sesv2_email_identity.main.dkim_signing_attributes[0].tokens[count.index]}.dkim.amazonses.com"]
 }
 
+# Custom MAIL FROM: makes the SMTP envelope domain mail.agusgonzaleznic.com
+# instead of amazonses.com, so SPF ALIGNS (relaxed) in addition to DKIM. DMARC
+# then passes on both mechanisms rather than resting on DKIM alone. Its MX + SPF
+# records are in dns.tf, scoped to that subdomain only.
+#
+# behavior_on_mx_failure = USE_DEFAULT_VALUE, deliberately: if the MX ever stops
+# resolving, SES falls back to amazonses.com and mail STILL SENDS (DKIM keeps
+# DMARC passing). REJECT_MESSAGE would instead silently kill the contact form on
+# a DNS glitch - the exact failure mode this whole migration existed to remove.
+resource "aws_sesv2_email_identity_mail_from_attributes" "main" {
+  email_identity         = aws_sesv2_email_identity.main.email_identity
+  mail_from_domain       = "mail.${local.domain_name}"
+  behavior_on_mx_failure = "USE_DEFAULT_VALUE"
+}
+
 output "ses_dkim_verification_note" {
   description = "How to confirm the SES identity is usable before the Lambda depends on it."
   value       = "aws sesv2 get-email-identity --email-identity ${local.domain_name} --region ${var.aws_region} --query '{Verified:VerifiedForSendingStatus,Dkim:DkimAttributes.Status}'"
