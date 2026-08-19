@@ -199,21 +199,18 @@ resource "aws_iam_role_policy_attachment" "bootstrap_write_iam" {
 # s3:DeleteObject is not optional: use_lockfile = true means an unclearable
 # .tflock blocks every later run at lock acquisition.
 data "aws_iam_policy_document" "bootstrap_state_access" {
+  # s3:* on the BUCKET arn, not enumerated verbs. The aws_s3_bucket resource
+  # family reads a long and version-dependent list of sub-configurations on every
+  # refresh (encryption, lifecycle, replication, accelerate, object-lock,
+  # analytics, metrics, inventory, intelligent-tiering, ...) and enumerating them
+  # buys nothing here: this module OWNS the bucket's configuration, and
+  # s3:DeleteBucket - the only verb worth withholding - is denied in the ceiling.
+  # Object access is granted separately and scoped to bootstrap/*, so this does
+  # NOT expose the site module's state.
   statement {
-    sid    = "ManageStateBucketConfiguration"
-    effect = "Allow"
-    actions = [
-      "s3:GetBucket*",
-      "s3:PutBucket*",
-      "s3:GetEncryptionConfiguration",
-      "s3:PutEncryptionConfiguration",
-      "s3:GetLifecycleConfiguration",
-      "s3:PutLifecycleConfiguration",
-      "s3:GetAccelerateConfiguration",
-      "s3:ListBucket",
-      "s3:ListBucketVersions",
-      "s3:CreateBucket",
-    ]
+    sid       = "ManageStateBucketConfiguration"
+    effect    = "Allow"
+    actions   = ["s3:*"]
     resources = [aws_s3_bucket.terraform_state.arn]
   }
 
@@ -287,17 +284,13 @@ resource "aws_iam_role_policy_attachment" "bootstrap_plan_iam_readonly" {
 # Read-only state access. The plan jobs run `-lock=false` precisely so this
 # role needs no PutObject for the lock file.
 data "aws_iam_policy_document" "bootstrap_state_read" {
+  # Get*/List* rather than an enumerated list, for the same reason as the write
+  # role: a refresh reads many version-dependent sub-configurations, and every
+  # verb here is read-only by construction so a wildcard widens nothing.
   statement {
-    sid    = "ReadStateBucketConfiguration"
-    effect = "Allow"
-    actions = [
-      "s3:GetBucket*",
-      "s3:GetEncryptionConfiguration",
-      "s3:GetLifecycleConfiguration",
-      "s3:GetAccelerateConfiguration",
-      "s3:ListBucket",
-      "s3:ListBucketVersions",
-    ]
+    sid       = "ReadStateBucketConfiguration"
+    effect    = "Allow"
+    actions   = ["s3:Get*", "s3:List*"]
     resources = [aws_s3_bucket.terraform_state.arn]
   }
 

@@ -244,7 +244,11 @@ jobs:
       - name: Terraform plan
         id: plan
         continue-on-error: true
-        run: terraform plan -no-color -input=false -lock=false > plan.txt 2>&1
+        # tee, not `>`: a plan job whose failure is only visible in the job
+        # summary cannot be debugged from the log.
+        run: |
+          set -o pipefail
+          terraform plan -no-color -input=false -lock=false 2>&1 | tee plan.txt
 
       - name: Publish plan to job summary
         if: always()
@@ -321,8 +325,8 @@ jobs:
         id: detect
         run: |
           code=0
-          terraform plan -no-color -input=false -lock=false -detailed-exitcode \
-            > plan.txt 2>&1 || code=$?
+          terraform plan -no-color -input=false -lock=false -detailed-exitcode 2>&1 \
+            | tee plan.txt || code=${PIPESTATUS[0]}
           case "$code" in
             0) echo "has_changes=false" >> "$GITHUB_OUTPUT" ;;
             2) echo "has_changes=true"  >> "$GITHUB_OUTPUT" ;;
