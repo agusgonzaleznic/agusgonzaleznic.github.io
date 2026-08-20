@@ -49,6 +49,7 @@ import {
 } from "./lib/page-gate.mjs";
 import { translatePage } from "./lib/page-translate.mjs";
 import { parsePo, serializePo, entryKey, sourceText, isHeader } from "./lib/po.mjs";
+import { randomUUID } from "node:crypto";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const reviewedDir = resolve(__dirname, "../content/translations");
@@ -168,6 +169,20 @@ async function buildPageItems() {
     }
   }
   return { items, pages };
+}
+
+// `locale` arrives from the browser body and is interpolated straight into an
+// output filename (`${slug}.${locale}.json`), so an unvalidated value is an
+// arbitrary-.json-write primitive: resolve("content/pages", "about." +
+// "./../../../package" + ".json") escapes the repo. Validate against the
+// locales actually in scope for this run — deliberately NOT ALL_LOCALES, which
+// lives in src/i18n/locales.ts, a TS module these .mjs build scripts cannot
+// import (see docs/architecture.md on why PUBLISHED_LOCALES is regex-parsed).
+function assertKnownLocale(locale, locales) {
+  if (typeof locale !== "string" || !locales.includes(locale)) {
+    throw new Error(`refusing unknown locale: ${JSON.stringify(locale)}`);
+  }
+  return locale;
 }
 
 function savePage(pages, { slug, locale, values }) {
@@ -307,6 +322,8 @@ if (!items.length) fatal("nothing to review (check --domain/--locale/--post filt
 
 // ── save router ───────────────────────────────────────────────────────────
 function save(body) {
+  // Validate ONCE, here, before any writer can interpolate it into a path.
+  assertKnownLocale(body.locale, locales);
   if (body.domain === "page") return savePage(pages, body);
   if (body.domain === "blog") return saveBlog(posts, body);
   if (body.domain === "ui") return savePo(body);
@@ -379,7 +396,7 @@ function render(){
    if(it.domain==="blog"){const fields={},bodyv={};body.querySelectorAll("textarea").forEach(ta=>{const k=ta.dataset.k;if(k.startsWith("body:"))bodyv[k.slice(5)]=ta.value;else fields[k]=ta.value;});payload.fields=fields;payload.body=bodyv;}
    else if(it.domain==="page"){const values={};body.querySelectorAll("textarea").forEach(ta=>values[ta.dataset.en]=ta.value);payload.values=values;}
    else{const values={};body.querySelectorAll("textarea").forEach(ta=>values[ta.dataset.k]=ta.value);payload.values=values;}
-   const res=await fetch("/save",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
+   const res=await fetch("/save",{method:"POST",headers:{"content-type":"application/json","x-review-token":"${REVIEW_TOKEN}"},body:JSON.stringify(payload)});
    const j=await res.json();
    btn.textContent=j.ok?"Saved ✓ "+j.saved:"Error: "+j.error;btn.disabled=false;
    if(j.ok){const b=box.querySelector(".badge");b.className="badge approved";b.textContent="approved · saved";}
@@ -391,11 +408,52 @@ fl.onchange=render;fd.onchange=render;render();
 </script>`;
 }
 
+// ---- Local-only hardening -------------------------------------------------
+// This server MUTATES REPO FILES (reviewed translations + approval manifests
+// that the build then serves verbatim), so it must be unreachable from anything
+// but this machine's own browser session. Three independent guards, because no
+// single one is sufficient:
+//
+//  1. Bind to 127.0.0.1. `listen(port)` with no host binds `::`/0.0.0.0, i.e.
+//     every interface — on shared wifi any peer could POST /save.
+//  2. Require a per-run token in a CUSTOM header. Loopback alone does NOT stop
+//     browser CSRF (a malicious tab can reach http://127.0.0.1:4477), and a
+//     `<form enctype="text/plain">` can forge a body that JSON.parse accepts
+//     with no preflight. A custom header forces a CORS preflight that a form can
+//     never satisfy, and also defeats DNS rebinding.
+//  3. Reject anything that is not application/json, and refuse a cross-origin
+//     Origin outright.
+const REVIEW_TOKEN = randomUUID();
+
+function forbidden(req) {
+  if (req.headers["x-review-token"] !== REVIEW_TOKEN) return "bad or missing token";
+  const ct = String(req.headers["content-type"] ?? "").split(";")[0].trim();
+  if (ct !== "application/json") return `unexpected content-type: ${ct || "(none)"}`;
+  const origin = req.headers.origin;
+  if (origin && origin !== `http://127.0.0.1:${port}` && origin !== `http://localhost:${port}`) {
+    return `cross-origin request refused: ${origin}`;
+  }
+  return null;
+}
+
 const server = createServer((req, res) => {
   if (req.method === "POST" && req.url === "/save") {
+    const why = forbidden(req);
+    if (why) {
+      console.warn(`  ✗ refused /save from ${req.socket.remoteAddress}: ${why}`);
+      res.writeHead(403, { "content-type": "application/json" });
+      res.end(JSON.stringify({ ok: false, error: "forbidden" }));
+      return;
+    }
     let raw = "";
-    req.on("data", (c) => (raw += c));
+    let tooBig = false;
+    req.on("data", (c) => {
+      if (tooBig) return;
+      raw += c;
+      if (raw.length > 4_000_000) { tooBig = true; req.destroy(); }
+    });
     req.on("end", () => {
+      if (tooBig) return;
       try {
         const saved = save(JSON.parse(raw));
         console.log(`  ✓ saved ${saved}`);
@@ -411,9 +469,9 @@ const server = createServer((req, res) => {
   res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
   res.end(page());
 });
-server.listen(port, () => {
+server.listen(port, "127.0.0.1", () => {
   const need = items.filter((i) => i.status !== "approved").length;
   const byDom = [...new Set(items.map((i) => i.domain))].map((d) => `${items.filter((i) => i.domain === d).length} ${d}`).join(", ");
   console.log(`\n  Copy review — ${items.length} item(s) [${byDom}] across ${locales.map((l) => LOCALE_NAME[l]).join(", ")} (${need} needing review)`);
-  console.log(`  ▶ open http://localhost:${port}  — edit, Save & approve, then Ctrl+C and:  git add content/ src/i18n/catalogs/ && git commit -S`);
+  console.log(`  ▶ open http://127.0.0.1:${port}  — edit, Save & approve, then Ctrl+C and:  git add content/ src/i18n/catalogs/ && git commit -S`);
 });

@@ -135,7 +135,9 @@ op run --env-file="$HOME/.env" --no-masking -- node scripts/review-translations.
 #   --locale es        one language;  --port <n>  overrides 4477
 ```
 
-This starts a local web app (default `http://localhost:4477`). It is the unified
+This starts a local web app (default `http://127.0.0.1:4477` — it binds loopback
+only, and the Save button carries a per-run token, so nothing else on the network
+can write to your repo). It is the unified
 copy-review tool: a default run loads **marketing pages, blog posts, and the
 Lingui UI strings**, English side-by-side with the translation, every string
 editable. Click **Save & approve** — blog reviews land in

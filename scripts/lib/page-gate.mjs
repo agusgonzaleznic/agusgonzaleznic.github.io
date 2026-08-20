@@ -16,7 +16,7 @@
 
 import { createHash } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { collectTranslatableStrings } from "./page-translate.mjs";
 
 /** `pages/about` (or `about`) → "about". Falls back to uuid if slugless. */
@@ -46,9 +46,30 @@ export function loadPageApprovals(path) {
   }
 }
 
-/** Path to a reviewed page's per-locale store. */
+/** Path to a reviewed page's per-locale store.
+ *
+ * Both `slug` and `locale` are interpolated into the filename, and `locale` can
+ * originate from a request body in the local review tool — so a traversal value
+ * would escape contentDir entirely. Callers validate, and this asserts, because
+ * this builder is shared by the build (fetch-pages) and the review server and
+ * only one of them had a guard. */
 export function reviewedPagePath(contentDir, slug, locale) {
-  return resolve(contentDir, `${slug}.${locale}.json`);
+  // NOTE for future editors: comparing resolve(...) against join(...) does NOT
+  // work as a containment check — join normalises `..` exactly like resolve, so
+  // both sides collapse to the same escaped path and the comparison always
+  // passes. Reject the dangerous characters in the INPUTS, then assert the file
+  // lands directly in the base directory.
+  for (const [name, v] of [["slug", slug], ["locale", locale]]) {
+    if (typeof v !== "string" || /[/\\]/.test(v) || v.split(".").includes("..") || v === "..") {
+      throw new Error(`refusing unsafe ${name}: ${JSON.stringify(v)}`);
+    }
+  }
+  const base = resolve(contentDir);
+  const p = resolve(base, `${slug}.${locale}.json`);
+  if (dirname(p) !== base) {
+    throw new Error(`refusing path outside ${base}: ${p}`);
+  }
+  return p;
 }
 
 /** Load a reviewed page tree, or null if absent. */
