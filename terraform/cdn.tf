@@ -197,11 +197,25 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
       # Manager / Analytics entries are consent-gated activation-ready: GA only
       # loads after opt-in via the consent banner, but the CSP must already
       # allow it.
+      # script.google.com / script.googleusercontent.com were removed 2026-08-20:
+      # they were allow-listed for the Google Apps Script contact relay, which was
+      # decommissioned (the form now POSTs same-origin to /api/* -> Lambda -> SES).
+      # Nothing in the codebase references those hosts any more.
+      #
+      # DO NOT drop 'unsafe-inline' from script-src on its own. It is load-bearing:
+      # prerender.mjs rewrites the stylesheet link to the async
+      # `rel=preload ... onload="this.rel='stylesheet'"` pattern, and CSP script-src
+      # governs inline EVENT HANDLERS as well as <script> elements. Removing it
+      # refuses that handler, so the preloaded stylesheet is never promoted and
+      # every JS-enabled visitor gets only the inlined above-the-fold CSS on all 85
+      # pages. (A hash does not help; inline handlers need 'unsafe-hashes'.) To
+      # tighten it, first change the CSS delivery strategy in prerender.mjs.
+      #
       # challenges.cloudflare.com in script-src + frame-src: Turnstile loads
       # api.js and renders its challenge in an iframe. connect-src stays 'self'
       # — the contact POST goes to same-origin /api/contact (siteverify is a
       # server-side call from the Lambda, not the browser).
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com https://app.storyblok.com https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https: blob:; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.storyblok.com https://api-us.storyblok.com https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com; frame-src https://calendar.google.com https://calendar.app.google https://app.storyblok.com https://challenges.cloudflare.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests;"
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://app.storyblok.com https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https: blob:; connect-src 'self' https://api.storyblok.com https://api-us.storyblok.com https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com; frame-src https://calendar.google.com https://calendar.app.google https://app.storyblok.com https://challenges.cloudflare.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests;"
       override                = true
     }
 
