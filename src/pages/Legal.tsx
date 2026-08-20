@@ -63,7 +63,7 @@ const A = ({ href, children }: { href: string; children: React.ReactNode }) => (
     href={href}
     target={href.startsWith("http") ? "_blank" : undefined}
     rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-    className="text-accent hover:underline break-words"
+    className="text-accent underline underline-offset-2 hover:no-underline break-words"
   >
     {children}
   </a>

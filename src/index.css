@@ -54,9 +54,15 @@ All colors MUST be HSL
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders and inputs */
+    /* Borders and inputs.
+       --input is DARKER than --border on purpose (2026-08-20). WCAG 1.4.11
+       wants a 3:1 boundary for user-interface components, and the form controls
+       are the only consumers of border-input (Input, Textarea, Select, the
+       outline Button, InputOTP) — at 88% the field edge was 1.33:1 against the
+       page, effectively invisible. 59% = 3.09:1. --border stays light because it
+       is decorative (card edges, separators), which 1.4.11 does not govern. */
     --border: 220 10% 88%;
-    --input: 220 10% 88%;
+    --input: 220 10% 59%;
     --ring: 10 85% 47%; /* matches --accent */
 
     /* Border radius */
