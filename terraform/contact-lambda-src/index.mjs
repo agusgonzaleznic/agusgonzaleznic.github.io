@@ -261,6 +261,14 @@ function validate(payload) {
   return { value: { name, email, role, message, token, honeypot } };
 }
 
+// NOTE ON THE LOG CONTRACT: the four DynamoDB catch sites log
+// `status: "ddb_error"` and add the SDK exception class as a SEPARATE `err`
+// field. Do NOT collapse them into `status: err?.name` — the CloudWatch metric
+// filter behind the fail-closed alarm matches {$.status="ddb_error"}, so
+// overwriting status would silently stop the alarm firing for every real
+// DynamoDB fault (throttle, deleted table, IAM denial). err.name is an
+// exception class name, so the no-PII-in-logs invariant still holds.
+
 // ---- DynamoDB-backed controls ----------------------------------------------
 // Atomic counter in a TIME-BUCKETED fixed window: the window index is part of
 // the partition key, so each window is a distinct item that starts at cnt=1.
@@ -485,7 +493,7 @@ export const handler = async (event) => {
       );
     }
   } catch (err) {
-    log({ reqId, trueIp, control: "pre_rate", status: "ddb_error" });
+    log({ reqId, trueIp, control: "pre_rate", status: "ddb_error", err: err?.name });
     return respond(502, { ok: false, error: "delivery" }, origin);
   }
 
@@ -525,7 +533,7 @@ export const handler = async (event) => {
   try {
     firstUse = await putIfAbsent(cfg.DDB_TABLE, tokPk, TOKEN_TTL_S);
   } catch (err) {
-    log({ reqId, trueIp, control: "token_replay", status: "ddb_error" });
+    log({ reqId, trueIp, control: "token_replay", status: "ddb_error", err: err?.name });
     return respond(502, { ok: false, error: "delivery" }, origin);
   }
   if (!firstUse) {
@@ -553,7 +561,7 @@ export const handler = async (event) => {
       );
     }
   } catch (err) {
-    log({ reqId, trueIp, control: "email_rate", status: "ddb_error" });
+    log({ reqId, trueIp, control: "email_rate", status: "ddb_error", err: err?.name });
     return respond(502, { ok: false, error: "delivery" }, origin);
   }
 
@@ -564,7 +572,7 @@ export const handler = async (event) => {
   try {
     dupFirst = await putIfAbsent(cfg.DDB_TABLE, dupPk, DUP_TTL_S);
   } catch (err) {
-    log({ reqId, trueIp, control: "duplicate", status: "ddb_error" });
+    log({ reqId, trueIp, control: "duplicate", status: "ddb_error", err: err?.name });
     return respond(502, { ok: false, error: "delivery" }, origin);
   }
   if (!dupFirst) {

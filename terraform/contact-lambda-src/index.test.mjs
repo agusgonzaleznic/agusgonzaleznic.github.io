@@ -607,3 +607,53 @@ test("a genuine duplicate is still suppressed once delivery succeeded", async ()
   assert.equal(again.statusCode, 200, "duplicate is a silent success");
   assert.equal(ses.calls.length, 1, "but must NOT email twice");
 });
+
+// --- The alarm's log contract (fail-closed observability) --------------------
+// The CloudWatch metric filter behind the fail-closed alarm matches
+// {$.status="ddb_error"}. These tests pin that contract so a future refactor
+// that folds the diagnostic into `status` cannot silently disable the alarm.
+
+function captureLogs(fn) {
+  const lines = [];
+  const orig = console.log;
+  console.log = (...a) => lines.push(a.join(" "));
+  return Promise.resolve()
+    .then(fn)
+    .finally(() => {
+      console.log = orig;
+    })
+    .then((res) => ({ res, lines }));
+}
+
+test("a DynamoDB fault logs status=ddb_error AND the exception class in a separate err field", async () => {
+  const ddb = makeDdb();
+  const boom = new Error("throttled");
+  boom.name = "ProvisionedThroughputExceededException";
+  const failing = { ...ddb, send: async () => { throw boom; } };
+  install({ ddb: failing });
+
+  const { res, lines } = await captureLogs(() => handler(event()));
+
+  // Fail CLOSED: a rate-limit backend that cannot be consulted must not admit.
+  assert.equal(res.statusCode, 502);
+
+  const entry = lines
+    .map((l) => { try { return JSON.parse(l); } catch { return null; } })
+    .find((o) => o && o.status === "ddb_error");
+  assert.ok(entry, `expected a status="ddb_error" log line, got: ${lines.join(" | ")}`);
+  assert.equal(
+    entry.status,
+    "ddb_error",
+    "status must stay the literal alarm key — the metric filter matches {$.status=\"ddb_error\"}",
+  );
+  assert.equal(
+    entry.err,
+    "ProvisionedThroughputExceededException",
+    "the SDK exception class must be carried in `err`, so throttling is distinguishable from an outage",
+  );
+  // no-PII invariant: the log must never carry submission content.
+  const blob = JSON.stringify(entry);
+  for (const secret of ["Ada Lovelace", "ada@example.com", "genuine message"]) {
+    assert.ok(!blob.includes(secret), `log leaked ${secret}: ${blob}`);
+  }
+});

@@ -76,7 +76,24 @@ export const handler = async (event) => {
   const method = event?.requestContext?.http?.method ?? "";
   const provided = event?.queryStringParameters?.token;
   const expected = await getParam(SSM_URL_TOKEN_PARAM);
-  if (!tokenMatches(provided, expected)) return respond(401, {});
+  if (!tokenMatches(provided, expected)) {
+    // Log it so a token desync is DIAGNOSABLE. Before this, a mismatch between
+    // the SSM url-token and the token embedded in Storyblok's webhook URL
+    // returned a bare 401 with zero output, so all content publishing could
+    // stop indefinitely with no signal anywhere.
+    // Deliberately NOT alarmed on a single datapoint: this Function URL is
+    // public and unauthenticated, so internet scanners produce these routinely.
+    // Alarm on a sustained rate, or on "auth failures AND zero dispatches".
+    console.log(
+      JSON.stringify({
+        control: "auth",
+        status: "token_mismatch",
+        tokenPresent: Boolean(provided),
+        method,
+      }),
+    );
+    return respond(401, {});
+  }
 
   if (method === "GET") return respond(200, { ok: true });
   if (method !== "POST") return respond(405, {});

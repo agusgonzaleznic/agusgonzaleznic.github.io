@@ -575,3 +575,97 @@ resource "aws_iam_role_policy_attachment" "deploy" {
   role       = aws_iam_role.github_terraform_deploy.name
   policy_arn = each.value.arn
 }
+
+################################################################################
+# Observability grants for the deploy role.
+#
+# WHY INLINE, NOT A TENTH MANAGED POLICY: an IAM role allows 10 attached managed
+# policies by default and local.deploy_role_policies already defines NINE. A
+# tenth would sit exactly on the quota, so the next service adopted would be
+# blocked behind a Service Quotas request. Inline policies count against a
+# separate limit (aggregate size, not count), so putting these here preserves
+# the last managed slot as headroom. Same tier, same reviewer, same gate — only
+# the attachment mechanism differs.
+################################################################################
+data "aws_iam_policy_document" "deploy_observability" {
+  # Metric filters live ON the Lambda log groups, so they reuse the same
+  # resource scope as ManageFunctionLogGroups.
+  statement {
+    sid    = "ManageLogMetricFilters"
+    effect = "Allow"
+    actions = [
+      "logs:PutMetricFilter",
+      "logs:DeleteMetricFilter",
+      "logs:DescribeMetricFilters",
+    ]
+    resources = local.lambda_log_group_arns
+  }
+
+  # CloudWatch alarms are named, so they CAN be scoped by ARN.
+  statement {
+    sid    = "ManageSiteAlarms"
+    effect = "Allow"
+    actions = [
+      "cloudwatch:PutMetricAlarm",
+      "cloudwatch:DeleteAlarms",
+      "cloudwatch:TagResource",
+      "cloudwatch:UntagResource",
+      "cloudwatch:ListTagsForResource",
+    ]
+    resources = ["arn:aws:cloudwatch:us-east-1:${local.account_id}:alarm:agusgonzaleznic-*"]
+  }
+
+  # DescribeAlarms cannot be resource-scoped (it is a list operation).
+  statement {
+    sid       = "ReadAlarms"
+    effect    = "Allow"
+    actions   = ["cloudwatch:DescribeAlarms"]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "ManageAlertTopic"
+    effect = "Allow"
+    actions = [
+      "sns:CreateTopic",
+      "sns:DeleteTopic",
+      "sns:GetTopicAttributes",
+      "sns:SetTopicAttributes",
+      "sns:Subscribe",
+      "sns:Unsubscribe",
+      "sns:ListSubscriptionsByTopic",
+      "sns:ListTagsForResource",
+      "sns:TagResource",
+      "sns:UntagResource",
+    ]
+    resources = ["arn:aws:sns:us-east-1:${local.account_id}:agusgonzaleznic-*"]
+  }
+
+  # sns:GetSubscriptionAttributes takes the SUBSCRIPTION arn, whose suffix is a
+  # server-generated uuid — not prefixable, hence Resource "*" on a read-only
+  # action. Terraform reads it on every refresh of the subscription.
+  statement {
+    sid       = "ReadSubscriptions"
+    effect    = "Allow"
+    actions   = ["sns:GetSubscriptionAttributes"]
+    resources = ["*"]
+  }
+
+  # Budgets are global (no region in the ARN) and the API is not
+  # resource-scopable for Describe.
+  statement {
+    sid    = "ManageCostBudget"
+    effect = "Allow"
+    actions = [
+      "budgets:ViewBudget",
+      "budgets:ModifyBudget",
+    ]
+    resources = ["arn:aws:budgets::${local.account_id}:budget/*"]
+  }
+}
+
+resource "aws_iam_role_policy" "deploy_observability" {
+  name   = "Observability"
+  role   = aws_iam_role.github_terraform_deploy.id
+  policy = data.aws_iam_policy_document.deploy_observability.json
+}
