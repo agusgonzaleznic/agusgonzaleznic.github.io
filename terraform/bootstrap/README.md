@@ -37,8 +37,20 @@ the top of `role-bootstrap-ci.tf`. Read that before reviving the idea.
 
 | Role | Trusted subject | Permissions | Used by |
 |---|---|---|---|
-| `github-terraform-bootstrap-plan` | `pull_request`, `ref:refs/heads/main` | `IAMReadOnlyAccess` + state read | `bootstrap-plan`, `bootstrap-detect` |
-| `github-terraform-bootstrap` | `environment:terraform-bootstrap` **only** | `IAMFullAccess` + state read/write, capped by `agusgonzaleznic-bootstrap-ceiling` | `bootstrap-apply` |
+| `github-terraform-bootstrap-plan` | `pull_request`, `ref:refs/heads/main` | `IAMReadOnlyAccess` + `s3:Get*`/`List*` on the state bucket, objects `bootstrap/*` only | `bootstrap-plan`, `bootstrap-detect` |
+| `github-terraform-bootstrap` | `environment:terraform-bootstrap` **only** | `IAMFullAccess` + `s3:*` on the state bucket (config mgmt; `DeleteBucket` denied by the ceiling), objects `bootstrap/*` only — all capped by `agusgonzaleznic-bootstrap-ceiling` | `bootstrap-apply` |
+
+The S3 statements are deliberately wildcards, not enumerated verbs: the
+`aws_s3_bucket` resource family reads a provider-version-dependent set of
+sub-configurations on every refresh, and an enumerated list silently breaks when
+that set grows (it did, in this module's first CI run). The write role owns the
+bucket's configuration; the plan role's verbs are read-only by construction. The
+same reasoning shapes the ceiling: **Allow-\* plus targeted Denies, never an
+enumerated allow-list** — an enumerated ceiling on the one role CI depends on is
+a single point of failure repairable only via break-glass. Do not "tighten" it
+into an allow-list; that is the exact failure mode the shape exists to prevent.
+Besides the Denies listed below, the ceiling also denies re-versioning or
+deleting its own policy document (`DenyRewritingOwnCeiling`).
 
 Split on purpose: a PR plan runs code from a branch and must never hold `iam:`
 write. The write role is unassumable from any PR job, from `deploy.yml`, or from
@@ -61,7 +73,14 @@ Edit this module in the same PR as the site change that needs it. Then:
 1. PR → `bootstrap-plan` posts the plan to the job summary.
 2. Merge → `bootstrap-detect` re-plans read-only and publishes it, so you see
    the diff **before** the approval prompt appears.
-3. Approve `terraform-bootstrap` → `bootstrap-apply` applies it.
+3. Approve `terraform-bootstrap` → `bootstrap-apply` re-plans under the write
+   role (`-out=tfplan`) and applies **that** plan — the detect job's plan is not
+   reusable (different role, and an unlocked plan is not a safe apply input).
+   Drift between detect and apply is therefore applied without re-approval;
+   the apply-time plan is published to the job summary for after-the-fact review.
+   The job ends with a deliberate `sleep 20` — IAM is eventually consistent and
+   the site plan immediately uses whatever was just granted; the sleep is
+   load-bearing, not cruft.
 4. Approve `terraform-production` → the site applies, now with the permissions
    it needs.
 
@@ -69,7 +88,10 @@ Edit this module in the same PR as the site change that needs it. Then:
 routine site-only merges still need exactly one approval. Detection is by
 `terraform plan -detailed-exitcode`, not by changed paths — a path filter is
 wrong in both directions (it prompts on no-op merges and misses drift or a
-module version bump).
+module version bump). One honest caveat: the *workflow itself* still triggers on
+`terraform/**` paths (plus `workflow_dispatch`), so drift is only caught when a
+run happens at all. A failed apply is recovered with `workflow_dispatch` from
+`main`, which re-executes the full detect → gated apply → site apply chain.
 
 ## Enabling this (one-time, and the only human applies that remain)
 
@@ -81,7 +103,7 @@ write-capable role.
 ```sh
 # 1. GitHub environment WITH a required reviewer, first.
 gh api -X PUT repos/agusgonzaleznic/agusgonzaleznic.github.io/environments/terraform-bootstrap \
-  -f 'reviewers[][type=User]' -F "reviewers[][id]=$(gh api user --jq .id)"
+  -f 'reviewers[][type]=User' -F "reviewers[][id]=$(gh api user --jq .id)"
 
 # 2. Create the roles + ceiling.
 cd terraform/bootstrap
@@ -121,6 +143,18 @@ Use `AWS_PROFILE=root-admin` locally only when:
 | `bootstrap_plan_role_arn` | repo variable `AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN` |
 | `oidc_provider_arn` | reference only |
 | `state_bucket_name` | already hardcoded in both modules' backend config |
+
+## The third role: `github-cdn-invalidation`
+
+Not part of the plan/apply tiers, but owned by this module
+(`role-cdn-invalidation.tf`): a dedicated role for post-deploy CloudFront
+invalidation, holding exactly two actions (`CreateInvalidation`,
+`GetInvalidation`). Its trust is deliberately **broader** than the deploy
+role's — it accepts `main`-ref subjects from this repo AND from
+`agusgonzaleznic/drive-berlin` (proxied at `/drive-berlin/` through the same
+distribution, so it must invalidate the shared cache). That broader trust is
+exactly why it is a separate role: blast radius if abused is cache
+invalidation, nothing else.
 
 ## Notes
 

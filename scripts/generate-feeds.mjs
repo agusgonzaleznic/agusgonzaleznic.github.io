@@ -10,10 +10,10 @@
 // <url> carries a COMPLETE set of <xhtml:link rel="alternate"> hreflang entries
 // (one per published locale + x-default → English). English llms.txt stays at
 // the root (dist/llms.txt); a prefixed locale writes dist/{locale}/llms.txt from
-// its own translated brief (public/{locale}/llms.txt). Today PUBLISHED_LOCALES =
-// ["en"], so only English URLs/files are emitted and the only sitemap delta is a
-// self hreflang="en" + x-default (both harmless, same URL). The blog RSS stays
-// English-only (a single feed).
+// its own translated brief (public/{locale}/llms.txt) — falling back to the
+// English brief when none exists, so /{locale}/llms.txt is always valid
+// Markdown. All six locales are published. The blog RSS stays English-only (a
+// single feed).
 //
 // Generated files >1kb get .gz/.br siblings, matching the prerender convention.
 
