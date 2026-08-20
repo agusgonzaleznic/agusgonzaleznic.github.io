@@ -3,7 +3,13 @@
 //   node --test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { handler, __setTestDeps, __resetTestDeps } from "./index.mjs";
+import {
+  handler,
+  __setTestDeps,
+  __resetTestDeps,
+  __windowKey,
+  __limits,
+} from "./index.mjs";
 
 process.env.TURNSTILE_SECRET_PARAM = "/p/turnstile-secret";
 process.env.MAIL_FROM = "noreply@agusgonzaleznic.com";
@@ -23,6 +29,13 @@ function tsAgo(seconds) {
 
 // In-memory DynamoDB stub. put respects attribute_not_exists(pk); update is an
 // atomic counter. Tests can pre-seed `counts` / `puts` to force conditions.
+// Rate-limit buckets are keyed by window (see bumpCounter). Derive the key via
+// the handler's own exported helper so these tests cannot drift from the
+// implementation the way a hand-copied `IP#<ip>` literal did.
+function ipKey(ip) {
+  return __windowKey(`IP#${ip}`, __limits.IP_WINDOW_S).key;
+}
+
 function makeDdb() {
   const puts = new Set();
   const counts = new Map();
@@ -38,6 +51,10 @@ function makeDdb() {
         throw e;
       }
       puts.add(pk);
+      return {};
+    }
+    if (op === "DeleteItem") {
+      puts.delete(params.Key.pk.S);
       return {};
     }
     if (op === "UpdateItem") {
@@ -374,7 +391,7 @@ test("reused token (TOK# already present) -> 403", async () => {
 // --- Control 8: per-IP rate limit --------------------------------------------
 test("per-IP over limit -> 429", async () => {
   const { ddb } = install();
-  ddb.counts.set("IP#203.0.113.5", 5); // next bump -> 6 > 5
+  ddb.counts.set(ipKey("203.0.113.5"), 5); // next bump -> 6 > 5
   const res = await handler(event());
   assert.equal(res.statusCode, 429);
   const b = parse(res);
@@ -390,7 +407,7 @@ test("per-IP over limit -> 429", async () => {
 
 test("IPv6 callers in the same /64 share one per-IP bucket", async () => {
   const { ddb } = install();
-  ddb.counts.set("IP#2001:db8:1:2::/64", 5); // next bump -> 6 > 5
+  ddb.counts.set(ipKey("2001:db8:1:2::/64"), 5); // next bump -> 6 > 5
   // A different interface id inside the same /64 must map to the same bucket.
   const res = await handler(event({ ip: "2001:db8:1:2:aaaa:bbbb:cccc:dddd:443" }));
   assert.equal(res.statusCode, 429);
@@ -407,7 +424,7 @@ test("IPv6 callers in the same /64 share one per-IP bucket", async () => {
 
 test("per-IP rate limit is enforced BEFORE the siteverify network call", async () => {
   const { ddb, fetch } = install();
-  ddb.counts.set("IP#203.0.113.5", 5); // next bump -> 6 > 5
+  ddb.counts.set(ipKey("203.0.113.5"), 5); // next bump -> 6 > 5
   const res = await handler(event());
   assert.equal(res.statusCode, 429);
   // No outbound siteverify happened — the flood is bounded before that spend.
@@ -417,7 +434,10 @@ test("per-IP rate limit is enforced BEFORE the siteverify network call", async (
 // --- Control 9: per-email rate limit -----------------------------------------
 test("per-email over limit -> 429", async () => {
   const { ddb } = install();
-  ddb.counts.set("EMAIL#ada@example.com", 3); // next bump -> 4 > 3
+  ddb.counts.set(
+    __windowKey("EMAIL#ada@example.com", __limits.EMAIL_WINDOW_S).key,
+    3,
+  ); // next bump -> 4 > 3
   const res = await handler(event());
   assert.equal(res.statusCode, 429);
 });
@@ -480,4 +500,110 @@ test("true IP is parsed from CloudFront-Viewer-Address (port stripped)", async (
   await handler(event({ ip: "198.51.100.10:52345" }));
   const sv = fetch.calls.find((c) => String(c.url).includes("siteverify"));
   assert.match(sv.opts.body, /remoteip=198\.51\.100\.10(?!%3A)/);
+});
+
+// --- Regressions: rate-limit windows + dup-claim rollback (fixed 2026-08-20) --
+
+test("rate-limit window ROLLS OVER: a tripped previous window does not 429 the next one", async () => {
+  const ddb = makeDdb();
+  install({ ddb });
+  // Reproduce the state a past burst left behind under the OLD bare-key scheme:
+  // an un-windowed bucket, way past its cap, whose expires_at is already in the
+  // past. The old code kept counting into that same item until DynamoDB's TTL
+  // reaper happened to run (AWS documents it as "typically within 48 hours"),
+  // so ~61 cheap unauthenticated requests 429'd the contact form worldwide for
+  // up to two days. Seeding the bare key makes this test fail against that code
+  // and pass against the windowed key.
+  ddb.counts.set("GLOBAL#siteverify", __limits.GLOBAL_MAX + 500);
+  ddb.expiries.set(
+    "GLOBAL#siteverify",
+    String(Math.floor(Date.now() / 1000) - 3600),
+  );
+  // Also seed the previous window's bucket: a real rollover must ignore it too.
+  const prev = __windowKey(
+    "GLOBAL#siteverify",
+    __limits.GLOBAL_WINDOW_S,
+    Math.floor(Date.now() / 1000) - __limits.GLOBAL_WINDOW_S,
+  );
+  ddb.counts.set(prev.key, __limits.GLOBAL_MAX + 500);
+
+  const res = await handler(event());
+  assert.equal(res.statusCode, 200, "current window must start clean");
+  assert.equal(parse(res).ok, true);
+});
+
+test("tripped window returns a real retryAfter (never the 1s retry-loop)", async () => {
+  const ddb = makeDdb();
+  install({ ddb });
+  const cur = __windowKey("GLOBAL#siteverify", __limits.GLOBAL_WINDOW_S);
+  ddb.counts.set(cur.key, __limits.GLOBAL_MAX); // next bump trips it
+
+  const res = await handler(event());
+  assert.equal(res.statusCode, 429);
+  const { retryAfter } = parse(res);
+  // Derived from the COMPUTED window end, so it is a genuine wait. The old code
+  // derived it from a stored expires_at that was already in the past, so
+  // Math.max(1, past - now) collapsed to 1 and clients hammered.
+  assert.ok(retryAfter > 1, `retryAfter should be a real wait, got ${retryAfter}`);
+  assert.ok(
+    retryAfter <= __limits.GLOBAL_WINDOW_S,
+    `retryAfter must be bounded by the window, got ${retryAfter}`,
+  );
+});
+
+test("counters are scoped per window key, so buckets cannot leak across windows", () => {
+  // Boundaries fall on multiples of the window, so [600,1200) is one bucket.
+  const a = __windowKey("IP#203.0.113.5", 600, 1000);
+  const b = __windowKey("IP#203.0.113.5", 600, 1199);
+  const c = __windowKey("IP#203.0.113.5", 600, 1200);
+  assert.equal(a.key, b.key, "same window -> same bucket");
+  assert.notEqual(b.key, c.key, "next window -> different bucket");
+  assert.equal(a.windowStart, 600);
+  assert.equal(a.windowEnd, 1200);
+  assert.equal(c.windowStart, 1200, "boundary instant starts the NEXT window");
+});
+
+test("SES failure RELEASES the duplicate claim, so the sender's retry is not swallowed", async () => {
+  const ddb = makeDdb();
+  const payload = body();
+
+  // Attempt 1: delivery fails -> honest 502.
+  install({ ddb, sendFails: true });
+  const first = await handler(event({ bodyObj: payload }));
+  assert.equal(first.statusCode, 502);
+  assert.equal(parse(first).error, "delivery");
+
+  const dupKeys = [...ddb.puts].filter((k) => k.startsWith("DUP#"));
+  assert.equal(
+    dupKeys.length,
+    0,
+    "the dup marker must be rolled back after a failed send",
+  );
+
+  // Attempt 2: same message, SES healthy. Must actually send — the old code
+  // hit control 10, answered `ok: true`, and delivered nothing for DUP_TTL_S.
+  const ses = makeSes();
+  __setTestDeps({ ddbSend: ddb.send, sesSend: ses.send, getParam: async () => "SECRET" });
+  const retry = await handler(
+    event({ bodyObj: { ...payload, turnstileToken: `tok-retry-${Math.random()}` } }),
+  );
+  assert.equal(retry.statusCode, 200, "retry after a delivery failure must go through");
+  assert.equal(parse(retry).ok, true);
+  assert.equal(ses.calls.length, 1, "the retry must actually email the owner");
+});
+
+test("a genuine duplicate is still suppressed once delivery succeeded", async () => {
+  const ddb = makeDdb();
+  const payload = body();
+  const { ses } = install({ ddb });
+
+  const first = await handler(event({ bodyObj: payload }));
+  assert.equal(first.statusCode, 200);
+  assert.equal(ses.calls.length, 1);
+
+  const again = await handler(
+    event({ bodyObj: { ...payload, turnstileToken: `tok-dup-${Math.random()}` } }),
+  );
+  assert.equal(again.statusCode, 200, "duplicate is a silent success");
+  assert.equal(ses.calls.length, 1, "but must NOT email twice");
 });

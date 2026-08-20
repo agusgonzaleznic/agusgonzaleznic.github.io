@@ -28,6 +28,7 @@ jobs:
       contents: read
     outputs:
       site: ${{ steps.filter.outputs.site }}
+      lambda: ${{ steps.filter.outputs.lambda }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -45,21 +46,35 @@ jobs:
           # paths-ignore. On workflow_dispatch there is no PR diff → build.
           if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
             echo "site=true" >> "$GITHUB_OUTPUT"
-            echo "No PR diff (dispatch) → building."
+            echo "lambda=true" >> "$GITHUB_OUTPUT"
+            echo "No PR diff (dispatch) → building and testing."
             exit 0
           fi
           changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
           echo "Changed files:"; echo "$changed"
           site=false
+          lambda=false
           while IFS= read -r f; do
             [ -z "$f" ] && continue
+            # The contact Lambda is NOT part of the site bundle, so it must not
+            # set site=true — but it has its own unit suite, which used to run
+            # nowhere: `terraform/*` is denylisted here, so a Lambda-only PR got
+            # zero CI verification. Route it to the lambda-tests job instead.
+            case "$f" in
+              terraform/contact-lambda-src/*) lambda=true ;;
+            esac
             case "$f" in
               terraform/*|*.md|.env.example|.gitignore|LICENSE|.github/workflows/terraform.yml) : ;;
               *) site=true ;;
             esac
           done <<< "$changed"
+          # This workflow's own definition gates both jobs.
+          case "$changed" in
+            *.github/workflows/ci.yml*) site=true; lambda=true ;;
+          esac
           echo "site=$site" >> "$GITHUB_OUTPUT"
-          echo "site-affecting change: $site"
+          echo "lambda=$lambda" >> "$GITHUB_OUTPUT"
+          echo "site-affecting change: $site | lambda change: $lambda"
 
   build:
     name: Build
@@ -76,12 +91,36 @@ jobs:
       artifact-path: 'dist'
       verify-build-output: true
 
+  # The contact Lambda's unit suite (31 -> 36 tests). It has NO dependencies —
+  # pure Node builtins, deps injected via __setTestDeps — so there is nothing to
+  # install and the job is a few seconds. Runs only when the Lambda changed;
+  # gated by ci-required either way.
+  lambda-tests:
+    name: Lambda tests
+    needs: changes
+    if: needs.changes.outputs.lambda == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '22' # match the Lambda runtime
+
+      - name: Contact Lambda unit tests
+        working-directory: terraform/contact-lambda-src
+        run: node --test
+
   # The required status check. Always runs (needs + if: always()), so branch
   # protection always gets a result. Green when the build passed OR was skipped
   # (site unaffected); red only when the build actually ran and failed.
   ci-required:
     name: CI required
-    needs: [changes, build]
+    needs: [changes, build, lambda-tests]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -90,11 +129,26 @@ jobs:
       - name: Gate
         env:
           SITE: ${{ needs.changes.outputs.site }}
+          CHANGES_RESULT: ${{ needs.changes.result }}
           BUILD_RESULT: ${{ needs.build.result }}
+          # Bracket notation is REQUIRED for a hyphenated job id: the dotted
+          # form `needs.lambda-tests.result` parses as a subtraction.
+          LAMBDA_RESULT: ${{ needs['lambda-tests'].result }}
         run: |
-          echo "site=${SITE} build=${BUILD_RESULT}"
+          echo "changes=${CHANGES_RESULT} site=${SITE} build=${BUILD_RESULT} lambda=${LAMBDA_RESULT}"
+          # The detection job itself must have succeeded. Without this, a
+          # checkout/network failure in `changes` made `build` "skipped" and this
+          # gate went GREEN having built and tested nothing.
+          if [ "$CHANGES_RESULT" != "success" ]; then
+            echo "::error::Change detection did not succeed (${CHANGES_RESULT}) — cannot certify this PR."
+            exit 1
+          fi
           if [ "$BUILD_RESULT" = "failure" ] || [ "$BUILD_RESULT" = "cancelled" ]; then
             echo "::error::Site build failed."
             exit 1
           fi
-          echo "OK (build ${BUILD_RESULT:-skipped})"
+          if [ "$LAMBDA_RESULT" = "failure" ] || [ "$LAMBDA_RESULT" = "cancelled" ]; then
+            echo "::error::Contact Lambda tests failed."
+            exit 1
+          fi
+          echo "OK (build ${BUILD_RESULT:-skipped}, lambda ${LAMBDA_RESULT:-skipped})"

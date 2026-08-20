@@ -35,6 +35,10 @@ const GLOBAL_MAX = 60; // >> any plausible legit volume for this form
 const EMAIL_WINDOW_S = 3600; // control 9
 const EMAIL_MAX = 3;
 const DUP_TTL_S = 86400; // control 10
+// Grace added to a rate-limit bucket's TTL so DynamoDB's reaper cannot delete
+// a window that is still live (clock skew + reaper jitter). Buckets are keyed
+// by window, so TTL is only garbage collection — see bumpCounter.
+const TTL_GRACE_S = 300;
 
 const SITEVERIFY_URL =
   "https://challenges.cloudflare.com/turnstile/v0/siteverify";
@@ -78,6 +82,18 @@ let _sesSend = null; // (params) => Promise<result>
 let _ddbClient = null;
 let _ssmClient = null;
 let _sesClient = null;
+
+// Limits/windows exported for tests so assertions cannot drift from behaviour.
+export const __limits = {
+  IP_WINDOW_S,
+  IP_MAX,
+  GLOBAL_WINDOW_S,
+  GLOBAL_MAX,
+  EMAIL_WINDOW_S,
+  EMAIL_MAX,
+  DUP_TTL_S,
+  TTL_GRACE_S,
+};
 
 export function __setTestDeps({ ddbSend, getParam, sesSend } = {}) {
   if (ddbSend !== undefined) _ddbSend = ddbSend;
@@ -246,25 +262,68 @@ function validate(payload) {
 }
 
 // ---- DynamoDB-backed controls ----------------------------------------------
-// Atomic counter within a fixed window: TTL is anchored at first hit via
-// if_not_exists, so the whole bucket expires window seconds later.
+// Atomic counter in a TIME-BUCKETED fixed window: the window index is part of
+// the partition key, so each window is a distinct item that starts at cnt=1.
+//
+// WHY THE KEY CARRIES THE WINDOW (this was a real outage bug, fixed 2026-08-20):
+// the previous version used a bare pk and relied on DynamoDB TTL to end the
+// window. TTL deletion is BEST-EFFORT — AWS documents it as "typically within
+// 48 hours" of expiry, not at the expiry instant — and nothing here ever
+// compared now against expires_at. So once a bucket tripped its limit, `cnt`
+// stayed above the limit until the reaper happened to run. For the shared
+// GLOBAL#siteverify bucket that meant 61 cheap unauthenticated requests
+// (control 8 runs BEFORE siteverify, so no valid token is needed) could 429 the
+// contact form for EVERY visitor for up to ~48 hours — and because retryAfter
+// was derived from a past expires_at it collapsed to 1, so clients retry-looped.
+//
+// With the window in the key, a new window is simply a new item: counters can
+// never leak across windows and reaper lag is harmless because expires_at is
+// now pure garbage collection. TTL_GRACE_S keeps the reaper from removing a
+// bucket while its window is still live (clock skew + reaper jitter).
+// Floor to the window boundary so every caller in the same window shares one
+// item, and the next window is a different item entirely. Exported for tests so
+// the window math has exactly one definition (no hand-mirrored copy in the
+// suite that could drift from the handler).
+export function __windowKey(pk, windowS, atS = nowS()) {
+  const windowStart = Math.floor(atS / windowS) * windowS;
+  return { key: `${pk}#${windowStart}`, windowStart, windowEnd: windowStart + windowS };
+}
+
 async function bumpCounter(table, pk, windowS) {
+  const { key, windowEnd } = __windowKey(pk, windowS);
   const res = await ddb("UpdateItem", {
     TableName: table,
-    Key: { pk: { S: pk } },
+    Key: { pk: { S: key } },
     UpdateExpression:
       "SET expires_at = if_not_exists(expires_at, :exp) ADD cnt :one",
     ExpressionAttributeValues: {
       ":one": { N: "1" },
-      ":exp": { N: String(nowS() + windowS) },
+      ":exp": { N: String(windowEnd + TTL_GRACE_S) },
     },
     ReturnValues: "UPDATED_NEW",
   });
-  // expires_at is in the SET clause, so it is echoed back on every call.
+  // expiresAt is the COMPUTED window end, never the stored attribute: it is
+  // always in the future, so retryAfter is a real wait rather than a 1s loop.
   return {
     count: Number(res?.Attributes?.cnt?.N ?? "0"),
-    expiresAt: Number(res?.Attributes?.expires_at?.N ?? "0"),
+    expiresAt: windowEnd,
   };
+}
+
+// Best-effort removal of a claim made by putIfAbsent. Used to roll back the
+// duplicate-suppression marker when delivery fails, so the sender's retry is
+// not silently swallowed. Never throws: a failed rollback must not turn a
+// delivery error into a 500.
+async function deleteItemQuiet(table, pk) {
+  try {
+    await ddb("DeleteItem", {
+      TableName: table,
+      Key: { pk: { S: pk } },
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 // Conditional insert; resolves true if newly written, false if it already
@@ -553,6 +612,17 @@ export const handler = async (event) => {
     // rejecting a recipient outside a verified domain. err.name distinguishes
     // them in CloudWatch without logging any submission content.
     log({ reqId, trueIp, control: "ses_send", status: err?.name ?? "error" });
+    // RELEASE THE DUPLICATE CLAIM. The dedupe marker was committed before the
+    // send (deliberately — it is what stops two concurrent identical
+    // submissions from both mailing). If we leave it behind after a delivery
+    // failure, the sender's retry hits control 10, gets `ok: true`, and the
+    // message is silently never delivered for the whole DUP_TTL_S window.
+    // Claim -> send -> release-on-failure keeps the race protection and keeps
+    // a retry honest.
+    const released = await deleteItemQuiet(cfg.DDB_TABLE, dupPk);
+    if (!released) {
+      log({ reqId, trueIp, control: "duplicate", status: "release_failed" });
+    }
     outcome("ses_send", 502);
     return respond(502, { ok: false, error: "delivery" }, origin);
   }
