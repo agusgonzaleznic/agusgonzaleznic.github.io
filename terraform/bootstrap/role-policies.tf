@@ -252,13 +252,18 @@ data "aws_iam_policy_document" "lambda" {
     actions = [
       "logs:CreateLogGroup",
       "logs:DeleteLogGroup",
-      "logs:DescribeLogGroups",
       "logs:PutRetentionPolicy",
       "logs:TagResource",
       "logs:UntagResource",
       "logs:ListTagsForResource",
     ]
     resources = local.lambda_log_group_arns
+    # logs:DescribeLogGroups is deliberately NOT here — see ReadLogGroups in the
+    # observability policy below. It was listed here for a long time and never
+    # worked, because it is a LIST operation: IAM evaluates it against
+    # `log-group::log-stream:` (an empty resource), so an ARN-scoped grant never
+    # matches. Nothing read a log group until the retention import block, which
+    # is why the dead grant went unnoticed.
   }
 
   # Read / delete / detach / tag: cannot grant privilege, so no condition.
@@ -596,9 +601,22 @@ data "aws_iam_policy_document" "deploy_observability" {
     actions = [
       "logs:PutMetricFilter",
       "logs:DeleteMetricFilter",
-      "logs:DescribeMetricFilters",
     ]
     resources = local.lambda_log_group_arns
+  }
+
+  # LIST operations that IAM cannot resource-scope: both are evaluated against an
+  # empty resource, so anything narrower than "*" silently denies. Same class as
+  # lambda:ListFunctions / route53:ListHostedZones / acm:ListCertificates
+  # elsewhere in this file. Read-only, so "*" costs nothing.
+  statement {
+    sid    = "ReadLogGroups"
+    effect = "Allow"
+    actions = [
+      "logs:DescribeLogGroups",
+      "logs:DescribeMetricFilters",
+    ]
+    resources = ["*"]
   }
 
   # CloudWatch alarms are named, so they CAN be scoped by ARN.
