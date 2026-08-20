@@ -1,8 +1,11 @@
 # Terraform — agusgonzaleznic.com
 
-Infrastructure for the site: Route53, ACM, CloudFront, S3 (AWS account
-`139809104139`, `us-east-1`) plus Storyblok resources (space
-`288632938663524`, EU / `mapi.storyblok.com`).
+Infrastructure for the site: Route53, ACM, CloudFront (distribution, function,
+OAC, origin-request + response-headers policies), S3, SESv2 (identity, DKIM,
+custom MAIL FROM), the contact + webhook Lambdas with their exec roles, DynamoDB
+(rate limits), SSM, and the Cloudflare Turnstile widget (AWS account
+`139809104139`, `us-east-1`) plus Storyblok resources — component schemas and
+the rebuild webhook (space `288632938663524`, EU / `mapi.storyblok.com`).
 
 ## Architecture
 
@@ -57,8 +60,10 @@ signed in.
    AWS_PROFILE=root-admin terraform apply
    ```
 
-   This creates the state bucket, the GitHub OIDC provider, and the CI IAM
-   role.
+   This creates the state bucket, the GitHub OIDC provider, and all four CI
+   IAM roles (`github-terraform-deploy`, `github-cdn-invalidation`,
+   `github-terraform-bootstrap`, `github-terraform-bootstrap-plan`) plus the
+   bootstrap ceiling, the Lambda exec boundary, and the deploy policies.
 
 2. **Migrate bootstrap's own state into the bucket it just created**:
 
@@ -79,6 +84,9 @@ signed in.
      --body "$(AWS_PROFILE=root-admin terraform output -raw deploy_role_arn)"
    gh variable set AWS_CDN_ROLE_ARN \
      --body "$(AWS_PROFILE=root-admin terraform output -raw cdn_invalidation_role_arn)"
+   # NOTE: github-cdn-invalidation is deliberately also assumable by
+   # agusgonzaleznic/drive-berlin:main (the proxied /drive-berlin/ app must
+   # invalidate the shared distribution). Blast radius: invalidations only.
    gh variable set CLOUDFRONT_DISTRIBUTION_ID --body "E33TSNW29S4RDQ"
    gh variable set STORYBLOK_SPACE_ID --body "288632938663524"
    ```
@@ -89,7 +97,7 @@ signed in.
 
    ```sh
    gh api -X PUT repos/agusgonzaleznic/agusgonzaleznic.github.io/environments/terraform-bootstrap \
-     -f 'reviewers[][type=User]' -F "reviewers[][id]=$(gh api user --jq .id)"
+     -f 'reviewers[][type]=User' -F "reviewers[][id]=$(gh api user --jq .id)"
 
    gh variable set AWS_TF_BOOTSTRAP_ROLE_ARN \
      --body "$(AWS_PROFILE=root-admin terraform output -raw bootstrap_role_arn)"
@@ -157,17 +165,23 @@ signed in.
    ```
 
 7. **Run the imports** (see execution order below), then verify.
-   `var.token` and `var.storyblok_webhook_url_token` have no defaults, so
-   plan must run under `op` (otherwise it drops into interactive prompts
-   and the Storyblok imports fail):
+   `var.token`, `var.storyblok_webhook_url_token`, `var.cloudflare_api_token`
+   and `var.cloudflare_account_id` have no defaults, so plan must run under
+   `op` (otherwise it drops into interactive prompts and the Storyblok imports
+   fail):
 
    ```sh
    op run --env-file ~/.env --no-masking -- bash -c \
      'AWS_PROFILE=root-admin \
       TF_VAR_token=$STORYBLOK_MANAGEMENT_TOKEN \
       TF_VAR_storyblok_webhook_url_token=$STORYBLOK_WEBHOOK_URL_TOKEN \
+      TF_VAR_cloudflare_api_token=$CLOUDFLARE_API_TOKEN \
+      TF_VAR_cloudflare_account_id=$CLOUDFLARE_ACCOUNT_ID \
       terraform plan'
    ```
+
+   Local Terraform must be `>= 1.14` (both modules require it; CI pins
+   `1.14.*`, and `use_lockfile` state locking needs a modern binary).
 
    Expected residual diff on the very first apply:
    - `module.acm.aws_acm_certificate_validation.this[0]` is **created**
@@ -192,9 +206,20 @@ The S3 state bucket is versioned + `prevent_destroy`, so state loss should not
 recur; this is the backstop of last resort.
 
 1. Route53 hosted zone `agusgonzaleznic.com` (`Z01244412JIHKLB4766PS`).
-2. The 12 managed Route53 records (apex A/AAAA/MX/TXT/CAA, `www` CNAME,
-   DMARC/DKIM/MTA-STS/TLS-RPT records). **Never** the manually-managed
-   subdomain records, NS/SOA, or the ACM validation CNAME (next step owns it).
+2. The 14 managed Route53 records (apex A/AAAA/MX/TXT/CAA, `www` CNAME,
+   DMARC/DKIM/MTA-STS/TLS-RPT, and the SES MAIL-FROM `mail` MX + TXT). **Never**
+   the manually-managed subdomain records, NS/SOA, the 3 SES DKIM CNAMEs
+   (standalone `aws_route53_record.ses_dkim` resources — import those under
+   their own addresses), or the ACM validation CNAME (next step owns it).
+
+   > **This list predates the contact/SES stack.** A full recovery today must
+   > also import: the SESv2 domain identity + MAIL-FROM attributes and the 3
+   > DKIM CNAMEs (`ses.tf`), the Turnstile widget, the TF-managed contact SSM
+   > SecureString, the DynamoDB table, both Lambdas + function URLs +
+   > permissions + exec roles, the OAC, the custom origin-request policy, and
+   > the `immutable_assets` response-headers policy (`contact.tf`, `cdn.tf`,
+   > `webhook.tf`). All have fixed names, so an un-imported apply collides with
+   > the live resources rather than silently duplicating them.
 3. ACM certificate (`arn:...:certificate/5252733a-e6e7-4161-bf9e-83b791bb885a`)
    plus its validation CNAME record; `aws_acm_certificate_validation` cannot
    be imported — first apply creates it.
@@ -213,17 +238,32 @@ recur; this is the backstop of last resort.
    known quirks — see step 7 of the runbook).
 
 The vestigial OAI `E3LG1Y2B7NO5P2` is not a resource in this config and is
-not attached to the distribution — do not import it.
+not attached to the distribution — do not import it. It IS, however, hardcoded
+as the principal of the TF-managed apex bucket policy (`s3.tf`), so deleting
+the OAI in AWS would still touch managed config.
 
 ## Day-2 workflow
 
 1. Branch, edit `terraform/**`, open a PR.
 2. CI (`terraform.yml`, plan job): fmt-check → init → validate → plan, and
-   posts/refreshes a **sticky plan comment** on the PR. No credentials with
-   write scope are involved; the OIDC subject is `...:pull_request`.
+   posts/refreshes a **sticky plan comment** on the PR. Note the site plan
+   assumes the SAME write-capable deploy role as the apply (its trust allows
+   the `...:pull_request` subject) — only the *bootstrap* tier has a genuinely
+   read-only plan role. **Every** terraform PR additionally runs
+   `Bootstrap plan (PR)` — the job is gated on the `AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN`
+   variable, not on paths, so it surfaces bootstrap drift on site-only PRs too.
+   Its output lands in the **job summary**, not the sticky comment (`-lock=false` by design: the plan role holds no
+   `s3:PutObject`, so it cannot take the state lock). If the plan-scrub step
+   redacts secret-shaped content, the job goes red *after* posting the
+   redacted comment — that means "investigate before merging", not "retry".
 3. Review the plan comment, merge.
 4. Push to `main` triggers the apply job, which waits on the
    `terraform-production` environment gate. Approve it in the Actions UI.
+   (If the *bootstrap* tier has changes — including pure drift, since
+   detection is by plan, not by paths — a `terraform-bootstrap` approval is
+   requested first.) Manual re-runs: `workflow_dispatch` only does anything
+   from `main`; on any other ref every job skips silently. `TF_CLI_ARGS*`
+   overrides are refused by a guard step in every job.
 5. The job re-plans (`-out=tfplan`), publishes the plan to the job summary,
    and applies **that exact plan file** in the same job.
 6. Manual re-run: `gh workflow run terraform.yml` (still gated by the
@@ -252,8 +292,10 @@ module has no changes, so routine merges still need exactly one approval.
 
 ## Contact form + Turnstile activation
 
-The contact backend (`contact.tf`, `ses.tf`, `cdn.tf`) needs these
-secrets/variables before the CI apply can run. The ONE SSM SecureString under
+**This activation is complete and live** (secrets, variables, grants and the
+apply all shipped 2026-07/08) — this section remains as the re-activation /
+disaster-recovery runbook. The contact backend (`contact.tf`, `ses.tf`,
+`cdn.tf`) needs these secrets/variables before the CI apply can run. The ONE SSM SecureString under
 `/agusgonzaleznic-site/contact/*` is **Terraform-managed** (value comes from the
 Cloudflare widget resource) — do NOT create it by hand, unlike the webhook
 params.
@@ -265,9 +307,13 @@ it had to be hand-copied into SSM, and two live deployments on different code
 versions silently diverged (one kept running the old sender while the other was
 being edited). Nothing in this path is hand-fed now.
 
-**DMARC is `p=reject`, so DKIM is load-bearing.** SES mail that is not
-DKIM-signed with `d=agusgonzaleznic.com` aligns on neither SPF (`amazonses.com`)
-nor DKIM and is REJECTED, not merely spam-filed. `ses.tf` therefore creates the
+**DMARC is `p=reject`, so DKIM is load-bearing.** Unsigned SES mail from the
+default `amazonses.com` envelope aligns on neither SPF nor DKIM and is
+REJECTED, not merely spam-filed. `ses.tf` therefore configures both mechanisms:
+Easy DKIM, and a custom MAIL FROM (`mail.agusgonzaleznic.com`, MX + SPF records
+in `dns.tf`) so SPF aligns too under DMARC's relaxed `aspf` — the apex SPF
+stays Google-only on purpose (an apex `include:amazonses.com` would authorize
+every SES customer). `ses.tf` creates the
 domain identity with Easy DKIM plus its three CNAMEs, and **the identity must
 report `Verified` BEFORE the Lambda starts sending** — see the two-stage apply
 below. The apex MX stays Google Workspace and is untouched.
@@ -300,7 +346,8 @@ production access.
    ```
 
    The former `CONTACT_APPS_SCRIPT_URL` / `CONTACT_APPS_SCRIPT_SHARED_SECRET`
-   secrets are unused and should be deleted.
+   secrets were deleted on 2026-08-20 (along with `VITE_GOOGLE_APPS_SCRIPT_URL`
+   and `TRANSLATE_PR_TOKEN`, both also dead).
 
 3. **Run the site apply** (`terraform.yml` / merge to main). It creates the
    widget, the Turnstile SSM param, the DynamoDB table, the Lambda + Function
@@ -342,3 +389,15 @@ the `/api/*` CloudFront behavior. The Lambda now throttles per-IP and with a
 global burst counter BEFORE the outbound Turnstile siteverify call, but a WAF
 rate rule at the edge is the strongest defense against a distributed flood
 saturating the account's low Lambda concurrency.
+
+### Rotation runbooks
+
+- **`CLOUDFLARE_API_TOKEN`** (deploy-time only): mint a new scoped token in
+  Cloudflare, `gh secret set CLOUDFLARE_API_TOKEN`, done — no apply needed.
+- **Turnstile secret** (runtime, TF-managed): taint/replace
+  `cloudflare_turnstile_widget.contact` so the SSM param re-derives from the new
+  widget, apply, then rebuild the client (`deploy.yml`) so the new
+  `TURNSTILE_SITE_KEY` ships in the bundle.
+- **Webhook url-token**: see the `/agusgonzaleznic-site/webhook/*` bullet under
+  "Deliberately not managed here" (Architecture section) — SSM param + repo
+  secret + re-apply (the Storyblok webhook endpoint embeds the token).

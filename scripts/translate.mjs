@@ -1,6 +1,6 @@
 // Build-time machine translation of the Lingui PO catalogs.
 //
-//   node scripts/translate.mjs            (npm run i18n:translate — see final note)
+//   node scripts/translate.mjs            (run manually under `op run`; deliberately NOT in CI and NOT an npm script)
 //
 // Reads the source catalog src/i18n/catalogs/en.po and, for every target locale
 // (de, es, fr, it, pt), writes src/i18n/catalogs/<locale>.po with each message

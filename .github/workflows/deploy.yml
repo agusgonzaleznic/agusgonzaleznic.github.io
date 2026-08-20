@@ -70,10 +70,9 @@ jobs:
       # Unset variable → empty value → the widget is absent and the contact
       # form renders a graceful "temporarily unavailable" state.
       #
-      # NOTE: VITE_GOOGLE_APPS_SCRIPT_URL has been removed. The client rework
-      # (same-origin POST to /api/contact) has landed, so the Apps Script URL
-      # now lives only server-side (SSM param, read by the contact Lambda) and
-      # must never ship in the public bundle.
+      # NOTE: the contact form POSTs same-origin to /api/contact (Lambda →
+      # SESv2). The former VITE_GOOGLE_APPS_SCRIPT_URL secret was deleted
+      # 2026-08-20; no contact-path value may ever ship in the public bundle.
       # DEEPL_API_KEY is a SECRET (a DeepL API Free auth key), build-time only and
       # deliberately NON-VITE so it can never be inlined into the public client
       # bundle. It drives the i18n machine-translation pipeline (scripts/translate.mjs

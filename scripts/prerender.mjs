@@ -9,10 +9,10 @@
 // English (the source locale) renders at the ROOT (dist/index.html, …); every
 // other published locale renders under a /{locale}/ subdirectory. Per locale we
 // inject an <html lang>, and a COMPLETE hreflang set (one alternate per
-// published locale's equivalent URL + x-default → the English URL). Today
-// PUBLISHED_LOCALES = ["en"], so only the root files are written (nothing under
-// /de, /es, …) and the only head delta vs. the pre-i18n site is a self
-// hreflang="en" + x-default — both harmless and pointing at the same URL.
+// published locale's equivalent URL + x-default → the English URL). All six
+// locales (en + de/es/fr/it/pt) are published, so every route is emitted at the
+// root AND under each /{locale}/ prefix, each with the full reciprocal
+// hreflang set.
 //
 // Pure Node (no headless browser), so it's fast and CI-friendly.
 

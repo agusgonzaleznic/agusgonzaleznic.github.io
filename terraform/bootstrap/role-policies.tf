@@ -31,7 +31,8 @@ locals {
   ]
 }
 
-# --- Terraform state (site/ prefix only; bootstrap/ state is human-only) ----
+# --- Terraform state (site/ prefix only; bootstrap/ state belongs to the ----
+# --- bootstrap roles in role-bootstrap-ci.tf, never to the deploy role)  ----
 
 data "aws_iam_policy_document" "state" {
   statement {
