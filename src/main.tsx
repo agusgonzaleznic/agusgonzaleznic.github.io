@@ -1,14 +1,16 @@
 import { createRoot, hydrateRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { initStoryblok } from "./lib/storyblok";
 import { localeFromPath } from "./i18n/locales";
 import { dynamicActivate } from "./i18n/i18n";
 
-// Initialize Storyblok SDK
-// This sets up the Storyblok client with configuration from environment variables
-// Must be called before rendering to enable CMS features
-initStoryblok();
+// NOTE: initStoryblok() is deliberately NOT called here. The Storyblok SDK and
+// its 15 registered block components are only needed by the /preview/* Visual
+// Editor route, which lazily imports StoryblokPage — and that module initialises
+// the SDK at its own module scope, before any of its hooks run. Initialising
+// eagerly here put @storyblok/react plus every block component into the entry
+// graph of all 85 prerendered pages for a code path the live site never takes
+// (the preview also requires VITE_STORYBLOK_ACCESS_TOKEN, which is dev-only).
 
 const rootEl = document.getElementById("root")!;
 

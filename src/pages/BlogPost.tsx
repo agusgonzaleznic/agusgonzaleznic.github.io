@@ -15,10 +15,10 @@ import {
   getPost,
   postDate,
   postUrl,
-  SITE_URL,
   storyblokImage,
   toIsoUtc,
 } from "@/lib/blog";
+import { SITE_URL } from "@/lib/site";
 import {
   isAutoTranslated,
   localeFromPath,

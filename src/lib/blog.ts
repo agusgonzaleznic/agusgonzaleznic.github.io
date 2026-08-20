@@ -7,7 +7,11 @@
 import blogData from "@/generated/blog-data.json";
 import { SOURCE_LOCALE } from "@/i18n/locales";
 
-export const SITE_URL = "https://agusgonzaleznic.com";
+// Re-exported for existing blog-side consumers; the canonical definition is
+// in ./site so non-blog modules can import it without pulling this file's
+// eager blog-data glob into their chunk.
+export { SITE_URL } from "./site";
+import { SITE_URL } from "./site";
 
 export interface RichtextMark {
   type: string;
