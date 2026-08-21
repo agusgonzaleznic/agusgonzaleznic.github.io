@@ -91,7 +91,14 @@ jobs:
     with:
       node-version: '22'
       install-command: 'npm ci'
-      lint-command: 'npm run lint'
+      # i18n:check belongs in the static-analysis slot, not the build chain: it
+      # only reads src/, so unlike typecheck it needs no generated data — and a
+      # stale catalog should fail before anything expensive runs. It catches the
+      # one failure mode a green build cannot: a <Trans> absent from the catalogs
+      # renders its raw message ID (`s3qJ3e`) in production while the build exits
+      # 0, because @lingui/swc-plugin strips the fallback text. Verified by
+      # planting an unextracted string and reading it back out of dist/404.html.
+      lint-command: 'npm run lint && npm run i18n:check'
       # `npm run typecheck` is NOT here. It cannot run before the build: two
       # modules import src/generated/*.json, which is gitignored build output
       # produced by fetch-blog/fetch-pages, so type-checking a fresh checkout

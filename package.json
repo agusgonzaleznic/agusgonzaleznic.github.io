@@ -15,8 +15,9 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "node scripts/typecheck.mjs",
+    "i18n:check": "node scripts/assert-i18n-catalogs-current.mjs",
     "preview": "vite preview",
-    "i18n:extract": "lingui extract",
+    "i18n:extract": "lingui extract --clean",
     "i18n:compile": "lingui compile",
     "prepare": "husky",
     "assert-no-client-secrets": "node scripts/assert-no-client-secrets.mjs"
