@@ -19,7 +19,6 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { gzipSync, brotliCompressSync, constants as zlibConstants } from "node:zlib";
 import Beasties from "beasties";
 import { generateFeeds } from "./generate-feeds.mjs";
 
@@ -316,20 +315,6 @@ for (const locale of PUBLISHED_LOCALES) {
     mkdirSync(dirname(outFile), { recursive: true });
     writeFileSync(outFile, html);
 
-    // The client build precompressed the pre-injection index.html, so refresh
-    // the .gz/.br copies to match the prerendered output (vite-plugin-compression
-    // config: gzip + brotli, threshold 1kb).
-    const buf = Buffer.from(html);
-    if (buf.length > 1024) {
-      writeFileSync(`${outFile}.gz`, gzipSync(buf, { level: 9 }));
-      writeFileSync(
-        `${outFile}.br`,
-        brotliCompressSync(buf, {
-          params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 11 },
-        }),
-      );
-    }
-
     console.log(`✓ Prerendered ${urlPath} → dist/${prefix}${route.file} (${appHtml.length} chars)`);
   }
 }
@@ -352,14 +337,6 @@ await dynamicActivate(SOURCE_LOCALE);
   html = await beasties.process(html);
   const outFile = resolve(distDir, "404.html");
   writeFileSync(outFile, html);
-  const buf = Buffer.from(html);
-  if (buf.length > 1024) {
-    writeFileSync(`${outFile}.gz`, gzipSync(buf, { level: 9 }));
-    writeFileSync(
-      `${outFile}.br`,
-      brotliCompressSync(buf, { params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 11 } }),
-    );
-  }
   console.log(`✓ Prerendered 404 → dist/404.html (${appHtml.length} chars)`);
 }
 

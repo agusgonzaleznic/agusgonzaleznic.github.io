@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { lingui } from "@lingui/vite-plugin";
 import path from "path";
-import viteCompression from "vite-plugin-compression";
 import mkcert from "vite-plugin-mkcert";
 
 // https://vitejs.dev/config/
@@ -26,18 +25,18 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     lingui(),
     // Only use mkcert when HTTPS is enabled
     ...(useHttps ? [mkcert()] : []),
-    // Gzip compression
-    viteCompression({
-      algorithm: "gzip",
-      ext: ".gz",
-      threshold: 1024, // Only compress files larger than 1kb
-    }),
-    // Brotli compression (better than gzip)
-    viteCompression({
-      algorithm: "brotliCompress",
-      ext: ".br",
-      threshold: 1024,
-    }),
+    // NO build-time precompression. CloudFront compresses on the fly
+    // (`compress = true` on every cache behaviour), and GitHub Pages does not do
+    // content negotiation against .gz/.br siblings at all — verified live: a
+    // request to the Pages origin with `Accept-Encoding: br` returns no
+    // content-encoding, while the same request through CloudFront returns
+    // `content-encoding: br`. So the siblings were 2.30 MB across 240 files,
+    // 31% of the deployed artifact, that nothing ever served.
+    //
+    // Removing them also deletes a real footgun: prerender.mjs had to
+    // RE-compress every HTML file after head injection, because the client build
+    // had already compressed the pre-injection shell. Miss that and negotiated
+    // clients get a stale empty shell.
   ],
   resolve: {
     alias: {

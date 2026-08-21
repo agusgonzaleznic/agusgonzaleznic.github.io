@@ -20,7 +20,6 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { gzipSync, brotliCompressSync, constants as zlibConstants } from "node:zlib";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, "..");
@@ -67,20 +66,13 @@ function postModified(post) {
   return toDate(post.published_at) ?? postDate(post);
 }
 
-function writeCompressed(outFile, content) {
+// Plain write. Build-time .gz/.br siblings were removed: CloudFront compresses
+// on the fly and GitHub Pages never negotiated against them (verified live).
+function writeOut(outFile, content) {
   mkdirSync(dirname(outFile), { recursive: true });
   writeFileSync(outFile, content);
-  const buf = Buffer.from(content);
-  if (buf.length > 1024) {
-    writeFileSync(`${outFile}.gz`, gzipSync(buf, { level: 9 }));
-    writeFileSync(
-      `${outFile}.br`,
-      brotliCompressSync(buf, {
-        params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 11 },
-      }),
-    );
-  }
 }
+
 
 // The <xhtml:link> alternates for a canonical path: one per locale in `locales`
 // (each at that locale's equivalent URL) + x-default → English. `locales`
@@ -237,8 +229,8 @@ export async function generateFeeds(i18nConfig) {
   const cfg = i18nConfig ?? (await loadI18nConfig());
   const posts = JSON.parse(readFileSync(blogDataFile, "utf-8"));
 
-  writeCompressed(resolve(distDir, "sitemap.xml"), buildSitemap(posts, cfg));
-  writeCompressed(resolve(distDir, "blog/rss.xml"), buildRss(posts));
+  writeOut(resolve(distDir, "sitemap.xml"), buildSitemap(posts, cfg));
+  writeOut(resolve(distDir, "blog/rss.xml"), buildRss(posts));
 
   // Per-locale llms.txt: English at the root, others under /{locale}/ from their
   // own translated brief (public/{locale}/llms.txt). A locale without a brief yet
@@ -253,7 +245,7 @@ export async function generateFeeds(i18nConfig) {
     const localeBrief = resolve(projectRoot, `public/${locale}/llms.txt`);
     const templatePath =
       locale !== cfg.SOURCE_LOCALE && existsSync(localeBrief) ? localeBrief : rootBrief;
-    writeCompressed(resolve(distDir, `${prefix}llms.txt`), buildLlmsTxt(posts, templatePath));
+    writeOut(resolve(distDir, `${prefix}llms.txt`), buildLlmsTxt(posts, templatePath));
   }
 
   console.log(
