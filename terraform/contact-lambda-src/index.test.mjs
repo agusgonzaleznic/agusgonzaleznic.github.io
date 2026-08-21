@@ -1,7 +1,7 @@
 // Unit tests for the contact Lambda: exercises every control's pass AND fail
 // path. DynamoDB, SSM, SES, and fetch are stubbed (no network, no AWS).
 //   node --test
-import { test, mock } from "node:test";
+import { test } from "node:test";  // timers come from the per-test context (t.mock)
 import assert from "node:assert/strict";
 import {
   handler,
