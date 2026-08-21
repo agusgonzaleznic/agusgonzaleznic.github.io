@@ -109,13 +109,35 @@ export function approvedGatedLocales(post, approvals) {
 }
 
 /**
+ * Does this post declare a canonical that points somewhere else entirely?
+ *
+ * Mirrors BlogPost.tsx exactly: only an `https://` override is honoured there
+ * (an editor must not be able to aim canonical/og:url/JSON-LD @id at
+ * javascript:/data:/http:). The two tests MUST agree — if this one were looser,
+ * a malformed override the page ignores would silently suppress every
+ * translation of that post.
+ */
+function hasExternalCanonical(post) {
+  return /^https:\/\//.test(post?.canonical_override ?? "");
+}
+
+/**
  * The full ordered set of locales to emit for this English post, honoring the
  * coarse PUBLISHED_LOCALES switch: source always; auto locales if published;
  * gated locales only if approved+fresh AND published.
+ *
+ * A post with an external canonical_override (a syndicated piece whose original
+ * lives elsewhere) is SOURCE-LOCALE ONLY. Emitting translations of it produced
+ * six URLs that all declared the SAME foreign canonical — six pages disclaiming
+ * themselves — wrapped in a six-way hreflang cluster. hreflang is only valid
+ * between canonical pages, so the cluster was inert at best; the translations
+ * could never rank, and they diluted the signal for the original. One page with
+ * one honest canonical is the whole intent of setting an override.
  */
 export function approvedLocalesFor(post, approvals, publishedLocales, sourceLocale = "en") {
   const published = new Set(publishedLocales);
   const out = [sourceLocale];
+  if (hasExternalCanonical(post)) return out;
   for (const loc of AUTO_LOCALES) {
     if (published.has(loc) && AUTO_LOCALE_MODE[loc] === "auto") out.push(loc);
   }

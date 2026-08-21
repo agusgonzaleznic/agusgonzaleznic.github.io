@@ -10,6 +10,7 @@ import {
   PUBLISHED_LOCALES,
 } from "@/i18n/locales";
 import { dynamicActivate } from "@/i18n/i18n";
+import { useLocaleLinks } from "@/i18n/locale-links";
 import { cn } from "@/lib/utils";
 
 // Crawlable language switcher: real <a> anchors to the SAME route in each
@@ -37,6 +38,9 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
   const navigate = useNavigate();
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
+  // Hooks must run unconditionally — this sits above the PUBLISHED_LOCALES
+  // early return below.
+  const pageLinks = useLocaleLinks();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -90,13 +94,33 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
   if (PUBLISHED_LOCALES.length < 2) return null;
 
   const current = localeFromPath(pathname);
-  const basePath = delocalizePath(pathname);
-  const links = PUBLISHED_LOCALES.map((locale) => ({
-    locale,
-    isActive: locale === current,
-    href: localizePath(basePath, locale),
-    name: LOCALE_META[locale].name,
-  }));
+  // A page may declare that it does not exist in every locale (a review-gated
+  // article) or that localizing its path is meaningless (the 404). See
+  // @/i18n/locale-links.
+  const { locales: pageLocales, fallbackPath = "/", basePath: pathOverride } = pageLinks;
+  const basePath = pathOverride ?? delocalizePath(pathname);
+  const links = PUBLISHED_LOCALES.map((locale) => {
+    // `pageLocales` absent/empty means no restriction — same fail-open rule as
+    // prerender's emission loop and getAllPosts, so the three never disagree
+    // about whether a page exists.
+    const hasPage = !pageLocales?.length || pageLocales.includes(locale);
+    return {
+      locale,
+      isActive: locale === current,
+      // Send the reader to the locale's fallback rather than to a page that was
+      // never emitted. Keeping the locale visible matters: hiding it would trap
+      // a German reader on an English-only article with no way back to German.
+      //
+      // hrefLang stays set on BOTH kinds of link. On an <a> it states the
+      // language of the linked DOCUMENT (not that it is an equivalent
+      // translation of this one), and the fallback target genuinely is a page in
+      // that language — so it is accurate either way. The equivalence claim
+      // belongs to <link rel="alternate" hreflang> in the head, which prerender
+      // builds from the same approved-locale array.
+      href: localizePath(hasPage ? basePath : fallbackPath, locale),
+      name: LOCALE_META[locale].name,
+    };
+  });
 
   if (variant === "inline") {
     return (

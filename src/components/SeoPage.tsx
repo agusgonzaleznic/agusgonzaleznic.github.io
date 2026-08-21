@@ -67,6 +67,19 @@ type SeoPageProps = {
   about?: Record<string, unknown>;
   /** Extra JSON-LD nodes (FAQPage, ProfessionalService) emitted verbatim. */
   extraSchema?: Record<string, unknown>[];
+  /**
+   * Extra <head> tags for this page (e.g. the blog index's RSS alternate).
+   *
+   * `children` renders inside <main> and `extraSchema` only takes JSON-LD, so a
+   * page needing one ordinary head tag had no way to use this shell at all —
+   * which is why the blog index and the legal pages each kept a hand-rolled
+   * <Helmet> and, between them, shipped no og:image, no twitter card, no
+   * og:site_name and no JSON-LD for years.
+   *
+   * react-helmet requires DIRECT element children, so pass a fragment or an
+   * array of tags, never a component that returns them.
+   */
+  extraHead?: ReactNode;
   /** Optional per-page social image URL (CMS); "" / undefined → the site banner. */
   ogImage?: string;
   /** Extra identity URLs merged into the Person node's sameAs (e.g. the /links profiles). */
@@ -92,6 +105,7 @@ export const SeoPage = ({
   pageType = "WebPage",
   about,
   extraSchema = [],
+  extraHead,
   ogImage,
   sameAs,
   chrome = true,
@@ -184,6 +198,7 @@ export const SeoPage = ({
             {jsonLd(node)}
           </script>
         ))}
+        {extraHead}
       </Helmet>
       {chrome ? (
         <>

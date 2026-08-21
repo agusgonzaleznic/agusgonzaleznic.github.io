@@ -1,12 +1,7 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Helmet } from "react-helmet";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { Navigation } from "@/components/Navigation";
-import { Footer } from "@/components/Footer";
+import { SeoPage } from "@/components/SeoPage";
 import { isAnalyticsConfigured, withdrawAnalyticsConsent } from "@/lib/analytics";
-import { localeFromPath, localizePath, LOCALE_META } from "@/i18n/locales";
-import { SITE_URL } from "@/lib/site";
 import { SECTION_PADDING } from "@/lib/layout";
 
 // Shared layout for the legal pages (/impressum and /privacy). Uses the same
@@ -14,45 +9,42 @@ import { SECTION_PADDING } from "@/lib/layout";
 // Bracketed [ ... ] placeholders are intentionally visible: they mark legally
 // required details (street address, VAT status) the site owner must fill in.
 
+// Shared shell for /impressum and /privacy.
+//
+// This used to be a hand-rolled <Helmet> carrying only title, description, a
+// locale-aware canonical and og:locale — no og:type, no og:title/description/
+// url, no og:image, no twitter card, no og:site_name, no JSON-LD. Two pages the
+// GDPR and § 5 DDG require people to be able to find and share, and sharing one
+// produced a bare link with no title card.
+//
+// SeoPage already localizes the canonical the same way (localizePath on the
+// English path — the bug where /de/privacy declared /privacy as its canonical,
+// masked in the static HTML by prerender's canonical guard and visible only
+// after hydration, stays fixed), and it adds everything above. The DOM below
+// <main> is byte-for-byte what it was: SeoPage's shell is already
+// div.min-h-screen > Navigation + main.pt-16 + Footer.
 const LegalLayout = ({
   title,
   description,
+  crumb,
   path,
   children,
 }: {
   title: string;
   description: string;
+  /** Breadcrumb label — pass it localized. */
+  crumb: string;
   path: string;
   children: React.ReactNode;
-}) => {
-  const locale = localeFromPath(useLocation().pathname);
-  return (
-  <div className="min-h-screen">
-    <Helmet>
-      <title>{title}</title>
-      <meta name="description" content={description} />
-      {/* Locale-aware, like every other page. This used to hardcode the
-          ENGLISH path, so /de/privacy declared /privacy as its canonical —
-          telling Google the five translated legal pages were duplicates of the
-          English one. Prerender's canonical guard masked it in the static HTML,
-          so it only appeared after hydration. SITE_URL comes from @/lib/site
-          (dependency-free) rather than @/lib/blog, which would drag the blog
-          corpus into this chunk. */}
-      <link rel="canonical" href={`${SITE_URL}${localizePath(path, locale)}`} />
-      <meta property="og:locale" content={LOCALE_META[locale].ogLocale} />
-    </Helmet>
-    <Navigation />
-    <main className="pt-16">
+}) => (
+  <SeoPage path={path} title={title} description={description} crumb={crumb}>
       <section className="bg-background">
         <div className={`container px-6 ${SECTION_PADDING}`}>
           <div className="max-w-3xl mx-auto space-y-8">{children}</div>
         </div>
       </section>
-    </main>
-    <Footer />
-  </div>
-  );
-};
+  </SeoPage>
+);
 
 const H1 = ({ children }: { children: React.ReactNode }) => (
   <h1 className="text-fluid-3xl font-bold mb-10">{children}</h1>
@@ -89,6 +81,7 @@ export const Impressum = () => {
   <LegalLayout
     title={t`Impressum — Agustin Gonzalez Nicolini`}
     description={t`Impressum (legal notice) for agusgonzaleznic.com pursuant to § 5 DDG.`}
+    crumb={t`Impressum`}
     path="/impressum"
   >
     <H1><Trans>Impressum</Trans></H1>
@@ -201,6 +194,7 @@ export const Privacy = () => {
   <LegalLayout
     title={t`Privacy Policy — Agustin Gonzalez Nicolini`}
     description={t`Privacy policy for agusgonzaleznic.com: how personal data is processed under the GDPR.`}
+    crumb={t`Privacy Policy`}
     path="/privacy"
   >
     <H1><Trans>Privacy Policy</Trans></H1>
