@@ -1,4 +1,4 @@
-import { storyblokEditable } from "@storyblok/react";
+import { editableProps } from "@/lib/storyblok-editable";
 import { HeroBlockStoryblok } from "@/lib/types/storyblok";
 import { SECTION_PADDING } from "@/lib/layout";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,7 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
 
   return (
     <section
-      {...storyblokEditable(blok)}
+      {...editableProps(blok)}
       id="home"
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-secondary/30 to-background"
     >

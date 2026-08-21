@@ -1,4 +1,4 @@
-import { storyblokEditable } from "@storyblok/react";
+import { editableProps } from "@/lib/storyblok-editable";
 import { TestimonialItemStoryblok } from "@/lib/types/storyblok";
 import { Card } from "@/components/ui/card";
 import { Quote, Star } from "lucide-react";
@@ -10,7 +10,7 @@ interface TestimonialItemProps {
 export const TestimonialItem = ({ blok }: TestimonialItemProps) => {
   return (
     <Card
-      {...storyblokEditable(blok)}
+      {...editableProps(blok)}
       className="p-8 hover-lift border-2 hover:border-accent/30 transition-all duration-300 relative"
     >
       {/* Quote icon */}

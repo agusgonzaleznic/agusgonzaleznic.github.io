@@ -14,7 +14,11 @@ export default defineConfig(({ mode, isSsrBuild }) => {
   server: {
     host: "::",
     port: 8080,
-    https: useHttps, // Enable HTTPS for Storyblok Visual Editor (set VITE_HTTPS=true)
+    // Vite typed this as https.ServerOptions, not a boolean. An empty object is
+    // what `true` collapsed to at runtime anyway (Vite spreads it), and it keeps
+    // vite-plugin-mkcert past its `https === false` early-return so it can fill
+    // in the key/cert it generates.
+    https: useHttps ? {} : undefined,
   },
   plugins: [
     // Lingui macros (t / msg / <Trans> …) are rewritten at compile time by the

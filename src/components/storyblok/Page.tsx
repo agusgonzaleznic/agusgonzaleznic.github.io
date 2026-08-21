@@ -1,4 +1,5 @@
-import { StoryblokComponent, storyblokEditable } from "@storyblok/react";
+import { StoryblokComponent } from "@storyblok/react";
+import { editableProps } from "@/lib/storyblok-editable";
 import { Helmet } from "react-helmet";
 import { PageStoryblok } from "@/lib/types/storyblok";
 
@@ -8,7 +9,7 @@ interface PageProps {
 
 export const Page = ({ blok }: PageProps) => {
   return (
-    <div {...storyblokEditable(blok)}>
+    <div {...editableProps(blok)}>
       {/* SEO metadata */}
       {blok.seo_title && (
         <Helmet>

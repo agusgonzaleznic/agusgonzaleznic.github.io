@@ -1,7 +1,11 @@
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
-import { useStoryblokApi, StoryblokComponent, useStoryblokState } from "@storyblok/react";
+import {
+  useStoryblokApi,
+  StoryblokComponent,
+  useStoryblokState,
+  type ISbStoryData,
+} from "@storyblok/react";
 import { initStoryblok } from "@/lib/storyblok";
-import type { StoryblokStory } from "@/lib/types/storyblok";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { RichText } from "@/components/blog/RichText";
@@ -104,7 +108,7 @@ const PAGE_WRAPPERS: Record<string, ComponentType<PagePreviewProps>> = {
 
 // Map a live (bridge-updated) `page` story to the PageContent shape the real
 // wrappers read via getPageContent — mirrors mapPage in scripts/lib.
-const pageContentFromStory = (story: StoryblokStory): PageContent => {
+const pageContentFromStory = (story: ISbStoryData): PageContent => {
   const c = story.content as unknown as {
     seo_title?: string;
     seo_description?: string;
@@ -135,7 +139,7 @@ const pageContentFromStory = (story: StoryblokStory): PageContent => {
  * .env.development.local — loaded by `vite` in dev, never by a prod build.
  */
 export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
-  const [initialStory, setInitialStory] = useState<StoryblokStory | null>(null);
+  const [initialStory, setInitialStory] = useState<ISbStoryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const storyblokApi = useStoryblokApi();
@@ -206,7 +210,7 @@ export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
   }
 
   if (component === "page") {
-    const pageContent = pageContentFromStory(story as unknown as StoryblokStory);
+    const pageContent = pageContentFromStory(story);
     const Wrapper = PAGE_WRAPPERS[pageContent.slug];
     // Real wrappers render their own Navigation/Footer (via SeoPage), so no
     // <Shell> here — this is the exact production page fed the live draft.

@@ -89,6 +89,14 @@ jobs:
       node-version: '22'
       install-command: 'npm ci'
       lint-command: 'npm run lint'
+      # `npm run typecheck` is NOT here. It cannot run before the build: two
+      # modules import src/generated/*.json, which is gitignored build output
+      # produced by fetch-blog/fetch-pages, so type-checking a fresh checkout
+      # fails with TS2307 on files that are supposed to be absent. It runs
+      # inside `npm run build` instead — after fetch, before the Vite builds —
+      # which covers exactly the same PRs, since any TS change sets site=true.
+      # (The build compiles via esbuild and STRIPS types, so without this step
+      # nothing type-checked this repo at all.)
       build-command: 'npm run build'
       artifact-path: 'dist'
       verify-build-output: true
