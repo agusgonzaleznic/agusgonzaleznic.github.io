@@ -1,4 +1,4 @@
-import { storyblokEditable } from "@storyblok/react";
+import { editableProps } from "@/lib/storyblok-editable";
 import { ServiceItemStoryblok } from "@/lib/types/storyblok";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ export const ServiceItem = ({ blok }: ServiceItemProps) => {
 
   return (
     <Card
-      {...storyblokEditable(blok)}
+      {...editableProps(blok)}
       className={`p-8 hover-lift transition-all duration-300 ${
         blok.is_highlighted
           ? "border-2 border-accent shadow-accent relative"

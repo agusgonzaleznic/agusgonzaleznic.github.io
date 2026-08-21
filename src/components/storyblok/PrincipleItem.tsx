@@ -1,4 +1,4 @@
-import { storyblokEditable } from "@storyblok/react";
+import { editableProps } from "@/lib/storyblok-editable";
 import { PrincipleItemStoryblok } from "@/lib/types/storyblok";
 import * as LucideIcons from "lucide-react";
 
@@ -13,7 +13,7 @@ export const PrincipleItem = ({ blok }: PrincipleItemProps) => {
 
   return (
     <div
-      {...storyblokEditable(blok)}
+      {...editableProps(blok)}
       className="flex flex-col md:flex-row gap-6 md:gap-8 p-8 rounded-2xl bg-card border-2 border-border hover:border-accent/30 hover:shadow-lg transition-all duration-300"
     >
       {/* Icon */}

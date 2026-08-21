@@ -1,4 +1,4 @@
-import { storyblokEditable } from "@storyblok/react";
+import { editableProps } from "@/lib/storyblok-editable";
 import { MetricItemStoryblok } from "@/lib/types/storyblok";
 import { Card } from "@/components/ui/card";
 import * as LucideIcons from "lucide-react";
@@ -14,7 +14,7 @@ export const MetricItem = ({ blok }: MetricItemProps) => {
 
   return (
     <Card
-      {...storyblokEditable(blok)}
+      {...editableProps(blok)}
       className="p-6 hover-lift border-2 hover:border-accent/30 transition-all duration-300"
     >
       <div className="flex items-start gap-4">

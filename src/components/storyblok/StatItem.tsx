@@ -1,4 +1,4 @@
-import { storyblokEditable } from "@storyblok/react";
+import { editableProps } from "@/lib/storyblok-editable";
 import { StatItemStoryblok } from "@/lib/types/storyblok";
 import { Card } from "@/components/ui/card";
 import * as LucideIcons from "lucide-react";
@@ -15,7 +15,7 @@ export const StatItem = ({ blok }: StatItemProps) => {
 
   return (
     <Card
-      {...storyblokEditable(blok)}
+      {...editableProps(blok)}
       className="p-6 hover-lift border-2 hover:border-accent/50 transition-all duration-300"
     >
       {IconComponent && (

@@ -1,4 +1,5 @@
-import { storyblokEditable, StoryblokComponent } from "@storyblok/react";
+import { StoryblokComponent } from "@storyblok/react";
+import { editableProps } from "@/lib/storyblok-editable";
 import { PhilosophyBlockStoryblok } from "@/lib/types/storyblok";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
@@ -13,7 +14,7 @@ export const PhilosophyBlock = ({ blok }: PhilosophyBlockProps) => {
 
   return (
     <section
-      {...storyblokEditable(blok)}
+      {...editableProps(blok)}
       id="philosophy"
       className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}
     >

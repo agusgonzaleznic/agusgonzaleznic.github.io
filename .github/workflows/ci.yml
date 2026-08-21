@@ -88,7 +88,11 @@ jobs:
     with:
       node-version: '22'
       install-command: 'npm ci'
-      lint-command: 'npm run lint'
+      # Static analysis slot. `npm run typecheck` is here rather than inside
+      # `npm run build` so a type error fails BEFORE the expensive build, and
+      # because the build (esbuild via Vite) strips types without checking them
+      # — for the whole life of this repo that meant NOTHING type-checked it.
+      lint-command: 'npm run lint && npm run typecheck'
       build-command: 'npm run build'
       artifact-path: 'dist'
       verify-build-output: true
