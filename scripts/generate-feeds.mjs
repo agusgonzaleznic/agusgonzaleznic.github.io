@@ -148,7 +148,19 @@ function buildSitemap(posts, cfg) {
 
   const pages = [
     ...staticPages,
-    ...posts.map((post) => ({
+    // An article whose CMS canonical_override points at another origin is
+    // syndicated: the original lives elsewhere and this copy declares itself
+    // non-canonical. A sitemap is a list of the URLs we want indexed AS
+    // THEMSELVES, so listing one that canonicalises away asks Google to index a
+    // page that disclaims itself — the sitemap and the <link rel="canonical">
+    // contradict each other, and the sitemap loses.
+    //
+    // Matches BlogPost.tsx's test exactly (^https:// only), like the publication
+    // gate in blog-gate.mjs: a malformed override the page ignores must not drop
+    // the article from the sitemap.
+    ...posts
+      .filter((post) => !/^https:\/\//.test(post.canonical_override ?? ""))
+      .map((post) => ({
       canonical: `/blog/${post.slug}/`,
       lastmod: (postModified(post) ?? new Date()).toISOString().slice(0, 10),
       changefreq: "monthly",

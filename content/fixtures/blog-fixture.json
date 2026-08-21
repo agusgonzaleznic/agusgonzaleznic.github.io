@@ -1,0 +1,78 @@
+{
+  "$comment": "Blog corpus for TOKENLESS builds that opt in with BLOG_FIXTURE=1 — PR CI. Never used when STORYBLOK_PUBLIC_TOKEN is set, and refused outright when STORYBLOK_REQUIRE_TOKEN=1, so a deploy can never ship it. Titles are deliberately marked FIXTURE so a leak into a real build is obvious on sight rather than subtle. Each post exists to exercise a publication-gate shape that a real corpus does not currently contain: see approved_locales / canonical_override below.",
+  "posts": [
+    {
+      "uuid": "f1000000-0000-4000-8000-000000000001",
+      "slug": "fixture-all-locales",
+      "full_slug": "blog/fixture-all-locales",
+      "title": "FIXTURE: article published in every locale",
+      "excerpt": "Exercises the ordinary case — an article emitted in all six locales, with a cover image so the card and article image paths render.",
+      "seo_title": "",
+      "seo_description": "",
+      "canonical_override": "",
+      "original_url": "",
+      "published_date": "2026-01-15 09:00",
+      "first_published_at": "2026-01-15T09:00:00.000Z",
+      "published_at": "2026-01-15T09:00:00.000Z",
+      "tag_list": ["fixture", "leadership"],
+      "cover_image": {
+        "filename": "https://a.storyblok.com/f/288632938663524/1600x900/fixture/cover.jpg",
+        "alt": "Fixture cover image"
+      },
+      "approved_locales": ["en", "de", "es", "fr", "it", "pt"],
+      "body": {
+        "type": "doc",
+        "content": [
+          { "type": "paragraph", "content": [{ "type": "text", "text": "Fixture body paragraph. Present so the article route renders real content and the RSS item has a description." }] },
+          { "type": "code_block", "content": [{ "type": "text", "text": "npm run build" }] }
+        ]
+      }
+    },
+    {
+      "uuid": "f1000000-0000-4000-8000-000000000002",
+      "slug": "fixture-partial-locales",
+      "full_slug": "blog/fixture-partial-locales",
+      "title": "FIXTURE: article published only in en and de",
+      "excerpt": "Exercises the review gate. Four locales have no variant, so the language switcher must fall back to the blog index and the locale indexes must not list it.",
+      "seo_title": "",
+      "seo_description": "",
+      "canonical_override": "",
+      "original_url": "",
+      "published_date": "2026-01-10 09:00",
+      "first_published_at": "2026-01-10T09:00:00.000Z",
+      "published_at": "2026-01-10T09:00:00.000Z",
+      "tag_list": ["fixture"],
+      "cover_image": null,
+      "approved_locales": ["en", "de"],
+      "body": {
+        "type": "doc",
+        "content": [
+          { "type": "paragraph", "content": [{ "type": "text", "text": "Fixture body for the partially approved article." }] }
+        ]
+      }
+    },
+    {
+      "uuid": "f1000000-0000-4000-8000-000000000003",
+      "slug": "fixture-syndicated",
+      "full_slug": "blog/fixture-syndicated",
+      "title": "FIXTURE: syndicated article with an external canonical",
+      "excerpt": "Exercises canonical_override. The canonical points elsewhere, so this article is source-locale only and must not appear in an hreflang cluster.",
+      "seo_title": "",
+      "seo_description": "",
+      "canonical_override": "https://example.com/fixture-original",
+      "original_url": "https://example.com/fixture-original",
+      "published_date": "2026-01-05 09:00",
+      "first_published_at": "2026-01-05T09:00:00.000Z",
+      "published_at": "2026-01-05T09:00:00.000Z",
+      "tag_list": ["fixture"],
+      "cover_image": null,
+      "approved_locales": ["en"],
+      "body": {
+        "type": "doc",
+        "content": [
+          { "type": "paragraph", "content": [{ "type": "text", "text": "Fixture body for the syndicated article." }] }
+        ]
+      }
+    }
+  ]
+}
