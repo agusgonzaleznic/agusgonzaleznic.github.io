@@ -24,7 +24,19 @@
 import { createHash, randomUUID } from "node:crypto";
 
 // ---- tuning constants (see the 10 controls below) ---------------------------
-const MAX_BODY_BYTES = 8192; // control 3
+// Control 3. Sized so the ADVERTISED 4,000-character message limit is actually
+// deliverable in every script, which 8192 was not: the cap is bytes and the
+// schema limit is characters, so for a multibyte script the byte cap bound far
+// below the limit the UI showed. A 4,000-char message plus the ~2 KB Turnstile
+// token and JSON overhead is ~6.2 KB in ASCII, ~10.2 KB at 2 bytes/char
+// (Cyrillic, Greek) and ~14.2 KB at 3 bytes/char (CJK) — so a Japanese or
+// Russian enquirer hit a 413 the form never warned about.
+//
+// Deliberately 2x, not more: this control exists to reject oversized bodies
+// BEFORE the JSON parse and before the outbound siteverify call, so it has to
+// stay a real bound. The client validates the same limit in bytes (see the
+// hand-synced pair note in src/components/Contact.tsx).
+const MAX_BODY_BYTES = 16384;
 const TOKEN_MAX_AGE_S = 300; // control 7: reject challenge_ts older than this
 const MIN_FORM_TIME_S = 3; // control 7: reject submissions faster than this
 const TOKEN_TTL_S = 600; // control 7: replay guard row lifetime
@@ -85,6 +97,7 @@ let _sesClient = null;
 
 // Limits/windows exported for tests so assertions cannot drift from behaviour.
 export const __limits = {
+  MAX_BODY_BYTES,
   IP_WINDOW_S,
   IP_MAX,
   GLOBAL_WINDOW_S,
@@ -458,24 +471,16 @@ export const handler = async (event) => {
   // counters first: a global burst cap (bounds total siteverify calls even
   // under IP rotation) and the per-IP limit (IPv6 bucketed to /64). A real WAF
   // rate rule on /api/* is the recommended additional layer (see README).
+  // ORDER: per-IP gate FIRST, then the shared global counter.
+  //
+  // The global counter used to be bumped first, which defeated its own stated
+  // purpose: a single abusive IP being rejected by its own limit still consumed
+  // the ALL-IP budget, so one throttled client could push GLOBAL#siteverify past
+  // 60 and 429 the form for every legitimate visitor for the rest of the window.
+  // With the IP gate first, only requests that could actually reach siteverify
+  // consume the global budget — which is what the counter is for.
   const ipKey = ipRateKey(trueIp);
   try {
-    const { count, expiresAt } = await bumpCounter(
-      cfg.DDB_TABLE,
-      "GLOBAL#siteverify",
-      GLOBAL_WINDOW_S,
-    );
-    if (count > GLOBAL_MAX) {
-      outcome("global_burst", 429);
-      // retryAfter is how long until the tripped bucket's window expires.
-      const retryAfter = Math.max(1, expiresAt - nowS());
-      return respond(
-        429,
-        { ok: false, error: "rate_limited", retryAfter },
-        origin,
-        { "retry-after": String(retryAfter) },
-      );
-    }
     const { count: ipCount, expiresAt: ipExpiresAt } = await bumpCounter(
       cfg.DDB_TABLE,
       `IP#${ipKey}`,
@@ -485,6 +490,22 @@ export const handler = async (event) => {
       outcome("ip_rate", 429);
       // retryAfter is how long until the tripped bucket's window expires.
       const retryAfter = Math.max(1, ipExpiresAt - nowS());
+      return respond(
+        429,
+        { ok: false, error: "rate_limited", retryAfter },
+        origin,
+        { "retry-after": String(retryAfter) },
+      );
+    }
+    const { count, expiresAt } = await bumpCounter(
+      cfg.DDB_TABLE,
+      "GLOBAL#siteverify",
+      GLOBAL_WINDOW_S,
+    );
+    if (count > GLOBAL_MAX) {
+      outcome("global_burst", 429);
+      // retryAfter is how long until the tripped bucket's window expires.
+      const retryAfter = Math.max(1, expiresAt - nowS());
       return respond(
         429,
         { ok: false, error: "rate_limited", retryAfter },

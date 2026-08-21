@@ -51,6 +51,17 @@ const EMAIL_MAX = 200;
 const ROLE_MAX = 100;
 const MESSAGE_MIN = 10;
 const MESSAGE_MAX = 4000;
+// HAND-SYNCED PAIR with MAX_BODY_BYTES in terraform/contact-lambda-src/index.mjs.
+// Nothing can enforce it: that Lambda is a separate module the client cannot
+// import from. Keep this <= the server's value.
+//
+// It has to be checked here as well as there because the two limits are in
+// DIFFERENT UNITS: MESSAGE_MAX counts characters, the server caps UTF-8 bytes.
+// A 4,000-character message is ~4 KB in ASCII but ~12 KB in CJK, so without this
+// check a Japanese or Russian visitor could pass every visible validation and
+// still get a 413 the form never warned about — a silently lost enquiry from
+// exactly the visitor least likely to retry in English.
+const MAX_BODY_BYTES = 16384;
 
 // The Lambda rejects C0 control chars + DEL (its CTRL_ANY); the message field
 // additionally tolerates tab/newline/carriage-return (its CTRL_MULTILINE). We
@@ -293,6 +304,21 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
         turnstileToken, // key must match the Lambda schema (index.mjs ALLOWED_KEYS)
       });
 
+      // Measure what we are ACTUALLY about to send — the encoded payload,
+      // including the ~2 KB Turnstile token — against the server's byte cap, so
+      // the user is told before submitting rather than getting an opaque 413.
+      const bodyBytes = new TextEncoder().encode(body).length;
+      if (bodyBytes > MAX_BODY_BYTES) {
+        toast.error(
+          t`Your message is too long to send. Please shorten it and try again.`,
+        );
+        focusInvalid("message");
+        // No setIsSubmitting(false) here: the enclosing finally already clears
+        // it AND resets the single-use Turnstile token, which a bare return
+        // must not skip or the retry would reuse a spent token.
+        return;
+      }
+
       const response = await fetch(CONTACT_ENDPOINT, {
         method: "POST",
         headers: {
@@ -313,17 +339,26 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
         return;
       }
 
+      // NEVER show `data.error` to the user. Every non-2xx value the Lambda
+      // returns is a machine code ("invalid", "forbidden", "too_large",
+      // "rate_limited", "delivery"), not prose — so `data.error || t\`...\``
+      // meant the localized fallback was DEAD on every real API error and a
+      // German or Japanese visitor got a bare English token. The code is useful
+      // for debugging, so it goes to the console.
+      if (data?.error) {
+        console.error(`/api/contact ${response.status}: ${data.error}`);
+      }
+
       switch (response.status) {
         case 400:
-          toast.error(
-            data.error ||
-              t`Some details look off. Please check the form and try again.`,
-          );
+          toast.error(t`Some details look off. Please check the form and try again.`);
           break;
         case 403:
+          toast.error(t`Verification failed. Please complete the challenge and try again.`);
+          break;
+        case 413:
           toast.error(
-            data.error ||
-              t`Verification failed. Please complete the challenge and try again.`,
+            t`That message is too long to send. Please shorten it and try again.`,
           );
           break;
         case 429: {
@@ -345,18 +380,12 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
               t`Too many requests — please wait ${wait} before trying again, or email me directly.`,
             );
           } else {
-            toast.error(
-              data.error ||
-                t`Too many requests. Please wait a moment, or email me directly.`,
-            );
+            toast.error(t`Too many requests. Please wait a moment, or email me directly.`);
           }
           break;
         }
         default:
-          toast.error(
-            data.error ||
-              t`Failed to send message. Please try again or email me directly.`,
-          );
+          toast.error(t`Failed to send message. Please try again or email me directly.`);
       }
     } catch (error) {
       console.error("Form submission error:", error);

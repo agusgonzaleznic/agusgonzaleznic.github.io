@@ -258,6 +258,7 @@ Things with no enforcing check — change one, change the other:
 | Claude model id | three hardcoded copies | `llm-postedit.mjs`, `proofread.mjs`, `tag-i18n.mjs` |
 | ci.yml denylist | deploy.yml `paths-ignore` (±ci.yml itself) | `.github/workflows/` |
 | Route table (`AppRoutes`) | `routes` array | `src/App.tsx` ↔ `scripts/prerender.mjs` |
+| `MAX_BODY_BYTES` (client) | `MAX_BODY_BYTES` (Lambda) | `src/components/Contact.tsx` ↔ `terraform/contact-lambda-src/index.mjs` |
 
 And the traps that aren't pairs:
 

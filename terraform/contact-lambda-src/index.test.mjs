@@ -233,17 +233,35 @@ test("www origin is allowed", async () => {
 });
 
 // --- Control 3: body size ----------------------------------------------------
+// Sizes derive from the implementation's own limit rather than a magic number:
+// these two tests hardcoded 9000, which silently stopped testing anything the
+// moment MAX_BODY_BYTES was raised above it.
 test("oversized Content-Length -> 413", async () => {
   install();
-  const res = await handler(event({ contentLength: 9000 }));
+  const res = await handler(event({ contentLength: __limits.MAX_BODY_BYTES + 1 }));
   assert.equal(res.statusCode, 413);
 });
 
 test("oversized actual body (spoofed small Content-Length) -> 413", async () => {
   install();
-  const big = JSON.stringify(body({ message: "x".repeat(9000) }));
+  const big = JSON.stringify(body({ message: "x".repeat(__limits.MAX_BODY_BYTES + 100) }));
   const res = await handler(event({ rawBody: big, contentLength: 10 }));
   assert.equal(res.statusCode, 413);
+});
+
+test("a 4,000-character message in a 3-byte script fits under the body cap", async () => {
+  // The point of raising MAX_BODY_BYTES: the ADVERTISED 4,000-char limit has to
+  // be deliverable in every script, not just ASCII. At 8192 this 413'd.
+  install();
+  const cjk = "\u65e5".repeat(4000); // 4,000 chars x 3 bytes = 12,000 bytes
+  const payload = JSON.stringify(body({ message: cjk }));
+  assert.ok(
+    Buffer.byteLength(payload, "utf8") > 8192,
+    "fixture must exceed the OLD cap, or it proves nothing",
+  );
+  const res = await handler(event({ rawBody: payload }));
+  assert.notEqual(res.statusCode, 413, "a legitimate CJK message must not be rejected as oversized");
+  assert.equal(res.statusCode, 200);
 });
 
 // --- Control 4: schema -------------------------------------------------------
@@ -656,4 +674,108 @@ test("a DynamoDB fault logs status=ddb_error AND the exception class in a separa
   for (const secret of ["Ada Lovelace", "ada@example.com", "genuine message"]) {
     assert.ok(!blob.includes(secret), `log leaked ${secret}: ${blob}`);
   }
+});
+
+// --- Fail-CLOSED guarantees (controls 7, 8, 9, 10) ---------------------------
+//
+// Four catch blocks are the entire fail-closed guarantee: if the DynamoDB-backed
+// rate limits, the replay guard or the duplicate check cannot be consulted, the
+// handler must REJECT rather than admit unmetered traffic. None of them had a
+// test, so a refactor could have flipped any of them to fail OPEN — turning
+// every limit off — and the suite would still have been green.
+//
+// The thrower must be pk-SELECTIVE. A blanket `send: () => { throw }` only ever
+// reaches the FIRST catch, because the pre-rate block 502s before token-replay,
+// per-email or duplicate are called — so three of these four tests would pass
+// for entirely the wrong reason.
+function ddbFailingOn(prefix) {
+  const real = makeDdb();
+  const boom = new Error("ddb down");
+  boom.name = "InternalServerError";
+  return {
+    ...real,
+    send: async (op, params) => {
+      const pk = params.Key?.pk?.S ?? params.Item?.pk?.S ?? "";
+      if (pk.startsWith(prefix)) throw boom;
+      return real.send(op, params);
+    },
+  };
+}
+
+for (const [prefix, control] of [
+  ["IP#", "the per-IP rate limit"],
+  ["GLOBAL#", "the global burst backstop"],
+  ["TOK#", "the Turnstile replay guard"],
+  ["EMAIL#", "the per-email rate limit"],
+  ["DUP#", "duplicate suppression"],
+]) {
+  test(`${control} fails CLOSED when DynamoDB is unavailable`, async () => {
+    install({ ddb: ddbFailingOn(prefix) });
+    const res = await handler(event());
+    assert.equal(
+      res.statusCode,
+      502,
+      `${control} must reject when its backend is unreachable, not admit the request`,
+    );
+    assert.equal(parse(res).error, "delivery");
+  });
+}
+
+test("a DynamoDB failure never reaches SES", async () => {
+  const ses = makeSes();
+  __resetTestDeps();
+  __setTestDeps({
+    ddbSend: ddbFailingOn("DUP#").send,
+    sesSend: ses.send,
+    getParam: async () => "SECRET",
+  });
+  globalThis.fetch = makeFetch({
+    verify: { success: true, hostname: "agusgonzaleznic.com", action: "contact", challenge_ts: tsAgo(30) },
+  }).fn;
+  const res = await handler(event());
+  assert.equal(res.statusCode, 502);
+  assert.equal(ses.calls.length, 0, "must not email when the duplicate check could not run");
+});
+
+// --- Global burst backstop (control 8) --------------------------------------
+// The only control with zero coverage. It exists so a flood using rotating IPs
+// cannot saturate the account's low Lambda concurrency with outbound siteverify
+// calls (starving the shared webhook Lambda).
+test("global burst cap trips at GLOBAL_MAX and rejects BEFORE siteverify", async () => {
+  const ddb = makeDdb();
+  const { fetch: f } = install({ ddb });
+  ddb.counts.set(
+    __windowKey("GLOBAL#siteverify", __limits.GLOBAL_WINDOW_S).key,
+    __limits.GLOBAL_MAX,
+  );
+
+  const res = await handler(event());
+  assert.equal(res.statusCode, 429);
+  assert.equal(parse(res).error, "rate_limited");
+  assert.equal(
+    f.calls.length,
+    0,
+    "the whole point is to reject before the outbound siteverify round trip",
+  );
+  const { retryAfter } = parse(res);
+  assert.ok(retryAfter > 1 && retryAfter <= __limits.GLOBAL_WINDOW_S, `retryAfter=${retryAfter}`);
+});
+
+test("a request rejected by its OWN per-IP limit does not consume the global budget", async () => {
+  // Ordering regression: the global counter used to be bumped BEFORE the per-IP
+  // gate, so one throttled IP could exhaust the all-IP budget and 429 the form
+  // for everyone else — defeating the counter's stated purpose.
+  const ddb = makeDdb();
+  install({ ddb });
+  const ipK = __windowKey(`IP#203.0.113.5`, __limits.IP_WINDOW_S).key;
+  const globalK = __windowKey("GLOBAL#siteverify", __limits.GLOBAL_WINDOW_S).key;
+  ddb.counts.set(ipK, __limits.IP_MAX); // next bump trips the per-IP limit
+
+  const res = await handler(event());
+  assert.equal(res.statusCode, 429);
+  assert.equal(
+    ddb.counts.get(globalK),
+    undefined,
+    "an IP-throttled request must not have touched the shared global counter",
+  );
 });
