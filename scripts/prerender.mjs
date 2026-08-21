@@ -17,7 +17,7 @@
 // Pure Node (no headless browser), so it's fast and CI-friendly.
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import Beasties from "beasties";
 import { generateFeeds } from "./generate-feeds.mjs";
@@ -363,11 +363,22 @@ await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath, routes });
   );
 
   const emitted = [];
+  // Every emitted HTML document, INCLUDING 404.html. The sitemap check below
+  // wants routes only (`emitted`), but the link check wants every page that can
+  // contain an href — 404.html is noindex, which excuses it from the sitemap and
+  // excuses it from nothing else. Its links are exactly the ones a lost visitor
+  // clicks. (Found the hard way: a deliberately broken link planted on the 404
+  // page sailed past the first version of the link assertion, because that
+  // version reused this index.html-only list.)
+  const allHtml = [];
   const walk = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const full = resolve(dir, entry.name);
       if (entry.isDirectory()) walk(full);
-      else if (entry.name === "index.html") emitted.push(full);
+      else if (entry.name === "index.html") {
+        emitted.push(full);
+        allHtml.push(full);
+      } else if (entry.name.endsWith(".html")) allHtml.push(full);
     }
   };
   walk(distDir);
@@ -402,4 +413,68 @@ await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath, routes });
     );
   }
   console.log(`✓ Sitemap covers all ${emitted.length} emitted page(s)`);
+
+  assertNoBrokenInternalLinks(distDir, emitted, allHtml);
+}
+
+/**
+ * Every internal href in the emitted HTML must resolve to something we actually
+ * shipped.
+ *
+ * The sitemap assertion above answers "is every page we emitted discoverable?".
+ * This answers the opposite and equally load-bearing question: "does every link
+ * we emitted go somewhere?" Nothing checked that, and the gap was not
+ * theoretical — the language switcher offered all six locales on every blog
+ * article regardless of which ones the review gate had approved, so a partially
+ * approved post published twelve links to four URLs that prerender had
+ * deliberately not emitted. All twelve were 404s sitting in crawlable HTML,
+ * contradicting the hreflang set in the same <head>.
+ *
+ * Deliberately checked against the BUILT tree rather than against the route
+ * table: the route table is what we intended, and the whole class of bug here is
+ * output diverging from intent.
+ */
+function assertNoBrokenInternalLinks(distDir, emitted, allHtml) {
+  // Routes are directories containing index.html; "" is the site root.
+  const routes = new Set(
+    emitted.map((f) => relative(distDir, dirname(f)).split(sep).join("/")),
+  );
+  const broken = new Map();
+
+  for (const file of allHtml) {
+    const html = readFileSync(file, "utf-8");
+    const from = relative(distDir, file);
+    for (const m of html.matchAll(/\shref="(\/[^"]*)"/g)) {
+      // Strip the fragment/query — they do not change which document is fetched.
+      const target = m[1].replace(/[?#].*$/, "");
+      if (target === "") continue;
+      const clean = target.replace(/^\/+|\/+$/g, "");
+      // A literal file (rss.xml, og-image.webp, llms.txt, 404.html …): it either
+      // exists on disk or it does not.
+      if (/\.[a-zA-Z0-9]+$/.test(clean.split("/").pop() ?? "")) {
+        if (!existsSync(join(distDir, clean))) {
+          if (!broken.has(target)) broken.set(target, new Set());
+          broken.get(target).add(from);
+        }
+        continue;
+      }
+      if (!routes.has(clean)) {
+        if (!broken.has(target)) broken.set(target, new Set());
+        broken.get(target).add(from);
+      }
+    }
+  }
+
+  if (broken.size) {
+    const lines = [...broken.entries()].map(
+      ([target, pages]) =>
+        `${target}  <- ${[...pages].slice(0, 4).join(", ")}${pages.size > 4 ? ` (+${pages.size - 4} more)` : ""}`,
+    );
+    throw new Error(
+      `${broken.size} internal link target(s) were never emitted:\n  ${lines.join("\n  ")}\n` +
+        "Either emit the page or stop linking to it. A link to an unemitted path " +
+        "is a 404 in crawlable HTML.",
+    );
+  }
+  console.log(`✓ No broken internal links across ${allHtml.length} page(s)`);
 }

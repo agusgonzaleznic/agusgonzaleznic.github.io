@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { LocaleLink } from "@/components/LocaleLink";
 import { Button } from "@/components/ui/button";
 import { SECTION_PADDING } from "@/lib/layout";
+import { LocaleLinksContext } from "@/i18n/locale-links";
 
 const NotFound = () => {
   const location = useLocation();
@@ -25,6 +26,13 @@ const NotFound = () => {
   ];
 
   return (
+    // There is no "this page in German" for a URL that does not exist, so the
+    // switcher points at each locale's home instead of localizing the dead path
+    // into another 404. Note this is a HYDRATION-time fix as much as a
+    // prerender-time one: the static 404.html carries the synthetic route path,
+    // but the page a visitor actually sees carries whatever they typed, and it
+    // is that live copy that was minting /de/<their-typo> links.
+    <LocaleLinksContext.Provider value={{ basePath: "/" }}>
     <div className="flex min-h-screen flex-col">
       {/*
         This page is served with a real HTTP 404 (CloudFront custom error →
@@ -85,6 +93,7 @@ const NotFound = () => {
       </main>
       <Footer />
     </div>
+    </LocaleLinksContext.Provider>
   );
 };
 

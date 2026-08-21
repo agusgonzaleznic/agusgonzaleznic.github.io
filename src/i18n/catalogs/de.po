@@ -1,5 +1,15 @@
 msgid ""
-msgstr "POT-Creation-Date: 2026-07-12 10:38+0200\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\nContent-Transfer-Encoding: 8bit\nX-Generator: @lingui/cli\nLanguage: de\nProject-Id-Version: \nReport-Msgid-Bugs-To: \nPO-Revision-Date: \nLast-Translator: \nLanguage-Team: \nPlural-Forms: \n"
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language: \n"
+"Language-Team: \n"
+"Content-Type: \n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
 
 #. placeholder {0}: Math.ceil(seconds / 60)
 #: src/components/Contact.tsx
@@ -25,6 +35,10 @@ msgstr "<0>Einwilligung widerrufen.</0> Analytics wurde gestoppt und die _ga-Coo
 #: src/pages/Legal.tsx
 msgid "<0>Retention:</0> Contact inquiries and the related emails are kept only as long as needed to handle your inquiry and any follow-up, and are then deleted, unless statutory retention obligations require longer storage."
 msgstr "<0>Aufbewahrung:</0> Kontaktanfragen und die zugehörigen E-Mails werden nur so lange aufbewahrt, wie es zur Bearbeitung deiner Anfrage und etwaiger Rückfragen nötig ist, und danach gelöscht – sofern keine gesetzlichen Aufbewahrungspflichten eine längere Speicherung vorschreiben."
+
+#: src/pages/Legal.tsx
+msgid "<0>Spam and abuse protection.</0> Before your message is accepted, the form is checked with <1>Cloudflare Turnstile</1>. For this check your IP address is transmitted to Cloudflare, Inc. In addition, a small amount of technical data is stored briefly in an AWS database (Amazon DynamoDB) purely to enforce rate limits and to avoid sending me the same message twice: counters keyed to your IP address and to your email address, and a one-way hash of your email address together with your message. These entries are deleted automatically — after 10 minutes (IP), one hour (email address) and at most 24 hours (duplicate check). Server logs record the IP address of form submissions; they never contain the content of your message."
+msgstr ""
 
 #: src/pages/Legal.tsx
 msgid "1. Controller"
@@ -132,6 +146,10 @@ msgstr "Als Dienstanbieter bin ich gemäß den allgemeinen Gesetzen (§ 7 Abs. 1
 #: src/pages/Legal.tsx
 msgid "As of July 2026 — reviewed by the site owner. This page was drafted with assistance and is not legal advice."
 msgstr "Stand: Juli 2026 – geprüft vom Betreiber der Website. Diese Seite wurde mit Unterstützung erstellt und stellt keine Rechtsberatung dar."
+
+#: src/pages/Legal.tsx
+msgid "AWS and Cloudflare act as processors for the contact form. Data may be transferred to servers in the United States; these transfers are covered by the transfer mechanisms in the respective data processing agreements (AWS additionally relies on the EU–US Data Privacy Framework, as set out in section 2)."
+msgstr ""
 
 #: src/components/Testimonials.tsx
 msgid "B2B SaaS Company"
@@ -455,8 +473,8 @@ msgid "Google acts as a processor for this measurement. Data may be transferred 
 msgstr "Google fungiert bei dieser Messung als Auftragsverarbeiter. Daten können an Google-Server in den USA übermittelt werden; Google ist im Rahmen des EU-US Data Privacy Framework zertifiziert und stützt sich darüber hinaus auf die EU-Standardvertragsklauseln. Details: <0>https://policies.google.com/privacy</0>"
 
 #: src/pages/Legal.tsx
-msgid "Google acts as a processor in this transmission. Data may be transferred to Google servers in the United States; Google is certified under the EU–US Data Privacy Framework."
-msgstr "Google fungiert bei dieser Übermittlung als Auftragsverarbeiter. Daten können an Google-Server in den USA übermittelt werden; Google ist im Rahmen des EU-US Data Privacy Framework zertifiziert."
+#~ msgid "Google acts as a processor in this transmission. Data may be transferred to Google servers in the United States; Google is certified under the EU–US Data Privacy Framework."
+#~ msgstr "Google fungiert bei dieser Übermittlung als Auftragsverarbeiter. Daten können an Google-Server in den USA übermittelt werden; Google ist im Rahmen des EU-US Data Privacy Framework zertifiziert."
 
 #: src/pages/Legal.tsx
 msgid "Google's <0>Consent Mode v2</0> is used: every consent signal defaults to \"denied\", and only the analytics-storage signal is set to \"granted\" after you accept — advertising signals remain denied. Google Analytics 4 does not log or store IP addresses; IP data is used only transiently to derive coarse location. If you accept, Google Analytics sets the cookies <1>_ga</1> and <2>_ga_*</2> (lifetime of up to two years) to distinguish visitors. Analytics event data is retained in Google Analytics for at most 14 months and is then deleted automatically."
@@ -535,8 +553,12 @@ msgid "IC to Manager & Beyond"
 msgstr "Vom IC zum Manager – und darüber hinaus"
 
 #: src/pages/Legal.tsx
-msgid "If you use the contact form, the data you enter (name, email address, role, and message) is transmitted via a <0>Google Apps Script</0> endpoint (Google LLC / Google Ireland Ltd.) and forwarded to me by email. The data is not stored in any database; it exists only in the resulting email correspondence."
-msgstr "Wenn du das Kontaktformular nutzt, werden die von dir eingegebenen Daten (Name, E-Mail-Adresse, Rolle und Nachricht) über einen <0>Google Apps Script</0>-Endpunkt (Google LLC / Google Ireland Ltd.) übertragen und per E-Mail an mich weitergeleitet. Die Daten werden in keiner Datenbank gespeichert; sie existieren nur in der daraus resultierenden E-Mail-Korrespondenz."
+msgid "If you use the contact form, the data you enter (name, email address, role, and message) is sent to an endpoint on this domain that is operated for me by <0>Amazon Web Services</0> (AWS) and forwarded to me by email using Amazon SES. The message itself is not retained beyond the resulting email correspondence."
+msgstr ""
+
+#: src/pages/Legal.tsx
+#~ msgid "If you use the contact form, the data you enter (name, email address, role, and message) is transmitted via a <0>Google Apps Script</0> endpoint (Google LLC / Google Ireland Ltd.) and forwarded to me by email. The data is not stored in any database; it exists only in the resulting email correspondence."
+#~ msgstr "Wenn du das Kontaktformular nutzt, werden die von dir eingegebenen Daten (Name, E-Mail-Adresse, Rolle und Nachricht) über einen <0>Google Apps Script</0>-Endpunkt (Google LLC / Google Ireland Ltd.) übertragen und per E-Mail an mich weitergeleitet. Die Daten werden in keiner Datenbank gespeichert; sie existieren nur in der daraus resultierenden E-Mail-Korrespondenz."
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
@@ -606,8 +628,12 @@ msgid "Legal basis: Art. 6(1)(a) GDPR (your consent, given via the banner). You 
 msgstr "Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (deine Einwilligung, erteilt über das Banner). Du kannst deine Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen:"
 
 #: src/pages/Legal.tsx
-msgid "Legal basis: Art. 6(1)(b) GDPR (steps prior to entering into a contract / responding to your inquiry) and, where the inquiry is not contract-related, Art. 6(1)(a) GDPR (your consent, given by voluntarily submitting the form). You may withdraw consent at any time with effect for the future by emailing <0>info@agusgonzaleznic.com</0>."
-msgstr "Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Maßnahmen im Vorfeld eines Vertragsabschlusses / Beantwortung deiner Anfrage) sowie, sofern die Anfrage nicht vertragsbezogen ist, Art. 6 Abs. 1 lit. a DSGVO (deine Einwilligung, erteilt durch das freiwillige Absenden des Formulars). Du kannst deine Einwilligung jederzeit mit Wirkung für die Zukunft per E-Mail an <0>info@agusgonzaleznic.com</0> widerrufen."
+msgid "Legal basis: Art. 6(1)(b) GDPR (steps prior to entering into a contract / responding to your inquiry) and, where the inquiry is not contract-related, Art. 6(1)(a) GDPR (your consent, given by voluntarily submitting the form). The spam and abuse protection described above rests on Art. 6(1)(f) GDPR (my legitimate interest in keeping this form usable and free of automated abuse). You may withdraw consent at any time with effect for the future by emailing <0>info@agusgonzaleznic.com</0>."
+msgstr ""
+
+#: src/pages/Legal.tsx
+#~ msgid "Legal basis: Art. 6(1)(b) GDPR (steps prior to entering into a contract / responding to your inquiry) and, where the inquiry is not contract-related, Art. 6(1)(a) GDPR (your consent, given by voluntarily submitting the form). You may withdraw consent at any time with effect for the future by emailing <0>info@agusgonzaleznic.com</0>."
+#~ msgstr "Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Maßnahmen im Vorfeld eines Vertragsabschlusses / Beantwortung deiner Anfrage) sowie, sofern die Anfrage nicht vertragsbezogen ist, Art. 6 Abs. 1 lit. a DSGVO (deine Einwilligung, erteilt durch das freiwillige Absenden des Formulars). Du kannst deine Einwilligung jederzeit mit Wirkung für die Zukunft per E-Mail an <0>info@agusgonzaleznic.com</0> widerrufen."
 
 #: src/pages/Legal.tsx
 msgid "Legal basis: Art. 6(1)(f) GDPR (legitimate interest in the secure, reliable provision of this website). Log data may be processed on servers in the United States; GitHub and AWS rely on the EU–US Data Privacy Framework and/or EU Standard Contractual Clauses for such transfers. I do not merge this data with other sources or use it to identify visitors."
@@ -641,6 +667,10 @@ msgstr "Manager → Director: Wirkung durch andere skalieren"
 #: src/pages/About.tsx
 msgid "Meet Agustin Gonzalez Nicolini — engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3."
 msgstr "Lern Agustin Gonzalez Nicolini kennen — Engineering Leader und Coach in Berlin. Seit über 15 Jahren skaliere ich Teams in Fintech, Gaming, E-Mobility und Web3."
+
+#: src/components/Navigation.tsx
+msgid "Menu"
+msgstr ""
 
 #: src/components/Contact.tsx
 msgid "Message sent — I typically reply within 24 hours."
@@ -893,6 +923,10 @@ msgstr "Erzähl mir von deinen aktuellen Herausforderungen oder Zielen ..."
 msgid "Tell me in a few lines — a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for."
 msgstr "Erzähl mir in ein paar Zeilen davon – ein Team, das feststeckt, eine holprige Übergangsphase, eine Entscheidung, um die du immer wieder kreist. Genau dafür ist ein erstes Gespräch da."
 
+#: src/components/Contact.tsx
+msgid "That message is too long to send. Please shorten it and try again."
+msgstr ""
+
 #: src/pages/Legal.tsx
 msgid "The European Commission provides a platform for online dispute resolution (ODR): <0>https://ec.europa.eu/consumers/odr/</0>. I am neither obliged nor willing to participate in dispute resolution proceedings before a consumer arbitration board (Verbraucherschlichtungsstelle)."
 msgstr "Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (ODR) bereit: <0>https://ec.europa.eu/consumers/odr/</0>. Ich bin weder verpflichtet noch bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
@@ -1097,6 +1131,10 @@ msgstr "Dein vollständiger Name"
 #: src/components/Contact.tsx
 msgid "Your message is too long — please use {MESSAGE_MAX} characters or fewer."
 msgstr "Deine Nachricht ist zu lang — bitte nutze höchstens {MESSAGE_MAX} Zeichen."
+
+#: src/components/Contact.tsx
+msgid "Your message is too long to send. Please shorten it and try again."
+msgstr ""
 
 #: src/components/Contact.tsx
 msgid "Your message is too short — please write at least {MESSAGE_MIN} characters."

@@ -19,6 +19,7 @@ import {
   toIsoUtc,
 } from "@/lib/blog";
 import { SITE_URL } from "@/lib/site";
+import { LocaleLinksContext } from "@/i18n/locale-links";
 import {
   isAutoTranslated,
   localeFromPath,
@@ -94,6 +95,15 @@ const BlogPostPage = () => {
   };
 
   return (
+    // The switcher lives in Navigation/Footer and cannot know which locales this
+    // article was approved for, so the article tells it. Locales without a
+    // variant fall back to the blog index in that language rather than to a URL
+    // prerender never emitted. `approved_locales` is the same array that drives
+    // prerender's emission loop and the hreflang set in this very <head>, so the
+    // body links and the head alternates can no longer disagree.
+    <LocaleLinksContext.Provider
+      value={{ locales: post.approved_locales, fallbackPath: "/blog/" }}
+    >
     <div className="min-h-screen">
       <Helmet>
         <title>{`${title} | ${AUTHOR}`}</title>
@@ -219,6 +229,7 @@ const BlogPostPage = () => {
       </main>
       <Footer />
     </div>
+    </LocaleLinksContext.Provider>
   );
 };
 

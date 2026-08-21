@@ -62,8 +62,11 @@ jobs:
             # zero CI verification. Route them to the unit-tests job instead.
             #   contact-lambda-src — the 10 anti-abuse controls
             #   cdn-function       — the edge routing table (canonical URLs)
+            # scripts/lib is NOT denylisted (it sets site=true too, since the
+            # build imports it), but it must also run its own suite: blog-gate
+            # decides which locale pages exist at all.
             case "$f" in
-              terraform/contact-lambda-src/*|terraform/cdn-function/*) tests=true ;;
+              terraform/contact-lambda-src/*|terraform/cdn-function/*|scripts/lib/*) tests=true ;;
             esac
             case "$f" in
               terraform/*|*.md|.env.example|.gitignore|LICENSE|.github/workflows/terraform.yml) : ;;
@@ -128,6 +131,11 @@ jobs:
       - name: CloudFront function unit tests (edge routing table)
         working-directory: terraform/cdn-function
         run: node --test
+
+      # Explicit glob, not `node --test scripts/lib/`: the directory form treats
+      # every .mjs in there as a test file and fails on the modules that are not.
+      - name: Publication-gate unit tests (which locale pages exist)
+        run: node --test scripts/lib/*.test.mjs
 
   # The required status check. Always runs (needs + if: always()), so branch
   # protection always gets a result. Green when the build passed OR was skipped

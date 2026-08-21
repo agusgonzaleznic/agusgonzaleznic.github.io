@@ -49,6 +49,12 @@ export interface BlogPost {
   canonical_override: string;
   tag_list: string[];
   uuid?: string;
+  /**
+   * Locales this article is actually EMITTED in, baked by fetch-blog.mjs from
+   * scripts/lib/blog-gate.mjs. Absent/empty means "no restriction recorded" —
+   * see getAllPosts.
+   */
+  approved_locales?: string[];
 }
 
 const rawPosts = (Array.isArray(blogData) ? blogData : []) as Partial<BlogPost>[];
@@ -87,6 +93,7 @@ const normalize = (p: Partial<BlogPost>): BlogPost => ({
   seo_description: p.seo_description ?? "",
   canonical_override: p.canonical_override ?? "",
   tag_list: Array.isArray(p.tag_list) ? p.tag_list : [],
+  approved_locales: Array.isArray(p.approved_locales) ? p.approved_locales : [],
   uuid: p.uuid ?? "",
 });
 
@@ -139,10 +146,31 @@ export function formatDate(date: string | null | undefined, locale: string = SOU
   return formatByLocale(locale, months[Number(m[2]) - 1], Number(m[3]), m[1]);
 }
 
+/**
+ * Is this article published in `locale`?
+ *
+ * An EMPTY/absent `approved_locales` means no restriction was recorded, and it
+ * must NOT hide the post — that mirrors prerender.mjs, whose emission loop is
+ * `if (route.approvedLocales && !route.approvedLocales.includes(locale))`. The
+ * two consumers agreeing matters more than either policy on its own: if they
+ * disagreed, one would emit a page the other refuses to link, or link a page
+ * the other never emits. Failing open also means a regression in fetch-blog
+ * cannot blank the entire blog.
+ */
+const emittedIn = (p: BlogPost, locale: string) =>
+  !p.approved_locales?.length || p.approved_locales.includes(locale);
+
 export function getAllPosts(locale: string = SOURCE_LOCALE): BlogPost[] {
   return rawFor(locale)
     .map(normalize)
     .filter((p) => p.slug && p.title)
+    // Only articles that actually have a page in this locale. Without this the
+    // locale index listed the English fallback for every article — rawFor()
+    // falls back to blog-data.json when blog-data.<locale>.json is absent — so
+    // holding a locale (AUTO_LOCALE_MODE="hold", or a withdrawn DE/ES approval)
+    // left /{locale}/blog advertising PostCards that linked to pages prerender
+    // had deliberately not emitted. Every one of those links was a 404.
+    .filter((p) => emittedIn(p, locale))
     .sort((a, b) => toIsoUtc(postDate(b)).localeCompare(toIsoUtc(postDate(a))));
 }
 

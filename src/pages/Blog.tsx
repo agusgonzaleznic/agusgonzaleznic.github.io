@@ -1,12 +1,10 @@
-import { Helmet } from "react-helmet";
 import { useLocation } from "react-router-dom";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { Navigation } from "@/components/Navigation";
-import { Footer } from "@/components/Footer";
+import { SeoPage } from "@/components/SeoPage";
 import { PostCard } from "@/components/blog/PostCard";
 import { getAllPosts } from "@/lib/blog";
 import { SITE_URL } from "@/lib/site";
-import { localeFromPath, localizePath, LOCALE_META } from "@/i18n/locales";
+import { localeFromPath } from "@/i18n/locales";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 const Blog = () => {
@@ -16,31 +14,34 @@ const Blog = () => {
   // localizePath("/blog/", "en") === "/blog/".
   const locale = localeFromPath(useLocation().pathname);
   const posts = getAllPosts(locale);
-  const blogUrl = `${SITE_URL}${localizePath("/blog/", locale)}`;
 
   const title = t`Writing | Agustin Gonzalez Nicolini`;
   const description = t`Notes on engineering leadership and the systems behind it, from fifteen years of running teams and infrastructure. By Agustin Gonzalez Nicolini.`;
 
   return (
-    <div className="min-h-screen">
-      <Helmet>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <link rel="canonical" href={blogUrl} />
+    // Was a hand-rolled <Helmet> with title/description/canonical/og:type/
+    // og:title/og:description/og:url/og:locale and the RSS link — i.e. no
+    // og:image, no twitter card, no og:site_name and no JSON-LD, so this page
+    // unfurled as a bare link on every social and chat surface. SeoPage supplies
+    // all of that (plus WebPage + BreadcrumbList + Person/WebSite nodes) and
+    // localizes the canonical exactly as before. The DOM below <main> is
+    // unchanged, deliberately: SeoPage's shell is already
+    // div.min-h-screen > Navigation + main.pt-16 + Footer.
+    <SeoPage
+      path="/blog/"
+      title={title}
+      description={description}
+      crumb={t`Writing`}
+      pageType="Blog"
+      extraHead={
         <link
           rel="alternate"
           type="application/rss+xml"
           title={t`Writing — Agustin Gonzalez Nicolini`}
           href={`${SITE_URL}/blog/rss.xml`}
         />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:url" content={blogUrl} />
-        <meta property="og:locale" content={LOCALE_META[locale].ogLocale} />
-      </Helmet>
-      <Navigation />
-      <main className="pt-16">
+      }
+    >
         <section className="bg-background">
           <div className={`container px-6 ${SECTION_PADDING}`}>
             <div className="mx-auto max-w-3xl">
@@ -72,9 +73,7 @@ const Blog = () => {
             </div>
           </div>
         </section>
-      </main>
-      <Footer />
-    </div>
+    </SeoPage>
   );
 };
 
