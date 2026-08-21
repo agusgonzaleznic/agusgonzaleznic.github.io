@@ -5,6 +5,16 @@ on:
   pull_request:
     paths:
       - "terraform/**"
+      # Markdown under terraform/ cannot change infrastructure, but it used to
+      # queue a GATED APPLY that a human had to approve for a guaranteed no-op.
+      # Gate fatigue is what normalised rubber-stamping these runs in the first
+      # place (#114), so keep the human decisions load-bearing: md-only changes
+      # do not trigger this workflow. Negative patterns must come AFTER the
+      # positive one — later patterns win. Both forms are listed because
+      # whether `**` can match zero directories is not worth betting a gate on:
+      # *.md catches terraform/README.md, **/*.md catches bootstrap/README.md.
+      - "!terraform/*.md"
+      - "!terraform/**/*.md"
       - ".github/workflows/terraform.yml"
 
   # Apply (gated) on merges to main that touch the site module
@@ -13,6 +23,16 @@ on:
       - main
     paths:
       - "terraform/**"
+      # Markdown under terraform/ cannot change infrastructure, but it used to
+      # queue a GATED APPLY that a human had to approve for a guaranteed no-op.
+      # Gate fatigue is what normalised rubber-stamping these runs in the first
+      # place (#114), so keep the human decisions load-bearing: md-only changes
+      # do not trigger this workflow. Negative patterns must come AFTER the
+      # positive one — later patterns win. Both forms are listed because
+      # whether `**` can match zero directories is not worth betting a gate on:
+      # *.md catches terraform/README.md, **/*.md catches bootstrap/README.md.
+      - "!terraform/*.md"
+      - "!terraform/**/*.md"
       - ".github/workflows/terraform.yml"
 
   # Manual re-run of the gated apply (e.g. after a failed apply)
