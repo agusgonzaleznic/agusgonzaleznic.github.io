@@ -30,9 +30,13 @@ const TAGMAP_PATH = fileURLToPath(new URL("../content/tag-translations.json", im
 const NON_EN_LOCALES = ["de", "es", "fr", "it", "pt"];
 
 // ── frontmatter ─────────────────────────────────────────────────────────────
+// The BOM is matched via the \uFEFF ESCAPE, never as a literal character: a raw
+// U+FEFF in source is invisible in an editor and in review (eslint flags it as
+// irregular whitespace), the same trap as the raw NUL byte that used to make
+// scripts/lib/deepl.mjs look like a binary file to git.
 function parseFrontmatter(raw) {
-  const m = raw.match(/^﻿?---\r?\n([\s\S]*?)\r?\n---[ \t]*\r?\n?/);
-  if (!m) return { data: {}, body: raw.replace(/^﻿/, "") };
+  const m = raw.match(/^\uFEFF?---\r?\n([\s\S]*?)\r?\n---[ \t]*\r?\n?/);
+  if (!m) return { data: {}, body: raw.replace(/^\uFEFF/, "") };
   const data = {};
   for (const line of m[1].split(/\r?\n/)) {
     const t = line.trim();
@@ -219,7 +223,30 @@ function listItems(listEl) {
     });
 }
 
+// Refuse rather than silently mangle. <table> is not in BLOCK_TAGS, so a
+// Markdown table used to fall through to the inline path and every cell was
+// concatenated into ONE run-on paragraph — the author only discovered it by
+// reading the published post. Storyblok richtext does support tables, but
+// emitting them needs a real converter; until then, failing loudly is strictly
+// better than publishing corrupted content.
+function assertConvertible(html) {
+  const unsupported = [
+    ["table", /<table[\s>]/i],
+    ["definition list", /<dl[\s>]/i],
+  ];
+  for (const [label, re] of unsupported) {
+    if (re.test(html)) {
+      throw new Error(
+        `This document contains a ${label}, which the Richtext converter cannot ` +
+          `represent — it would be flattened into a single run-on paragraph. ` +
+          `Remove it from the source, or add the ${label} to the converter first.`,
+      );
+    }
+  }
+}
+
 function htmlToRichtext(html) {
+  assertConvertible(html);
   const root = parse(html, { comment: false });
   const blocks = blockContent(root);
   // The title field owns the headline: drop a single leading <h1>.
@@ -262,9 +289,6 @@ async function promptMissing(data, fallbackName) {
   const fields = ["title", "slug", "excerpt", "published_date", "seo_title", "seo_description", "original_url"];
   if (process.argv.includes("--no-prompt") || !process.stdin.isTTY) return;
   if (fields.every((k) => data[k])) return;
-  const now = new Date();
-  const p = (n) => String(n).padStart(2, "0");
-  const today = `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())} 09:00`;
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   const ask = async (key, label, def = "") => {
     if (data[key]) return;
@@ -276,7 +300,6 @@ async function promptMissing(data, fallbackName) {
     await ask("title", "Title");
     await ask("slug", "Slug (URL segment under /blog/)", slugify(data.title || fallbackName));
     await ask("excerpt", "Excerpt (<=200 — also the default meta description)");
-    await ask("published_date", "Published date (YYYY-MM-DD HH:MM)", today);
     await ask("seo_title", "SEO title (<=60 — blank falls back to Title)");
     await ask("seo_description", "SEO description (<=160 — blank falls back to Excerpt)");
     await ask("original_url", "Original URL (only if republished first elsewhere — blank = self-canonical)");
@@ -421,6 +444,11 @@ if (!file) {
 let raw = readFileSync(resolve(file), "utf8");
 let { data, body } = parseFrontmatter(raw);
 const ext = extname(file).toLowerCase();
+// Whether the SOURCE FILE specified a date, captured before autofill invents
+// one. Re-importing an existing post must not silently re-date it (see the
+// carry-over below).
+const hadExplicitDate = Boolean(data.published_date);
+
 await autofillFrontmatter(data, toHtml(body, ext));
 await promptMissing(data, basename(file, ext));
 
@@ -482,6 +510,27 @@ if (tag_list.length) {
 const fullSlug = `blog/${slug}`;
 const existing = await findStory(fullSlug);
 if (existing) {
+  // PRESERVE THE ORIGINAL PUBLISH DATE on re-import.
+  //
+  // autofillFrontmatter stamps today whenever the source file omits a date, and
+  // the interactive prompt that was supposed to catch this could never fire
+  // (ask() returns early once the key is set, and autofill runs first). So
+  // re-importing a three-week-old post to fix a typo silently re-dated it to
+  // today — which re-sorts it to the top of the blog index (Storyblok is queried
+  // sort_by content.published_date:desc), re-stamps its RSS pubDate so feed
+  // readers surface it as new, and moves its sitemap lastmod.
+  //
+  // The list endpoint returns story summaries without full content, so fetch the
+  // single story to read its stored date. Only applies when the author did NOT
+  // put a date in the source file — an explicit frontmatter date still wins.
+  if (!hadExplicitDate) {
+    const full = await api("GET", `/stories/${existing.id}`);
+    const priorDate = full?.story?.content?.published_date;
+    if (priorDate && priorDate !== content.published_date) {
+      console.log(`   keeping original published_date ${priorDate} (was about to become ${content.published_date})`);
+      content.published_date = priorDate;
+    }
+  }
   await api("PUT", `/stories/${existing.id}`, { story: { name: content.title, slug, content, tag_list } });
   console.log(`\n✓ updated DRAFT ${fullSlug} (id ${existing.id})`);
 } else {

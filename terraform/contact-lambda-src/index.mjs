@@ -56,8 +56,17 @@ const SITEVERIFY_URL =
   "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 // C0 control chars + DEL; strict variant allows \t \n \r (multiline message).
+//
+// Matching control characters IS the point here — these reject CR/LF and friends
+// in submitted fields so they cannot be smuggled into the SES subject or
+// Reply-To as header injection. So no-control-regex is disabled deliberately,
+// narrowly, and only for these two lines. Note they use \x escapes, not literal
+// bytes: a raw control character in source is invisible in review (and a raw NUL
+// makes git treat the whole file as binary).
+/* eslint-disable no-control-regex */
 const CTRL_ANY = /[\x00-\x1F\x7F]/;
 const CTRL_MULTILINE = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/;
+/* eslint-enable no-control-regex */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function env() {

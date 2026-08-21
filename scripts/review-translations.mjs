@@ -45,7 +45,7 @@ import { translateStories } from "./lib/richtext-translate.mjs";
 import { fetchPublishedPosts, fetchStoriesByPrefix } from "./lib/storyblok-fetch.mjs";
 import { REVIEW_GATED_LOCALES, AUTO_LOCALES, enSourceHash, loadApprovals } from "./lib/blog-gate.mjs";
 import {
-  pageSlug, pageSourceHash, loadPageApprovals, loadReviewedPage, reviewedPagePath, isPageApproved,
+  pageSlug, pageSourceHash, loadPageApprovals, loadReviewedPage, reviewedPagePath,
 } from "./lib/page-gate.mjs";
 import { translatePage } from "./lib/page-translate.mjs";
 import { parsePo, serializePo, entryKey, sourceText, isHeader } from "./lib/po.mjs";

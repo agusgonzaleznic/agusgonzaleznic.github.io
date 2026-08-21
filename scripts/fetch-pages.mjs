@@ -27,7 +27,10 @@ import {
   saveCache,
   SOURCE_LOCALE,
 } from "./lib/deepl.mjs";
-import { createPostEditor, hasAnthropicKey, POSTEDIT_VERSION } from "./lib/llm-postedit.mjs";
+// POSTEDIT_VERSION is deliberately NOT imported: page translations are salted
+// with PAGE_CACHE_SALT instead, so cache priming stays deterministic whether or
+// not ANTHROPIC_API_KEY is present in a given build (see the salt note below).
+import { createPostEditor, hasAnthropicKey } from "./lib/llm-postedit.mjs";
 import { pageDataFilename, translatePage, applyReviewedPage } from "./lib/page-translate.mjs";
 import {
   loadPageApprovals,
@@ -39,7 +42,6 @@ import { fetchStoriesByPrefix } from "./lib/storyblok-fetch.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const generatedDir = resolve(__dirname, "../src/generated");
-const outFile = resolve(generatedDir, "page-data.json");
 const cachePath = resolve(__dirname, ".i18n-cache.json");
 const glossaryPath = resolve(__dirname, "i18n-glossary.json");
 const localesTsPath = resolve(__dirname, "../src/i18n/locales.ts");

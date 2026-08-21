@@ -23,6 +23,26 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  // Build-pipeline and Lambda sources (.mjs). These had NO rules applied at all:
+  // every `files` block above targets only .ts/.tsx, so ~4,300 lines of build
+  // scripts and the two Lambdas were completely unlinted — an undefined variable
+  // or an unreachable branch in them would only ever surface at build or run
+  // time. Node globals, not browser; module scope, since they are all ESM.
+  {
+    extends: [js.configs.recommended],
+    files: ["**/*.mjs"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: globals.node,
+    },
+    rules: {
+      // The build scripts intentionally destructure-and-ignore, and several
+      // catch blocks deliberately swallow (documented fail-safe paths).
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_", caughtErrors: "none" }],
+    },
+  },
+
   // Disable react-refresh warnings for shadcn/ui components
   {
     files: ["src/components/ui/**/*.{ts,tsx}"],

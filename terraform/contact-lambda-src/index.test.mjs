@@ -221,7 +221,7 @@ test("POST from disallowed origin -> 403, no ACAO", async () => {
 });
 
 test("www origin is allowed", async () => {
-  const { fetch } = install();
+  install();
   const res = await handler(
     event({ origin: "https://www.agusgonzaleznic.com" }),
   );
@@ -394,7 +394,7 @@ test("too-fast submission (age < 3s) -> 403", async () => {
 });
 
 test("reused token (TOK# already present) -> 403", async () => {
-  const { ddb } = install();
+  install();
   const b = body();
   // First submission succeeds and records the token.
   const r1 = await handler(event({ bodyObj: b }));
