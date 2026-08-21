@@ -16,7 +16,7 @@
 
 import { createHash } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { collectTranslatableStrings } from "./page-translate.mjs";
 
 /** `pages/about` (or `about`) → "about". Falls back to uuid if slugless. */
@@ -36,19 +36,62 @@ export function pageSourceHash(page) {
   return createHash("sha256").update(strings.join("␞"), "utf8").digest("hex").slice(0, 24);
 }
 
-/** Read the page-approvals manifest; missing/corrupt → empty (nothing approved). */
+/** Read the page-approvals manifest.
+ *
+ * ABSENT is fine and means "nothing is approved yet" — that is the intended
+ * fail-safe and is how a fresh checkout behaves. A file that EXISTS but does not
+ * parse is a different thing entirely and now throws.
+ *
+ * The old `catch { return {} }` conflated the two, and the failure was silent and
+ * total: a truncated manifest made every reviewed locale variant look
+ * unapproved, so prerender emitted no /de/ or /es/ pages, the sitemap and
+ * hreflang sets lost them, and the build stayed GREEN. The same loader is used by
+ * scripts/review-translations.mjs, where the consequence is worse — it would read
+ * the manifest as empty and then write that back, permanently discarding every
+ * approval on the next save. */
 export function loadPageApprovals(path) {
+  if (!existsSync(path)) return {};
+  const raw = readFileSync(path, "utf8");
+  let parsed;
   try {
-    const parsed = JSON.parse(readFileSync(path, "utf8"));
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch {
-    return {};
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    throw new Error(
+      `page-gate: ${path} exists but is not valid JSON (${e.message}). ` +
+        "Refusing to treat it as empty — that would silently unpublish every " +
+        "reviewed translation. Restore it from git.",
+    );
   }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error(`page-gate: ${path} must contain a JSON object, got ${Array.isArray(parsed) ? "an array" : typeof parsed}.`);
+  }
+  return parsed;
 }
 
-/** Path to a reviewed page's per-locale store. */
+/** Path to a reviewed page's per-locale store.
+ *
+ * Both `slug` and `locale` are interpolated into the filename, and `locale` can
+ * originate from a request body in the local review tool — so a traversal value
+ * would escape contentDir entirely. Callers validate, and this asserts, because
+ * this builder is shared by the build (fetch-pages) and the review server and
+ * only one of them had a guard. */
 export function reviewedPagePath(contentDir, slug, locale) {
-  return resolve(contentDir, `${slug}.${locale}.json`);
+  // NOTE for future editors: comparing resolve(...) against join(...) does NOT
+  // work as a containment check — join normalises `..` exactly like resolve, so
+  // both sides collapse to the same escaped path and the comparison always
+  // passes. Reject the dangerous characters in the INPUTS, then assert the file
+  // lands directly in the base directory.
+  for (const [name, v] of [["slug", slug], ["locale", locale]]) {
+    if (typeof v !== "string" || /[/\\]/.test(v) || v.split(".").includes("..") || v === "..") {
+      throw new Error(`refusing unsafe ${name}: ${JSON.stringify(v)}`);
+    }
+  }
+  const base = resolve(contentDir);
+  const p = resolve(base, `${slug}.${locale}.json`);
+  if (dirname(p) !== base) {
+    throw new Error(`refusing path outside ${base}: ${p}`);
+  }
+  return p;
 }
 
 /** Load a reviewed page tree, or null if absent. */

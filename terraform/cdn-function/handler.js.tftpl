@@ -1,0 +1,145 @@
+// CloudFront Function (cloudfront-js-2.0) — viewer-request.
+//
+// Rendered by templatefile() from terraform/cdn.tf; ${domain_name} is the only
+// substitution. Kept in its own file so it can be UNIT TESTED: it decides the
+// canonical URL of every page on the site, and a mistake here is a site-wide
+// SEO or availability incident. terraform/cdn-function/handler.test.mjs renders
+// this template the same way Terraform does and asserts the full routing table.
+//
+// WHY NORMALISATION AND CANONICALISATION HAPPEN HERE, NOT AT THE ORIGIN:
+// CloudFront sends Host = agusgonzaleznic.github.io to GitHub Pages, so any
+// origin-generated directory redirect carries the github.io domain in its
+// Location and teleports the visitor off the apex — losing the per-behaviour
+// CSP/HSTS headers with it.
+//
+// CANONICAL FORMS (these must serve 200; a canonical/hreflang/sitemap URL that
+// 301s gets dropped from locale clusters and flagged in Search Console):
+//   - marketing/legal pages are BARE (/about, /de/faq, /impressum). The
+//     extensionless URI is REWRITTEN internally to <uri>/index.html.
+//   - the blog subtree and locale homes are SLASH (/blog/, /de/blog/x/, /de/).
+//   - proxied GitHub Pages PROJECT sites are SLASH (/drive-berlin/) and pass
+//     through untouched so their RELATIVE asset links resolve in-subtree.
+function handler(event) {
+  var request = event.request;
+  var host = request.headers.host.value;
+  var uri = request.uri;
+
+  var projectSites = ['/drive-berlin'];
+
+  function redirect(to) {
+    var qs = '';
+    for (var key in request.querystring) {
+      qs += (qs === '' ? '?' : '&') + key;
+      var v = request.querystring[key];
+      if (v.multiValue) {
+        qs += '=' + v.multiValue.map(function (m) { return m.value; }).join('&' + key + '=');
+      } else if (v.value !== '') {
+        qs += '=' + v.value;
+      }
+    }
+    return {
+      statusCode: 301,
+      statusDescription: 'Moved Permanently',
+      headers: { location: { value: 'https://${domain_name}' + to + qs } }
+    };
+  }
+
+  // Collapse duplicate slashes and resolve dot segments.
+  //
+  // This runs FIRST, before the www branch, because CloudFront normalises the
+  // URI only AFTER this function — so the function sees the raw path while the
+  // origin sees the collapsed one. Without this, //blog and /de/../about served
+  // 200 as uncanonicalised duplicates, and a www hit on a non-canonical path
+  // cost two or three redirect hops.
+  //
+  // Per RFC 3986 a TRAILING '.' or '..' segment resolves to a trailing slash
+  // (/about/. -> /about/), which the subtree rules below then canonicalise.
+  function normalise(p) {
+    var s = p.replace(/\/{2,}/g, '/');
+    if (s.indexOf('/.') === -1) return s;
+    var parts = s.split('/');
+    var out = [];
+    var trailingDotSegment = false;
+    for (var i = 0; i < parts.length; i++) {
+      var seg = parts[i];
+      var last = i === parts.length - 1;
+      if (seg === '.') { if (last) trailingDotSegment = true; continue; }
+      if (seg === '..') {
+        if (out.length > 1) out.pop();
+        if (last) trailingDotSegment = true;
+        continue;
+      }
+      out.push(seg);
+    }
+    s = out.join('/');
+    if (s === '') s = '/';
+    if (trailingDotSegment && s.charAt(s.length - 1) !== '/') s += '/';
+    return s;
+  }
+
+  // Classify a NORMALISED path: its canonical form, and whether serving it
+  // needs an internal rewrite to the prerendered index.html.
+  function classify(p) {
+    // Locale-stripped path decides the subtree; e.g. /de/blog/x -> /blog/x.
+    var base = p.replace(/^\/(de|es|fr|it|pt)(?=\/|$)/, '');
+    if (base === '') base = '/';
+
+    var isProjectSite = projectSites.some(function (s) {
+      return base === s || base.indexOf(s + '/') === 0;
+    });
+
+    var slashCanonical =
+      base === '/' ||                                     // root + locale homes
+      base === '/blog' || base.indexOf('/blog/') === 0 || // blog index + posts + feeds
+      isProjectSite;                                      // proxied Pages apps
+
+    var lastSegment = p.split('/').pop();
+    // SHAPE test, not a substring test and not an extension allow-list.
+    //
+    // The old `lastSegment.includes('.')` classified a dotted SLUG as a file:
+    // /blog/terraform-1.9-moved-blocks then bypassed canonicalisation, reached
+    // GitHub Pages bare, and the origin 301'd the visitor to
+    // agusgonzaleznic.github.io. An allow-list of extensions is worse — it
+    // would 301 any /drive-berlin/* asset whose type is not on the list
+    // (.geojson, .wasm, .webmanifest) into a 404, and that project site lives
+    // in a DIFFERENT repo whose asset types this one does not control.
+    //
+    // A dot counts as an extension only when followed by an alpha-led,
+    // all-alphanumeric tail: matches .css/.js/.html/.nojekyll/.webmanifest and
+    // the final .js of bundle.min.js; does NOT match "1.9-moved-blocks" (tail
+    // has a hyphen) or "3.13" (tail starts with a digit).
+    var isFile = /\.[a-zA-Z][a-zA-Z0-9]*$/.test(lastSegment);
+    var extensionless = p.charAt(p.length - 1) !== '/' && !isFile;
+
+    if (slashCanonical) {
+      // Canonical ends in '/': add it ( /blog -> /blog/, /de -> /de/ ).
+      // A file inside the subtree (/blog/rss.xml) is already canonical, and a
+      // project site's directory index is served by the origin — appending
+      // /index.html there would break it.
+      return { canonical: extensionless ? p + '/' : p, rewrite: null };
+    }
+
+    // Canonical is bare: strip stray trailing slashes ( /about/ -> /about ).
+    if (p !== '/' && p.charAt(p.length - 1) === '/') {
+      return { canonical: p.replace(/\/+$/, ''), rewrite: null };
+    }
+
+    // Serve the bare URL 200 by fetching the prerendered directory index
+    // directly — no origin redirect involved.
+    if (extensionless) return { canonical: p, rewrite: p + '/index.html' };
+    return { canonical: p, rewrite: null };
+  }
+
+  var normalised = normalise(uri);
+  var verdict = classify(normalised);
+
+  // ONE redirect for host and path together. Computing the canonical path
+  // before the www branch is what collapses www + non-canonical path from three
+  // hops to one.
+  if (host.indexOf('www.') === 0 || verdict.canonical !== uri) {
+    return redirect(verdict.canonical);
+  }
+
+  if (verdict.rewrite) request.uri = verdict.rewrite;
+  return request;
+}

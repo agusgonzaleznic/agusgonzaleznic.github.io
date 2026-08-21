@@ -3,6 +3,7 @@ import { HeroBlockStoryblok } from "@/lib/types/storyblok";
 import { SECTION_PADDING } from "@/lib/layout";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { scrollBehavior } from "@/lib/motion";
 
 interface HeroBlockProps {
   blok: HeroBlockStoryblok;
@@ -22,7 +23,7 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
   const handleSecondaryCTA = () => {
     if (blok.secondary_cta_url) {
       if (blok.secondary_cta_url.startsWith("#")) {
-        document.getElementById(blok.secondary_cta_url.slice(1))?.scrollIntoView({ behavior: "smooth" });
+        document.getElementById(blok.secondary_cta_url.slice(1))?.scrollIntoView({ behavior: scrollBehavior() });
       } else if (blok.secondary_cta_url.startsWith("http")) {
         window.open(blok.secondary_cta_url, "_blank");
       } else {

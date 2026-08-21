@@ -1,9 +1,15 @@
 // Unit tests for the contact Lambda: exercises every control's pass AND fail
 // path. DynamoDB, SSM, SES, and fetch are stubbed (no network, no AWS).
 //   node --test
-import { test } from "node:test";
+import { test } from "node:test";  // timers come from the per-test context (t.mock)
 import assert from "node:assert/strict";
-import { handler, __setTestDeps, __resetTestDeps } from "./index.mjs";
+import {
+  handler,
+  __setTestDeps,
+  __resetTestDeps,
+  __windowKey,
+  __limits,
+} from "./index.mjs";
 
 process.env.TURNSTILE_SECRET_PARAM = "/p/turnstile-secret";
 process.env.MAIL_FROM = "noreply@agusgonzaleznic.com";
@@ -23,6 +29,32 @@ function tsAgo(seconds) {
 
 // In-memory DynamoDB stub. put respects attribute_not_exists(pk); update is an
 // atomic counter. Tests can pre-seed `counts` / `puts` to force conditions.
+// Rate-limit buckets are keyed by window (see bumpCounter). Derive the key via
+// the handler's own exported helper so these tests cannot drift from the
+// implementation the way a hand-copied `IP#<ip>` literal did.
+function ipKey(ip) {
+  return __windowKey(`IP#${ip}`, __limits.IP_WINDOW_S).key;
+}
+
+// Freeze the clock mid-window.
+//
+// retryAfter is `windowEnd - now`, so any assertion that it is a REAL wait is
+// non-deterministic against a live clock: run inside the last second of a 600s
+// window and retryAfter legitimately equals 1, which is correct behaviour but
+// indistinguishable from the bug the assertion exists to catch (the old code
+// derived it from a PAST expires_at so it always collapsed to 1). That is a
+// 1-in-600 flake per assertion — it fired in CI, failing three tests at once
+// because they shared the same boundary second.
+//
+// Pinning `now` to a known offset inside the window makes retryAfter exact, so
+// the test stays discriminating instead of being loosened to `>= 1`.
+const WINDOW_OFFSET_S = 100; // seconds into the window; retryAfter must be window - this
+function freezeClockMidWindow(t, windowS) {
+  const start = 1_700_000_000 - (1_700_000_000 % windowS);
+  t.mock.timers.enable({ apis: ["Date"], now: (start + WINDOW_OFFSET_S) * 1000 });
+  return windowS - WINDOW_OFFSET_S;
+}
+
 function makeDdb() {
   const puts = new Set();
   const counts = new Map();
@@ -38,6 +70,10 @@ function makeDdb() {
         throw e;
       }
       puts.add(pk);
+      return {};
+    }
+    if (op === "DeleteItem") {
+      puts.delete(params.Key.pk.S);
       return {};
     }
     if (op === "UpdateItem") {
@@ -204,7 +240,7 @@ test("POST from disallowed origin -> 403, no ACAO", async () => {
 });
 
 test("www origin is allowed", async () => {
-  const { fetch } = install();
+  install();
   const res = await handler(
     event({ origin: "https://www.agusgonzaleznic.com" }),
   );
@@ -216,17 +252,35 @@ test("www origin is allowed", async () => {
 });
 
 // --- Control 3: body size ----------------------------------------------------
+// Sizes derive from the implementation's own limit rather than a magic number:
+// these two tests hardcoded 9000, which silently stopped testing anything the
+// moment MAX_BODY_BYTES was raised above it.
 test("oversized Content-Length -> 413", async () => {
   install();
-  const res = await handler(event({ contentLength: 9000 }));
+  const res = await handler(event({ contentLength: __limits.MAX_BODY_BYTES + 1 }));
   assert.equal(res.statusCode, 413);
 });
 
 test("oversized actual body (spoofed small Content-Length) -> 413", async () => {
   install();
-  const big = JSON.stringify(body({ message: "x".repeat(9000) }));
+  const big = JSON.stringify(body({ message: "x".repeat(__limits.MAX_BODY_BYTES + 100) }));
   const res = await handler(event({ rawBody: big, contentLength: 10 }));
   assert.equal(res.statusCode, 413);
+});
+
+test("a 4,000-character message in a 3-byte script fits under the body cap", async () => {
+  // The point of raising MAX_BODY_BYTES: the ADVERTISED 4,000-char limit has to
+  // be deliverable in every script, not just ASCII. At 8192 this 413'd.
+  install();
+  const cjk = "\u65e5".repeat(4000); // 4,000 chars x 3 bytes = 12,000 bytes
+  const payload = JSON.stringify(body({ message: cjk }));
+  assert.ok(
+    Buffer.byteLength(payload, "utf8") > 8192,
+    "fixture must exceed the OLD cap, or it proves nothing",
+  );
+  const res = await handler(event({ rawBody: payload }));
+  assert.notEqual(res.statusCode, 413, "a legitimate CJK message must not be rejected as oversized");
+  assert.equal(res.statusCode, 200);
 });
 
 // --- Control 4: schema -------------------------------------------------------
@@ -359,7 +413,7 @@ test("too-fast submission (age < 3s) -> 403", async () => {
 });
 
 test("reused token (TOK# already present) -> 403", async () => {
-  const { ddb } = install();
+  install();
   const b = body();
   // First submission succeeds and records the token.
   const r1 = await handler(event({ bodyObj: b }));
@@ -372,9 +426,10 @@ test("reused token (TOK# already present) -> 403", async () => {
 });
 
 // --- Control 8: per-IP rate limit --------------------------------------------
-test("per-IP over limit -> 429", async () => {
+test("per-IP over limit -> 429", async (t) => {
+  const expected = freezeClockMidWindow(t, __limits.IP_WINDOW_S);
   const { ddb } = install();
-  ddb.counts.set("IP#203.0.113.5", 5); // next bump -> 6 > 5
+  ddb.counts.set(ipKey("203.0.113.5"), 5); // next bump -> 6 > 5
   const res = await handler(event());
   assert.equal(res.statusCode, 429);
   const b = parse(res);
@@ -384,13 +439,15 @@ test("per-IP over limit -> 429", async () => {
   // expires_at (= first hit + IP window). Assert it reflects the real window,
   // not the constant-1 fallback that a stub omitting expires_at would produce,
   // and that the Retry-After header mirrors it.
-  assert.ok(Number.isInteger(b.retryAfter) && b.retryAfter > 1 && b.retryAfter <= 600);
+  // Exact, because the clock is pinned: retryAfter is the remaining window.
+  assert.equal(b.retryAfter, expected);
   assert.equal(res.headers["retry-after"], String(b.retryAfter));
 });
 
-test("IPv6 callers in the same /64 share one per-IP bucket", async () => {
+test("IPv6 callers in the same /64 share one per-IP bucket", async (t) => {
+  const expected = freezeClockMidWindow(t, __limits.IP_WINDOW_S);
   const { ddb } = install();
-  ddb.counts.set("IP#2001:db8:1:2::/64", 5); // next bump -> 6 > 5
+  ddb.counts.set(ipKey("2001:db8:1:2::/64"), 5); // next bump -> 6 > 5
   // A different interface id inside the same /64 must map to the same bucket.
   const res = await handler(event({ ip: "2001:db8:1:2:aaaa:bbbb:cccc:dddd:443" }));
   assert.equal(res.statusCode, 429);
@@ -401,13 +458,13 @@ test("IPv6 callers in the same /64 share one per-IP bucket", async () => {
   // expires_at (= first hit + IP window). Assert it reflects the real window,
   // not the constant-1 fallback that a stub omitting expires_at would produce,
   // and that the Retry-After header mirrors it.
-  assert.ok(Number.isInteger(b.retryAfter) && b.retryAfter > 1 && b.retryAfter <= 600);
+  assert.equal(b.retryAfter, expected);
   assert.equal(res.headers["retry-after"], String(b.retryAfter));
 });
 
 test("per-IP rate limit is enforced BEFORE the siteverify network call", async () => {
   const { ddb, fetch } = install();
-  ddb.counts.set("IP#203.0.113.5", 5); // next bump -> 6 > 5
+  ddb.counts.set(ipKey("203.0.113.5"), 5); // next bump -> 6 > 5
   const res = await handler(event());
   assert.equal(res.statusCode, 429);
   // No outbound siteverify happened — the flood is bounded before that spend.
@@ -417,7 +474,10 @@ test("per-IP rate limit is enforced BEFORE the siteverify network call", async (
 // --- Control 9: per-email rate limit -----------------------------------------
 test("per-email over limit -> 429", async () => {
   const { ddb } = install();
-  ddb.counts.set("EMAIL#ada@example.com", 3); // next bump -> 4 > 3
+  ddb.counts.set(
+    __windowKey("EMAIL#ada@example.com", __limits.EMAIL_WINDOW_S).key,
+    3,
+  ); // next bump -> 4 > 3
   const res = await handler(event());
   assert.equal(res.statusCode, 429);
 });
@@ -480,4 +540,264 @@ test("true IP is parsed from CloudFront-Viewer-Address (port stripped)", async (
   await handler(event({ ip: "198.51.100.10:52345" }));
   const sv = fetch.calls.find((c) => String(c.url).includes("siteverify"));
   assert.match(sv.opts.body, /remoteip=198\.51\.100\.10(?!%3A)/);
+});
+
+// --- Regressions: rate-limit windows + dup-claim rollback (fixed 2026-08-20) --
+
+test("rate-limit window ROLLS OVER: a tripped previous window does not 429 the next one", async () => {
+  const ddb = makeDdb();
+  install({ ddb });
+  // Reproduce the state a past burst left behind under the OLD bare-key scheme:
+  // an un-windowed bucket, way past its cap, whose expires_at is already in the
+  // past. The old code kept counting into that same item until DynamoDB's TTL
+  // reaper happened to run (AWS documents it as "typically within 48 hours"),
+  // so ~61 cheap unauthenticated requests 429'd the contact form worldwide for
+  // up to two days. Seeding the bare key makes this test fail against that code
+  // and pass against the windowed key.
+  ddb.counts.set("GLOBAL#siteverify", __limits.GLOBAL_MAX + 500);
+  ddb.expiries.set(
+    "GLOBAL#siteverify",
+    String(Math.floor(Date.now() / 1000) - 3600),
+  );
+  // Also seed the previous window's bucket: a real rollover must ignore it too.
+  const prev = __windowKey(
+    "GLOBAL#siteverify",
+    __limits.GLOBAL_WINDOW_S,
+    Math.floor(Date.now() / 1000) - __limits.GLOBAL_WINDOW_S,
+  );
+  ddb.counts.set(prev.key, __limits.GLOBAL_MAX + 500);
+
+  const res = await handler(event());
+  assert.equal(res.statusCode, 200, "current window must start clean");
+  assert.equal(parse(res).ok, true);
+});
+
+test("tripped window returns a real retryAfter (never the 1s retry-loop)", async (t) => {
+  const expected = freezeClockMidWindow(t, __limits.GLOBAL_WINDOW_S);
+  const ddb = makeDdb();
+  install({ ddb });
+  const cur = __windowKey("GLOBAL#siteverify", __limits.GLOBAL_WINDOW_S);
+  ddb.counts.set(cur.key, __limits.GLOBAL_MAX); // next bump trips it
+
+  const res = await handler(event());
+  assert.equal(res.statusCode, 429);
+  const { retryAfter } = parse(res);
+  // Derived from the COMPUTED window end, so it is a genuine wait. The old code
+  // derived it from a stored expires_at that was already in the past, so
+  // Math.max(1, past - now) collapsed to 1 and clients hammered.
+  // Exact rather than a range: the old code derived retryAfter from an
+  // already-past expires_at, so it always collapsed to 1 and clients hammered.
+  assert.equal(retryAfter, expected);
+  assert.ok(retryAfter > 1, "a pinned mid-window clock must yield a real wait");
+});
+
+test("counters are scoped per window key, so buckets cannot leak across windows", () => {
+  // Boundaries fall on multiples of the window, so [600,1200) is one bucket.
+  const a = __windowKey("IP#203.0.113.5", 600, 1000);
+  const b = __windowKey("IP#203.0.113.5", 600, 1199);
+  const c = __windowKey("IP#203.0.113.5", 600, 1200);
+  assert.equal(a.key, b.key, "same window -> same bucket");
+  assert.notEqual(b.key, c.key, "next window -> different bucket");
+  assert.equal(a.windowStart, 600);
+  assert.equal(a.windowEnd, 1200);
+  assert.equal(c.windowStart, 1200, "boundary instant starts the NEXT window");
+});
+
+test("SES failure RELEASES the duplicate claim, so the sender's retry is not swallowed", async () => {
+  const ddb = makeDdb();
+  const payload = body();
+
+  // Attempt 1: delivery fails -> honest 502.
+  install({ ddb, sendFails: true });
+  const first = await handler(event({ bodyObj: payload }));
+  assert.equal(first.statusCode, 502);
+  assert.equal(parse(first).error, "delivery");
+
+  const dupKeys = [...ddb.puts].filter((k) => k.startsWith("DUP#"));
+  assert.equal(
+    dupKeys.length,
+    0,
+    "the dup marker must be rolled back after a failed send",
+  );
+
+  // Attempt 2: same message, SES healthy. Must actually send — the old code
+  // hit control 10, answered `ok: true`, and delivered nothing for DUP_TTL_S.
+  const ses = makeSes();
+  __setTestDeps({ ddbSend: ddb.send, sesSend: ses.send, getParam: async () => "SECRET" });
+  const retry = await handler(
+    event({ bodyObj: { ...payload, turnstileToken: `tok-retry-${Math.random()}` } }),
+  );
+  assert.equal(retry.statusCode, 200, "retry after a delivery failure must go through");
+  assert.equal(parse(retry).ok, true);
+  assert.equal(ses.calls.length, 1, "the retry must actually email the owner");
+});
+
+test("a genuine duplicate is still suppressed once delivery succeeded", async () => {
+  const ddb = makeDdb();
+  const payload = body();
+  const { ses } = install({ ddb });
+
+  const first = await handler(event({ bodyObj: payload }));
+  assert.equal(first.statusCode, 200);
+  assert.equal(ses.calls.length, 1);
+
+  const again = await handler(
+    event({ bodyObj: { ...payload, turnstileToken: `tok-dup-${Math.random()}` } }),
+  );
+  assert.equal(again.statusCode, 200, "duplicate is a silent success");
+  assert.equal(ses.calls.length, 1, "but must NOT email twice");
+});
+
+// --- The alarm's log contract (fail-closed observability) --------------------
+// The CloudWatch metric filter behind the fail-closed alarm matches
+// {$.status="ddb_error"}. These tests pin that contract so a future refactor
+// that folds the diagnostic into `status` cannot silently disable the alarm.
+
+function captureLogs(fn) {
+  const lines = [];
+  const orig = console.log;
+  console.log = (...a) => lines.push(a.join(" "));
+  return Promise.resolve()
+    .then(fn)
+    .finally(() => {
+      console.log = orig;
+    })
+    .then((res) => ({ res, lines }));
+}
+
+test("a DynamoDB fault logs status=ddb_error AND the exception class in a separate err field", async () => {
+  const ddb = makeDdb();
+  const boom = new Error("throttled");
+  boom.name = "ProvisionedThroughputExceededException";
+  const failing = { ...ddb, send: async () => { throw boom; } };
+  install({ ddb: failing });
+
+  const { res, lines } = await captureLogs(() => handler(event()));
+
+  // Fail CLOSED: a rate-limit backend that cannot be consulted must not admit.
+  assert.equal(res.statusCode, 502);
+
+  const entry = lines
+    .map((l) => { try { return JSON.parse(l); } catch { return null; } })
+    .find((o) => o && o.status === "ddb_error");
+  assert.ok(entry, `expected a status="ddb_error" log line, got: ${lines.join(" | ")}`);
+  assert.equal(
+    entry.status,
+    "ddb_error",
+    "status must stay the literal alarm key — the metric filter matches {$.status=\"ddb_error\"}",
+  );
+  assert.equal(
+    entry.err,
+    "ProvisionedThroughputExceededException",
+    "the SDK exception class must be carried in `err`, so throttling is distinguishable from an outage",
+  );
+  // no-PII invariant: the log must never carry submission content.
+  const blob = JSON.stringify(entry);
+  for (const secret of ["Ada Lovelace", "ada@example.com", "genuine message"]) {
+    assert.ok(!blob.includes(secret), `log leaked ${secret}: ${blob}`);
+  }
+});
+
+// --- Fail-CLOSED guarantees (controls 7, 8, 9, 10) ---------------------------
+//
+// Four catch blocks are the entire fail-closed guarantee: if the DynamoDB-backed
+// rate limits, the replay guard or the duplicate check cannot be consulted, the
+// handler must REJECT rather than admit unmetered traffic. None of them had a
+// test, so a refactor could have flipped any of them to fail OPEN — turning
+// every limit off — and the suite would still have been green.
+//
+// The thrower must be pk-SELECTIVE. A blanket `send: () => { throw }` only ever
+// reaches the FIRST catch, because the pre-rate block 502s before token-replay,
+// per-email or duplicate are called — so three of these four tests would pass
+// for entirely the wrong reason.
+function ddbFailingOn(prefix) {
+  const real = makeDdb();
+  const boom = new Error("ddb down");
+  boom.name = "InternalServerError";
+  return {
+    ...real,
+    send: async (op, params) => {
+      const pk = params.Key?.pk?.S ?? params.Item?.pk?.S ?? "";
+      if (pk.startsWith(prefix)) throw boom;
+      return real.send(op, params);
+    },
+  };
+}
+
+for (const [prefix, control] of [
+  ["IP#", "the per-IP rate limit"],
+  ["GLOBAL#", "the global burst backstop"],
+  ["TOK#", "the Turnstile replay guard"],
+  ["EMAIL#", "the per-email rate limit"],
+  ["DUP#", "duplicate suppression"],
+]) {
+  test(`${control} fails CLOSED when DynamoDB is unavailable`, async () => {
+    install({ ddb: ddbFailingOn(prefix) });
+    const res = await handler(event());
+    assert.equal(
+      res.statusCode,
+      502,
+      `${control} must reject when its backend is unreachable, not admit the request`,
+    );
+    assert.equal(parse(res).error, "delivery");
+  });
+}
+
+test("a DynamoDB failure never reaches SES", async () => {
+  const ses = makeSes();
+  __resetTestDeps();
+  __setTestDeps({
+    ddbSend: ddbFailingOn("DUP#").send,
+    sesSend: ses.send,
+    getParam: async () => "SECRET",
+  });
+  globalThis.fetch = makeFetch({
+    verify: { success: true, hostname: "agusgonzaleznic.com", action: "contact", challenge_ts: tsAgo(30) },
+  }).fn;
+  const res = await handler(event());
+  assert.equal(res.statusCode, 502);
+  assert.equal(ses.calls.length, 0, "must not email when the duplicate check could not run");
+});
+
+// --- Global burst backstop (control 8) --------------------------------------
+// The only control with zero coverage. It exists so a flood using rotating IPs
+// cannot saturate the account's low Lambda concurrency with outbound siteverify
+// calls (starving the shared webhook Lambda).
+test("global burst cap trips at GLOBAL_MAX and rejects BEFORE siteverify", async () => {
+  const ddb = makeDdb();
+  const { fetch: f } = install({ ddb });
+  ddb.counts.set(
+    __windowKey("GLOBAL#siteverify", __limits.GLOBAL_WINDOW_S).key,
+    __limits.GLOBAL_MAX,
+  );
+
+  const res = await handler(event());
+  assert.equal(res.statusCode, 429);
+  assert.equal(parse(res).error, "rate_limited");
+  assert.equal(
+    f.calls.length,
+    0,
+    "the whole point is to reject before the outbound siteverify round trip",
+  );
+  const { retryAfter } = parse(res);
+  assert.ok(retryAfter > 1 && retryAfter <= __limits.GLOBAL_WINDOW_S, `retryAfter=${retryAfter}`);
+});
+
+test("a request rejected by its OWN per-IP limit does not consume the global budget", async () => {
+  // Ordering regression: the global counter used to be bumped BEFORE the per-IP
+  // gate, so one throttled IP could exhaust the all-IP budget and 429 the form
+  // for everyone else — defeating the counter's stated purpose.
+  const ddb = makeDdb();
+  install({ ddb });
+  const ipK = __windowKey(`IP#203.0.113.5`, __limits.IP_WINDOW_S).key;
+  const globalK = __windowKey("GLOBAL#siteverify", __limits.GLOBAL_WINDOW_S).key;
+  ddb.counts.set(ipK, __limits.IP_MAX); // next bump trips the per-IP limit
+
+  const res = await handler(event());
+  assert.equal(res.statusCode, 429);
+  assert.equal(
+    ddb.counts.get(globalK),
+    undefined,
+    "an IP-throttled request must not have touched the shared global counter",
+  );
 });

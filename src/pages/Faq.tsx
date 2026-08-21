@@ -4,7 +4,7 @@ import { SeoPage } from "@/components/SeoPage";
 import { FAQ } from "@/components/FAQ";
 import { resolveFaqs, type FaqBlock } from "@/lib/faq-data";
 import { RelatedPages } from "@/components/RelatedPages";
-import { SITE_URL } from "@/lib/blog";
+import { SITE_URL } from "@/lib/site";
 import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
 import { localeFromPath } from "@/i18n/locales";
 

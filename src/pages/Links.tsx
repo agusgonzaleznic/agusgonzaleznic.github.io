@@ -2,7 +2,7 @@ import { useLocation } from "react-router-dom";
 import { useLingui } from "@lingui/react/macro";
 import { SeoPage } from "@/components/SeoPage";
 import { Links, type LinksBlock } from "@/components/Links";
-import { SITE_URL } from "@/lib/blog";
+import { SITE_URL } from "@/lib/site";
 import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
 import { localeFromPath } from "@/i18n/locales";
 

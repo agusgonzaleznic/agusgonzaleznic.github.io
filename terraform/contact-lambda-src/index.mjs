@@ -24,7 +24,19 @@
 import { createHash, randomUUID } from "node:crypto";
 
 // ---- tuning constants (see the 10 controls below) ---------------------------
-const MAX_BODY_BYTES = 8192; // control 3
+// Control 3. Sized so the ADVERTISED 4,000-character message limit is actually
+// deliverable in every script, which 8192 was not: the cap is bytes and the
+// schema limit is characters, so for a multibyte script the byte cap bound far
+// below the limit the UI showed. A 4,000-char message plus the ~2 KB Turnstile
+// token and JSON overhead is ~6.2 KB in ASCII, ~10.2 KB at 2 bytes/char
+// (Cyrillic, Greek) and ~14.2 KB at 3 bytes/char (CJK) — so a Japanese or
+// Russian enquirer hit a 413 the form never warned about.
+//
+// Deliberately 2x, not more: this control exists to reject oversized bodies
+// BEFORE the JSON parse and before the outbound siteverify call, so it has to
+// stay a real bound. The client validates the same limit in bytes (see the
+// hand-synced pair note in src/components/Contact.tsx).
+const MAX_BODY_BYTES = 16384;
 const TOKEN_MAX_AGE_S = 300; // control 7: reject challenge_ts older than this
 const MIN_FORM_TIME_S = 3; // control 7: reject submissions faster than this
 const TOKEN_TTL_S = 600; // control 7: replay guard row lifetime
@@ -35,13 +47,26 @@ const GLOBAL_MAX = 60; // >> any plausible legit volume for this form
 const EMAIL_WINDOW_S = 3600; // control 9
 const EMAIL_MAX = 3;
 const DUP_TTL_S = 86400; // control 10
+// Grace added to a rate-limit bucket's TTL so DynamoDB's reaper cannot delete
+// a window that is still live (clock skew + reaper jitter). Buckets are keyed
+// by window, so TTL is only garbage collection — see bumpCounter.
+const TTL_GRACE_S = 300;
 
 const SITEVERIFY_URL =
   "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 // C0 control chars + DEL; strict variant allows \t \n \r (multiline message).
+//
+// Matching control characters IS the point here — these reject CR/LF and friends
+// in submitted fields so they cannot be smuggled into the SES subject or
+// Reply-To as header injection. So no-control-regex is disabled deliberately,
+// narrowly, and only for these two lines. Note they use \x escapes, not literal
+// bytes: a raw control character in source is invisible in review (and a raw NUL
+// makes git treat the whole file as binary).
+/* eslint-disable no-control-regex */
 const CTRL_ANY = /[\x00-\x1F\x7F]/;
 const CTRL_MULTILINE = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/;
+/* eslint-enable no-control-regex */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function env() {
@@ -78,6 +103,19 @@ let _sesSend = null; // (params) => Promise<result>
 let _ddbClient = null;
 let _ssmClient = null;
 let _sesClient = null;
+
+// Limits/windows exported for tests so assertions cannot drift from behaviour.
+export const __limits = {
+  MAX_BODY_BYTES,
+  IP_WINDOW_S,
+  IP_MAX,
+  GLOBAL_WINDOW_S,
+  GLOBAL_MAX,
+  EMAIL_WINDOW_S,
+  EMAIL_MAX,
+  DUP_TTL_S,
+  TTL_GRACE_S,
+};
 
 export function __setTestDeps({ ddbSend, getParam, sesSend } = {}) {
   if (ddbSend !== undefined) _ddbSend = ddbSend;
@@ -245,26 +283,77 @@ function validate(payload) {
   return { value: { name, email, role, message, token, honeypot } };
 }
 
+// NOTE ON THE LOG CONTRACT: the four DynamoDB catch sites log
+// `status: "ddb_error"` and add the SDK exception class as a SEPARATE `err`
+// field. Do NOT collapse them into `status: err?.name` — the CloudWatch metric
+// filter behind the fail-closed alarm matches {$.status="ddb_error"}, so
+// overwriting status would silently stop the alarm firing for every real
+// DynamoDB fault (throttle, deleted table, IAM denial). err.name is an
+// exception class name, so the no-PII-in-logs invariant still holds.
+
 // ---- DynamoDB-backed controls ----------------------------------------------
-// Atomic counter within a fixed window: TTL is anchored at first hit via
-// if_not_exists, so the whole bucket expires window seconds later.
+// Atomic counter in a TIME-BUCKETED fixed window: the window index is part of
+// the partition key, so each window is a distinct item that starts at cnt=1.
+//
+// WHY THE KEY CARRIES THE WINDOW (this was a real outage bug, fixed 2026-08-20):
+// the previous version used a bare pk and relied on DynamoDB TTL to end the
+// window. TTL deletion is BEST-EFFORT — AWS documents it as "typically within
+// 48 hours" of expiry, not at the expiry instant — and nothing here ever
+// compared now against expires_at. So once a bucket tripped its limit, `cnt`
+// stayed above the limit until the reaper happened to run. For the shared
+// GLOBAL#siteverify bucket that meant 61 cheap unauthenticated requests
+// (control 8 runs BEFORE siteverify, so no valid token is needed) could 429 the
+// contact form for EVERY visitor for up to ~48 hours — and because retryAfter
+// was derived from a past expires_at it collapsed to 1, so clients retry-looped.
+//
+// With the window in the key, a new window is simply a new item: counters can
+// never leak across windows and reaper lag is harmless because expires_at is
+// now pure garbage collection. TTL_GRACE_S keeps the reaper from removing a
+// bucket while its window is still live (clock skew + reaper jitter).
+// Floor to the window boundary so every caller in the same window shares one
+// item, and the next window is a different item entirely. Exported for tests so
+// the window math has exactly one definition (no hand-mirrored copy in the
+// suite that could drift from the handler).
+export function __windowKey(pk, windowS, atS = nowS()) {
+  const windowStart = Math.floor(atS / windowS) * windowS;
+  return { key: `${pk}#${windowStart}`, windowStart, windowEnd: windowStart + windowS };
+}
+
 async function bumpCounter(table, pk, windowS) {
+  const { key, windowEnd } = __windowKey(pk, windowS);
   const res = await ddb("UpdateItem", {
     TableName: table,
-    Key: { pk: { S: pk } },
+    Key: { pk: { S: key } },
     UpdateExpression:
       "SET expires_at = if_not_exists(expires_at, :exp) ADD cnt :one",
     ExpressionAttributeValues: {
       ":one": { N: "1" },
-      ":exp": { N: String(nowS() + windowS) },
+      ":exp": { N: String(windowEnd + TTL_GRACE_S) },
     },
     ReturnValues: "UPDATED_NEW",
   });
-  // expires_at is in the SET clause, so it is echoed back on every call.
+  // expiresAt is the COMPUTED window end, never the stored attribute: it is
+  // always in the future, so retryAfter is a real wait rather than a 1s loop.
   return {
     count: Number(res?.Attributes?.cnt?.N ?? "0"),
-    expiresAt: Number(res?.Attributes?.expires_at?.N ?? "0"),
+    expiresAt: windowEnd,
   };
+}
+
+// Best-effort removal of a claim made by putIfAbsent. Used to roll back the
+// duplicate-suppression marker when delivery fails, so the sender's retry is
+// not silently swallowed. Never throws: a failed rollback must not turn a
+// delivery error into a 500.
+async function deleteItemQuiet(table, pk) {
+  try {
+    await ddb("DeleteItem", {
+      TableName: table,
+      Key: { pk: { S: pk } },
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 // Conditional insert; resolves true if newly written, false if it already
@@ -391,24 +480,16 @@ export const handler = async (event) => {
   // counters first: a global burst cap (bounds total siteverify calls even
   // under IP rotation) and the per-IP limit (IPv6 bucketed to /64). A real WAF
   // rate rule on /api/* is the recommended additional layer (see README).
+  // ORDER: per-IP gate FIRST, then the shared global counter.
+  //
+  // The global counter used to be bumped first, which defeated its own stated
+  // purpose: a single abusive IP being rejected by its own limit still consumed
+  // the ALL-IP budget, so one throttled client could push GLOBAL#siteverify past
+  // 60 and 429 the form for every legitimate visitor for the rest of the window.
+  // With the IP gate first, only requests that could actually reach siteverify
+  // consume the global budget — which is what the counter is for.
   const ipKey = ipRateKey(trueIp);
   try {
-    const { count, expiresAt } = await bumpCounter(
-      cfg.DDB_TABLE,
-      "GLOBAL#siteverify",
-      GLOBAL_WINDOW_S,
-    );
-    if (count > GLOBAL_MAX) {
-      outcome("global_burst", 429);
-      // retryAfter is how long until the tripped bucket's window expires.
-      const retryAfter = Math.max(1, expiresAt - nowS());
-      return respond(
-        429,
-        { ok: false, error: "rate_limited", retryAfter },
-        origin,
-        { "retry-after": String(retryAfter) },
-      );
-    }
     const { count: ipCount, expiresAt: ipExpiresAt } = await bumpCounter(
       cfg.DDB_TABLE,
       `IP#${ipKey}`,
@@ -425,8 +506,24 @@ export const handler = async (event) => {
         { "retry-after": String(retryAfter) },
       );
     }
+    const { count, expiresAt } = await bumpCounter(
+      cfg.DDB_TABLE,
+      "GLOBAL#siteverify",
+      GLOBAL_WINDOW_S,
+    );
+    if (count > GLOBAL_MAX) {
+      outcome("global_burst", 429);
+      // retryAfter is how long until the tripped bucket's window expires.
+      const retryAfter = Math.max(1, expiresAt - nowS());
+      return respond(
+        429,
+        { ok: false, error: "rate_limited", retryAfter },
+        origin,
+        { "retry-after": String(retryAfter) },
+      );
+    }
   } catch (err) {
-    log({ reqId, trueIp, control: "pre_rate", status: "ddb_error" });
+    log({ reqId, trueIp, control: "pre_rate", status: "ddb_error", err: err?.name });
     return respond(502, { ok: false, error: "delivery" }, origin);
   }
 
@@ -466,7 +563,7 @@ export const handler = async (event) => {
   try {
     firstUse = await putIfAbsent(cfg.DDB_TABLE, tokPk, TOKEN_TTL_S);
   } catch (err) {
-    log({ reqId, trueIp, control: "token_replay", status: "ddb_error" });
+    log({ reqId, trueIp, control: "token_replay", status: "ddb_error", err: err?.name });
     return respond(502, { ok: false, error: "delivery" }, origin);
   }
   if (!firstUse) {
@@ -494,7 +591,7 @@ export const handler = async (event) => {
       );
     }
   } catch (err) {
-    log({ reqId, trueIp, control: "email_rate", status: "ddb_error" });
+    log({ reqId, trueIp, control: "email_rate", status: "ddb_error", err: err?.name });
     return respond(502, { ok: false, error: "delivery" }, origin);
   }
 
@@ -505,7 +602,7 @@ export const handler = async (event) => {
   try {
     dupFirst = await putIfAbsent(cfg.DDB_TABLE, dupPk, DUP_TTL_S);
   } catch (err) {
-    log({ reqId, trueIp, control: "duplicate", status: "ddb_error" });
+    log({ reqId, trueIp, control: "duplicate", status: "ddb_error", err: err?.name });
     return respond(502, { ok: false, error: "delivery" }, origin);
   }
   if (!dupFirst) {
@@ -553,6 +650,17 @@ export const handler = async (event) => {
     // rejecting a recipient outside a verified domain. err.name distinguishes
     // them in CloudWatch without logging any submission content.
     log({ reqId, trueIp, control: "ses_send", status: err?.name ?? "error" });
+    // RELEASE THE DUPLICATE CLAIM. The dedupe marker was committed before the
+    // send (deliberately — it is what stops two concurrent identical
+    // submissions from both mailing). If we leave it behind after a delivery
+    // failure, the sender's retry hits control 10, gets `ok: true`, and the
+    // message is silently never delivered for the whole DUP_TTL_S window.
+    // Claim -> send -> release-on-failure keeps the race protection and keeps
+    // a retry honest.
+    const released = await deleteItemQuiet(cfg.DDB_TABLE, dupPk);
+    if (!released) {
+      log({ reqId, trueIp, control: "duplicate", status: "release_failed" });
+    }
     outcome("ses_send", 502);
     return respond(502, { ok: false, error: "delivery" }, origin);
   }

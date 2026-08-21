@@ -3,7 +3,7 @@ import { useLingui } from "@lingui/react/macro";
 import { SeoPage } from "@/components/SeoPage";
 import { Contact, type ContactBlock } from "@/components/Contact";
 import { RelatedPages } from "@/components/RelatedPages";
-import { SITE_URL } from "@/lib/blog";
+import { SITE_URL } from "@/lib/site";
 import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
 import { localeFromPath } from "@/i18n/locales";
 

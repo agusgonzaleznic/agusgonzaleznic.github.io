@@ -4,7 +4,8 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { PostCard } from "@/components/blog/PostCard";
-import { getAllPosts, SITE_URL } from "@/lib/blog";
+import { getAllPosts } from "@/lib/blog";
+import { SITE_URL } from "@/lib/site";
 import { localeFromPath, localizePath, LOCALE_META } from "@/i18n/locales";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 

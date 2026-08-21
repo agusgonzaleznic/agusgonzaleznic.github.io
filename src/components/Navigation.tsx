@@ -8,6 +8,7 @@ import { LocaleLink } from "@/components/LocaleLink";
 import { BOOKING_URL } from "@/lib/booking";
 import { delocalizePath } from "@/i18n/locales";
 import { setStickyCtaVisible } from "@/lib/layout";
+import { scrollBehavior } from "@/lib/motion";
 
 // Every nav entry is now its own route (About, Philosophy, … each have a page).
 // They render as locale-aware <LocaleLink>s and navigate client-side (content
@@ -75,7 +76,7 @@ export const Navigation = () => {
 
   const scrollToTop = () => {
     setIsMobileMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: scrollBehavior() });
   };
 
   // Booking CTAs render as real anchors (crawlable, cmd/middle-click) — this
@@ -161,6 +162,8 @@ export const Navigation = () => {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 text-foreground hover:text-accent transition-colors"
               aria-label={t`Toggle menu`}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-menu"
             >
               {isMobileMenuOpen ? (
                 <X className="w-6 h-6" />
@@ -174,7 +177,7 @@ export const Navigation = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
+        <div id="mobile-menu" className="fixed inset-0 z-40 md:hidden">
           <div
             className="absolute inset-0 bg-background/95 backdrop-blur-md"
             onClick={() => setIsMobileMenuOpen(false)}

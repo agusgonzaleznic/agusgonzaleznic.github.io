@@ -130,17 +130,32 @@ function buildSitemap(posts, cfg) {
       <image:title>Engineering leadership and executive coaching — agusgonzaleznic.com preview</image:title>
     </image:image>`;
 
+  // Static pages come from the caller's route list (scripts/prerender.mjs), NOT
+  // from a copy kept here. This function used to hold its own page list, which
+  // is how /links ended up prerendered and indexable in all six locales while
+  // being absent from the sitemap: two hand-synced lists, one of them forgotten.
+  // Blog posts are still derived from blog-data because only this file needs
+  // their per-post lastmod and approved locales.
+  const staticPages = (cfg.routes ?? [])
+    // Keep the blog INDEX (/blog/) but exclude individual POSTS (/blog/<slug>/),
+    // which are appended below with their own lastmod and approved locales.
+    .filter((r) => r.sitemap && !/^\/blog\/.+/.test(r.canonical))
+    .map((r) => ({
+      canonical: r.canonical,
+      lastmod: today,
+      changefreq: r.sitemap.changefreq,
+      priority: r.sitemap.priority,
+      ...(r.sitemap.homeImages ? { images: homeImages } : {}),
+    }));
+  if (staticPages.length === 0) {
+    throw new Error(
+      "generate-feeds: no static pages received. Pass `routes` from prerender.mjs — " +
+        "without it the sitemap would silently omit every marketing and legal page.",
+    );
+  }
+
   const pages = [
-    { canonical: "/", lastmod: today, changefreq: "weekly", priority: "1.0", images: homeImages },
-    { canonical: "/about", lastmod: today, changefreq: "monthly", priority: "0.9" },
-    { canonical: "/philosophy", lastmod: today, changefreq: "monthly", priority: "0.8" },
-    { canonical: "/services", lastmod: today, changefreq: "monthly", priority: "0.9" },
-    { canonical: "/impact", lastmod: today, changefreq: "monthly", priority: "0.8" },
-    { canonical: "/faq", lastmod: today, changefreq: "monthly", priority: "0.7" },
-    { canonical: "/contact", lastmod: today, changefreq: "monthly", priority: "0.8" },
-    { canonical: "/impressum", lastmod: today, changefreq: "yearly", priority: "0.3" },
-    { canonical: "/privacy", lastmod: today, changefreq: "yearly", priority: "0.3" },
-    { canonical: "/blog/", lastmod: today, changefreq: "weekly", priority: "0.8" },
+    ...staticPages,
     ...posts.map((post) => ({
       canonical: `/blog/${post.slug}/`,
       lastmod: (postModified(post) ?? new Date()).toISOString().slice(0, 10),

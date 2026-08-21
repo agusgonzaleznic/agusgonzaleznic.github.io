@@ -31,28 +31,51 @@ All colors MUST be HSL
     --muted: 220 10% 92%;
     --muted-foreground: 220 12% 38%; /* Improved contrast: 7:1 ratio for WCAG AAA */
 
-    /* Accent - electric coral */
-    --accent: 10 85% 58%;
+    /* Accent - electric coral.
+       DARKENED 58% -> 47% for WCAG 1.4.3 AA (2026-08-20). Twelve first-party
+       CTAs put white text on this colour (Navigation x3, Hero, Contact submit,
+       Services x2, ServiceItem x2, Links card, CookieNotice, NotFound) and all
+       of them use text-sm/font-medium — 14px/500, which is NOT "large text", so
+       they need 4.5:1, not 3:1. At 58% the ratio was 3.44:1 and every one of
+       them failed. 47% gives 4.57:1 and 42% hover gives 5.51:1, at identical hue
+       and saturation so the brand still reads as the same coral.
+       Decorative uses (icons, glows, borders, --ring) only need 3:1 under
+       1.4.11 and are comfortably fine at the darker value. Keeping ONE accent
+       rather than adding a text-safe variant is deliberate: with 12 call sites a
+       second shade becomes a footgun where each new CTA defaults to the failing
+       colour. */
+    --accent: 10 85% 47%;
     --accent-foreground: 0 0% 100%;
-    
+
     /* Accent hover state */
-    --accent-hover: 10 85% 52%;
+    --accent-hover: 10 85% 42%;
 
     /* Destructive */
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders and inputs */
+    /* Borders and inputs.
+       --input is DARKER than --border on purpose (2026-08-20). WCAG 1.4.11
+       wants a 3:1 boundary for user-interface components, and the form controls
+       are the only consumers of border-input (Input, Textarea, Select, the
+       outline Button, InputOTP) — at 88% the field edge was 1.33:1 against the
+       page, effectively invisible. 59% = 3.09:1. --border stays light because it
+       is decorative (card edges, separators), which 1.4.11 does not govern. */
     --border: 220 10% 88%;
-    --input: 220 10% 88%;
-    --ring: 10 85% 58%;
+    --input: 220 10% 59%;
+    --ring: 10 85% 47%; /* matches --accent */
 
     /* Border radius */
     --radius: 0.75rem;
 
     /* Custom gradients */
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 98%), hsl(220 10% 96%));
-    --gradient-accent: linear-gradient(135deg, hsl(10 85% 58%), hsl(20 80% 65%));
+    /* Also used by .text-gradient-accent, which colours the hero H1 TEXT — so
+       both stops must meet contrast, not just look nice. The old lighter stop
+       hsl(20 80% 65%) was 2.43:1 against the page, failing even the 3:1
+       large-text floor on the most prominent text on the site. Both stops now
+       clear 4.5:1 (4.57:1 and 4.61:1). */
+    --gradient-accent: linear-gradient(135deg, hsl(10 85% 47%), hsl(20 80% 43%));
 
     /* Shadows */
     --shadow-sm: 0 2px 8px -2px hsl(220 15% 12% / 0.08);
@@ -84,17 +107,18 @@ All colors MUST be HSL
     --muted: 220 12% 18%;
     --muted-foreground: 220 8% 65%;
 
-    --accent: 10 85% 58%;
+    /* Kept in step with the light-mode accent — see the note there. */
+    --accent: 10 85% 47%;
     --accent-foreground: 0 0% 100%;
 
-    --accent-hover: 10 85% 52%;
+    --accent-hover: 10 85% 42%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 220 12% 20%;
     --input: 220 12% 20%;
-    --ring: 10 85% 58%;
+    --ring: 10 85% 47%; /* matches --accent */
   }
 }
 
@@ -234,7 +258,7 @@ All colors MUST be HSL
 
   /* Gradient text */
   .text-gradient-accent {
-    background: linear-gradient(135deg, hsl(10 85% 58%), hsl(20 80% 65%));
+    background: linear-gradient(135deg, hsl(10 85% 47%), hsl(20 80% 43%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -246,10 +270,10 @@ All colors MUST be HSL
      squiggle onto EVERY wrapped line, so translated clauses that wrap (de/fr/it/
      en) underline correctly, not just single-line ones (es/pt). Replaces the old
      absolute SVG, which only underlined the last line once a clause wrapped.
-     Squiggle colour is hardcoded to --accent (10 85% 58% = #EF5739; identical in
+     Squiggle colour is hardcoded to --accent (10 85% 47% = #DE3412; identical in
      light + dark) because a data-URI SVG can't read CSS variables. */
   .underline-squiggle {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4C50 2 150 2 200 4' stroke='%23EF5739' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4C50 2 150 2 200 4' stroke='%23DE3412' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: 0 100%;
     /* Fixed 8px strip (NOT an em, which stretched the 8-unit viewBox and

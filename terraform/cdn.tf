@@ -197,11 +197,25 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
       # Manager / Analytics entries are consent-gated activation-ready: GA only
       # loads after opt-in via the consent banner, but the CSP must already
       # allow it.
+      # script.google.com / script.googleusercontent.com were removed 2026-08-20:
+      # they were allow-listed for the Google Apps Script contact relay, which was
+      # decommissioned (the form now POSTs same-origin to /api/* -> Lambda -> SES).
+      # Nothing in the codebase references those hosts any more.
+      #
+      # DO NOT drop 'unsafe-inline' from script-src on its own. It is load-bearing:
+      # prerender.mjs rewrites the stylesheet link to the async
+      # `rel=preload ... onload="this.rel='stylesheet'"` pattern, and CSP script-src
+      # governs inline EVENT HANDLERS as well as <script> elements. Removing it
+      # refuses that handler, so the preloaded stylesheet is never promoted and
+      # every JS-enabled visitor gets only the inlined above-the-fold CSS on all 85
+      # pages. (A hash does not help; inline handlers need 'unsafe-hashes'.) To
+      # tighten it, first change the CSS delivery strategy in prerender.mjs.
+      #
       # challenges.cloudflare.com in script-src + frame-src: Turnstile loads
       # api.js and renders its challenge in an iframe. connect-src stays 'self'
       # — the contact POST goes to same-origin /api/contact (siteverify is a
       # server-side call from the Lambda, not the browser).
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com https://app.storyblok.com https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https: blob:; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.storyblok.com https://api-us.storyblok.com https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com; frame-src https://calendar.google.com https://calendar.app.google https://app.storyblok.com https://challenges.cloudflare.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests;"
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://app.storyblok.com https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https: blob:; connect-src 'self' https://api.storyblok.com https://api-us.storyblok.com https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com; frame-src https://calendar.google.com https://calendar.app.google https://app.storyblok.com https://challenges.cloudflare.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests;"
       override                = true
     }
 
@@ -298,92 +312,20 @@ resource "aws_cloudfront_response_headers_policy" "immutable_assets" {
 resource "aws_cloudfront_function" "www_redirect" {
   name    = "${replace(local.domain_name, ".", "-")}-www-redirect"
   runtime = "cloudfront-js-2.0"
-  comment = "www redirect + canonical URLs; keeps trailing slash for proxied GitHub Pages project sites"
+  comment = "URL normalisation + www redirect + per-subtree canonical URLs"
   publish = true
 
-  # URL normalization must happen HERE, not at the origin: CloudFront sends
-  # Host = agusgonzaleznic.github.io to GitHub Pages (see the cache behavior
-  # comment above), so any origin-generated directory redirect carries the
-  # github.io domain in its Location and teleports visitors off the apex.
+  # The handler lives in its own file so it can be UNIT TESTED — see
+  # cdn-function/handler.test.mjs, which renders this same template and asserts
+  # the full routing table (56 cases). It decides the canonical URL of every
+  # page on the site, so a mistake here is a site-wide SEO or availability
+  # incident that surfaces in Search Console weeks later; it previously had no
+  # tests at all. The rationale for each rule is documented in the handler.
   #
-  # CANONICAL FORMS (must serve 200 — canonical/hreflang/sitemap URLs that
-  # 301 get dropped from locale clusters and flagged in Search Console):
-  #   - marketing/legal pages are BARE (/about, /de/faq, /impressum): the
-  #     extensionless URI is REWRITTEN internally to <uri>/index.html (the
-  #     prerendered file), and the slash variant 301s to the bare form.
-  #   - the blog subtree and the locale homes are SLASH (/blog/, /de/blog/x/,
-  #     /de/): the slash URI passes through (Pages serves the directory
-  #     index), and the bare variant 301s to the slash form.
-  #   - proxied GitHub Pages PROJECT sites are SLASH (/drive-berlin/): the
-  #     slash URI passes through untouched so the app's own relative asset
-  #     links resolve inside its subtree. See the projectSites note below.
-  code = <<-EOF
-    function handler(event) {
-      var request = event.request;
-      var host = request.headers.host.value;
-      var uri = request.uri;
-
-      function redirect(to) {
-        var qs = '';
-        for (var key in request.querystring) {
-          qs += (qs === '' ? '?' : '&') + key;
-          var v = request.querystring[key];
-          if (v.multiValue) {
-            qs += '=' + v.multiValue.map(function (m) { return m.value; }).join('&' + key + '=');
-          } else if (v.value !== '') {
-            qs += '=' + v.value;
-          }
-        }
-        return {
-          statusCode: 301,
-          statusDescription: 'Moved Permanently',
-          headers: { location: { value: 'https://${local.domain_name}' + to + qs } }
-        };
-      }
-
-      if (host.startsWith('www.')) {
-        return redirect(uri);
-      }
-
-      // Locale-stripped path decides the subtree; e.g. /de/blog/x -> /blog/x.
-      var base = uri.replace(/^\/(de|es|fr|it|pt)(?=\/|$)/, '');
-      if (base === '') base = '/';
-
-      // GitHub Pages PROJECT sites proxied through this distribution. These must keep
-      // a trailing slash, unlike the prerendered site pages below, because the app's
-      // own HTML links its assets with RELATIVE paths. Served at a bare /drive-berlin
-      // the browser resolves "css/base.css" against the DOMAIN ROOT, those requests
-      // 404 at the origin, the 404 -> /index.html rule returns this site's HTML with
-      // status 200, and the browser then refuses every stylesheet and module on strict
-      // MIME checking. The app loads but renders unstyled and dead. Add a path here
-      // when proxying another project site.
-      var projectSites = ['/drive-berlin'];
-      var isProjectSite = projectSites.some(function (p) {
-        return base === p || base.indexOf(p + '/') === 0;
-      });
-
-      var slashCanonical =
-        base === '/' ||                                   // root + locale homes (/de)
-        base === '/blog' || base.startsWith('/blog/') ||  // blog index + posts + feeds
-        isProjectSite;                                    // proxied GitHub Pages apps
-
-      var lastSegment = uri.split('/').pop();
-      var extensionless = !uri.endsWith('/') && !lastSegment.includes('.');
-
-      if (slashCanonical) {
-        // Canonical form ends in "/": add it ( /blog -> /blog/, /de -> /de/ ).
-        if (extensionless) return redirect(uri + '/');
-        // Pass through untouched. For a project site the origin already serves the
-        // directory index, so appending /index.html here would break it.
-        return request;
-      }
-
-      // Canonical form is bare: strip stray trailing slashes ( /about/ -> /about )...
-      if (uri.endsWith('/')) return redirect(uri.replace(/\/+$/, ''));
-      // ...and serve the bare URL 200 by fetching the prerendered directory
-      // index directly (no origin redirect involved).
-      if (extensionless) request.uri = uri + '/index.html';
-      return request;
-    }
-  EOF
+  # `domain_name` is the ONLY template variable. If another is added, update
+  # renderHandler() in the test too — it asserts no variable is left
+  # unsubstituted, so the test fails rather than silently drifting.
+  code = templatefile("${path.module}/cdn-function/handler.js.tftpl", {
+    domain_name = local.domain_name
+  })
 }

@@ -5,7 +5,8 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { isAnalyticsConfigured, withdrawAnalyticsConsent } from "@/lib/analytics";
-import { localeFromPath, LOCALE_META } from "@/i18n/locales";
+import { localeFromPath, localizePath, LOCALE_META } from "@/i18n/locales";
+import { SITE_URL } from "@/lib/site";
 import { SECTION_PADDING } from "@/lib/layout";
 
 // Shared layout for the legal pages (/impressum and /privacy). Uses the same
@@ -30,7 +31,14 @@ const LegalLayout = ({
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <link rel="canonical" href={`https://agusgonzaleznic.com${path}`} />
+      {/* Locale-aware, like every other page. This used to hardcode the
+          ENGLISH path, so /de/privacy declared /privacy as its canonical —
+          telling Google the five translated legal pages were duplicates of the
+          English one. Prerender's canonical guard masked it in the static HTML,
+          so it only appeared after hydration. SITE_URL comes from @/lib/site
+          (dependency-free) rather than @/lib/blog, which would drag the blog
+          corpus into this chunk. */}
+      <link rel="canonical" href={`${SITE_URL}${localizePath(path, locale)}`} />
       <meta property="og:locale" content={LOCALE_META[locale].ogLocale} />
     </Helmet>
     <Navigation />
@@ -63,7 +71,7 @@ const A = ({ href, children }: { href: string; children: React.ReactNode }) => (
     href={href}
     target={href.startsWith("http") ? "_blank" : undefined}
     rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-    className="text-accent hover:underline break-words"
+    className="text-accent underline underline-offset-2 hover:no-underline break-words"
   >
     {children}
   </a>
@@ -242,10 +250,26 @@ export const Privacy = () => {
     <P>
       <Trans>
         If you use the contact form, the data you enter (name, email address,
-        role, and message) is transmitted via a{" "}
-        <strong>Google Apps Script</strong> endpoint (Google LLC / Google Ireland
-        Ltd.) and forwarded to me by email. The data is not stored in any
-        database; it exists only in the resulting email correspondence.
+        role, and message) is sent to an endpoint on this domain that is operated
+        for me by <strong>Amazon Web Services</strong> (AWS) and forwarded to me
+        by email using Amazon SES. The message itself is not retained beyond the
+        resulting email correspondence.
+      </Trans>
+    </P>
+    <P>
+      <Trans>
+        <strong>Spam and abuse protection.</strong> Before your message is
+        accepted, the form is checked with{" "}
+        <strong>Cloudflare Turnstile</strong>. For this check your IP address is
+        transmitted to Cloudflare, Inc. In addition, a small amount of technical
+        data is stored briefly in an AWS database (Amazon DynamoDB) purely to
+        enforce rate limits and to avoid sending me the same message twice:
+        counters keyed to your IP address and to your email address, and a
+        one-way hash of your email address together with your message. These
+        entries are deleted automatically — after 10 minutes (IP), one hour
+        (email address) and at most 24 hours (duplicate check). Server logs
+        record the IP address of form submissions; they never contain the
+        content of your message.
       </Trans>
     </P>
     <P>
@@ -253,16 +277,20 @@ export const Privacy = () => {
         Legal basis: Art. 6(1)(b) GDPR (steps prior to entering into a contract /
         responding to your inquiry) and, where the inquiry is not
         contract-related, Art. 6(1)(a) GDPR (your consent, given by voluntarily
-        submitting the form). You may withdraw consent at any time with effect
-        for the future by emailing{" "}
+        submitting the form). The spam and abuse protection described above rests
+        on Art. 6(1)(f) GDPR (my legitimate interest in keeping this form usable
+        and free of automated abuse). You may withdraw consent at any time with
+        effect for the future by emailing{" "}
         <A href="mailto:info@agusgonzaleznic.com">info@agusgonzaleznic.com</A>.
       </Trans>
     </P>
     <P>
       <Trans>
-        Google acts as a processor in this transmission. Data may be transferred
-        to Google servers in the United States; Google is certified under the
-        EU–US Data Privacy Framework.
+        AWS and Cloudflare act as processors for the contact form. Data may be
+        transferred to servers in the United States; these transfers are covered
+        by the transfer mechanisms in the respective data processing agreements
+        (AWS additionally relies on the EU–US Data Privacy Framework, as set out
+        in section 2).
       </Trans>
     </P>
     <P>

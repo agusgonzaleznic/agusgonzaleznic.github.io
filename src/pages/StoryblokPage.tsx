@@ -1,5 +1,6 @@
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { useStoryblokApi, StoryblokComponent, useStoryblokState } from "@storyblok/react";
+import { initStoryblok } from "@/lib/storyblok";
 import type { StoryblokStory } from "@/lib/types/storyblok";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
@@ -16,6 +17,13 @@ import Faq from "@/pages/Faq";
 import Contact from "@/pages/Contact";
 import Links from "@/pages/Links";
 import Philosophy from "@/pages/Philosophy";
+
+// Initialise the Storyblok SDK (client + blok registry) HERE rather than in
+// main.tsx: this module is only ever reached via the lazily-imported /preview/*
+// route, and module-scope runs before the component's hooks, so useStoryblokApi
+// below always sees an initialised client. Keeping it out of main.tsx keeps the
+// SDK and all 15 block components off every other page's critical path.
+initStoryblok();
 
 interface StoryblokPageProps {
   /** The story's full_slug, e.g. "blog/my-post" or "pages/philosophy". */
