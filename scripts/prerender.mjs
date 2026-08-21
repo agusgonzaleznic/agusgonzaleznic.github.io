@@ -16,7 +16,7 @@
 //
 // Pure Node (no headless browser), so it's fast and CI-friendly.
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { gzipSync, brotliCompressSync, constants as zlibConstants } from "node:zlib";
@@ -35,17 +35,25 @@ const SITE_URL = "https://agusgonzaleznic.com";
 // page's <link rel="canonical">): the blog paths carry a trailing slash, the
 // legal pages don't. hreflang alternates are built from it. Storyblok preview
 // routes are intentionally excluded — they fetch live CMS data at runtime.
+//
+// `sitemap` carries this route's sitemap metadata and is passed straight through
+// to generate-feeds. It lives HERE, on the route, because generate-feeds used to
+// keep its OWN copy of the page list — a third hand-synced route set that had
+// already drifted: /links was prerendered and indexable in all six locales while
+// being absent from sitemap.xml entirely. One list now feeds both, and the
+// assertion at the end of this file fails the build if any emitted page is
+// missing from the sitemap.
 const routes = [
-  { path: "/", file: "index.html", canonical: "/" },
-  { path: "/about", file: "about/index.html", canonical: "/about" },
-  { path: "/philosophy", file: "philosophy/index.html", canonical: "/philosophy" },
-  { path: "/services", file: "services/index.html", canonical: "/services" },
-  { path: "/impact", file: "impact/index.html", canonical: "/impact" },
-  { path: "/faq", file: "faq/index.html", canonical: "/faq" },
-  { path: "/contact", file: "contact/index.html", canonical: "/contact" },
-  { path: "/links", file: "links/index.html", canonical: "/links" },
-  { path: "/impressum", file: "impressum/index.html", canonical: "/impressum" },
-  { path: "/privacy", file: "privacy/index.html", canonical: "/privacy" },
+  { path: "/", file: "index.html", canonical: "/", sitemap: { changefreq: "weekly", priority: "1.0", homeImages: true } },
+  { path: "/about", file: "about/index.html", canonical: "/about", sitemap: { changefreq: "monthly", priority: "0.9" } },
+  { path: "/philosophy", file: "philosophy/index.html", canonical: "/philosophy", sitemap: { changefreq: "monthly", priority: "0.8" } },
+  { path: "/services", file: "services/index.html", canonical: "/services", sitemap: { changefreq: "monthly", priority: "0.9" } },
+  { path: "/impact", file: "impact/index.html", canonical: "/impact", sitemap: { changefreq: "monthly", priority: "0.8" } },
+  { path: "/faq", file: "faq/index.html", canonical: "/faq", sitemap: { changefreq: "monthly", priority: "0.7" } },
+  { path: "/contact", file: "contact/index.html", canonical: "/contact", sitemap: { changefreq: "monthly", priority: "0.8" } },
+  { path: "/links", file: "links/index.html", canonical: "/links", sitemap: { changefreq: "monthly", priority: "0.5" } },
+  { path: "/impressum", file: "impressum/index.html", canonical: "/impressum", sitemap: { changefreq: "yearly", priority: "0.3" } },
+  { path: "/privacy", file: "privacy/index.html", canonical: "/privacy", sitemap: { changefreq: "yearly", priority: "0.3" } },
 ];
 
 // Blog routes come from the build-time Storyblok fetch (scripts/fetch-blog.mjs).
@@ -55,7 +63,7 @@ if (!existsSync(blogDataFile)) {
   );
 }
 const blogPosts = JSON.parse(readFileSync(blogDataFile, "utf-8"));
-routes.push({ path: "/blog", file: "blog/index.html", canonical: "/blog/" });
+routes.push({ path: "/blog", file: "blog/index.html", canonical: "/blog/", sitemap: { changefreq: "weekly", priority: "0.8" } });
 for (const post of blogPosts) {
   routes.push({
     path: `/blog/${post.slug}`,
@@ -242,7 +250,24 @@ for (const locale of PUBLISHED_LOCALES) {
     // variant (and hreflang entry) for a locale that is not approved/auto. The
     // English (source) variant is always in the set, so it is never skipped.
     if (route.approvedLocales && !route.approvedLocales.includes(locale)) continue;
-    const urlPath = localizePath(route.path, locale);
+    // Render at the CANONICAL path, not `route.path`.
+    //
+    // The two differ only in the blog subtree (path /blog, canonical /blog/).
+    // Rendering at the bare form made every language-switcher anchor on a blog
+    // page point at the bare form too — the switcher derives its hrefs from
+    // useLocation().pathname — so each of those links took a 301 to the slash
+    // form. That is 10 anchors per page (the nav dropdown and the footer both
+    // render the switcher, and both keep their anchors in the DOM for crawlers)
+    // across 4 blog routes x 6 locales.
+    //
+    // Safe because nothing else derives meaning from the render path: canonical
+    // and og:url come from SeoPage's explicit `path` prop, React Router v6
+    // normalises trailing slashes when matching (so /de/blog/ still matches
+    // `blog` and /de/blog/x/ still matches `blog/:slug`), src/lib/blog.ts
+    // already strips a trailing slash off the slug, and Navigation's active
+    // state uses startsWith("/blog"). The canonical guard below would fail the
+    // build if this did move a canonical.
+    const urlPath = localizePath(route.canonical, locale);
     const { html: appHtml, helmet } = render(urlPath, locale);
     const alternates = hreflangLinks(route.canonical, route.approvedLocales);
 
@@ -341,4 +366,63 @@ await dynamicActivate(SOURCE_LOCALE);
 // Feeds go last so llms.txt/sitemap.xml overwrite the copies vite made from
 // public/. Pass the locale config so sitemap/hreflang/llms.txt iterate the same
 // PUBLISHED_LOCALES as the prerender loop.
-await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath });
+await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath, routes });
+
+// Every indexable page we emitted must appear in the sitemap.
+//
+// This runs AFTER generateFeeds (which writes sitemap.xml) and walks the actual
+// dist/ output rather than any in-memory list, so it catches a page that is
+// emitted but unlisted no matter which list drifted. That is not hypothetical:
+// /links was prerendered and indexable in all six locales while missing from
+// sitemap.xml entirely, because generate-feeds kept its own copy of the page
+// list. 404.html is excluded — it is deliberately noindex and deliberately
+// absent from the sitemap.
+{
+  const sitemapXml = readFileSync(resolve(distDir, "sitemap.xml"), "utf-8");
+  const listed = new Set(
+    [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) =>
+      new URL(m[1]).pathname.replace(/\/index\.html$/, ""),
+    ),
+  );
+
+  const emitted = [];
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = resolve(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name === "index.html") emitted.push(full);
+    }
+  };
+  walk(distDir);
+
+  const orphans = [];
+  for (const file of emitted) {
+    const html = readFileSync(file, "utf-8");
+    // Skip anything we deliberately keep out of the index.
+    if (/<meta[^>]+name="robots"[^>]+noindex/i.test(html)) continue;
+    // Attribute ORDER is not guaranteed: react-helmet emits
+    // `<link data-react-helmet="true" rel="canonical" href="...">`, so a
+    // rel-first regex silently matches nothing on every helmet-rendered page.
+    // (setCanonical above carries the same warning — same trap, same file.)
+    const canonicalTag = [...html.matchAll(/<link\b[^>]*>/g)]
+      .map((m) => m[0])
+      .find((tag) => /rel="canonical"/.test(tag));
+    const canonical = canonicalTag?.match(/href="([^"]+)"/)?.[1];
+    if (!canonical) {
+      orphans.push(`${file} (no canonical)`);
+      continue;
+    }
+    const path = new URL(canonical).pathname;
+    if (!listed.has(path) && !listed.has(path.replace(/\/$/, ""))) {
+      orphans.push(`${path} (${file.replace(`${distDir}/`, "")})`);
+    }
+  }
+
+  if (orphans.length) {
+    throw new Error(
+      `Sitemap does not cover ${orphans.length} indexable page(s):\n  ${orphans.join("\n  ")}\n` +
+        "Add the route's `sitemap` metadata in scripts/prerender.mjs, or mark the page noindex.",
+    );
+  }
+  console.log(`✓ Sitemap covers all ${emitted.length} emitted page(s)`);
+}

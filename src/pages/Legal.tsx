@@ -5,7 +5,8 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { isAnalyticsConfigured, withdrawAnalyticsConsent } from "@/lib/analytics";
-import { localeFromPath, LOCALE_META } from "@/i18n/locales";
+import { localeFromPath, localizePath, LOCALE_META } from "@/i18n/locales";
+import { SITE_URL } from "@/lib/site";
 import { SECTION_PADDING } from "@/lib/layout";
 
 // Shared layout for the legal pages (/impressum and /privacy). Uses the same
@@ -30,7 +31,14 @@ const LegalLayout = ({
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <link rel="canonical" href={`https://agusgonzaleznic.com${path}`} />
+      {/* Locale-aware, like every other page. This used to hardcode the
+          ENGLISH path, so /de/privacy declared /privacy as its canonical —
+          telling Google the five translated legal pages were duplicates of the
+          English one. Prerender's canonical guard masked it in the static HTML,
+          so it only appeared after hydration. SITE_URL comes from @/lib/site
+          (dependency-free) rather than @/lib/blog, which would drag the blog
+          corpus into this chunk. */}
+      <link rel="canonical" href={`${SITE_URL}${localizePath(path, locale)}`} />
       <meta property="og:locale" content={LOCALE_META[locale].ogLocale} />
     </Helmet>
     <Navigation />

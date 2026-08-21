@@ -36,14 +36,36 @@ export function pageSourceHash(page) {
   return createHash("sha256").update(strings.join("␞"), "utf8").digest("hex").slice(0, 24);
 }
 
-/** Read the page-approvals manifest; missing/corrupt → empty (nothing approved). */
+/** Read the page-approvals manifest.
+ *
+ * ABSENT is fine and means "nothing is approved yet" — that is the intended
+ * fail-safe and is how a fresh checkout behaves. A file that EXISTS but does not
+ * parse is a different thing entirely and now throws.
+ *
+ * The old `catch { return {} }` conflated the two, and the failure was silent and
+ * total: a truncated manifest made every reviewed locale variant look
+ * unapproved, so prerender emitted no /de/ or /es/ pages, the sitemap and
+ * hreflang sets lost them, and the build stayed GREEN. The same loader is used by
+ * scripts/review-translations.mjs, where the consequence is worse — it would read
+ * the manifest as empty and then write that back, permanently discarding every
+ * approval on the next save. */
 export function loadPageApprovals(path) {
+  if (!existsSync(path)) return {};
+  const raw = readFileSync(path, "utf8");
+  let parsed;
   try {
-    const parsed = JSON.parse(readFileSync(path, "utf8"));
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch {
-    return {};
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    throw new Error(
+      `page-gate: ${path} exists but is not valid JSON (${e.message}). ` +
+        "Refusing to treat it as empty — that would silently unpublish every " +
+        "reviewed translation. Restore it from git.",
+    );
   }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error(`page-gate: ${path} must contain a JSON object, got ${Array.isArray(parsed) ? "an array" : typeof parsed}.`);
+  }
+  return parsed;
 }
 
 /** Path to a reviewed page's per-locale store.
