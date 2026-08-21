@@ -48,7 +48,7 @@ const ServicesPage = ({ previewContent }: PagePreviewProps) => {
       { "@type": "Place", name: "European Union" },
       { "@type": "Place", name: "Berlin, Germany" },
     ],
-    availableLanguage: ["English", "Spanish", "German"],
+    availableLanguage: ["English", "Spanish"],
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: "Coaching Services",

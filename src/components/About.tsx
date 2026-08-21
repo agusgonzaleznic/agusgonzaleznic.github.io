@@ -62,7 +62,7 @@ export const About = ({ block }: { block?: AboutBlock }) => {
                 the About page itself answers where/how/in which languages. */}
             <p className="mt-6 text-sm font-medium text-muted-foreground">
               {block?.footnote ?? (
-                <Trans>Based in Berlin — coaching engineering leaders remotely worldwide, in English, Spanish, or German.</Trans>
+                <Trans>Based in Berlin — coaching engineering leaders remotely worldwide, in English or Spanish.</Trans>
               )}
             </p>
           </div>

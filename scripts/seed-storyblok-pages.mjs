@@ -134,7 +134,7 @@ const PAGES = [
       component: "about_block",
       heading: "From Haedo to Berlin, One Engineering Team at a Time",
       image_alt: "Agustin Gonzalez Nicolini — engineering leadership coach in Berlin",
-      footnote: "Based in Berlin — coaching engineering leaders remotely worldwide, in English, Spanish, or German.",
+      footnote: "Based in Berlin — coaching engineering leaders remotely worldwide, in English or Spanish.",
       show_section: true,
       paragraphs: [
         ti("I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3 — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."),
@@ -257,7 +257,7 @@ const PAGES = [
         { component: "faq_item", question: "Who is Agustin Gonzalez Nicolini?", answer: "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev; today I head infrastructure and security at a Web3 company and coach senior technology leaders one-on-one." },
         { component: "faq_item", question: "Who does Agustin coach?", answer: "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role." },
         { component: "faq_item", question: "What does engineering leadership coaching cover?", answer: "Whatever stands between you and a team that delivers: scaling and org design, stakeholder and C-suite communication, delivery speed and DORA metrics, DevOps and GitOps workflows, hiring and performance frameworks, incident readiness, and executive presence." },
-        { component: "faq_item", question: "Does Agustin coach remotely?", answer: "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English, Spanish, or German — whichever you think best in." },
+        { component: "faq_item", question: "Does Agustin coach remotely?", answer: "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English or Spanish — whichever you think best in." },
         { component: "faq_item", question: "How do I start working with Agustin?", answer: "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way." },
       ],
     }],
