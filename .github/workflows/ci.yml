@@ -88,11 +88,15 @@ jobs:
     with:
       node-version: '22'
       install-command: 'npm ci'
-      # Static analysis slot. `npm run typecheck` is here rather than inside
-      # `npm run build` so a type error fails BEFORE the expensive build, and
-      # because the build (esbuild via Vite) strips types without checking them
-      # — for the whole life of this repo that meant NOTHING type-checked it.
-      lint-command: 'npm run lint && npm run typecheck'
+      lint-command: 'npm run lint'
+      # `npm run typecheck` is NOT here. It cannot run before the build: two
+      # modules import src/generated/*.json, which is gitignored build output
+      # produced by fetch-blog/fetch-pages, so type-checking a fresh checkout
+      # fails with TS2307 on files that are supposed to be absent. It runs
+      # inside `npm run build` instead — after fetch, before the Vite builds —
+      # which covers exactly the same PRs, since any TS change sets site=true.
+      # (The build compiles via esbuild and STRIPS types, so without this step
+      # nothing type-checked this repo at all.)
       build-command: 'npm run build'
       artifact-path: 'dist'
       verify-build-output: true
