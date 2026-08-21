@@ -324,18 +324,32 @@ so notifying `me@agusgonzaleznic.com` needs no production-access request. If you
 ever want to CC the submitter, that is a different domain and DOES require
 production access.
 
-1. **Widen bootstrap in the same PR** so the deploy role gains the new SES
-   grants and — critically — the lambda-exec boundary allows `ses:SendEmail`.
-   The boundary is the ceiling: without it the site apply SUCCEEDS and the
-   function is denied at RUNTIME. The CI apply fails `AccessDenied` on
-   `CreateEmailIdentity` without the deploy policy, and even `terraform plan`
-   fails without `ses:GetEmailIdentity` (the DKIM tokens are read every plan).
+1. **Widen bootstrap in ITS OWN PR, merged and applied FIRST.** The deploy role
+   needs the new SES grants and — critically — the lambda-exec boundary must
+   allow `ses:SendEmail`. The boundary is the ceiling: without it the site apply
+   SUCCEEDS and the function is denied at RUNTIME. The CI apply fails
+   `AccessDenied` on `CreateEmailIdentity` without the deploy policy, and even
+   `terraform plan` fails without `ses:GetEmailIdentity` (the DKIM tokens are
+   read on every plan).
 
-   No local command: edit `terraform/bootstrap/role-policies.tf` in the PR and
-   approve `terraform-bootstrap` on merge. Note the ordering constraint this
-   creates — a first-adoption PR's *site* plan runs before that grant exists, so
-   it will show the `AccessDenied`. That is expected; the authoritative plan is
-   the one `bootstrap-apply` unblocks on merge.
+   **NEVER put the bootstrap grant and the site resource that consumes it in the
+   same PR.** An earlier version of this file said to do exactly that and called
+   the resulting red site plan "expected". It is not acceptable: the site plan
+   is the only evidence that the change does what it claims, and a PR merged
+   with a red plan is merged unverified.
+
+   The cost of getting this wrong is not theoretical. Five PRs were merged with
+   that plan red, and a genuine bug hid behind the normalised redness the whole
+   time — `bootstrap-apply` was silently skipping on every commit (a `tee` in the
+   detect step swallowed terraform's `-detailed-exitcode`), so none of that
+   terraform was ever applied. A green-plan rule would have caught it on the
+   first PR.
+
+   So: PR 1 touches `terraform/bootstrap/` only — its own `Bootstrap plan (PR)`
+   is green, because bootstrap grants itself nothing. Merge it, approve
+   `terraform-bootstrap`, and the grant lands. PR 2 then carries the site change
+   with a GREEN `Plan (PR)`. Two merges, both verified. The `tier-split` CI job
+   fails a PR that touches both tiers, so this cannot be forgotten.
 
 2. **Create the Cloudflare API token** (Account > Turnstile > Edit) and wire the
    CI secrets/variables (values never echoed):
