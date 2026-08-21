@@ -18,7 +18,7 @@ export const faqs = [
   },
   {
     question: msg`Does Agustin coach remotely?`,
-    answer: msg`Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English, Spanish, or German — whichever you think best in.`,
+    answer: msg`Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English or Spanish — whichever you think best in.`,
   },
   {
     question: msg`How do I start working with Agustin?`,

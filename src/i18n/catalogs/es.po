@@ -160,8 +160,8 @@ msgid "Back to home"
 msgstr "Volver al inicio"
 
 #: src/components/About.tsx
-msgid "Based in Berlin — coaching engineering leaders remotely worldwide, in English, Spanish, or German."
-msgstr "Radicado en Berlín — coaching para líderes de ingeniería, remoto y en todo el mundo, en inglés, español o alemán."
+msgid "Based in Berlin — coaching engineering leaders remotely worldwide, in English or Spanish."
+msgstr "Radicado en Berlín — coaching para líderes de ingeniería, remoto y en todo el mundo, en inglés o español."
 
 #: src/components/Footer.tsx
 msgid "Based in Berlin, from Haedo • Coaching globally"
@@ -473,10 +473,6 @@ msgid "Google acts as a processor for this measurement. Data may be transferred 
 msgstr "Google actúa como encargado del tratamiento en relación con esta medición. Los datos pueden transferirse a los servidores de Google en Estados Unidos; Google cuenta con la certificación del EU–US Data Privacy Framework y, además, se rige por las Cláusulas Contractuales Tipo de la UE. Más información: <0>https://policies.google.com/privacy</0>"
 
 #: src/pages/Legal.tsx
-#~ msgid "Google acts as a processor in this transmission. Data may be transferred to Google servers in the United States; Google is certified under the EU–US Data Privacy Framework."
-#~ msgstr "Google actúa como encargado del tratamiento en esta transmisión. Los datos pueden transferirse a los servidores de Google en Estados Unidos; Google cuenta con la certificación del EU–US Data Privacy Framework."
-
-#: src/pages/Legal.tsx
 msgid "Google's <0>Consent Mode v2</0> is used: every consent signal defaults to \"denied\", and only the analytics-storage signal is set to \"granted\" after you accept — advertising signals remain denied. Google Analytics 4 does not log or store IP addresses; IP data is used only transiently to derive coarse location. If you accept, Google Analytics sets the cookies <1>_ga</1> and <2>_ga_*</2> (lifetime of up to two years) to distinguish visitors. Analytics event data is retained in Google Analytics for at most 14 months and is then deleted automatically."
 msgstr "Se utiliza el <0>Consent Mode v2</0> de Google: todas las señales de consentimiento están por defecto en «denegado», y solo la señal analytics-storage se establece en «concedido» después de que aceptes; las señales publicitarias siguen denegadas. Google Analytics 4 no registra ni almacena direcciones IP; los datos de IP solo se usan de forma transitoria para obtener una ubicación aproximada. Si aceptás, Google Analytics establece las cookies <1>_ga</1> y <2>_ga_*</2> (con una duración de hasta dos años) para distinguir a los visitantes. Los datos de eventos de analytics se conservan en Google Analytics durante un máximo de 14 meses y luego se eliminan automáticamente."
 
@@ -556,10 +552,6 @@ msgstr "De IC a Manager y más allá"
 msgid "If you use the contact form, the data you enter (name, email address, role, and message) is sent to an endpoint on this domain that is operated for me by <0>Amazon Web Services</0> (AWS) and forwarded to me by email using Amazon SES. The message itself is not retained beyond the resulting email correspondence."
 msgstr ""
 
-#: src/pages/Legal.tsx
-#~ msgid "If you use the contact form, the data you enter (name, email address, role, and message) is transmitted via a <0>Google Apps Script</0> endpoint (Google LLC / Google Ireland Ltd.) and forwarded to me by email. The data is not stored in any database; it exists only in the resulting email correspondence."
-#~ msgstr "Si usás el formulario de contacto, los datos que ingresás (nombre, dirección de correo electrónico, rol y mensaje) se transmiten a través de un endpoint de <0>Google Apps Script</0> (Google LLC / Google Ireland Ltd.) y se me reenvían por correo electrónico. Los datos no se almacenan en ninguna base de datos; solo existen en la correspondencia de correo electrónico resultante."
-
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
 #: src/pages/Impact.tsx
@@ -630,10 +622,6 @@ msgstr "Fundamento jurídico: Art. 6(1)(a) RGPD (tu consentimiento, otorgado a t
 #: src/pages/Legal.tsx
 msgid "Legal basis: Art. 6(1)(b) GDPR (steps prior to entering into a contract / responding to your inquiry) and, where the inquiry is not contract-related, Art. 6(1)(a) GDPR (your consent, given by voluntarily submitting the form). The spam and abuse protection described above rests on Art. 6(1)(f) GDPR (my legitimate interest in keeping this form usable and free of automated abuse). You may withdraw consent at any time with effect for the future by emailing <0>info@agusgonzaleznic.com</0>."
 msgstr ""
-
-#: src/pages/Legal.tsx
-#~ msgid "Legal basis: Art. 6(1)(b) GDPR (steps prior to entering into a contract / responding to your inquiry) and, where the inquiry is not contract-related, Art. 6(1)(a) GDPR (your consent, given by voluntarily submitting the form). You may withdraw consent at any time with effect for the future by emailing <0>info@agusgonzaleznic.com</0>."
-#~ msgstr "Fundamento jurídico: Art. 6(1)(b) RGPD (medidas previas a la celebración de un contrato / respuesta a tu consulta) y, en caso de que la consulta no esté relacionada con un contrato, Art. 6(1)(a) RGPD (tu consentimiento, otorgado mediante el envío voluntario del formulario). Podés retirar tu consentimiento en cualquier momento, con efecto a futuro, escribiendo a <0>info@agusgonzaleznic.com</0>."
 
 #: src/pages/Legal.tsx
 msgid "Legal basis: Art. 6(1)(f) GDPR (legitimate interest in the secure, reliable provision of this website). Log data may be processed on servers in the United States; GitHub and AWS rely on the EU–US Data Privacy Framework and/or EU Standard Contractual Clauses for such transfers. I do not merge this data with other sources or use it to identify visitors."
@@ -1109,8 +1097,8 @@ msgid "Writing | Agustin Gonzalez Nicolini"
 msgstr "Writing | Agustin Gonzalez Nicolini"
 
 #: src/lib/faq-data.ts
-msgid "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English, Spanish, or German — whichever you think best in."
-msgstr "Sí. Estoy radicado en Berlín y hago coaching a líderes de forma remota en todo el mundo. Las sesiones son en inglés, español o alemán, en el idioma en el que mejor pienses."
+msgid "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English or Spanish — whichever you think best in."
+msgstr "Sí. Estoy radicado en Berlín y hago coaching a líderes de forma remota en todo el mundo. Las sesiones son en inglés o español, en el idioma en el que mejor pienses."
 
 #: src/pages/Legal.tsx
 msgid "You also have the right to lodge a complaint with a data protection supervisory authority (Art. 77 GDPR). The authority responsible for this website's operator is:"
