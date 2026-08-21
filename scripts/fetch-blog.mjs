@@ -5,7 +5,7 @@
 // VITE_-prefixed var — so the token cannot reach the client bundle. The fetched
 // content is public and safe to bake in.
 
-import { writeFileSync, mkdirSync, readFileSync, existsSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync, readdirSync, rmSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -41,6 +41,7 @@ const localesTsPath = resolve(__dirname, "../src/i18n/locales.ts");
 const approvalsPath = resolve(__dirname, "../content/i18n-approvals.json");
 const reviewedDir = resolve(__dirname, "../content/translations");
 const tagMapPath = resolve(__dirname, "../content/tag-translations.json");
+const fixturePath = resolve(__dirname, "../content/fixtures/blog-fixture.json");
 
 const token = process.env.STORYBLOK_PUBLIC_TOKEN;
 // draft override is for local preview builds only (requires a preview token).
@@ -54,6 +55,32 @@ const requireToken = process.env.STORYBLOK_REQUIRE_TOKEN === "1";
 function writeOutput(posts) {
   mkdirSync(dirname(outFile), { recursive: true });
   writeFileSync(outFile, `${JSON.stringify(posts, null, 2)}\n`);
+}
+
+/**
+ * Delete per-locale blog data this run is not going to regenerate.
+ *
+ * src/generated is gitignored but NOT ephemeral outside CI, and nothing used to
+ * clear it. A build that lost its Storyblok token (or DeepL) wrote an empty
+ * English corpus and left the previous run's blog-data.<locale>.json in place —
+ * so prerender emitted no article pages while the locale blog indexes still
+ * listed every article and linked to them. 15 links to pages that no longer
+ * existed, and the build stayed green. (The broken-link assertion in
+ * prerender.mjs catches it now, but the data should never get into that state.)
+ *
+ * Called before writing, with the locales this run WILL write. Passing an empty
+ * set therefore clears them all, which is exactly right for a tokenless build.
+ */
+function pruneLocaleData(keep) {
+  if (!existsSync(generatedDir)) return;
+  const kept = new Set([...keep].map((l) => blogDataFilename(l)));
+  const stale = readdirSync(generatedDir).filter(
+    (f) => /^blog-data\.[a-z]{2}\.json$/.test(f) && !kept.has(f),
+  );
+  for (const f of stale) rmSync(resolve(generatedDir, f), { force: true });
+  if (stale.length) {
+    console.log(`✓ fetch-blog: cleared ${stale.length} stale locale file(s): ${stale.join(", ")}`);
+  }
 }
 
 // Build-time localization of the blog, writing src/generated/blog-data.<locale>.json.
@@ -210,12 +237,67 @@ if (!token) {
       "fetch-blog: STORYBLOK_PUBLIC_TOKEN is not set but STORYBLOK_REQUIRE_TOKEN=1 " +
         "(deploy builds must provide the repo secret via deploy.yml build-env-vars).",
     );
+    // Note this check runs BEFORE the BLOG_FIXTURE branch below, so a deploy can
+    // never fall back to fixture content: REQUIRE_TOKEN wins over FIXTURE.
     process.exit(1);
   }
+  // BLOG_FIXTURE=1 swaps in a small committed corpus instead of an empty blog.
+  //
+  // PR CI cannot receive secrets, so every PR build used to render the site with
+  // ZERO articles: 66 pages instead of 84. Nothing on a PR ever exercised an
+  // article page, the per-article language switcher, an hreflang cluster, RSS
+  // item content, or the assertion that no emitted page links to an unemitted
+  // path. All of that was first exercised at deploy time — on main, after merge.
+  //
+  // A fixture buys that coverage without putting a secret anywhere near a PR
+  // build, which matters: pasting a token into the reusable workflow's
+  // build-env-vars is the exact path that once leaked a multiline secret into
+  // public logs.
+  //
+  // The corpus deliberately contains shapes the real one does not: an article
+  // approved in only two locales, and a syndicated article with an external
+  // canonical. Those are the cases whose absence made the publication gate
+  // untestable end-to-end.
+  if (process.env.BLOG_FIXTURE === "1") {
+    const { posts } = JSON.parse(readFileSync(fixturePath, "utf-8"));
+    const publishedLocales = readPublishedLocales(localesTsPath);
+    const published = new Set(publishedLocales);
+    // Honour PUBLISHED_LOCALES even for fixtures: a fixture that emitted a
+    // locale the site does not publish would produce pages prerender skips, and
+    // the resulting "broken link" would be the fixture's fault, not a defect.
+    for (const post of posts) {
+      post.approved_locales = post.approved_locales.filter(
+        (l) => l === SOURCE_LOCALE || published.has(l),
+      );
+    }
+    const localesToWrite = [...new Set(posts.flatMap((p) => p.approved_locales))].filter(
+      (l) => l !== SOURCE_LOCALE,
+    );
+    pruneLocaleData(localesToWrite);
+    writeOutput(posts);
+    // Per-locale copies, tagged so a fixture page is identifiable on sight. Only
+    // posts approved for that locale, matching what the real pipeline writes.
+    for (const locale of localesToWrite) {
+      const localized = posts
+        .filter((p) => p.approved_locales.includes(locale))
+        .map((p) => ({ ...p, title: `[${locale}] ${p.title}` }));
+      writeFileSync(
+        resolve(generatedDir, blogDataFilename(locale)),
+        `${JSON.stringify(localized, null, 2)}\n`,
+      );
+    }
+    console.log(
+      `✓ fetch-blog: FIXTURE corpus — ${posts.length} post(s), locales [${localesToWrite.join(", ")}].` +
+        " No Storyblok token in this build; this is not real content.",
+    );
+    process.exit(0);
+  }
+
   console.warn(
     "\n⚠ fetch-blog: STORYBLOK_PUBLIC_TOKEN not set — writing empty blog data.\n" +
-      "  The blog will be EMPTY in this build (expected for PR CI and tokenless local builds).\n",
+      "  The blog will be EMPTY in this build (expected for tokenless local builds).\n",
   );
+  pruneLocaleData([]);
   writeOutput([]);
   process.exit(0);
 }
@@ -244,6 +326,12 @@ try {
     post.approved_locales = approvedLocalesFor(post, approvals, publishedLocales, SOURCE_LOCALE);
   }
 
+  // Drop locale data this run will not regenerate — e.g. a locale removed from
+  // PUBLISHED_LOCALES, or one whose last approval was withdrawn. The union of
+  // approved_locales is exactly what translateBlog is about to write.
+  pruneLocaleData(
+    [...new Set(posts.flatMap((p) => p.approved_locales))].filter((l) => l !== SOURCE_LOCALE),
+  );
   writeOutput(posts);
   console.log(
     `✓ fetch-blog: ${posts.length} post(s) (version=${version}) → src/generated/blog-data.json`,

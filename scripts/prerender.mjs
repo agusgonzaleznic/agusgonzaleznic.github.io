@@ -400,7 +400,18 @@ await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath, routes });
       orphans.push(`${file} (no canonical)`);
       continue;
     }
-    const path = new URL(canonical).pathname;
+    // A page can declare a canonical on ANOTHER origin — a syndicated article
+    // whose original lives elsewhere (CMS `canonical_override`). Such a page is
+    // deliberately absent from our sitemap: it is telling crawlers it is not the
+    // canonical copy, and listing it would contradict that. Only its pathname
+    // was being read before, so an external canonical made this assertion demand
+    // a foreign domain's path be present in our sitemap and fail the build.
+    //
+    // Skipped for the same reason noindex is skipped above: the page is not
+    // claiming to be indexable-as-itself.
+    const canonicalUrl = new URL(canonical);
+    if (canonicalUrl.origin !== SITE_URL) continue;
+    const path = canonicalUrl.pathname;
     if (!listed.has(path) && !listed.has(path.replace(/\/$/, ""))) {
       orphans.push(`${path} (${file.replace(`${distDir}/`, "")})`);
     }

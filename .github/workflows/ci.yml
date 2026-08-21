@@ -107,7 +107,20 @@ jobs:
       # which covers exactly the same PRs, since any TS change sets site=true.
       # (The build compiles via esbuild and STRIPS types, so without this step
       # nothing type-checked this repo at all.)
-      build-command: 'npm run build'
+      # BLOG_FIXTURE=1 makes fetch-blog use content/fixtures/blog-fixture.json
+      # instead of writing an empty blog. PR CI cannot receive secrets, so without
+      # it every PR validated the site with ZERO articles — 66 pages instead of
+      # 84 — and no PR ever exercised an article page, the per-article language
+      # switcher, an hreflang cluster, RSS item content, or the assertion that no
+      # emitted page links to an unemitted path.
+      #
+      # An env var on the command, deliberately NOT a secret in build-env-vars:
+      # that input is how a multiline secret once reached public logs, and this
+      # needs no secret at all.
+      #
+      # deploy.yml sets STORYBLOK_REQUIRE_TOKEN=1, and fetch-blog checks that
+      # BEFORE the fixture branch, so a deploy can never fall back to fixtures.
+      build-command: 'BLOG_FIXTURE=1 npm run build'
       artifact-path: 'dist'
       verify-build-output: true
 
