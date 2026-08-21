@@ -245,6 +245,16 @@ the OAI in AWS would still touch managed config.
 ## Day-2 workflow
 
 1. Branch, edit `terraform/**`, open a PR.
+
+   **Markdown-only changes under `terraform/` do not trigger this workflow at
+   all** — no plan comment, no `Tier split`, no gated apply. That is deliberate:
+   a README edit cannot change infrastructure, and queuing an approval request
+   for an apply that provably does nothing is how a gate stops being read. If
+   you edited a `.md` here and see no terraform checks, nothing is broken.
+
+   Note this makes `terraform/README.md` the one file that can drift from the
+   code it documents without CI noticing, since no plan runs to contradict it.
+   Re-read it when you change the thing it describes.
 2. CI (`terraform.yml`, plan job): fmt-check → init → validate → plan, and
    posts/refreshes a **sticky plan comment** on the PR. Note the site plan
    assumes the SAME write-capable deploy role as the apply (its trust allows
