@@ -37,6 +37,7 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
   const navigate = useNavigate();
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   // Close on outside pointer / Escape — wired only while open.
@@ -46,7 +47,12 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        // Hand focus back to the trigger. Without this it lands on <body> and
+        // the next Tab restarts from the top of the document.
+        triggerRef.current?.focus();
+      }
     };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -106,11 +112,17 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
               href={href}
               lang={locale}
               hrefLang={locale}
-              aria-label={name}
               onClick={(e) => switchTo(e, locale, href)}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-accent"
             >
+              {/* The visible code stays the label so WCAG 2.5.3 holds (the
+                  accessible name must contain the visible text); the endonym is
+                  appended visually-hidden so screen readers still announce
+                  "Português" rather than the letters P-T. The previous
+                  aria-label={name} REPLACED "PT" with "Português", leaving no
+                  shared substring for speech input to match. */}
               {locale.toUpperCase()}
+              <span className="sr-only"> {name}</span>
             </a>
           ),
         )}
@@ -123,8 +135,12 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
     <div ref={ref} className={cn("relative", className)}>
       <button
         type="button"
+        ref={triggerRef}
         onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
+        // Not "menu": that promises a menu WIDGET with menuitem roles and
+        // arrow-key navigation. This is a <nav> of ordinary links, so the
+        // generic value is the honest one.
+        aria-haspopup="true"
         aria-expanded={open}
         aria-label={t`Change language`}
         className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-accent"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
@@ -9,6 +9,7 @@ import { BOOKING_URL } from "@/lib/booking";
 import { delocalizePath } from "@/i18n/locales";
 import { setStickyCtaVisible } from "@/lib/layout";
 import { scrollBehavior } from "@/lib/motion";
+import { useFocusTrap } from "@/lib/focus-trap";
 
 // Every nav entry is now its own route (About, Philosophy, … each have a page).
 // They render as locale-aware <LocaleLink>s and navigate client-side (content
@@ -25,6 +26,7 @@ export const Navigation = () => {
   const { t } = useLingui();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   // Locale-aware: treat /{locale}/ and /{locale}/blog like their English roots
   // so the logo and blog-specific behaviour work under every language.
@@ -81,7 +83,12 @@ export const Navigation = () => {
 
   // Booking CTAs render as real anchors (crawlable, cmd/middle-click) — this
   // just closes the mobile menu when one is followed from there.
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
+
+  // Contain Tab inside the open overlay, close on Escape, and hand focus back to
+  // the toggle afterwards. See src/lib/focus-trap.ts for why this is hand-rolled
+  // rather than swapping in Radix Dialog.
+  useFocusTrap(isMobileMenuOpen, mobileMenuRef, closeMobileMenu);
 
   const navLinks: NavLink[] = [
     { label: t`About`, to: "/about" },
@@ -177,10 +184,17 @@ export const Navigation = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div id="mobile-menu" className="fixed inset-0 z-40 md:hidden">
+        <div
+          id="mobile-menu"
+          ref={mobileMenuRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={t`Menu`}
+          className="fixed inset-0 z-40 md:hidden"
+        >
           <div
             className="absolute inset-0 bg-background/95 backdrop-blur-md"
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={closeMobileMenu}
           />
           <div className="relative h-full flex flex-col items-center justify-center gap-8 p-6">
             {navLinks.map((link, index) =>
