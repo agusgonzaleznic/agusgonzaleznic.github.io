@@ -1,7 +1,7 @@
 // Unit tests for the contact Lambda: exercises every control's pass AND fail
 // path. DynamoDB, SSM, SES, and fetch are stubbed (no network, no AWS).
 //   node --test
-import { test } from "node:test";
+import { test, mock } from "node:test";
 import assert from "node:assert/strict";
 import {
   handler,
@@ -34,6 +34,25 @@ function tsAgo(seconds) {
 // implementation the way a hand-copied `IP#<ip>` literal did.
 function ipKey(ip) {
   return __windowKey(`IP#${ip}`, __limits.IP_WINDOW_S).key;
+}
+
+// Freeze the clock mid-window.
+//
+// retryAfter is `windowEnd - now`, so any assertion that it is a REAL wait is
+// non-deterministic against a live clock: run inside the last second of a 600s
+// window and retryAfter legitimately equals 1, which is correct behaviour but
+// indistinguishable from the bug the assertion exists to catch (the old code
+// derived it from a PAST expires_at so it always collapsed to 1). That is a
+// 1-in-600 flake per assertion — it fired in CI, failing three tests at once
+// because they shared the same boundary second.
+//
+// Pinning `now` to a known offset inside the window makes retryAfter exact, so
+// the test stays discriminating instead of being loosened to `>= 1`.
+const WINDOW_OFFSET_S = 100; // seconds into the window; retryAfter must be window - this
+function freezeClockMidWindow(t, windowS) {
+  const start = 1_700_000_000 - (1_700_000_000 % windowS);
+  t.mock.timers.enable({ apis: ["Date"], now: (start + WINDOW_OFFSET_S) * 1000 });
+  return windowS - WINDOW_OFFSET_S;
 }
 
 function makeDdb() {
@@ -407,7 +426,8 @@ test("reused token (TOK# already present) -> 403", async () => {
 });
 
 // --- Control 8: per-IP rate limit --------------------------------------------
-test("per-IP over limit -> 429", async () => {
+test("per-IP over limit -> 429", async (t) => {
+  const expected = freezeClockMidWindow(t, __limits.IP_WINDOW_S);
   const { ddb } = install();
   ddb.counts.set(ipKey("203.0.113.5"), 5); // next bump -> 6 > 5
   const res = await handler(event());
@@ -419,11 +439,13 @@ test("per-IP over limit -> 429", async () => {
   // expires_at (= first hit + IP window). Assert it reflects the real window,
   // not the constant-1 fallback that a stub omitting expires_at would produce,
   // and that the Retry-After header mirrors it.
-  assert.ok(Number.isInteger(b.retryAfter) && b.retryAfter > 1 && b.retryAfter <= 600);
+  // Exact, because the clock is pinned: retryAfter is the remaining window.
+  assert.equal(b.retryAfter, expected);
   assert.equal(res.headers["retry-after"], String(b.retryAfter));
 });
 
-test("IPv6 callers in the same /64 share one per-IP bucket", async () => {
+test("IPv6 callers in the same /64 share one per-IP bucket", async (t) => {
+  const expected = freezeClockMidWindow(t, __limits.IP_WINDOW_S);
   const { ddb } = install();
   ddb.counts.set(ipKey("2001:db8:1:2::/64"), 5); // next bump -> 6 > 5
   // A different interface id inside the same /64 must map to the same bucket.
@@ -436,7 +458,7 @@ test("IPv6 callers in the same /64 share one per-IP bucket", async () => {
   // expires_at (= first hit + IP window). Assert it reflects the real window,
   // not the constant-1 fallback that a stub omitting expires_at would produce,
   // and that the Retry-After header mirrors it.
-  assert.ok(Number.isInteger(b.retryAfter) && b.retryAfter > 1 && b.retryAfter <= 600);
+  assert.equal(b.retryAfter, expected);
   assert.equal(res.headers["retry-after"], String(b.retryAfter));
 });
 
@@ -550,7 +572,8 @@ test("rate-limit window ROLLS OVER: a tripped previous window does not 429 the n
   assert.equal(parse(res).ok, true);
 });
 
-test("tripped window returns a real retryAfter (never the 1s retry-loop)", async () => {
+test("tripped window returns a real retryAfter (never the 1s retry-loop)", async (t) => {
+  const expected = freezeClockMidWindow(t, __limits.GLOBAL_WINDOW_S);
   const ddb = makeDdb();
   install({ ddb });
   const cur = __windowKey("GLOBAL#siteverify", __limits.GLOBAL_WINDOW_S);
@@ -562,11 +585,10 @@ test("tripped window returns a real retryAfter (never the 1s retry-loop)", async
   // Derived from the COMPUTED window end, so it is a genuine wait. The old code
   // derived it from a stored expires_at that was already in the past, so
   // Math.max(1, past - now) collapsed to 1 and clients hammered.
-  assert.ok(retryAfter > 1, `retryAfter should be a real wait, got ${retryAfter}`);
-  assert.ok(
-    retryAfter <= __limits.GLOBAL_WINDOW_S,
-    `retryAfter must be bounded by the window, got ${retryAfter}`,
-  );
+  // Exact rather than a range: the old code derived retryAfter from an
+  // already-past expires_at, so it always collapsed to 1 and clients hammered.
+  assert.equal(retryAfter, expected);
+  assert.ok(retryAfter > 1, "a pinned mid-window clock must yield a real wait");
 });
 
 test("counters are scoped per window key, so buckets cannot leak across windows", () => {
