@@ -185,6 +185,72 @@ jobs:
   # apply, because it is what grants the deploy role the permissions the site
   # plan is about to use.
   # ---------------------------------------------------------------------------
+  # Refuse a PR that touches BOTH terraform tiers.
+  #
+  # A site resource that needs a new IAM grant cannot be planned before the grant
+  # exists, and bootstrap-apply only runs post-merge — so a PR carrying both
+  # produces a red site plan by construction. That was tolerated for five merges
+  # ("expected, the authoritative plan is the one bootstrap-apply unblocks"), and
+  # it normalised a red check so thoroughly that a real bug hid behind it: the
+  # detect step's `tee` swallowed terraform's exit code, bootstrap-apply skipped
+  # on every commit, and none of that terraform was ever applied.
+  #
+  # The rule is now mechanical: bootstrap changes ship in their own PR, merged and
+  # applied first; the site PR that consumes the grant then plans GREEN. Two
+  # merges, both verified.
+  #
+  # Escape hatch: label the PR `allow-cross-tier` when the site change provably
+  # does NOT depend on the bootstrap change (e.g. a comment-only edit in one
+  # tier). Use it sparingly — it re-opens the hole.
+  tier-split:
+    name: Tier split
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Refuse a PR spanning both terraform tiers
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          boot=false
+          site=false
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            # Only files that can change a PLAN count. Docs in either tier are
+            # irrelevant here, and counting them produced a false positive on a
+            # two-README PR — which would have pushed people toward the override
+            # label and hollowed out the rule.
+            case "$f" in
+              *.md) continue ;;
+            esac
+            case "$f" in
+              terraform/bootstrap/*) boot=true ;;
+              terraform/*) site=true ;;
+            esac
+          done <<< "$changed"
+          echo "bootstrap-tier touched: $boot | site-tier touched: $site"
+
+          if [ "$boot" = true ] && [ "$site" = true ]; then
+            case ",$LABELS," in
+              *,allow-cross-tier,*)
+                echo "::warning title=Cross-tier PR allowed by label::This PR touches both terraform tiers. The site plan may be unverifiable; confirm it is green before merging."
+                exit 0
+                ;;
+            esac
+            echo "::error title=Split this PR by tier::It changes BOTH terraform/bootstrap/ and the site module. A site resource needing a new grant cannot plan before the grant is applied, so merging this means merging an unverified plan. Ship the bootstrap change first, apply it, then open the site PR — see the note in terraform/README.md. Override with the allow-cross-tier label only if the site change does not depend on the bootstrap change."
+            exit 1
+          fi
+          echo "OK — single-tier PR (or no terraform changes)."
+
   bootstrap-plan:
     name: Bootstrap plan (PR)
     # The AWS_TF_BOOTSTRAP_* repo variables are the adoption switch. Until the
