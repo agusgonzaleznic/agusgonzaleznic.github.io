@@ -592,6 +592,13 @@ resource "aws_iam_role_policy_attachment" "deploy" {
 # the last managed slot as headroom. Same tier, same reviewer, same gate — only
 # the attachment mechanism differs.
 ################################################################################
+# WHEN ADDING A RESOURCE TYPE HERE, ENUMERATE WHAT THE PROVIDER *READS*, NOT
+# JUST WHAT IT WRITES. Two grants in this policy were discovered only by a failed
+# apply — logs:DescribeLogGroups (a LIST action, so it cannot be ARN-scoped) and
+# budgets:ListTagsForResource (read on every refresh even with no tags declared).
+# Both times the create succeeded and the follow-up read failed, which leaves the
+# apply half-done. The provider's resource docs list the required IAM actions per
+# resource; read those rather than inferring from the verbs you happen to use.
 data "aws_iam_policy_document" "deploy_observability" {
   # Metric filters live ON the Lambda log groups, so they reuse the same
   # resource scope as ManageFunctionLogGroups.
@@ -677,6 +684,15 @@ data "aws_iam_policy_document" "deploy_observability" {
     actions = [
       "budgets:ViewBudget",
       "budgets:ModifyBudget",
+      # The provider READS a budget's tags on every refresh even when the
+      # resource declares none, so ViewBudget+ModifyBudget alone is not enough:
+      # the budget was created and then the very next tag read failed with
+      # AccessDenied, breaking the apply after it had already changed things.
+      # Tag/Untag are included so adding `tags` later does not need another
+      # bootstrap round trip.
+      "budgets:ListTagsForResource",
+      "budgets:TagResource",
+      "budgets:UntagResource",
     ]
     resources = ["arn:aws:budgets::${local.account_id}:budget/*"]
   }
