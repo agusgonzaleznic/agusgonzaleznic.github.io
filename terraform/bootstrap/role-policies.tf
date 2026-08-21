@@ -12,9 +12,14 @@ locals {
   cloudfront_function_arn     = "arn:aws:cloudfront::${local.account_id}:function/agusgonzaleznic-com-www-redirect"
   hosted_zone_arn             = "arn:aws:route53:::hostedzone/Z01244412JIHKLB4766PS"
   ses_identity_arn            = "arn:aws:ses:us-east-1:${local.account_id}:identity/agusgonzaleznic.com"
-  acm_certificate_arn         = "arn:aws:acm:us-east-1:${local.account_id}:certificate/5252733a-e6e7-4161-bf9e-83b791bb885a"
-  lambda_function_arns        = ["arn:aws:lambda:us-east-1:${local.account_id}:function:agusgonzaleznic-*"]
-  lambda_exec_role_arns       = ["arn:aws:iam::${local.account_id}:role/agusgonzaleznic-*"]
+  # Configuration set the contact Lambda sends through, created by the site
+  # module. Named here because the boundary has to allow SendEmail on it before
+  # anything can use it, and IAM happily references an ARN that does not exist
+  # yet — which is what makes the bootstrap-first ordering possible at all.
+  ses_config_set_arn    = "arn:aws:ses:us-east-1:${local.account_id}:configuration-set/agusgonzaleznic-contact"
+  acm_certificate_arn   = "arn:aws:acm:us-east-1:${local.account_id}:certificate/5252733a-e6e7-4161-bf9e-83b791bb885a"
+  lambda_function_arns  = ["arn:aws:lambda:us-east-1:${local.account_id}:function:agusgonzaleznic-*"]
+  lambda_exec_role_arns = ["arn:aws:iam::${local.account_id}:role/agusgonzaleznic-*"]
   dynamodb_table_arns = [
     "arn:aws:dynamodb:us-east-1:${local.account_id}:table/agusgonzaleznic-*",
     "arn:aws:dynamodb:us-east-1:${local.account_id}:table/agusgonzaleznic-*/index/*",
@@ -444,10 +449,20 @@ data "aws_iam_policy_document" "lambda_exec_boundary" {
   # Scoped to the one identity AND pinned to the one From address, so an
   # injected policy cannot turn this role into an open relay for the domain.
   statement {
-    sid       = "SendContactEmail"
-    effect    = "Allow"
-    actions   = ["ses:SendEmail"]
-    resources = [local.ses_identity_arn]
+    sid     = "SendContactEmail"
+    effect  = "Allow"
+    actions = ["ses:SendEmail"]
+    # ses:SendEmail authorises against TWO resource types, and a request naming a
+    # configuration set is checked against both. Granting only the identity means
+    # every send that passes ConfigurationSetName fails AccessDenied — and because
+    # the Lambda catches everything and returns HTTP, that surfaces as a 502 on
+    # every submission with AWS/Lambda Errors still reading zero.
+    #
+    # Both ARNs are listed here so the boundary is ready before the site module
+    # creates the set. The role policy in contact.tf must be widened the same way;
+    # effective permissions are the INTERSECTION, so widening only one changes
+    # nothing.
+    resources = [local.ses_identity_arn, local.ses_config_set_arn]
 
     condition {
       test     = "StringEquals"
@@ -548,6 +563,46 @@ data "aws_iam_policy_document" "ses" {
       "ses:ListTagsForResource",
     ]
     resources = [local.ses_identity_arn]
+  }
+
+  # The configuration set and its event destination, so the site module can
+  # manage them. Action names taken from the SESv2 service-authorization
+  # reference, not inferred from the resource arguments that happen to be
+  # written: the last two IAM gaps here were both READ actions the provider calls
+  # on refresh but no config file mentions.
+  #
+  # Every Put*Options action is listed even though the initial resource sets only
+  # some of them — the provider calls the one matching whichever field changes, so
+  # a policy covering only today's fields turns any later edit into a failed apply
+  # that needs a second bootstrap round trip and a second human approval.
+  #
+  # DELIBERATELY OMITTED: ses:ListConfigurationSets. It is the one action here
+  # that cannot be ARN-scoped (resource type `*`), and the provider does not need
+  # it — Create/Read/Update/Delete and import all address the set by name via
+  # GetConfigurationSet. If a plan ever fails asking for it, that is the action to
+  # add, with a comment saying why it has to be unscoped.
+  statement {
+    sid    = "ManageContactConfigurationSet"
+    effect = "Allow"
+    actions = [
+      "ses:CreateConfigurationSet",
+      "ses:DeleteConfigurationSet",
+      "ses:GetConfigurationSet",
+      "ses:PutConfigurationSetDeliveryOptions",
+      "ses:PutConfigurationSetReputationOptions",
+      "ses:PutConfigurationSetSendingOptions",
+      "ses:PutConfigurationSetSuppressionOptions",
+      "ses:PutConfigurationSetTrackingOptions",
+      "ses:PutConfigurationSetVdmOptions",
+      "ses:CreateConfigurationSetEventDestination",
+      "ses:UpdateConfigurationSetEventDestination",
+      "ses:DeleteConfigurationSetEventDestination",
+      "ses:GetConfigurationSetEventDestinations",
+      "ses:TagResource",
+      "ses:UntagResource",
+      "ses:ListTagsForResource",
+    ]
+    resources = [local.ses_config_set_arn]
   }
 }
 
