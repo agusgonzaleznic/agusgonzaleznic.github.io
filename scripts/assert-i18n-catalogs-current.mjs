@@ -116,16 +116,35 @@ if (changed.length) {
 // Catalogs are current. Report untranslated messages — readable English, not a
 // hash, so this is a warning rather than a failure.
 const gaps = [];
+// An ICU plural whose translation is byte-identical to English. Reported
+// separately because it is NOT the same situation as an empty msgstr: the
+// translator cannot produce these at all (protect() masks a plural as one
+// sentinel, sub-messages included), so they will never fill themselves in and
+// need translating by hand. The generic "msgstr equals msgid" heuristic is
+// useless site-wide — plenty of strings are legitimately identical — but for a
+// plural it is unambiguous.
+const untranslatedPlurals = [];
+const IS_PLURAL = /\{[^{}]*,\s*(plural|select|selectordinal)\s*,/;
 for (const f of poFiles()) {
   if (f === "en.po") continue;
-  const empty = parsePo(before.get(f)).filter((e) => !isHeader(e) && !e.msgstr?.trim());
+  const entries = parsePo(before.get(f)).filter((e) => !isHeader(e));
+  const empty = entries.filter((e) => !e.msgstr?.trim());
   if (empty.length) gaps.push({ f, n: empty.length, sample: empty[0].msgid });
+  const stuck = entries.filter((e) => IS_PLURAL.test(e.msgid) && e.msgstr?.trim() === e.msgid);
+  if (stuck.length) untranslatedPlurals.push({ f, n: stuck.length, sample: stuck[0].msgid });
 }
 console.log("✓ i18n: catalogs match the source");
+const trim = (s) => (s.length > 70 ? `${s.slice(0, 70)}…` : s);
 if (gaps.length) {
-  const trim = (s) => (s.length > 70 ? `${s.slice(0, 70)}…` : s);
   console.log(
     `⚠ i18n: untranslated messages — these render in ENGLISH on translated pages:\n` +
       gaps.map((g) => `    ${g.f}: ${g.n}  e.g. "${trim(g.sample)}"`).join("\n"),
+  );
+}
+if (untranslatedPlurals.length) {
+  console.log(
+    "⚠ i18n: ICU plurals still identical to English — the translator CANNOT produce\n" +
+      "  these (they are masked whole), so they need translating by hand:\n" +
+      untranslatedPlurals.map((g) => `    ${g.f}: ${g.n}  e.g. "${trim(g.sample)}"`).join("\n"),
   );
 }
