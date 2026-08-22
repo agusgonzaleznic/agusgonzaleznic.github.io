@@ -52,3 +52,45 @@ export function storyblokImage(filename: string, width: number, height = 0): str
   const crop = height > 0 ? "/smart" : "";
   return `${filename}/m/${width}x${height}${crop}/filters:quality(80)`;
 }
+
+/**
+ * Intrinsic pixel size from a Storyblok asset URL, or null.
+ *
+ * Storyblok encodes it in the path: /f/<space>/<W>x<H>/<hash>/<name>. Null is
+ * load-bearing rather than a convenience: real assets in this space have no
+ * WxH segment at all (an SVG is /f/288632938663524/375fba9742/x.svg), and a
+ * caller must OMIT width/height in that case instead of guessing — a wrong
+ * aspect-ratio box is worse than none.
+ */
+export function storyblokImageSize(filename: string): { width: number; height: number } | null {
+  const m = /\/\/a\.storyblok\.com\/f\/\d+\/(\d+)x(\d+)\//.exec(filename);
+  if (!m) return null;
+  const width = Number(m[1]);
+  const height = Number(m[2]);
+  return width > 0 && height > 0 ? { width, height } : null;
+}
+
+/**
+ * A srcset of Storyblok transforms.
+ *
+ * Returns "" for anything not on a.storyblok.com — storyblokImage passes those
+ * URLs through untouched, so emitting one candidate per width would be the same
+ * URL repeated with different `w` descriptors, which is actively wrong rather
+ * than merely useless.
+ *
+ * Widths above the intrinsic width are dropped (never upscaled) and the intrinsic
+ * width itself is included, so the largest candidate is the real asset. Filtering
+ * is deliberate: clamping each width with Math.min instead would emit N identical
+ * URLs carrying N different descriptors.
+ */
+export function storyblokSrcSet(filename: string, widths: number[]): string {
+  if (!/\/\/a\.storyblok\.com\//.test(filename)) return "";
+  const intrinsic = storyblokImageSize(filename)?.width;
+  const usable = intrinsic
+    ? [...new Set([...widths.filter((w) => w <= intrinsic), intrinsic])]
+    : [...new Set(widths)];
+  return usable
+    .sort((a, b) => a - b)
+    .map((w) => `${storyblokImage(filename, w)} ${w}w`)
+    .join(", ");
+}

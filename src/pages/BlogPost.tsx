@@ -20,6 +20,7 @@ import {
 } from "@/lib/blog";
 import { storyblokImage } from "@/lib/richtext";
 import { getPostBody } from "@/lib/blog-body";
+import { CoverImage } from "@/components/blog/CoverImage";
 import { SITE_URL } from "@/lib/site";
 import { LocaleLinksContext } from "@/i18n/locale-links";
 import {
@@ -177,15 +178,7 @@ const BlogPostPage = () => {
 
               {post.cover_image && (
                 <figure className="mb-12 animate-fade-in">
-                  <img
-                    src={storyblokImage(post.cover_image.filename, 1536)}
-                    alt={post.cover_image.alt || post.title}
-                    // LCP candidate: load eagerly (React 18 only forwards the
-                    // lowercase spelling of fetchpriority).
-                    loading="eager"
-                    {...({ fetchpriority: "high" } as Record<string, string>)}
-                    className="w-full max-w-full rounded-lg"
-                  />
+                  <CoverImage image={post.cover_image} fallbackAlt={post.title} priority />
                   {post.cover_image.title && (
                     <figcaption className="mt-3 text-center text-sm text-muted-foreground">
                       {post.cover_image.title}

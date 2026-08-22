@@ -1,5 +1,12 @@
 import { Fragment, type ReactNode } from "react";
-import { extractText, storyblokImage, type RichtextMark, type RichtextNode } from "@/lib/richtext";
+import {
+  extractText,
+  storyblokImage,
+  storyblokImageSize,
+  storyblokSrcSet,
+  type RichtextMark,
+  type RichtextNode,
+} from "@/lib/richtext";
 
 // Hand-rolled Storyblok richtext → React walker. Zero dependencies, pure and
 // synchronous, so it runs identically under renderToString (prerender) and in
@@ -188,8 +195,24 @@ const renderNode = (node: RichtextNode, key: number, ctx: Ctx): ReactNode => {
         <figure key={key} className="my-10">
           <img
             src={storyblokImage(src, 1400)}
+            {...(() => {
+              const srcSet = storyblokSrcSet(src, [640, 768, 1024, 1280, 1400]);
+              // The prose column is `max-w-[70ch]`, which is font-relative and
+              // cannot be pinned to a px constant the way the cover's max-w-3xl
+              // can. 65ch of the body face measures ~640px, so this is an
+              // ESTIMATE that errs slightly large — a too-large `sizes` costs
+              // bandwidth, a too-small one costs sharpness.
+              return srcSet ? { srcSet, sizes: "(min-width: 688px) 640px, calc(100vw - 48px)" } : {};
+            })()}
+            {...(() => {
+              const size = storyblokImageSize(src);
+              return size
+                ? { width: 1400, height: Math.round((1400 * size.height) / size.width) }
+                : {};
+            })()}
             alt={String(node.attrs?.alt ?? "")}
             loading="lazy"
+            decoding="async"
             className="w-full max-w-full rounded-lg"
           />
           {title && (
