@@ -2,14 +2,14 @@
   "5d2d1471-049c-4566-aa14-ca564bf1ab6c": {
     "de": {
       "status": "approved",
-      "sourceHash": "b9d02d6ee9d9285be7d7f5ff",
+      "sourceHash": "1f9142eb05658d0019d138bf",
       "provenance": "grandfathered-mt",
       "reviewedAt": null,
       "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
     },
     "es": {
       "status": "approved",
-      "sourceHash": "b9d02d6ee9d9285be7d7f5ff",
+      "sourceHash": "1f9142eb05658d0019d138bf",
       "provenance": "grandfathered-mt",
       "reviewedAt": null,
       "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
@@ -18,14 +18,14 @@
   "f0382ea8-64ea-47dd-bc92-8887a3238cb1": {
     "de": {
       "status": "approved",
-      "sourceHash": "0e82fc9ff4cd0774e670183b",
+      "sourceHash": "405b63311a86f8a492fda392",
       "provenance": "grandfathered-mt",
       "reviewedAt": null,
       "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
     },
     "es": {
       "status": "approved",
-      "sourceHash": "0e82fc9ff4cd0774e670183b",
+      "sourceHash": "405b63311a86f8a492fda392",
       "provenance": "grandfathered-mt",
       "reviewedAt": null,
       "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
@@ -34,31 +34,31 @@
   "817959ca-c56c-454e-9566-0e537ad1a659": {
     "de": {
       "status": "approved",
-      "sourceHash": "ce14a595b9fa58529d855e2c",
+      "sourceHash": "1f25730f50e4cb6c94e88686",
       "provenance": "auto-mt",
       "reviewedAt": "2026-07-20T14:18:14.474Z"
     },
     "es": {
       "status": "approved",
-      "sourceHash": "ce14a595b9fa58529d855e2c",
+      "sourceHash": "1f25730f50e4cb6c94e88686",
       "provenance": "auto-mt",
       "reviewedAt": "2026-07-20T14:18:14.474Z"
     },
     "fr": {
       "status": "approved",
-      "sourceHash": "ce14a595b9fa58529d855e2c",
+      "sourceHash": "1f25730f50e4cb6c94e88686",
       "provenance": "human-reviewed",
       "reviewedAt": "2026-07-20T14:18:14.474Z"
     },
     "it": {
       "status": "approved",
-      "sourceHash": "ce14a595b9fa58529d855e2c",
+      "sourceHash": "1f25730f50e4cb6c94e88686",
       "provenance": "human-reviewed",
       "reviewedAt": "2026-07-20T14:18:14.474Z"
     },
     "pt": {
       "status": "approved",
-      "sourceHash": "ce14a595b9fa58529d855e2c",
+      "sourceHash": "1f25730f50e4cb6c94e88686",
       "provenance": "human-reviewed",
       "reviewedAt": "2026-07-20T14:18:14.474Z"
     }

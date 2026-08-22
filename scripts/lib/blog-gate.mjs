@@ -45,6 +45,19 @@ function collectText(node, acc) {
   }
   if (OPAQUE_RICHTEXT.has(node.type)) return;
   if (typeof node.text === "string" && node.text) acc.push(node.text);
+  // Link TARGETS count as source, even though no translator retypes them.
+  //
+  // A reviewed DE/ES translation is served verbatim from content/translations/,
+  // so it carries its own copy of the body — including hrefs. Retargeting a link
+  // in the English article therefore changed nothing in the reviewed locales, and
+  // because the hash ignored marks the approval still looked fresh: the German
+  // page kept pointing at the OLD url indefinitely, with no signal anywhere.
+  //
+  // Hashing the href demotes the approval instead, which is the honest outcome —
+  // somebody has to look at where the translated link now goes.
+  for (const mark of node.marks ?? []) {
+    if (mark?.attrs?.href) acc.push(`\u0000href:${mark.attrs.href}`);
+  }
   if (Array.isArray(node.content)) collectText(node.content, acc);
 }
 

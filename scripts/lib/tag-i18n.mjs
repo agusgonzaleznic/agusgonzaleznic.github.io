@@ -12,19 +12,39 @@
 //   it runs at AUTHORING time (scripts/new-post.mjs), so the build just reads a
 //   committed, human-editable map. Missing entries fall back to the English tag.
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { hasAnthropicKey, resolveAnthropicKey } from "./llm-postedit.mjs";
 
 const MODEL = "claude-opus-4-8";
 const LOCALE_NAME = { de: "German", es: "Argentine Spanish", fr: "French", it: "Italian", pt: "European Portuguese" };
 
 export function loadTagMap(path) {
+  // Absent is the fresh-checkout case and means "nothing translated yet".
+  if (!existsSync(path)) return {};
+  const raw = readFileSync(path, "utf8");
+  let parsed;
   try {
-    const m = JSON.parse(readFileSync(path, "utf8"));
-    return m && typeof m === "object" ? m : {};
-  } catch {
-    return {};
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    // A file that EXISTS but does not parse is a different thing from an absent
+    // one, and treating it as
+    // empty is destructive rather than merely wrong: every tag then looks
+    // untranslated, ensureTagTranslations refills the map, and saveTagMap writes
+    // that over the real file. 14 tags x 5 locales of reviewed labels, gone, with
+    // a green build. Exactly the failure the approvals manifest had before
+    // blog-gate.mjs stopped conflating the two.
+    throw new Error(
+      `tag-i18n: ${path} exists but is not valid JSON (${e.message}). ` +
+        "Refusing to treat it as empty — that would overwrite every existing tag " +
+        "translation on the next save. Restore it from git.",
+    );
   }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error(
+      `tag-i18n: ${path} must contain a JSON object, got ${Array.isArray(parsed) ? "an array" : typeof parsed}.`,
+    );
+  }
+  return parsed;
 }
 
 export function saveTagMap(path, map) {
@@ -107,15 +127,40 @@ async function translateTagsClaude(tags, locale) {
 export async function ensureTagTranslations(tags, locales, path) {
   const map = loadTagMap(path);
   let added = 0;
+  let unresolved = 0;
   for (const loc of locales) {
     const missing = tags.filter((t) => !map[t]?.[loc]);
     if (!missing.length) continue;
     const translated = await translateTagsClaude(missing, loc);
     for (const t of missing) {
+      // Persist ONLY a real translation.
+      //
+      // This used to write `translated[t] || t`, i.e. the English tag itself
+      // whenever Claude produced nothing — no API key, SDK not installed, a
+      // refusal, a rate limit, any thrown error. All of those return {}.
+      //
+      // The damage was permanent, not transient: the `missing` filter above tests
+      // whether a value EXISTS, so an English placeholder is indistinguishable
+      // from a finished translation and is never retried. One keyless build
+      // pinned every tag to English in all five locales, for good.
+      //
+      // Leaving it unmapped is not a regression in what readers see —
+      // localizeTags already falls back to the English tag for anything absent —
+      // it just keeps the work outstanding so the next build with a key does it.
+      if (!translated[t]) {
+        unresolved += 1;
+        continue;
+      }
       map[t] = map[t] || {};
-      map[t][loc] = translated[t] || t;
+      map[t][loc] = translated[t];
       added += 1;
     }
+  }
+  if (unresolved) {
+    console.warn(
+      `  tag translation: ${unresolved} (tag, locale) pair(s) left untranslated — ` +
+        "they render as the English tag and will be retried on the next build.",
+    );
   }
   if (added) saveTagMap(path, map);
   return added;

@@ -173,16 +173,25 @@ function localizeHomeHead(html, locale, helmet) {
     ["og:description", /(<meta property="og:description" content=")[^"]*(")/, description],
     ["twitter:title", /(<meta name="twitter:title" content=")[^"]*(")/, title],
     ["twitter:description", /(<meta name="twitter:description" content=")[^"]*(")/, description],
+    // These five were plain .replace() calls on exact English literals until they
+    // joined this loop. String.replace is silent when it matches nothing, so any
+    // edit to index.html's head — reformatting an attribute, changing the site
+    // URL, prettier moving a self-closing slash — would have stopped localizing
+    // the tag and shipped a lang="de" page still declaring content="English",
+    // og:locale="en_US", an English og:url and "inLanguage": "en". The build
+    // would have stayed green, and the tags are the ones search engines read to
+    // decide which locale a page is for, so the damage is invisible on the page
+    // itself.
+    ["meta name=language", /(<meta name="language" content=")[^"]*(")/, meta.name],
+    ["og:locale", /(<meta property="og:locale" content=")[^"]*(")/, meta.ogLocale],
+    ["og:url", /(<meta property="og:url" content=")[^"]*(")/, homeUrl],
+    ["twitter:url", /(<meta name="twitter:url" content=")[^"]*(")/, homeUrl],
+    ["JSON-LD inLanguage", /("inLanguage":\s*")[^"]*(")/, locale],
   ]) {
     html = replaceExactlyOnce(html, re, (_, a, b) => `${a}${value}${b}`, what, locale);
   }
 
-  return html
-    .replace('<meta name="language" content="English" />', `<meta name="language" content="${meta.name}" />`)
-    .replace('<meta property="og:locale" content="en_US" />', `<meta property="og:locale" content="${meta.ogLocale}" />`)
-    .replace('<meta property="og:url" content="https://agusgonzaleznic.com/" />', `<meta property="og:url" content="${homeUrl}" />`)
-    .replace('<meta name="twitter:url" content="https://agusgonzaleznic.com/" />', `<meta name="twitter:url" content="${homeUrl}" />`)
-    .replace('"inLanguage": "en"', `"inLanguage": "${locale}"`);
+  return html;
 }
 
 // Replaces the template's homepage head block with the react-helmet output the

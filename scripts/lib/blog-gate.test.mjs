@@ -80,6 +80,41 @@ test("enSourceHash ignores code blocks (they are never translated)", () => {
   assert.equal(enSourceHash(withCode), enSourceHash(withOtherCode));
 });
 
+test("enSourceHash changes when a link TARGET changes", () => {
+  // A reviewed DE/ES translation is served verbatim and carries its own copy of
+  // the body, hrefs included. If retargeting a link in the English article does
+  // not demote the approval, the translated pages keep pointing at the old url
+  // forever with no signal anywhere.
+  const linked = (href) =>
+    post({
+      body: {
+        type: "doc",
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", text: "Read more", marks: [{ type: "link", attrs: { href } }] },
+            ],
+          },
+        ],
+      },
+    });
+  assert.notEqual(
+    enSourceHash(linked("https://example.com/new")),
+    enSourceHash(linked("https://example.com/old")),
+  );
+  // Same href, same hash — the href must not make the hash unstable.
+  assert.equal(
+    enSourceHash(linked("https://example.com/same")),
+    enSourceHash(linked("https://example.com/same")),
+  );
+});
+
+test("a post with no marks still hashes (marks absent, not empty)", () => {
+  assert.equal(typeof enSourceHash(post()), "string");
+  assert.ok(enSourceHash(post()).length > 0);
+});
+
 // ------------------------------------------------------------- the gate itself
 
 test("source locale always emits, even with nothing approved and nothing published", () => {
