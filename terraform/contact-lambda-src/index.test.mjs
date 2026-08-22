@@ -843,3 +843,66 @@ test("the map covers every op the handler actually calls", async () => {
     assert.ok(__DDB_COMMANDS[op], `ddb("${op}") has no entry in __DDB_COMMANDS`);
   }
 });
+
+
+// ---------------------------------------------------------------------------
+// SES configuration set.
+//
+// Naming a configuration set is what makes SES publish Bounce/Complaint metrics
+// for these sends. Without it, SendEmail returning 200 is the last thing anyone
+// hears about a message — a hard bounce arrives minutes later, out of band, after
+// the handler has already logged ses_send ok and answered 200.
+//
+// The env var is OPTIONAL on purpose: ses:SendEmail authorises against the
+// configuration set as well as the identity, so a set named without the matching
+// grant makes EVERY submission fail AccessDenied. These two tests pin both
+// directions of that choice.
+// ---------------------------------------------------------------------------
+
+test("ConfigurationSetName is sent when SES_CONFIGURATION_SET is set", async () => {
+  const prev = process.env.SES_CONFIGURATION_SET;
+  process.env.SES_CONFIGURATION_SET = "agusgonzaleznic-contact";
+  try {
+    const { ses } = install();
+    const res = await handler(event());
+    assert.equal(res.statusCode, 200);
+    assert.equal(ses.calls.length, 1);
+    assert.equal(ses.calls[0].ConfigurationSetName, "agusgonzaleznic-contact");
+  } finally {
+    if (prev === undefined) delete process.env.SES_CONFIGURATION_SET;
+    else process.env.SES_CONFIGURATION_SET = prev;
+  }
+});
+
+test("the key is OMITTED entirely when unset — not sent as an empty string", async () => {
+  // An empty ConfigurationSetName is not the same as no configuration set: SES
+  // would reject it, turning a missing env var into a total outage instead of
+  // degraded observability.
+  const prev = process.env.SES_CONFIGURATION_SET;
+  delete process.env.SES_CONFIGURATION_SET;
+  try {
+    const { ses } = install();
+    const res = await handler(event());
+    assert.equal(res.statusCode, 200);
+    assert.equal(ses.calls.length, 1);
+    assert.ok(
+      !("ConfigurationSetName" in ses.calls[0]),
+      "the key must be absent, not present-and-empty",
+    );
+  } finally {
+    if (prev !== undefined) process.env.SES_CONFIGURATION_SET = prev;
+  }
+});
+
+test("whitespace-only is treated as unset", async () => {
+  const prev = process.env.SES_CONFIGURATION_SET;
+  process.env.SES_CONFIGURATION_SET = "   ";
+  try {
+    const { ses } = install();
+    await handler(event());
+    assert.ok(!("ConfigurationSetName" in ses.calls[0]));
+  } finally {
+    if (prev === undefined) delete process.env.SES_CONFIGURATION_SET;
+    else process.env.SES_CONFIGURATION_SET = prev;
+  }
+});
