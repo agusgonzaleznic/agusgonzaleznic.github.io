@@ -148,9 +148,17 @@ data "aws_iam_policy_document" "contact" {
   # Send ONLY as the one pinned From address, ONLY via the one identity. The
   # boundary carries the identical condition; both must allow it (intersection).
   statement {
-    sid       = "SendContactEmail"
-    actions   = ["ses:SendEmail"]
-    resources = [aws_sesv2_email_identity.main.arn]
+    sid     = "SendContactEmail"
+    actions = ["ses:SendEmail"]
+    # BOTH resource types. ses:SendEmail authorises against the identity AND, when
+    # the request names one, the configuration set — so granting only the identity
+    # makes every send fail AccessDenied. Effective permissions are the
+    # INTERSECTION with the lambda-exec boundary, which was widened the same way
+    # in the bootstrap tier first; widening one side alone changes nothing.
+    resources = [
+      aws_sesv2_email_identity.main.arn,
+      aws_sesv2_configuration_set.contact.arn,
+    ]
 
     condition {
       test     = "StringEquals"
@@ -207,6 +215,13 @@ resource "aws_lambda_function" "contact" {
       TURNSTILE_ACTION       = "contact"
       ALLOWED_HOSTNAMES      = "${local.domain_name},www.${local.domain_name}"
       ALLOWED_ORIGINS        = "https://${local.domain_name},https://www.${local.domain_name}"
+      # Naming the set is what routes bounces and complaints to the CloudWatch
+      # metrics the alarms watch. Referencing the resource (not a string literal)
+      # also gives Terraform the dependency edge, so the set exists before the
+      # function that names it. The handler treats an unset value as "no
+      # configuration set" and still sends, so a rollback here degrades rather
+      # than breaks.
+      SES_CONFIGURATION_SET = aws_sesv2_configuration_set.contact.configuration_set_name
     }
   }
 

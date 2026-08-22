@@ -189,3 +189,65 @@ resource "aws_budgets_budget" "monthly" {
     subscriber_email_addresses = [local.contact_mail_to]
   }
 }
+
+################################################################################
+# SES delivery outcomes — the half the log contract cannot see.
+#
+# The alarms above watch this Lambda's own log lines, which is right for anything
+# the handler decides. Bounces and complaints are different: they happen minutes
+# AFTER SendEmail returned 200 and the handler logged ses_send ok. Nothing in the
+# logs will ever mention them, so acceptance was being reported as delivery.
+#
+# Metrics come from the configuration set's CloudWatch event destination
+# (ses.tf). Dimension name and value must match the dimension_configuration
+# there exactly, or the alarm watches an empty series and stays green forever —
+# which is the failure mode these exist to prevent, so it is worth re-reading
+# both sides together when either changes.
+################################################################################
+
+locals {
+  ses_alarm_dimensions = {
+    "ses:configuration-set" = aws_sesv2_configuration_set.contact.configuration_set_name
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "contact_ses_bounce" {
+  alarm_name        = "agusgonzaleznic-contact-ses-bounce"
+  alarm_description = "A contact-form notification BOUNCED. SendEmail had already returned 200 and the handler logged success, so nothing else will tell you: the enquiry is lost. Check the recipient mailbox and the SES suppression list."
+
+  namespace   = "AWS/SES"
+  metric_name = "Bounce"
+  dimensions  = local.ses_alarm_dimensions
+
+  statistic           = "Sum"
+  period              = 300
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  # One bounce is one lost enquiry on a form that receives a handful a week.
+  treat_missing_data = "notBreaching"
+
+  alarm_actions = [aws_sns_topic.alerts.arn]
+  ok_actions    = [aws_sns_topic.alerts.arn]
+  tags          = local.tags
+}
+
+resource "aws_cloudwatch_metric_alarm" "contact_ses_complaint" {
+  alarm_name        = "agusgonzaleznic-contact-ses-complaint"
+  alarm_description = "A contact-form notification was marked as SPAM by the recipient. On a form whose only recipient is the site owner this should be impossible, so it means mail is reaching somewhere it should not — or the domain's reputation is being damaged by something using this identity."
+
+  namespace   = "AWS/SES"
+  metric_name = "Complaint"
+  dimensions  = local.ses_alarm_dimensions
+
+  statistic           = "Sum"
+  period              = 300
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  treat_missing_data  = "notBreaching"
+
+  alarm_actions = [aws_sns_topic.alerts.arn]
+  ok_actions    = [aws_sns_topic.alerts.arn]
+  tags          = local.tags
+}

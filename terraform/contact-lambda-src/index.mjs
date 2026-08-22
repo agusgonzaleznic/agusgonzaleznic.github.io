@@ -85,6 +85,16 @@ function env() {
         "agusgonzaleznic.com,www.agusgonzaleznic.com",
     ),
     action: process.env.TURNSTILE_ACTION ?? "contact",
+    // Optional. Naming a configuration set is what makes SES publish bounce and
+    // complaint metrics for these sends; without it a hard bounce is invisible,
+    // because SendEmail returning 200 only means SES ACCEPTED the message.
+    //
+    // Deliberately optional rather than required: ses:SendEmail authorises
+    // against the configuration set as well as the identity, so if the env var
+    // were ever set while the grant was missing, EVERY submission would fail
+    // AccessDenied. Treating an empty value as "no set" means the send still
+    // works and only the observability degrades.
+    sesConfigurationSet: (process.env.SES_CONFIGURATION_SET ?? "").trim(),
   };
 }
 
@@ -663,6 +673,7 @@ export const handler = async (event) => {
   try {
     await sesSend({
       FromEmailAddress: `${cfg.MAIL_FROM_NAME} <${cfg.MAIL_FROM}>`,
+      ...(cfg.sesConfigurationSet ? { ConfigurationSetName: cfg.sesConfigurationSet } : {}),
       Destination: { ToAddresses: [cfg.MAIL_TO] },
       ReplyToAddresses: [input.email],
       Content: {
