@@ -148,11 +148,39 @@ async function getParam(name) {
   return value;
 }
 
+// op -> SDK command-class NAME.
+//
+// This was a two-way ternary (`op === "PutItem" ? PutItemCommand :
+// UpdateItemCommand`), so ddb("DeleteItem", …) silently issued an UpdateItem
+// carrying only a Key and no UpdateExpression. That does not delete anything —
+// UpdateItem UPSERTS, so the call either no-ops or rewrites the very marker it
+// was meant to remove, and it does not throw.
+//
+// The consequence was the exact failure the rollback exists to prevent:
+// deleteItemQuiet returned true, `release_failed` never logged, the duplicate
+// marker survived a failed SES send, and the sender's retry was answered
+// ok:true with no mail for the 24h TTL. A lost enquiry that looks like a
+// delivered one.
+//
+// Kept as an explicit map rather than a ternary chain so a new op cannot fall
+// through to a silently wrong command again — an unknown op now throws.
+export const __DDB_COMMANDS = {
+  PutItem: "PutItemCommand",
+  UpdateItem: "UpdateItemCommand",
+  DeleteItem: "DeleteItemCommand",
+};
+
+export function __commandNameFor(op) {
+  const name = __DDB_COMMANDS[op];
+  if (!name) throw new Error(`ddb: unsupported op ${JSON.stringify(op)}`);
+  return name;
+}
+
 async function ddb(op, params) {
   if (_ddbSend) return _ddbSend(op, params);
   const sdk = await import("@aws-sdk/client-dynamodb");
   _ddbClient ??= new sdk.DynamoDBClient({});
-  const Command = op === "PutItem" ? sdk.PutItemCommand : sdk.UpdateItemCommand;
+  const Command = sdk[__commandNameFor(op)];
   return _ddbClient.send(new Command(params));
 }
 
