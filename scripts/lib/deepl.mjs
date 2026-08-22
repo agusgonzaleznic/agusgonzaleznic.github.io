@@ -179,7 +179,12 @@ function braceRanges(text) {
 
 // Replace every protected span with an <x>N</x> sentinel; return the XML payload
 // plus the ordered originals to restore afterwards.
-function protect(text, glossaryRegex) {
+//
+// Exported for tests. These two functions decide whether an ICU placeholder, a
+// component tag or a URL survives a round trip through a machine translator, and
+// a bug in either corrupts every translated string in the catalog — direct tests
+// are worth more here than keeping the pair private.
+export function protect(text, glossaryRegex) {
   const ranges = [];
   const push = (re) => {
     for (const m of text.matchAll(re)) ranges.push([m.index, m.index + m[0].length]);
@@ -215,8 +220,42 @@ function protect(text, glossaryRegex) {
   return { payload: out, originals };
 }
 
-function restore(translated, originals) {
+export function restore(translated, originals) {
   return xmlUnescape(translated).replace(/<x>\s*(\d+)\s*<\/x>/g, (_, d) => originals[Number(d)] ?? "");
+}
+
+/**
+ * Refuse to trade a real translation for the English source.
+ *
+ * Given the sources, the freshly produced translations, and whatever the catalog
+ * already held (keyed the same way), return translations with every REGRESSION
+ * reverted: a fresh output byte-identical to its source, where the previous
+ * value existed and DIFFERED, is replaced by the previous value.
+ *
+ * A translation that was already identical to its source stays identical — many
+ * legitimately are ("Coaching", "Leadership", brand names) — so this only ever
+ * blocks a regression, never a first translation.
+ *
+ * The concrete case: protect() masks an ICU plural as ONE sentinel, because the
+ * outermost balanced brace range spans the whole message including its
+ * sub-messages. A from-scratch run therefore returns the plural unchanged, and
+ * REGEN_LOCALES skips catalog adoption, so the documented "re-post-edit one
+ * locale" command would silently revert every plural to English.
+ *
+ * @returns {{ translations: string[], keptIds: string[] }}
+ */
+export function keepExistingWhenUnchanged({ keys, sources, translations, previous }) {
+  const out = [...translations];
+  const keptIds = [];
+  for (let i = 0; i < out.length; i += 1) {
+    if (out[i] !== sources[i]) continue;
+    const prev = previous.get(keys[i]);
+    if (prev && prev !== sources[i]) {
+      out[i] = prev;
+      keptIds.push(keys[i]);
+    }
+  }
+  return { translations: out, keptIds };
 }
 
 // ---- Translator -------------------------------------------------------------

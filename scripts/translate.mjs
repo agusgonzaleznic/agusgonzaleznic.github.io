@@ -33,6 +33,7 @@ import {
   loadGlossaryTerms,
   saveCache,
   seedCache,
+  keepExistingWhenUnchanged,
   SOURCE_LOCALE,
   TARGET_LOCALES,
 } from "./lib/deepl.mjs";
@@ -203,6 +204,48 @@ async function main() {
     }
 
     const translations = await translator.translateAll(messages.map(sourceText), locale);
+
+    // Never trade a real translation for the English source.
+    //
+    // Read the current catalog even when adoption was skipped, purely to
+    // compare. If the fresh output is byte-identical to the English source while
+    // the catalog already held something DIFFERENT, the translator produced
+    // nothing usable and the existing wording is kept.
+    //
+    // This is not hypothetical. protect() masks an ICU plural as a single
+    // sentinel — the outermost balanced { } range covers the whole message,
+    // sub-messages included — so a from-scratch run returns
+    // "{seconds, plural, one {# second} other {# seconds}}" unchanged. Both
+    // plurals in this catalog are currently translated in all five locales, and
+    // REGEN_LOCALES sets forceRetranslate, which skips adoption: running the
+    // documented "re-post-edit one locale" command would have reverted them to
+    // English silently, in a file nobody re-reads.
+    //
+    // A translation that was ALREADY identical to the source stays identical —
+    // plenty legitimately are ("Coaching", "Leadership", brand names) — so this
+    // only ever blocks a regression, never a first translation.
+    const currentPo = existsSync(targetPo)
+      ? new Map(
+          parsePo(readFileSync(targetPo, "utf8"))
+            .filter((e) => e.msgid !== "" && e.msgstr && e.msgstr.trim())
+            .map((e) => [entryKey(e), e.msgstr]),
+        )
+      : new Map();
+    const { translations: guarded, keptIds } = keepExistingWhenUnchanged({
+      keys: messages.map(entryKey),
+      sources: messages.map(sourceText),
+      translations,
+      previous: currentPo,
+    });
+    for (let i = 0; i < guarded.length; i += 1) translations[i] = guarded[i];
+    if (keptIds.length) {
+      console.warn(
+        `  i18n:translate ${locale}: kept ${keptIds.length} existing translation(s) ` +
+          "the translator returned unchanged from English — e.g. " +
+          `${JSON.stringify(keptIds[0].slice(0, 60))}. ICU plurals are masked whole; ` +
+          "translate those by hand.",
+      );
+    }
 
     const outEntries = [];
     if (header) {
