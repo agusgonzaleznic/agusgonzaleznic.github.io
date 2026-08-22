@@ -2,7 +2,7 @@
   "slug": "immobilienscout24-terraform-provider",
   "full_slug": "blog/immobilienscout24-terraform-provider",
   "title": "Automatizando avisos inmobiliarios con Terraform: presentamos el provider de Immobilienscout24",
-  "excerpt": "Buscar departamento en Berlin me convenció de que el sector inmobiliario necesita IaC. Así que construí un provider de Terraform open-source para Immobilienscout24: acá te cuento por qué, cómo funciona y con qué obstáculos me crucé.",
+  "excerpt": "Buscar departamento en Berlín me convenció de que el sector inmobiliario necesita IaC. Así que construí un provider de Terraform open-source para Immobilienscout24: acá te cuento por qué, cómo funciona y con qué obstáculos me crucé.",
   "body": {
     "type": "doc",
     "content": [
@@ -44,7 +44,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Supongo que el mundo inmobiliario va rezagado. Mientras buscaba un departamento en Berlin —una tarea no apta para cualquiera—, noté algo que se repetía: algunos avisos están disponibles por muy poco tiempo, así que ",
+            "text": "Supongo que el mundo inmobiliario va rezagado. Mientras buscaba un departamento en Berlín —una tarea no apta para cualquiera—, noté algo que se repetía: algunos avisos están disponibles por muy poco tiempo, así que ",
             "type": "text"
           },
           {
