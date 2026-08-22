@@ -9,6 +9,8 @@ import {
   __resetTestDeps,
   __windowKey,
   __limits,
+  __commandNameFor,
+  __DDB_COMMANDS,
 } from "./index.mjs";
 
 process.env.TURNSTILE_SECRET_PARAM = "/p/turnstile-secret";
@@ -800,4 +802,44 @@ test("a request rejected by its OWN per-IP limit does not consume the global bud
     undefined,
     "an IP-throttled request must not have touched the shared global counter",
   );
+});
+
+
+// ---------------------------------------------------------------------------
+// The op -> SDK command map.
+//
+// These tests exist because the 46 tests above CANNOT catch a wrong command:
+// they inject a stub at the _ddbSend seam (see ddbStub) which implements
+// DeleteItem itself, so the real map is never exercised. A two-way ternary sent
+// every DeleteItem out as an UpdateItem for as long as the rollback existed.
+// ---------------------------------------------------------------------------
+
+test("every op maps to its OWN command class", () => {
+  assert.equal(__commandNameFor("PutItem"), "PutItemCommand");
+  assert.equal(__commandNameFor("UpdateItem"), "UpdateItemCommand");
+  // The regression. UpdateItem UPSERTS, so routing DeleteItem here did not
+  // delete the duplicate marker and did not throw — the sender's retry was
+  // answered ok:true with no mail for the 24h TTL.
+  assert.equal(__commandNameFor("DeleteItem"), "DeleteItemCommand");
+});
+
+test("an unsupported op throws instead of falling through to a wrong command", () => {
+  assert.throws(() => __commandNameFor("Scan"), /unsupported op/);
+  assert.throws(() => __commandNameFor(""), /unsupported op/);
+  assert.throws(() => __commandNameFor(undefined), /unsupported op/);
+});
+
+test("the map covers every op the handler actually calls", async () => {
+  // The discriminating check: read our own source, find every ddb("X", …) call
+  // site, and require the map to know X. This is what would have caught the
+  // original defect, and it keeps catching it for any op added later.
+  const { readFileSync } = await import("node:fs");
+  const { fileURLToPath } = await import("node:url");
+  const src = readFileSync(fileURLToPath(new URL("./index.mjs", import.meta.url)), "utf8");
+  const ops = [...src.matchAll(/\bddb\(\s*"([A-Za-z]+)"/g)].map((m) => m[1]);
+  assert.ok(ops.length >= 3, `expected to find ddb() call sites, found ${ops.length}`);
+  assert.ok(ops.includes("DeleteItem"), "the rollback call site must be present");
+  for (const op of new Set(ops)) {
+    assert.ok(__DDB_COMMANDS[op], `ddb("${op}") has no entry in __DDB_COMMANDS`);
+  }
 });
