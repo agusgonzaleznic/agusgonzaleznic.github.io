@@ -21,6 +21,7 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import Beasties from "beasties";
 import { generateFeeds } from "./generate-feeds.mjs";
+import { findResponsiveImageViolations } from "./lib/responsive-images.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, "..");
@@ -436,6 +437,21 @@ await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath, routes });
 
   assertNoBrokenInternalLinks(distDir, emitted, allHtml);
   assertArticlesHaveBody(distDir, emitted);
+
+  // Storyblok images in the blog subtree must carry responsive attributes. The
+  // rule and its 6 tests live in scripts/lib/responsive-images.mjs; this only
+  // feeds it the emitted pages. Vacuous on the real corpus today (no post has a
+  // cover image) and ACTIVE under BLOG_FIXTURE=1, which is what makes it a guard
+  // for the first real cover someone uploads rather than a comment.
+  const imageProblems = findResponsiveImageViolations(
+    allHtml.map((f) => ({ path: relative(distDir, f), html: readFileSync(f, "utf-8") })),
+  );
+  if (imageProblems.length) {
+    throw new Error(
+      `${imageProblems.length} image(s) missing responsive attributes:\n  ${imageProblems.join("\n  ")}`,
+    );
+  }
+  console.log("✓ Blog images carry srcset/sizes (and dimensions when known)");
 }
 
 /**

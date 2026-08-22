@@ -10,6 +10,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { RichText } from "@/components/blog/RichText";
 import { storyblokImage, type BlogImage, type RichtextNode } from "@/lib/richtext";
+import { CoverImage } from "@/components/blog/CoverImage";
 import type { PageBlock, PageContent, PagePreviewProps } from "@/lib/pages";
 // The real production page wrappers — rendered (fed the draft) so a page
 // preview is pixel-identical to the live site instead of the divergent bloks.
@@ -76,11 +77,7 @@ const BlogPostPreview = ({ content }: { content: BlogPostContent }) => {
             </header>
             {cover && (
               <figure className="mb-12">
-                <img
-                  src={storyblokImage(cover.filename, 1536)}
-                  alt={cover.alt || content.title || ""}
-                  className="w-full max-w-full rounded-lg"
-                />
+                <CoverImage image={cover} fallbackAlt={content.title || ""} priority />
               </figure>
             )}
             <div className="max-w-[70ch]">
