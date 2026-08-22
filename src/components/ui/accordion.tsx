@@ -14,11 +14,23 @@ const AccordionItem = React.forwardRef<
 ));
 AccordionItem.displayName = "AccordionItem";
 
+// VENDORED (shadcn/ui) — kept close to upstream, with ONE addition.
+//
+// `headingLevel` exists because Radix's Accordion.Header always renders an <h3>.
+// On /faq that sits directly under the page <h1>, so the document skipped h2 and
+// failed WCAG 1.3.1 — the heading outline a screen-reader user navigates by had a
+// hole in it. Radix exposes no `level` prop, so the level is applied by rendering
+// the Header `asChild` around our own heading element.
+//
+// The DEFAULT IS UNCHANGED (Radix's own h3) so this stays a drop-in for upstream
+// and for any other call site; /faq opts in explicitly.
 const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Header className="flex">
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> & {
+    headingLevel?: 2 | 3 | 4 | 5 | 6;
+  }
+>(({ className, children, headingLevel, ...props }, ref) => {
+  const trigger = (
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
@@ -30,8 +42,18 @@ const AccordionTrigger = React.forwardRef<
       {children}
       <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
     </AccordionPrimitive.Trigger>
-  </AccordionPrimitive.Header>
-));
+  );
+
+  if (!headingLevel) {
+    return <AccordionPrimitive.Header className="flex">{trigger}</AccordionPrimitive.Header>;
+  }
+  const Heading = `h${headingLevel}` as "h2" | "h3" | "h4" | "h5" | "h6";
+  return (
+    <AccordionPrimitive.Header asChild>
+      <Heading className="flex">{trigger}</Heading>
+    </AccordionPrimitive.Header>
+  );
+});
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
 
 const AccordionContent = React.forwardRef<

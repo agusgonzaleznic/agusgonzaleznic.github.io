@@ -105,9 +105,16 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
   // signal that the server drops (still returning 200 so bots learn nothing).
   const [companyWebsite, setCompanyWebsite] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Id of the field that failed validation, for focus + aria-invalid so
-  // keyboard/screen-reader users are taken to it, not left with only a toast.
-  const [invalidField, setInvalidField] = useState<string | null>(null);
+  // The field that failed validation AND the reason, so the reason can be
+  // rendered next to the field and referenced by aria-describedby.
+  //
+  // It used to be the field id alone: the input got aria-invalid and focus, and
+  // the explanation went to a toast. A screen-reader user landing on the field
+  // was told it was invalid and not why — the toast is a separate live region
+  // with no relationship to the input, and it disappears. WCAG 3.3.1 wants the
+  // error identified in text; 3.3.3 wants the suggestion available.
+  const [fieldError, setFieldError] = useState<{ field: string; message: string } | null>(null);
+  const errorFor = (field: string) => (fieldError?.field === field ? fieldError.message : null);
 
   // Turnstile widget state. The token is single-use and short-lived; the submit
   // button stays disabled until one is present, and it is cleared on expiry,
@@ -196,10 +203,14 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setInvalidField(null);
+    setFieldError(null);
 
-    const focusInvalid = (field: string) => {
-      setInvalidField(field);
+    // Toast + inline message + focus in one place. Ten validation branches used
+    // to pair a toast.error() with a separate focusInvalid(), which is how the
+    // two could disagree about which field was at fault.
+    const failField = (field: string, message: string) => {
+      toast.error(message);
+      setFieldError({ field, message });
       document.getElementById(field)?.focus();
     };
 
@@ -214,8 +225,10 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
 
     // Required fields first — focus the first empty one.
     if (!name || !email || !message) {
-      toast.error(t`Please fill in all required fields`);
-      focusInvalid(!name ? "name" : !email ? "email" : "message");
+      failField(
+        !name ? "name" : !email ? "email" : "message",
+        t`Please fill in all required fields`,
+      );
       return;
     }
 
@@ -224,62 +237,46 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
     const rejectControlChars = (field: string, chars: string[]): boolean => {
       if (chars.length === 0) return false;
       const list = chars.join(", ");
-      toast.error(
+      failField(
+        field,
         t`Please remove these characters — they aren't allowed for security reasons: ${list}`,
       );
-      focusInvalid(field);
       return true;
     };
 
     // Name: length bound + control chars.
     if (name.length > NAME_MAX) {
-      toast.error(
-        t`Your name is too long — please use ${NAME_MAX} characters or fewer.`,
-      );
-      focusInvalid("name");
+      failField("name", t`Your name is too long — please use ${NAME_MAX} characters or fewer.`);
       return;
     }
     if (rejectControlChars("name", findControlChars(name, false))) return;
 
     // Email: length bound, control chars, then format.
     if (email.length > EMAIL_MAX) {
-      toast.error(
-        t`Your email is too long — please use ${EMAIL_MAX} characters or fewer.`,
-      );
-      focusInvalid("email");
+      failField("email", t`Your email is too long — please use ${EMAIL_MAX} characters or fewer.`);
       return;
     }
     if (rejectControlChars("email", findControlChars(email, false))) return;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error(t`Please enter a valid email address`);
-      focusInvalid("email");
+      failField("email", t`Please enter a valid email address`);
       return;
     }
 
     // Role: optional, but the server still bounds its length + rejects controls.
     if (role.length > ROLE_MAX) {
-      toast.error(
-        t`Your role is too long — please use ${ROLE_MAX} characters or fewer.`,
-      );
-      focusInvalid("role");
+      failField("role", t`Your role is too long — please use ${ROLE_MAX} characters or fewer.`);
       return;
     }
     if (rejectControlChars("role", findControlChars(role, false))) return;
 
     // Message: minimum + maximum length, then control chars (newlines allowed).
     if (message.length < MESSAGE_MIN) {
-      toast.error(
-        t`Your message is too short — please write at least ${MESSAGE_MIN} characters.`,
-      );
-      focusInvalid("message");
+      failField("message", t`Your message is too short — please write at least ${MESSAGE_MIN} characters.`);
       return;
     }
     if (message.length > MESSAGE_MAX) {
-      toast.error(
-        t`Your message is too long — please use ${MESSAGE_MAX} characters or fewer.`,
-      );
-      focusInvalid("message");
+      failField("message", t`Your message is too long — please use ${MESSAGE_MAX} characters or fewer.`);
       return;
     }
     if (rejectControlChars("message", findControlChars(message, true))) return;
@@ -309,10 +306,10 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
       // the user is told before submitting rather than getting an opaque 413.
       const bodyBytes = new TextEncoder().encode(body).length;
       if (bodyBytes > MAX_BODY_BYTES) {
-        toast.error(
+        failField(
+          "message",
           t`Your message is too long to send. Please shorten it and try again.`,
         );
-        focusInvalid("message");
         // No setIsSubmitting(false) here: the enclosing finally already clears
         // it AND resets the single-use Turnstile token, which a bare return
         // must not skip or the retry would reuse a spent token.
@@ -442,14 +439,23 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                     autoComplete="name"
                     value={formData.name}
                     onChange={(e) => {
-                      setInvalidField(null);
+                      setFieldError(null);
                       setFormData({ ...formData, name: e.target.value });
                     }}
                     placeholder={t`Your full name`}
                     required
-                    aria-invalid={invalidField === "name"}
+                    aria-invalid={errorFor("name") !== null}
+                    aria-describedby={errorFor("name") ? "name-error" : undefined}
                     className="mt-2"
                   />
+                  {errorFor("name") && (
+                    // role="alert" so the reason is announced on failure, and the id is
+                    // what aria-describedby above points at — so a screen reader reads the
+                    // reason WITH the field instead of only "invalid".
+                    <p id="name-error" role="alert" className="mt-2 text-sm text-destructive">
+                      {errorFor("name")}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -461,14 +467,23 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                     autoComplete="email"
                     value={formData.email}
                     onChange={(e) => {
-                      setInvalidField(null);
+                      setFieldError(null);
                       setFormData({ ...formData, email: e.target.value });
                     }}
                     placeholder="you@yourcompany.com"
                     required
-                    aria-invalid={invalidField === "email"}
+                    aria-invalid={errorFor("email") !== null}
+                    aria-describedby={errorFor("email") ? "email-error" : undefined}
                     className="mt-2"
                   />
+                  {errorFor("email") && (
+                    // role="alert" so the reason is announced on failure, and the id is
+                    // what aria-describedby above points at — so a screen reader reads the
+                    // reason WITH the field instead of only "invalid".
+                    <p id="email-error" role="alert" className="mt-2 text-sm text-destructive">
+                      {errorFor("email")}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -479,13 +494,22 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                     autoComplete="organization-title"
                     value={formData.role}
                     onChange={(e) => {
-                      setInvalidField(null);
+                      setFieldError(null);
                       setFormData({ ...formData, role: e.target.value });
                     }}
                     placeholder={t`e.g., Engineering Manager, VP of Engineering`}
-                    aria-invalid={invalidField === "role"}
+                    aria-invalid={errorFor("role") !== null}
+                    aria-describedby={errorFor("role") ? "role-error" : undefined}
                     className="mt-2"
                   />
+                  {errorFor("role") && (
+                    // role="alert" so the reason is announced on failure, and the id is
+                    // what aria-describedby above points at — so a screen reader reads the
+                    // reason WITH the field instead of only "invalid".
+                    <p id="role-error" role="alert" className="mt-2 text-sm text-destructive">
+                      {errorFor("role")}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -494,14 +518,23 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                     id="message"
                     value={formData.message}
                     onChange={(e) => {
-                      setInvalidField(null);
+                      setFieldError(null);
                       setFormData({ ...formData, message: e.target.value });
                     }}
                     placeholder={t`Tell me about your current challenges or goals...`}
                     required
-                    aria-invalid={invalidField === "message"}
+                    aria-invalid={errorFor("message") !== null}
+                    aria-describedby={errorFor("message") ? "message-error" : undefined}
                     className="mt-2 min-h-32"
                   />
+                  {errorFor("message") && (
+                    // role="alert" so the reason is announced on failure, and the id is
+                    // what aria-describedby above points at — so a screen reader reads the
+                    // reason WITH the field instead of only "invalid".
+                    <p id="message-error" role="alert" className="mt-2 text-sm text-destructive">
+                      {errorFor("message")}
+                    </p>
+                  )}
                 </div>
 
                 {/*

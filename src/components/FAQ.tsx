@@ -31,7 +31,12 @@ export const FAQ = ({ block }: { block?: FaqBlock }) => {
           <Accordion type="single" collapsible className="w-full">
             {items.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left text-lg font-medium">
+                <AccordionTrigger
+                  // Directly under the page <h1>, so h2 — Radix defaults to h3 and
+                  // that skipped a level in the heading outline.
+                  headingLevel={2}
+                  className="text-left text-lg font-medium"
+                >
                   {faq.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-base text-muted-foreground leading-relaxed">
