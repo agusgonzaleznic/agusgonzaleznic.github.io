@@ -13,11 +13,13 @@ import { RichText } from "@/components/blog/RichText";
 import NotFound from "@/pages/NotFound";
 import {
   getPost,
+  postCorpusLocale,
   postDate,
   postUrl,
-  storyblokImage,
   toIsoUtc,
 } from "@/lib/blog";
+import { storyblokImage } from "@/lib/richtext";
+import { getPostBody } from "@/lib/blog-body";
 import { SITE_URL } from "@/lib/site";
 import { LocaleLinksContext } from "@/i18n/locale-links";
 import {
@@ -43,6 +45,12 @@ const BlogPostPage = () => {
   // URLs. English (root) is unchanged: localizePath(p, "en") === p.
   const locale = localeFromPath(useLocation().pathname);
   const post = getPost(slug, locale);
+  // The body lives in a separate per-locale file (blog-body.<locale>.json) so the
+  // /blog index does not ship six locales of article text. It MUST be keyed off
+  // the corpus getPost actually resolved in, not off `locale`: getPost falls back
+  // to the English article when a locale has no approved variant, and a lookup on
+  // the requested locale would then find nothing and render an empty article.
+  const body = getPostBody(slug, postCorpusLocale(slug, locale));
 
   // React Router keeps the scroll position on client-side navigation.
   useEffect(() => {
@@ -187,7 +195,7 @@ const BlogPostPage = () => {
               )}
 
               <div className="max-w-[70ch]">
-                <RichText document={post.body} />
+                <RichText document={body} />
               </div>
 
               {/* Author box — every post links back to the coaching pages

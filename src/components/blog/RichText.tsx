@@ -1,5 +1,5 @@
 import { Fragment, type ReactNode } from "react";
-import { extractText, storyblokImage, type RichtextMark, type RichtextNode } from "@/lib/blog";
+import { extractText, storyblokImage, type RichtextMark, type RichtextNode } from "@/lib/richtext";
 
 // Hand-rolled Storyblok richtext → React walker. Zero dependencies, pure and
 // synchronous, so it runs identically under renderToString (prerender) and in

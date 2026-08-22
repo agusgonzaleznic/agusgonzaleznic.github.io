@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { Trans } from "@lingui/react/macro";
-import { formatDate, postDate, readingTime, toIsoUtc, type BlogPost } from "@/lib/blog";
+import { formatDate, postDate, toIsoUtc, type BlogPost } from "@/lib/blog";
 import { localeFromPath } from "@/i18n/locales";
 
 // Date • reading time • tag chips. Shared between the index cards and the
@@ -10,7 +10,9 @@ import { localeFromPath } from "@/i18n/locales";
 export const PostMeta = ({ post }: { post: BlogPost }) => {
   const locale = localeFromPath(useLocation().pathname);
   const date = postDate(post);
-  const minutes = readingTime(post.body);
+  // Baked by fetch-blog into blog-index. Counting words here is what forced the
+  // whole six-locale body corpus into the index route's chunk.
+  const minutes = post.reading_minutes ?? 1;
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
       {date && (
