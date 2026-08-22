@@ -100,7 +100,16 @@ const COMPONENTS = {
   page: {
     display_name: "Page", is_root: true, is_nestable: false, icon: "block-doc",
     schema: {
-      body: BLOKS(0, "Page Content", ["hero_block", "about_block", "philosophy_block", "how_i_work_block", "services_block", "impact_block", "testimonials_block", "faq_block", "contact_block"]),
+      // Every block type a `page` story may contain. links_block was missing while
+      // the live /links story already used one, so re-running this seeder would
+      // have rewritten the schema with a whitelist that excludes a block already
+      // in published content — after which the block cannot be re-added, and an
+      // out-of-band delete removes it for good.
+      //
+      // Anything added to src/components/storyblok must be added here too. The
+      // seeder is idempotent and safe to re-run, which is exactly why a stale
+      // whitelist is dangerous rather than merely incomplete.
+      body: BLOKS(0, "Page Content", ["hero_block", "about_block", "philosophy_block", "how_i_work_block", "services_block", "impact_block", "testimonials_block", "faq_block", "contact_block", "links_block"]),
       seo_title: T(1, "SEO Title", { max_length: 60 }),
       seo_description: TA(2, "SEO Description", { max_length: 160 }),
       og_image: { type: "asset", pos: 3, display_name: "Social Media Image", filetypes: ["images"] },
