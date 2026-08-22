@@ -21,6 +21,7 @@ import MarkdownIt from "markdown-it";
 import { parse, NodeType } from "node-html-parser";
 import { proofread, glossaryCandidates, suggestTags, suggestMetadata } from "./lib/proofread.mjs";
 import { ensureTagTranslations } from "./lib/tag-i18n.mjs";
+import { decodeEntities, mergeStoryContent } from "./lib/post-import.mjs";
 
 const SPACE = "288632938663524";
 const API = `https://mapi.storyblok.com/v1/spaces/${SPACE}`;
@@ -64,16 +65,8 @@ function toHtml(body, ext) {
 }
 
 // ── HTML → Storyblok richtext ───────────────────────────────────────────────
-const NAMED = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
-function decodeEntities(s) {
-  return s.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (whole, e) => {
-    if (e[0] === "#") {
-      const cp = /^#x/i.test(e) ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
-      return Number.isFinite(cp) ? String.fromCodePoint(cp) : whole;
-    }
-    return NAMED[e] ?? whole;
-  });
-}
+// decodeEntities and mergeStoryContent live in scripts/lib/post-import.mjs so
+// they can be tested without this CLI performing a Storyblok round trip.
 
 const MARK_TAGS = {
   strong: "bold", b: "bold", em: "italic", i: "italic", u: "underline",
@@ -461,14 +454,22 @@ if (!slug) {
   console.error("A `slug` is required (provide it in frontmatter or at the prompt).");
   process.exit(1);
 }
+// Frontmatter prose goes through the same entity decoding as the body. It did
+// not before, so an excerpt copied out of a CMS or word processor published
+// "it&rsquo;s" verbatim — and the excerpt is what PostCard shows, what the RSS
+// <description> carries, what the meta description says, and what gets sent to
+// DeepL for five locales.
+//
+// URLs are deliberately NOT decoded: they are raw values here, not HTML, so an
+// "&amp;" inside a query string is a literal part of the URL.
 const content = {
   component: "blog_post",
-  title: data.title || "",
-  excerpt: data.excerpt || "",
+  title: decodeEntities(data.title || ""),
+  excerpt: decodeEntities(data.excerpt || ""),
   body: richtext,
   published_date: data.published_date || "",
-  seo_title: data.seo_title || "",
-  seo_description: data.seo_description || "",
+  seo_title: decodeEntities(data.seo_title || ""),
+  seo_description: decodeEntities(data.seo_description || ""),
   original_url: data.original_url || "",
   canonical_override: data.canonical_override || "",
 };
@@ -523,15 +524,29 @@ if (existing) {
   // The list endpoint returns story summaries without full content, so fetch the
   // single story to read its stored date. Only applies when the author did NOT
   // put a date in the source file — an explicit frontmatter date still wins.
+  // Fetched unconditionally now: the date logic below needs it, and so does
+  // preserving every content field this importer does not build.
+  const full = await api("GET", `/stories/${existing.id}`);
+  const priorContent = full?.story?.content ?? {};
+
   if (!hadExplicitDate) {
-    const full = await api("GET", `/stories/${existing.id}`);
-    const priorDate = full?.story?.content?.published_date;
+    const priorDate = priorContent.published_date;
     if (priorDate && priorDate !== content.published_date) {
       console.log(`   keeping original published_date ${priorDate} (was about to become ${content.published_date})`);
       content.published_date = priorDate;
     }
   }
-  await api("PUT", `/stories/${existing.id}`, { story: { name: content.title, slug, content, tag_list } });
+
+  // A PUT replaces content wholesale: anything absent from the object is dropped
+  // (cover_image), and anything built with an `|| ""` default overwrites a real
+  // CMS value with an empty string (seo_*, original_url, canonical_override).
+  const merged = mergeStoryContent(priorContent, content);
+  const kept = Object.keys(merged).filter(
+    (k) => JSON.stringify(merged[k]) !== JSON.stringify(content[k]),
+  );
+  if (kept.length) console.log(`   preserved existing CMS field(s): ${kept.join(", ")}`);
+
+  await api("PUT", `/stories/${existing.id}`, { story: { name: content.title, slug, content: merged, tag_list } });
   console.log(`\n✓ updated DRAFT ${fullSlug} (id ${existing.id})`);
 } else {
   const parent_id = await blogFolderId();
