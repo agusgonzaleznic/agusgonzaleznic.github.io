@@ -52,9 +52,59 @@ const version = process.env.STORYBLOK_VERSION === "draft" ? "draft" : "published
 // accident, while PR CI validates the empty-blog code path.
 const requireToken = process.env.STORYBLOK_REQUIRE_TOKEN === "1";
 
+// ---------------------------------------------------------------------------
+// Client payload split.
+//
+// `body` is ~93% of every blog-data file (measured: 42,412 of 45,598 bytes for
+// English). The /blog index renders PostCard -> PostMeta, and the only body
+// consumer there is a word count for the reading estimate — so shipping six
+// locales of full article richtext to open the index cost 64 KB brotli for one
+// integer per post.
+//
+// blog-data.<locale>.json stays exactly as it was: prerender.mjs and
+// generate-feeds.mjs read it and want the whole corpus. The two files below are
+// what the CLIENT bundle globs (src/lib/blog.ts and src/lib/blog-body.ts), so
+// the body only reaches the browser on an article route.
+//   blog-index.<locale>.json   every field EXCEPT body, plus reading_minutes
+//   blog-body.<locale>.json    { slug: body }
+// ---------------------------------------------------------------------------
+
+/** Concatenated plain text of a richtext subtree. Mirrors extractText in
+ *  src/lib/blog.ts — same traversal, same join, so the baked reading_minutes
+ *  reproduces what readingTime() rendered before this split. */
+function richtextText(node) {
+  if (!node) return "";
+  if (node.text) return node.text;
+  if (!node.content?.length) return "";
+  return node.content.map(richtextText).join(" ");
+}
+
+/** 200 wpm, minimum 1. Mirrors readingTime in src/lib/blog.ts. */
+function readingMinutes(body) {
+  const words = richtextText(body).split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
+const indexFilename = (locale) => (locale ? `blog-index.${locale}.json` : "blog-index.json");
+const bodyFilename = (locale) => (locale ? `blog-body.${locale}.json` : "blog-body.json");
+
+/** Write the client's index + body pair for `locale` (null = English source). */
+function writeClientSplit(locale, posts) {
+  mkdirSync(generatedDir, { recursive: true });
+  const index = posts.map(({ body, ...rest }) => ({
+    ...rest,
+    reading_minutes: readingMinutes(body),
+  }));
+  const bodies = {};
+  for (const p of posts) if (p.slug) bodies[p.slug] = p.body ?? null;
+  writeFileSync(resolve(generatedDir, indexFilename(locale)), `${JSON.stringify(index, null, 2)}\n`);
+  writeFileSync(resolve(generatedDir, bodyFilename(locale)), `${JSON.stringify(bodies, null, 2)}\n`);
+}
+
 function writeOutput(posts) {
   mkdirSync(dirname(outFile), { recursive: true });
   writeFileSync(outFile, `${JSON.stringify(posts, null, 2)}\n`);
+  writeClientSplit(null, posts);
 }
 
 /**
@@ -73,9 +123,14 @@ function writeOutput(posts) {
  */
 function pruneLocaleData(keep) {
   if (!existsSync(generatedDir)) return;
-  const kept = new Set([...keep].map((l) => blogDataFilename(l)));
+  // All three families, or the split files become the stale-data bug this
+  // function exists to prevent: a locale dropped from PUBLISHED_LOCALES would
+  // keep a blog-index.<locale>.json the client still globs.
+  const kept = new Set(
+    [...keep].flatMap((l) => [blogDataFilename(l), indexFilename(l), bodyFilename(l)]),
+  );
   const stale = readdirSync(generatedDir).filter(
-    (f) => /^blog-data\.[a-z]{2}\.json$/.test(f) && !kept.has(f),
+    (f) => /^blog-(data|index|body)\.[a-z]{2}\.json$/.test(f) && !kept.has(f),
   );
   for (const f of stale) rmSync(resolve(generatedDir, f), { force: true });
   if (stale.length) {
@@ -155,6 +210,7 @@ async function translateBlog(posts) {
       resolve(generatedDir, blogDataFilename(locale)),
       `${JSON.stringify(reviewed, null, 2)}\n`,
     );
+    writeClientSplit(locale, reviewed);
     console.log(
       `✓ fetch-blog: ${reviewed.length} reviewed post(s) → src/generated/${blogDataFilename(locale)} (gated)`,
     );
@@ -209,6 +265,7 @@ async function translateBlog(posts) {
     localizePostTags(localized, locale, tagMap);
     const localeFile = resolve(generatedDir, blogDataFilename(locale));
     writeFileSync(localeFile, `${JSON.stringify(localized, null, 2)}\n`);
+    writeClientSplit(locale, localized);
     console.log(
       `✓ fetch-blog: ${localized.length} post(s) → src/generated/${blogDataFilename(locale)}` +
         `${reviewed ? ` (${reviewed} reviewed)` : ""}`,
@@ -285,6 +342,7 @@ if (!token) {
         resolve(generatedDir, blogDataFilename(locale)),
         `${JSON.stringify(localized, null, 2)}\n`,
       );
+      writeClientSplit(locale, localized);
     }
     console.log(
       `✓ fetch-blog: FIXTURE corpus — ${posts.length} post(s), locales [${localesToWrite.join(", ")}].` +

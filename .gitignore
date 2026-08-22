@@ -39,6 +39,13 @@ localhost.pem
 # per-locale blog-data.<locale>.json produced by the i18n translation pipeline.
 src/generated/blog-data.json
 src/generated/blog-data.*.json
+# The client payload split: blog-index.* is what the browser bundle globs (no
+# article bodies), blog-body.* is loaded only on an article route. Same
+# provenance as blog-data.*, same reason to stay out of git.
+src/generated/blog-index.json
+src/generated/blog-index.*.json
+src/generated/blog-body.json
+src/generated/blog-body.*.json
 # Build-time generated marketing page data (scripts/fetch-pages.mjs): English
 # page-data.json plus per-locale page-data.<locale>.json.
 src/generated/page-data.json

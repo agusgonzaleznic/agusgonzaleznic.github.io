@@ -9,7 +9,7 @@ import { initStoryblok } from "@/lib/storyblok";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { RichText } from "@/components/blog/RichText";
-import { storyblokImage, type BlogImage, type RichtextNode } from "@/lib/blog";
+import { storyblokImage, type BlogImage, type RichtextNode } from "@/lib/richtext";
 import type { PageBlock, PageContent, PagePreviewProps } from "@/lib/pages";
 // The real production page wrappers — rendered (fed the draft) so a page
 // preview is pixel-identical to the live site instead of the divergent bloks.

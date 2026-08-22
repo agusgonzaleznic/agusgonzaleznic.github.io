@@ -435,6 +435,99 @@ await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath, routes });
   console.log(`✓ Sitemap covers all ${emitted.length} emitted page(s)`);
 
   assertNoBrokenInternalLinks(distDir, emitted, allHtml);
+  assertArticlesHaveBody(distDir, emitted);
+}
+
+/**
+ * Every emitted article page must actually contain its article text.
+ *
+ * The body moved out of the index corpus into blog-body.<locale>.json, read
+ * through src/lib/blog-body.ts, so an article page now depends on TWO lookups
+ * agreeing: getPost() resolves the post from one corpus and getPostBody() must
+ * resolve the body from the same one. If they disagree — which is exactly what
+ * happens if the body is keyed on the requested locale instead of the resolved
+ * one — the page still renders, with a correct title, date and byline, and no
+ * article at all.
+ *
+ * Nothing else can catch that. There is no React test setup here, and the
+ * mismatch case that matters most (a locale with no approved variant falling back
+ * to the English article) is reachable only by client navigation, since prerender
+ * deliberately does not emit that page.
+ */
+function assertArticlesHaveBody(distDir, emitted) {
+  // Needle per (locale, slug): a run of plain words taken from the body we
+  // GENERATED, asserted present in the page we EMITTED.
+  //
+  // A length threshold was the first attempt and it was too weak — it caught
+  // only 6 of 18 pages with the body removed, because the fr/it/pt pages carry a
+  // machine-translation notice that pushed them back over the limit. Comparing
+  // against the actual body text has no such blind spot.
+  /** Every text node in a richtext tree, in document order. */
+  const textNodes = (node, out = []) => {
+    if (!node) return out;
+    if (typeof node.text === "string" && node.text) out.push(node.text);
+    for (const child of node.content ?? []) textNodes(child, out);
+    return out;
+  };
+  const bodyFile = (locale) =>
+    resolve(projectRoot, "src/generated", locale ? `blog-body.${locale}.json` : "blog-body.json");
+  const bodies = new Map();
+  const bodiesFor = (locale) => {
+    const key = locale || "";
+    if (!bodies.has(key)) {
+      const f = bodyFile(locale);
+      bodies.set(key, existsSync(f) ? JSON.parse(readFileSync(f, "utf-8")) : {});
+    }
+    return bodies.get(key);
+  };
+  /**
+   * A contiguous run of plain-alphabetic words from WITHIN ONE text node.
+   *
+   * Two constraints learned the hard way, both from this assertion failing on
+   * correct output:
+   *   - contiguous, because filtering a word list and joining the survivors
+   *     builds a phrase that appears nowhere in the real text;
+   *   - single node, because RichText injects a "#" anchor between a heading and
+   *     the paragraph after it, so a run spanning that boundary never matches the
+   *     rendered page.
+   * Plain letters only keeps HTML escaping and typographic punctuation out of it.
+   */
+  const needleFor = (locale, slug) => {
+    const body = bodiesFor(locale)[slug] ?? bodiesFor("")[slug] ?? null;
+    const RUN = 5;
+    for (const chunk of textNodes(body)) {
+      const words = chunk.split(/\s+/);
+      for (let i = 0; i + RUN <= words.length; i += 1) {
+        const window = words.slice(i, i + RUN);
+        if (window.every((w) => /^[A-Za-z]{2,}$/.test(w))) return window.join(" ");
+      }
+    }
+    return "";
+  };
+
+  const missing = [];
+  for (const file of emitted) {
+    const rel = relative(distDir, file);
+    const m = /^(?:([a-z]{2})\/)?blog\/([^/]+)\/index\.html$/.exec(rel);
+    if (!m) continue;
+    const [, locale, slug] = m;
+    const needle = needleFor(locale, slug);
+    if (!needle) continue; // no generated body to compare against
+    const text = readFileSync(file, "utf-8")
+      .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/g, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ");
+    if (!text.includes(needle)) missing.push(`${rel} (expected body text ${JSON.stringify(needle)})`);
+  }
+
+  if (missing.length) {
+    throw new Error(
+      `${missing.length} article page(s) do not contain their own body text:\n  ${missing.join("\n  ")}\n` +
+        "The post and its body resolved from different corpora — see postCorpusLocale " +
+        "in src/lib/blog.ts and getPostBody in src/lib/blog-body.ts.",
+    );
+  }
+  console.log(`✓ Every article page contains its own body text`);
 }
 
 /**
