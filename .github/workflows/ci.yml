@@ -62,11 +62,13 @@ jobs:
             # zero CI verification. Route them to the unit-tests job instead.
             #   contact-lambda-src — the 10 anti-abuse controls
             #   cdn-function       — the edge routing table (canonical URLs)
+            #   alert-relay-src    — the last hop of the alerting chain, which
+            #                        nothing downstream would notice failing
             # scripts/lib is NOT denylisted (it sets site=true too, since the
             # build imports it), but it must also run its own suite: blog-gate
             # decides which locale pages exist at all.
             case "$f" in
-              terraform/contact-lambda-src/*|terraform/cdn-function/*|scripts/lib/*) tests=true ;;
+              terraform/contact-lambda-src/*|terraform/cdn-function/*|terraform/alert-relay-src/*|scripts/lib/*) tests=true ;;
             esac
             case "$f" in
               terraform/*|*.md|.env.example|.gitignore|LICENSE|.github/workflows/terraform.yml) : ;;
@@ -150,6 +152,10 @@ jobs:
 
       - name: CloudFront function unit tests (edge routing table)
         working-directory: terraform/cdn-function
+        run: node --test
+
+      - name: Alert relay unit tests (last hop of the alerting chain)
+        working-directory: terraform/alert-relay-src
         run: node --test
 
       # Explicit glob, not `node --test scripts/lib/`: the directory form treats

@@ -20,6 +20,10 @@
 locals {
   contact_log_group_name = "/aws/lambda/${local.contact_function_name}"
   webhook_log_group_name = "/aws/lambda/${local.webhook_function_name}"
+
+  # Must stay under the agusgonzaleznic-* prefix: every bootstrap ceiling that
+  # lets CI manage a function, its role and its log group is scoped to it.
+  alert_relay_function_name = "agusgonzaleznic-alert-relay"
 }
 
 # ---- Log groups -------------------------------------------------------------
@@ -57,23 +61,151 @@ resource "aws_cloudwatch_log_group" "webhook" {
 }
 
 # ---- Notification channel ---------------------------------------------------
-# Email rather than anything fancier: the owner is the only responder, and an
-# address that already receives the form's own notifications is the one place a
-# missed alert is least likely.
+# SNS -> Lambda -> SESv2, NOT an SNS `email` subscription.
 #
-# NOTE: an email subscription is created in state `pending confirmation` — AWS
-# sends a confirmation link that must be clicked once. Until then the topic
-# delivers nothing, so verify the subscription after the first apply.
+# The email protocol was the obvious choice and it does not hold. Every message
+# SNS sends to an email endpoint carries an unsubscribe link that is an ordinary
+# unauthenticated HTTP GET, so anything able to fetch a URL out of that mailbox
+# can cancel the subscription: no credentials, no confirmation step, and nothing
+# attributable in CloudTrail, because there is no principal to record. That is
+# not hypothetical here — the subscription was confirmed on 2026-08-21 at
+# 08:30 UTC, unsubscribed at 15:49, re-subscribed by hand, and unsubscribed
+# again 13 minutes later, leaving a live topic whose subscription ARN read
+# `Deleted` while all four alarms below still pointed at it. Alerts went
+# nowhere and nothing said so.
+#
+# A Lambda subscription has no equivalent surface: Terraform creates it, only an
+# authenticated IAM caller can remove it, and every removal is a CloudTrail
+# event with a principal attached. It also drops the manual click-to-confirm
+# step that made the old channel dead on arrival after every fresh apply.
 resource "aws_sns_topic" "alerts" {
   name         = "agusgonzaleznic-site-alerts"
   display_name = "agusgonzaleznic.com alerts"
   tags         = local.tags
 }
 
-resource "aws_sns_topic_subscription" "alerts_email" {
+data "archive_file" "alert_relay" {
+  type        = "zip"
+  source_dir  = "${path.module}/alert-relay-src"
+  output_path = "${path.module}/.terraform/alert-relay.zip"
+  excludes    = ["index.test.mjs"]
+}
+
+data "aws_iam_policy_document" "alert_relay_assume" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "alert_relay" {
+  name               = "agusgonzaleznic-alert-relay-role"
+  assume_role_policy = data.aws_iam_policy_document.alert_relay_assume.json
+
+  # REQUIRED, same as the contact role: CI may only create agusgonzaleznic-*
+  # roles carrying this boundary. The boundary already allows ses:SendEmail on
+  # the identity and the configuration set, pinned to the same From address, so
+  # this relay needed no bootstrap-tier change — which is the only reason this
+  # lands behind a single gate.
+  permissions_boundary = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/agusgonzaleznic-lambda-exec-boundary"
+
+  tags = local.tags
+}
+
+resource "aws_iam_role_policy_attachment" "alert_relay_logs" {
+  role       = aws_iam_role.alert_relay.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+data "aws_iam_policy_document" "alert_relay" {
+  # Send ONLY as the pinned From address, ONLY via the one identity, and name
+  # the configuration set so alert mail gets the same bounce/complaint tracking
+  # as the contact form. Both resource types are required: ses:SendEmail
+  # authorises against the identity AND the configuration set when the request
+  # names one, so listing only the identity fails AccessDenied at runtime.
+  statement {
+    sid     = "SendAlertEmail"
+    actions = ["ses:SendEmail"]
+    resources = [
+      aws_sesv2_email_identity.main.arn,
+      aws_sesv2_configuration_set.contact.arn,
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "ses:FromAddress"
+      values   = [local.contact_mail_from]
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "alert_relay" {
+  name   = "alert-relay-runtime"
+  role   = aws_iam_role.alert_relay.id
+  policy = data.aws_iam_policy_document.alert_relay.json
+}
+
+# Declared explicitly so retention is bounded from the start; letting Lambda
+# create it on first invocation yields a never-expiring group.
+resource "aws_cloudwatch_log_group" "alert_relay" {
+  name              = "/aws/lambda/${local.alert_relay_function_name}"
+  retention_in_days = 30
+  tags              = local.tags
+}
+
+resource "aws_lambda_function" "alert_relay" {
+  function_name = local.alert_relay_function_name
+  role          = aws_iam_role.alert_relay.arn
+  runtime       = "nodejs22.x"
+  handler       = "index.handler"
+  architectures = ["arm64"]
+
+  # 512 MB for the same reason as the contact Lambda: CPU is proportional to
+  # memory, and the SESv2 client is imported inside the handler, so at 128 MB the
+  # SDK load and TLS handshake run on a fraction of a vCPU. An alert that needs
+  # two SNS retries to get through is an alert that arrives late.
+  memory_size = 512
+  timeout     = 15
+
+  filename         = data.archive_file.alert_relay.output_path
+  source_code_hash = data.archive_file.alert_relay.output_base64sha256
+
+  environment {
+    variables = {
+      MAIL_FROM             = local.contact_mail_from
+      MAIL_FROM_NAME        = "agusgonzaleznic.com alerts"
+      MAIL_TO               = local.contact_mail_to
+      SES_CONFIGURATION_SET = aws_sesv2_configuration_set.contact.configuration_set_name
+    }
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.alert_relay_logs,
+    aws_cloudwatch_log_group.alert_relay,
+  ]
+
+  tags = local.tags
+}
+
+resource "aws_lambda_permission" "alert_relay_sns" {
+  statement_id  = "AllowExecutionFromSNS"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.alert_relay.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = aws_sns_topic.alerts.arn
+}
+
+resource "aws_sns_topic_subscription" "alerts_relay" {
   topic_arn = aws_sns_topic.alerts.arn
-  protocol  = "email"
-  endpoint  = local.contact_mail_to
+  protocol  = "lambda"
+  endpoint  = aws_lambda_function.alert_relay.arn
+
+  # Without the invoke permission in place first, SNS marks the subscription
+  # unconfirmed and silently drops everything published to it.
+  depends_on = [aws_lambda_permission.alert_relay_sns]
 }
 
 # ---- Fail-closed alarms -----------------------------------------------------
