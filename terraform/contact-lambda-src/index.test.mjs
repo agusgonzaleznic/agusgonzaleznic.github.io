@@ -312,6 +312,47 @@ test("bad email -> 400", async () => {
   assert.equal(res.statusCode, 400);
 });
 
+// Every address below has an @ and a dotted right-hand side, so the previous
+// rule (/^[^\s@]+@[^\s@]+\.[^\s@]+$/) accepted all of them — none can receive
+// mail. This test is the one that distinguishes the two rules; "nope" above
+// fails under either, so it never proved the check was doing any real work.
+test("undeliverable-but-@-shaped emails -> 400", async () => {
+  for (const email of [
+    "a@b.c", // 1-char TLD: no such thing
+    "a@b.co.", // trailing dot
+    "x@y..z", // empty domain label
+    ".a@b.co", // dot-atom: leading dot
+    "a.@b.co", // dot-atom: trailing dot
+    "a..b@c.co", // dot-atom: doubled dot
+    "a@-b.co", // label may not start with a hyphen
+    "a@b-.co", // ...nor end with one
+    "a@b.1", // numeric TLD
+    `${"a".repeat(65)}@b.co`, // local part over the RFC 5321 64-octet cap
+  ]) {
+    install();
+    const res = await handler(event({ bodyObj: body({ email }) }));
+    assert.equal(res.statusCode, 400, `${email} should have been rejected`);
+  }
+});
+
+// The tightened rule must not have cost us any legitimate enquirer: these are
+// the shapes real addresses take, including a punycode IDN domain.
+test("legitimate email shapes still reach the owner", async () => {
+  for (const email of [
+    "ada@example.com",
+    "first.last@mail.example.co.uk",
+    "ada+contact@example.io",
+    "a-b@c-d.org",
+    "MiXeD@Example.COM",
+    "ada@xn--bcher-kva.de",
+  ]) {
+    const { ses } = install();
+    const res = await handler(event({ bodyObj: body({ email }) }));
+    assert.equal(res.statusCode, 200, `${email} should have been accepted`);
+    assert.equal(ses.calls.length, 1, `${email} should have been emailed`);
+  }
+});
+
 test("message too short -> 400", async () => {
   install();
   const res = await handler(event({ bodyObj: body({ message: "short" }) }));

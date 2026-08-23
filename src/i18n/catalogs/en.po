@@ -315,6 +315,10 @@ msgstr "DevOps/GitOps workflows & trunk-based development"
 msgid "DevOps/GitOps workflows, DORA metrics, and decision frameworks that let your team move fast without waiting on you."
 msgstr "DevOps/GitOps workflows, DORA metrics, and decision frameworks that let your team move fast without waiting on you."
 
+#: src/components/Contact.tsx
+msgid "Did you mean {suggestion}? Press send again to use the address exactly as you typed it."
+msgstr "Did you mean {suggestion}? Press send again to use the address exactly as you typed it."
+
 #: src/components/HowIWork.tsx
 msgid "Direct, Kind Feedback"
 msgstr "Direct, Kind Feedback"
@@ -517,6 +521,10 @@ msgstr "How I Work"
 #: src/components/About.tsx
 msgid "I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security — and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck."
 msgstr "I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security — and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck."
+
+#: src/components/Contact.tsx
+msgid "I could not confirm whether your message went through — it may already have arrived. Please wait a moment before trying again, or email me directly."
+msgstr "I could not confirm whether your message went through — it may already have arrived. Please wait a moment before trying again, or email me directly."
 
 #: src/components/HowIWork.tsx
 msgid "I only teach what I've run in production with real teams — no borrowed frameworks."

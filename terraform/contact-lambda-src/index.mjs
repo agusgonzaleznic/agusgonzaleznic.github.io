@@ -67,7 +67,32 @@ const SITEVERIFY_URL =
 const CTRL_ANY = /[\x00-\x1F\x7F]/;
 const CTRL_MULTILINE = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/;
 /* eslint-enable no-control-regex */
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// A pragmatic subset of RFC 5322 addr-spec, NOT the full grammar. The previous
+// rule (/^[^\s@]+@[^\s@]+\.[^\s@]+$/) only asked for "something, @, something,
+// dot, something", so it accepted addresses that cannot receive mail at all:
+// `a@b.c` (1-char TLD), `x@y..z` (empty label), `.a@b.co` / `a.@b.co` (dot-atom
+// violations), `a@-b.co` (label starting with a hyphen). Those are the shapes a
+// throwaway submission uses, so tightening this is the part of email validation
+// that actually turns junk away — the client-side copy of this rule cannot,
+// since anything posting directly to this endpoint never runs the page's JS.
+//
+// Deliberately excluded even though RFC 5322 permits them: quoted local parts
+// ("a b"@x.co) and address literals (a@[192.0.2.1]). Both are legal and neither
+// has ever belonged to a real enquirer; accepting them widens the header-
+// injection surface for no reachable benefit.
+//
+// Local part: dot-atom — atext runs joined by single dots, so no leading,
+// trailing, or doubled dot. Domain: one or more labels that start and end
+// alphanumeric (hyphens only inside, max 63 chars each), then an alphabetic TLD
+// of 2-63. Keep EXACTLY in step with src/components/Contact.tsx — see the
+// hand-synced pair note there.
+const EMAIL_RE =
+  /^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/;
+
+// RFC 5321 caps the local part at 64 octets; a longer one is undeliverable no
+// matter how well-formed. Bounded separately from EMAIL_RE because expressing
+// it in the pattern would make an already dense regex unreadable.
+const EMAIL_LOCAL_MAX = 64;
 
 function env() {
   return {
@@ -300,6 +325,7 @@ function validate(payload) {
     email.length < 1 ||
     email.length > 200 ||
     !EMAIL_RE.test(email) ||
+    email.slice(0, email.lastIndexOf("@")).length > EMAIL_LOCAL_MAX ||
     CTRL_ANY.test(email)
   ) {
     return { error: "invalid" };

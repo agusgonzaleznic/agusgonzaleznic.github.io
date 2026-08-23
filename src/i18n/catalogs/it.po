@@ -313,6 +313,10 @@ msgstr "Workflow DevOps/GitOps e sviluppo trunk-based"
 msgid "DevOps/GitOps workflows, DORA metrics, and decision frameworks that let your team move fast without waiting on you."
 msgstr "Workflow DevOps/GitOps, metriche DORA e framework decisionali che permettono al tuo team di muoversi velocemente senza dover aspettare te."
 
+#: src/components/Contact.tsx
+msgid "Did you mean {suggestion}? Press send again to use the address exactly as you typed it."
+msgstr "Intendevi {suggestion}? Premi di nuovo invia per usare l'indirizzo esattamente come l'hai scritto."
+
 #: src/components/HowIWork.tsx
 msgid "Direct, Kind Feedback"
 msgstr "Feedback diretto e gentile"
@@ -515,6 +519,10 @@ msgstr "Come lavoro"
 #: src/components/About.tsx
 msgid "I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security — and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck."
 msgstr "Fornisco consulenza a dirigenti C-suite e leader tecnici senior su sistemi cloud-native, trasformazione DevOps e sicurezza — e probabilmente ho già vissuto una versione di qualsiasi situazione tu stia affrontando: la riorganizzazione, l'audit, la review di un outage, la battaglia sul budget. Che tu stia accompagnando una startup nella fase di scale-up o ripristinando la disciplina di delivery in un'organizzazione enterprise, costruiamo insieme i sistemi e le abitudini che permettono al tuo team di consegnare senza che tu sia il collo di bottiglia."
+
+#: src/components/Contact.tsx
+msgid "I could not confirm whether your message went through — it may already have arrived. Please wait a moment before trying again, or email me directly."
+msgstr "Non sono riuscito a confermare se il tuo messaggio è stato inviato — potrebbe essere già arrivato. Aspetta un momento prima di riprovare, oppure scrivimi direttamente via email."
 
 #: src/components/HowIWork.tsx
 msgid "I only teach what I've run in production with real teams — no borrowed frameworks."
