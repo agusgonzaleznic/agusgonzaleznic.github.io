@@ -38,7 +38,7 @@ msgstr "<0>Retenção:</0> Os pedidos de contacto e os e-mails relacionados são
 
 #: src/pages/Legal.tsx
 msgid "<0>Spam and abuse protection.</0> Before your message is accepted, the form is checked with <1>Cloudflare Turnstile</1>. For this check your IP address is transmitted to Cloudflare, Inc. In addition, a small amount of technical data is stored briefly in an AWS database (Amazon DynamoDB) purely to enforce rate limits and to avoid sending me the same message twice: counters keyed to your IP address and to your email address, and a one-way hash of your email address together with your message. These entries are deleted automatically — after 10 minutes (IP), one hour (email address) and at most 24 hours (duplicate check). Server logs record the IP address of form submissions; they never contain the content of your message."
-msgstr ""
+msgstr "<0>Proteção contra spam e abuso.</0> Antes de a tua mensagem ser aceite, o formulário é verificado com o <1>Cloudflare Turnstile</1>. Para esta verificação, o teu endereço IP é transmitido à Cloudflare, Inc. Além disso, uma pequena quantidade de dados técnicos é armazenada brevemente numa base de dados AWS (Amazon DynamoDB) apenas para aplicar limites de taxa e para evitar que a mesma mensagem me seja enviada duas vezes: contadores associados ao teu endereço IP e ao teu endereço de email, e um hash unidirecional do teu endereço de email juntamente com a tua mensagem. Estes registos são eliminados automaticamente — ao fim de 10 minutos (IP), uma hora (endereço de email) e no máximo 24 horas (verificação de duplicados). Os registos do servidor guardam o endereço IP dos envios do formulário; nunca contêm o conteúdo da tua mensagem."
 
 #: src/pages/Legal.tsx
 msgid "1. Controller"
@@ -149,7 +149,7 @@ msgstr "Em julho de 2026 — revisto pelo proprietário do site. Esta página fo
 
 #: src/pages/Legal.tsx
 msgid "AWS and Cloudflare act as processors for the contact form. Data may be transferred to servers in the United States; these transfers are covered by the transfer mechanisms in the respective data processing agreements (AWS additionally relies on the EU–US Data Privacy Framework, as set out in section 2)."
-msgstr ""
+msgstr "A AWS e a Cloudflare atuam como subcontratantes do formulário de contacto. Os dados podem ser transferidos para servidores nos Estados Unidos; estas transferências estão abrangidas pelos mecanismos de transferência dos respetivos acordos de tratamento de dados (a AWS baseia-se ainda no EU–US Data Privacy Framework, conforme indicado na secção 2)."
 
 #: src/components/Testimonials.tsx
 msgid "B2B SaaS Company"
@@ -550,7 +550,7 @@ msgstr "De IC a Manager e Além"
 
 #: src/pages/Legal.tsx
 msgid "If you use the contact form, the data you enter (name, email address, role, and message) is sent to an endpoint on this domain that is operated for me by <0>Amazon Web Services</0> (AWS) and forwarded to me by email using Amazon SES. The message itself is not retained beyond the resulting email correspondence."
-msgstr ""
+msgstr "Se usares o formulário de contacto, os dados que introduzes (nome, endereço de email, função e mensagem) são enviados para um endpoint neste domínio que é operado para mim pela <0>Amazon Web Services</0> (AWS) e reencaminhados para mim por email através do Amazon SES. A mensagem em si não é conservada para além da correspondência por email daí resultante."
 
 #: src/components/Footer.tsx
 #: src/components/Navigation.tsx
@@ -621,7 +621,7 @@ msgstr "Base jurídica: Artigo 6.º, n.º 1, alínea a) do RGPD (o teu consentim
 
 #: src/pages/Legal.tsx
 msgid "Legal basis: Art. 6(1)(b) GDPR (steps prior to entering into a contract / responding to your inquiry) and, where the inquiry is not contract-related, Art. 6(1)(a) GDPR (your consent, given by voluntarily submitting the form). The spam and abuse protection described above rests on Art. 6(1)(f) GDPR (my legitimate interest in keeping this form usable and free of automated abuse). You may withdraw consent at any time with effect for the future by emailing <0>info@agusgonzaleznic.com</0>."
-msgstr ""
+msgstr "Base jurídica: Artigo 6.º, n.º 1, alínea b) do RGPD (diligências prévias à celebração de um contrato / resposta à tua consulta) e, quando a consulta não estiver relacionada com um contrato, Artigo 6.º, n.º 1, alínea a) do RGPD (o teu consentimento, dado ao submeteres voluntariamente o formulário). A proteção contra spam e abuso descrita acima assenta no Artigo 6.º, n.º 1, alínea f) do RGPD (o meu interesse legítimo em manter este formulário utilizável e livre de abuso automatizado). Podes retirar o consentimento a qualquer momento com efeitos para o futuro, enviando um email para <0>info@agusgonzaleznic.com</0>."
 
 #: src/pages/Legal.tsx
 msgid "Legal basis: Art. 6(1)(f) GDPR (legitimate interest in the secure, reliable provision of this website). Log data may be processed on servers in the United States; GitHub and AWS rely on the EU–US Data Privacy Framework and/or EU Standard Contractual Clauses for such transfers. I do not merge this data with other sources or use it to identify visitors."
@@ -658,7 +658,7 @@ msgstr "Conhece o Agustin Gonzalez Nicolini — líder de engenharia e coach rad
 
 #: src/components/Navigation.tsx
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 #: src/components/Contact.tsx
 msgid "Message sent — I typically reply within 24 hours."
@@ -913,7 +913,7 @@ msgstr "Conta-me em poucas linhas — uma equipa estagnada, uma transição dif�
 
 #: src/components/Contact.tsx
 msgid "That message is too long to send. Please shorten it and try again."
-msgstr ""
+msgstr "Essa mensagem é demasiado longa para enviar. Encurta-a e tenta novamente."
 
 #: src/pages/Legal.tsx
 msgid "The European Commission provides a platform for online dispute resolution (ODR): <0>https://ec.europa.eu/consumers/odr/</0>. I am neither obliged nor willing to participate in dispute resolution proceedings before a consumer arbitration board (Verbraucherschlichtungsstelle)."
@@ -1122,7 +1122,7 @@ msgstr "A tua mensagem é demasiado longa — usa {MESSAGE_MAX} caracteres ou me
 
 #: src/components/Contact.tsx
 msgid "Your message is too long to send. Please shorten it and try again."
-msgstr ""
+msgstr "A tua mensagem é demasiado longa para enviar. Encurta-a e tenta novamente."
 
 #: src/components/Contact.tsx
 msgid "Your message is too short — please write at least {MESSAGE_MIN} characters."
