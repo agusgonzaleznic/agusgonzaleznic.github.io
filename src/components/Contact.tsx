@@ -63,6 +63,87 @@ const MESSAGE_MAX = 4000;
 // exactly the visitor least likely to retry in English.
 const MAX_BODY_BYTES = 16384;
 
+// HAND-SYNCED PAIR with EMAIL_RE + EMAIL_LOCAL_MAX in
+// terraform/contact-lambda-src/index.mjs. Nothing can enforce the pairing — the
+// Lambda is a separate module the client cannot import from — so the two must be
+// edited together. Keep this rule NO STRICTER than the server's, or the form
+// would refuse an address the server would have accepted.
+//
+// A pragmatic subset of RFC 5322: dot-atom local part, dot-separated domain
+// whose labels start and end alphanumeric, alphabetic TLD of 2-63. The rule this
+// replaced only asked for "something @ something . something", which accepted
+// `a@b.c`, `x@y..z` and `.a@b.co` — none of which can receive mail.
+//
+// Worth being clear about what this does and does not buy: validating here helps
+// the person typing (a typo means a reply they never get), but it turns away no
+// spam at all, because anything posting straight to /api/contact never runs this
+// file. The tightened server-side copy is what rejects junk.
+const EMAIL_RE =
+  /^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/;
+const EMAIL_LOCAL_MAX = 64; // RFC 5321 caps the local part at 64 octets.
+
+// Exact-match misspellings of the domains most enquirers actually use. A typo'd
+// address is syntactically perfect and passes every check above, so the only way
+// it surfaces is by asking. Exact matches only, deliberately: a fuzzy-distance
+// check would eventually "correct" somebody's real company domain.
+//
+// Note what is NOT here: a bare `.co` or `.cm` suggestion. Both are real TLDs
+// (Colombia, Cameroon), so they appear only as part of a full domain whose brand
+// is unmistakable.
+const EMAIL_DOMAIN_TYPOS: Record<string, string> = {
+  "gmai.com": "gmail.com",
+  "gmial.com": "gmail.com",
+  "gmali.com": "gmail.com",
+  "gmil.com": "gmail.com",
+  "gnail.com": "gmail.com",
+  "gmaill.com": "gmail.com",
+  "gmail.co": "gmail.com",
+  "gmail.cm": "gmail.com",
+  "hotmial.com": "hotmail.com",
+  "hotmai.com": "hotmail.com",
+  "hotmail.co": "hotmail.com",
+  "outlok.com": "outlook.com",
+  "outllok.com": "outlook.com",
+  "outook.com": "outlook.com",
+  "yaho.com": "yahoo.com",
+  "yahooo.com": "yahoo.com",
+  "yhaoo.com": "yahoo.com",
+  "yahoo.co": "yahoo.com",
+  "iclod.com": "icloud.com",
+  "icloud.co": "icloud.com",
+  "iclould.com": "icloud.com",
+  "protonmai.com": "protonmail.com",
+  "protonmail.co": "protonmail.com",
+};
+
+// TLDs that are never real, so they are safe to suggest against for ANY domain.
+const EMAIL_TLD_TYPOS: Record<string, string> = { con: "com", cmo: "com", comm: "com" };
+
+/**
+ * A corrected address to offer for `email`, or null when it looks fine. Assumes
+ * `email` already passed EMAIL_RE, so it has exactly one @ and a dotted domain.
+ */
+function suggestEmailDomain(email: string): string | null {
+  const at = email.lastIndexOf("@");
+  const local = email.slice(0, at);
+  const domain = email.slice(at + 1).toLowerCase();
+
+  const exact = EMAIL_DOMAIN_TYPOS[domain];
+  if (exact) return `${local}@${exact}`;
+
+  const lastDot = domain.lastIndexOf(".");
+  const fixedTld = EMAIL_TLD_TYPOS[domain.slice(lastDot + 1)];
+  if (fixedTld) return `${local}@${domain.slice(0, lastDot + 1)}${fixedTld}`;
+
+  return null;
+}
+
+// How long to wait for /api/contact before giving up on the response. Above the
+// Lambda's own 10 s ceiling on purpose: below it, this would abort requests the
+// server is still legitimately working on and report them as lost. Reaching this
+// means the response really is gone.
+const SUBMIT_TIMEOUT_MS = 20000;
+
 // The Lambda rejects C0 control chars + DEL (its CTRL_ANY); the message field
 // additionally tolerates tab/newline/carriage-return (its CTRL_MULTILINE). We
 // detect them by codepoint (no control-char regex) and return the offending
@@ -119,6 +200,11 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
   // Turnstile widget state. The token is single-use and short-lived; the submit
   // button stays disabled until one is present, and it is cleared on expiry,
   // error, and after every submit attempt.
+  // The address whose domain-typo warning the visitor has already seen and
+  // chosen to keep. Holding the VALUE rather than a boolean means correcting the
+  // address re-arms the check, and confirming it does not silently bless a
+  // different typo typed afterwards.
+  const [typoAcknowledged, setTypoAcknowledged] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileError, setTurnstileError] = useState(false);
   const widgetContainerRef = useRef<HTMLDivElement>(null);
@@ -257,9 +343,24 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
       return;
     }
     if (rejectControlChars("email", findControlChars(email, false))) return;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (
+      !EMAIL_RE.test(email) ||
+      email.slice(0, email.lastIndexOf("@")).length > EMAIL_LOCAL_MAX
+    ) {
       failField("email", t`Please enter a valid email address`);
+      return;
+    }
+    // A domain typo is syntactically valid, so it can only be raised as a
+    // question. Blocking the first attempt and letting the second through keeps
+    // the check from ever permanently refusing a real address the server accepts
+    // — somebody genuinely at an unusual domain just presses send again.
+    const suggestion = suggestEmailDomain(email);
+    if (suggestion && typoAcknowledged !== email) {
+      setTypoAcknowledged(email);
+      failField(
+        "email",
+        t`Did you mean ${suggestion}? Press send again to use the address exactly as you typed it.`,
+      );
       return;
     }
 
@@ -287,6 +388,10 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
     }
 
     setIsSubmitting(true);
+
+    // Set when OUR timeout fired, so the catch below can tell an abort we caused
+    // from a network failure. Declared out here because the catch needs it.
+    let timedOut = false;
 
     try {
       // The server derives the minimum-completion-time check from the Turnstile
@@ -316,15 +421,34 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
         return;
       }
 
-      const response = await fetch(CONTACT_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Required for CloudFront's OAC SigV4 signature over the body.
-          "x-amz-content-sha256": await sha256Hex(body),
-        },
-        body,
-      });
+      // Bound the wait. Without this the request could hang for as long as the
+      // browser's own default allows, leaving the button spinning with no
+      // outcome either way. AbortController rather than AbortSignal.timeout so
+      // the reason for the abort is ours to read in the catch below.
+      const controller = new AbortController();
+      timedOut = false;
+      const timer = setTimeout(() => {
+        timedOut = true;
+        controller.abort();
+      }, SUBMIT_TIMEOUT_MS);
+
+      let response: Response;
+      try {
+        response = await fetch(CONTACT_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Required for CloudFront's OAC SigV4 signature over the body.
+            "x-amz-content-sha256": await sha256Hex(body),
+          },
+          body,
+          signal: controller.signal,
+        });
+      } finally {
+        // Always clear it — a resolved fetch would otherwise leave a pending
+        // timer that fires abort() on an already-settled request.
+        clearTimeout(timer);
+      }
 
       // The server always replies with JSON; tolerate an empty/garbled body.
       const data = await response.json().catch(() => ({}) as { error?: string });
@@ -385,9 +509,20 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
           toast.error(t`Failed to send message. Please try again or email me directly.`);
       }
     } catch (error) {
-      console.error("Form submission error:", error);
-      toast.error(
-        t`Failed to send message. Please try again or email me directly.`,
+      // Reaching here means no response was ever read, which is NOT the same as
+      // the message having failed. The request may have arrived, passed all ten
+      // controls and been handed to SES, with only the reply lost on the way
+      // back — SES has accepted every send this endpoint has ever attempted, so
+      // a dropped response is the likelier reading of the two. Claiming "failed
+      // to send" here told people their message was gone when it had in fact
+      // been delivered, and invited a duplicate they did not need to send.
+      //
+      // So: say what is actually known, and steer away from an immediate retry
+      // rather than towards one. The typed message is deliberately left in the
+      // form — it is the visitor's only copy.
+      console.error("Form submission error:", error, { timedOut });
+      toast.warning(
+        t`I could not confirm whether your message went through — it may already have arrived. Please wait a moment before trying again, or email me directly.`,
       );
     } finally {
       // The Turnstile token is single-use; always clear + reset the widget so a

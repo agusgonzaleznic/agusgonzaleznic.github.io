@@ -194,8 +194,21 @@ resource "aws_lambda_function" "contact" {
   runtime       = "nodejs22.x"
   handler       = "index.handler"
   architectures = ["arm64"]
-  memory_size   = 128
-  timeout       = 10
+
+  # Lambda allocates CPU in proportion to memory, so this is a LATENCY setting
+  # here, not a footprint one. At 128 MB a real submission took 9.6 s of a 10 s
+  # timeout (measured: 08-23 06:18, Max Memory Used 108 MB) because the three
+  # AWS SDK clients are imported inside the handler and their load + TLS
+  # handshakes ran on ~1/12th of a vCPU. A 9.6 s in-flight POST is a long window
+  # for a browser to lose the response, and a lost response is reported to the
+  # visitor as "failed to send" for mail SES had already accepted.
+  #
+  # 512 MB is ~4x the CPU at roughly neutral cost (billed duration falls about
+  # as much as the per-ms rate rises). It also restores headroom: 108-113 MB
+  # observed against a 128 MB cap left ~12%, and an OOM kill produces no usable
+  # error. Do not lower without re-measuring the delivered-path duration.
+  memory_size = 512
+  timeout     = 10
 
   filename         = data.archive_file.contact.output_path
   source_code_hash = data.archive_file.contact.output_base64sha256
