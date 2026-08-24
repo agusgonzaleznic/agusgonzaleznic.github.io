@@ -27,3 +27,8 @@ output "bootstrap_plan_role_arn" {
   description = "Read-only IAM role ARN for CI bootstrap plans — set as repo variable AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN."
   value       = aws_iam_role.bootstrap_plan.arn
 }
+
+output "site_plan_role_arn" {
+  description = "Read-only IAM role ARN for CI site plans on PRs — set as repo variable AWS_TF_PLAN_ROLE_ARN."
+  value       = aws_iam_role.site_plan.arn
+}
