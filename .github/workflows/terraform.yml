@@ -73,7 +73,13 @@ defaults:
 jobs:
   plan:
     name: Plan (PR)
-    if: github.event_name == 'pull_request'
+    # A fork PR must SKIP, not fail. GitHub does not grant `id-token: write` to a
+    # workflow triggered from a fork, so without this guard the job runs and dies
+    # at the credentials step on every community PR. Stating it here also makes
+    # the boundary this repo's own rather than a platform default we inherit.
+    if: >-
+      github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       id-token: write # OIDC token for configure-aws-credentials
@@ -96,11 +102,32 @@ jobs:
             exit 1
           fi
 
-      # Role trust must allow subject repo:agusgonzaleznic/agusgonzaleznic.github.io:pull_request
+      # The READ-ONLY plan role, never the write role the gated apply uses.
+      # github-terraform-plan trusts only
+      # repo:agusgonzaleznic/agusgonzaleznic.github.io:pull_request, and holds
+      # ReadOnlyAccess minus the channels that return secrets or personal data.
+      # Deliberately no `|| vars.AWS_TF_ROLE_ARN` fallback: the write role no
+      # longer trusts any PR subject, so a fallback could only turn a missing
+      # variable into a confusing AssumeRole error instead of an obvious one.
       - uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
         with:
-          role-to-assume: ${{ vars.AWS_TF_ROLE_ARN }}
+          role-to-assume: ${{ vars.AWS_TF_PLAN_ROLE_ARN }}
           aws-region: us-east-1
+
+      # Assert the identity here rather than trusting the check colour. A
+      # credentials failure aborts the job BEFORE `Terraform plan` runs, so
+      # steps.plan.outcome is empty, the sticky-comment step is skipped, and the
+      # PREVIOUS commit's green comment stays sitting on the PR, the one failure
+      # mode where reading that comment is actively misleading. Fail loudly, and
+      # pin the role name so a wrong ARN cannot pass quietly.
+      - name: Assert the read-only plan role
+        run: |
+          arn="$(aws sts get-caller-identity --query Arn --output text)"
+          echo "assumed: $arn"
+          case "$arn" in
+            *:assumed-role/github-terraform-plan/*) echo "OK: read-only plan role" ;;
+            *) echo "::error::expected github-terraform-plan, got $arn"; exit 1 ;;
+          esac
 
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
@@ -123,7 +150,11 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          terraform plan -no-color -input=false -lock-timeout=60s 2>&1 | tee plan.txt
+          # -lock=false: the plan role deliberately has no s3:PutObject, so it
+          # cannot write the S3-native lockfile. Same reasoning as the bootstrap
+          # plan jobs. Safe here because the terraform-state concurrency group
+          # already serialises every run of this workflow.
+          terraform plan -no-color -input=false -lock=false 2>&1 | tee plan.txt
 
       - name: Scrub secrets from plan before it goes public
         id: planscan
@@ -277,7 +308,10 @@ jobs:
     # roles in role-bootstrap-ci.tf exist and the variables are set, these jobs
     # skip instead of failing on an empty role-to-assume — which is also what
     # makes this workflow mergeable before that first human apply.
-    if: github.event_name == 'pull_request' && vars.AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN != ''
+    if: >-
+      github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && vars.AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN != ''
     runs-on: ubuntu-latest
     defaults:
       run:

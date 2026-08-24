@@ -27,9 +27,17 @@ Two root modules with a strict trust boundary:
 - The site module owns everything else: DNS zone + records, ACM cert,
   CloudFront distribution / function / response-headers policy, S3 website
   buckets, and Storyblok webhook resources.
-- The CI role's trust policy must allow exactly these OIDC subjects:
-  - `repo:agusgonzaleznic/agusgonzaleznic.github.io:pull_request` (plan job)
-  - `repo:agusgonzaleznic/agusgonzaleznic.github.io:environment:terraform-production` (apply job — the environment name replaces the ref in the subject)
+- Plans and applies use SEPARATE roles, so a PR never holds write credentials:
+  - `github-terraform-plan` trusts only
+    `repo:agusgonzaleznic/agusgonzaleznic.github.io:pull_request` and is
+    read-only (`ReadOnlyAccess`, minus Denies on the channels that return
+    secrets or personal data, plus the one `kms:Decrypt` a SecureString refresh
+    needs).
+  - `github-terraform-deploy` trusts only
+    `repo:agusgonzaleznic/agusgonzaleznic.github.io:environment:terraform-production`
+    (the environment name replaces the ref in the subject). Because declaring an
+    environment mints that subject for ANY event, the environment is also pinned
+    to the `main` branch, otherwise branch code could mint it.
 
 Deliberately **not** managed here:
 
@@ -82,6 +90,8 @@ signed in.
    # still in terraform/bootstrap — output name per bootstrap/outputs.tf
    gh variable set AWS_TF_ROLE_ARN \
      --body "$(AWS_PROFILE=root-admin terraform output -raw deploy_role_arn)"
+   gh variable set AWS_TF_PLAN_ROLE_ARN \
+     --body "$(AWS_PROFILE=root-admin terraform output -raw site_plan_role_arn)"
    gh variable set AWS_CDN_ROLE_ARN \
      --body "$(AWS_PROFILE=root-admin terraform output -raw cdn_invalidation_role_arn)"
    # NOTE: github-cdn-invalidation is deliberately also assumable by
@@ -256,10 +266,12 @@ the OAI in AWS would still touch managed config.
    code it documents without CI noticing, since no plan runs to contradict it.
    Re-read it when you change the thing it describes.
 2. CI (`terraform.yml`, plan job): fmt-check → init → validate → plan, and
-   posts/refreshes a **sticky plan comment** on the PR. Note the site plan
-   assumes the SAME write-capable deploy role as the apply (its trust allows
-   the `...:pull_request` subject) — only the *bootstrap* tier has a genuinely
-   read-only plan role. **Every** terraform PR additionally runs
+   posts/refreshes a **sticky plan comment** on the PR. The site plan assumes
+   `github-terraform-plan`, which is read-only and is the only role a PR job can
+   assume in either tier; an `aws sts get-caller-identity` step asserts that
+   in-workflow, because a credentials failure aborts before the plan step and
+   would otherwise leave the previous commit's green comment on the PR.
+   **Every** terraform PR additionally runs
    `Bootstrap plan (PR)` — the job is gated on the `AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN`
    variable, not on paths, so it surfaces bootstrap drift on site-only PRs too.
    Its output lands in the **job summary**, not the sticky comment (`-lock=false` by design: the plan role holds no

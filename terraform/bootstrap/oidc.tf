@@ -32,17 +32,32 @@ data "aws_iam_policy_document" "github_oidc_trust" {
       values   = ["sts.amazonaws.com"]
     }
 
-    # pull_request -> terraform plan on PRs.
-    # environment  -> terraform apply. The apply job declares `environment:`,
-    # which REPLACES the ref form in the sub claim, so the environment subject
-    # is the ONLY apply subject. Deliberately NO `ref:refs/heads/main` entry:
-    # it would let ANY main-branch job with id-token:write (e.g. deploy.yml)
-    # assume this write-capable role.
+    # The environment subject and NOTHING else.
+    #
+    # `:pull_request` used to be listed here so PR plans could refresh state, and
+    # that made this write-capable role reachable from any branch: the
+    # environment gates the apply JOB, never the CREDENTIAL. Site PR plans now
+    # assume github-terraform-plan (role-site-plan.tf), which is read-only, so
+    # the PR subject has no reason to appear on this role.
+    #
+    # The apply job declares `environment:`, which REPLACES the ref form in the
+    # sub claim, so the environment subject is the only apply subject. That is a
+    # claim about IAM plus a GitHub-side branch rule, not about IAM alone:
+    # declaring an environment mints that subject for ANY event, so the
+    # terraform-production environment is also pinned to the `main` branch (as
+    # terraform-bootstrap already was). Without that pin, branch code declaring
+    # `environment: terraform-production` would mint exactly this subject.
+    #
+    # Deliberately NO `ref:refs/heads/main` entry: it would let ANY main-branch
+    # job with id-token:write (e.g. deploy.yml) assume this role.
+    #
+    # StringEquals rather than StringLike: there is no wildcard to express, and
+    # StringLike on a pattern with no metacharacters only invites one being
+    # added later.
     condition {
-      test     = "StringLike"
+      test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
       values = [
-        "repo:${var.github_org}/${var.github_repo}:pull_request",
         "repo:${var.github_org}/${var.github_repo}:environment:${var.github_environment}",
       ]
     }
