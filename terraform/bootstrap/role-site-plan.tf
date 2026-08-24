@@ -1,12 +1,12 @@
 ################################################################################
-# Site plan role — read-only, and the only role a site-tier PR job may assume.
+# Site plan role: read-only, and the only role a site-tier PR job may assume.
 #
 # WHY THIS EXISTS
 #
 # The site `Plan (PR)` job used to assume github-terraform-deploy: the SAME
 # write-capable role as the gated apply, because that role's trust allowed the
 # `:pull_request` subject. The terraform-production environment gates the apply
-# JOB, but it never gated the CREDENTIAL — so a PR branch could hold
+# JOB, but it never gated the CREDENTIAL, so a PR branch could hold
 # lambda:*, s3:*, iam:CreateRole and the rest without any approval being sought.
 # The bootstrap tier has had a read-only plan twin since role-bootstrap-ci.tf;
 # this is the site tier's, and it closes that asymmetry.
@@ -29,7 +29,7 @@
 # The Allow and the Denies were MEASURED against ReadOnlyAccess v188 (2,912
 # action patterns), not reasoned about:
 #   * of 42 read actions a site plan makes, kms:Decrypt is the ONLY one the
-#     managed policy does not grant — hence the Allow below. Without it every
+#     managed policy does not grant, hence the Allow below. Without it every
 #     PR plan fails refreshing the SecureString parameters.
 #   * secretsmanager:GetSecretValue is NOT granted, so it needs no Deny.
 #   * budgets:ListTagsForResource IS granted (a suspected gap that is not one).
@@ -53,8 +53,8 @@ data "aws_iam_policy_document" "site_plan_trust" {
     }
 
     # `pull_request` and NOTHING else. Deliberately no `ref:refs/heads/main`
-    # entry — that would let any main-branch job with id-token:write assume this
-    # role — and deliberately no `environment:` entry, since an environment
+    # entry (that would let any main-branch job with id-token:write assume this
+    # role), and deliberately no `environment:` entry, since an environment
     # subject is the apply path's, not a plan's. StringEquals rather than
     # StringLike: there is no wildcard to express, and StringLike on a
     # pattern with no metacharacters only invites one being added later.
@@ -110,7 +110,7 @@ data "aws_iam_policy_document" "site_plan_addendum" {
   # Log CONTENT, not log metadata. DescribeLogGroups / DescribeMetricFilters /
   # ListTagsForResource are what a refresh needs and are untouched. These six
   # return log EVENTS, and the contact Lambda's group holds 30 days of
-  # submitter IP addresses — personal data this role has no reason to read and
+  # submitter IP addresses, personal data this role has no reason to read and
   # every reason not to, given where its output is published.
   statement {
     sid    = "DenyLogContent"
@@ -128,7 +128,7 @@ data "aws_iam_policy_document" "site_plan_addendum" {
 
   # Object bodies. The site module manages bucket CONFIGURATION, never objects,
   # so the only object it must read is its own state. This therefore also denies
-  # the bootstrap tier's state — a site plan has no business reading the state
+  # the bootstrap tier's state. A site plan has no business reading the state
   # that describes every IAM role in the account.
   statement {
     sid     = "DenyObjectBodiesExceptOwnState"

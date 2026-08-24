@@ -38,6 +38,7 @@ the top of `role-bootstrap-ci.tf`. Read that before reviving the idea.
 | Role | Trusted subject | Permissions | Used by |
 |---|---|---|---|
 | `github-terraform-bootstrap-plan` | `pull_request`, `ref:refs/heads/main` | `IAMReadOnlyAccess` + `s3:Get*`/`List*` on the state bucket, objects `bootstrap/*` only | `bootstrap-plan`, `bootstrap-detect` |
+| `github-terraform-plan` | `pull_request` only | `ReadOnlyAccess`, plus `kms:Decrypt` via SSM, minus Denies on parameter values outside `/agusgonzaleznic-site/*`, log events, object bodies other than state `site/*`, and the DynamoDB data plane | `plan` (site tier) |
 | `github-terraform-bootstrap` | `environment:terraform-bootstrap` **only** | `IAMFullAccess` + `s3:*` on the state bucket (config mgmt; `DeleteBucket` denied by the ceiling), objects `bootstrap/*` only — all capped by `agusgonzaleznic-bootstrap-ceiling` | `bootstrap-apply` |
 
 The S3 statements are deliberately wildcards, not enumerated verbs: the
@@ -138,6 +139,7 @@ Use `AWS_PROFILE=root-admin` locally only when:
 | Output | Where it goes |
 |---|---|
 | `deploy_role_arn` | repo variable `AWS_TF_ROLE_ARN` |
+| `site_plan_role_arn` | repo variable `AWS_TF_PLAN_ROLE_ARN` |
 | `cdn_invalidation_role_arn` | repo variable `AWS_CDN_ROLE_ARN` |
 | `bootstrap_role_arn` | repo variable `AWS_TF_BOOTSTRAP_ROLE_ARN` |
 | `bootstrap_plan_role_arn` | repo variable `AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN` |
@@ -160,10 +162,18 @@ invalidation, nothing else.
 
 - The state bucket has `prevent_destroy` (an HCL guard, invisible to IAM) and the
   ceiling additionally denies `s3:DeleteBucket` on it.
-- The deploy role trusts only `pull_request` (plan) and
-  `environment:terraform-production` (apply). There is deliberately no
-  `ref:refs/heads/main` subject — it would let any main-branch job with
-  `id-token: write` assume a write-capable role.
+- The deploy role trusts ONLY `environment:terraform-production`. It used to
+  trust `pull_request` as well, which meant a PR branch held the same write
+  credentials as the gated apply: the environment gates the apply JOB, never the
+  CREDENTIAL. Site PR plans now assume the read-only `github-terraform-plan`
+  instead. There is deliberately no `ref:refs/heads/main` subject either, since it
+  would let any main-branch job with `id-token: write` assume a write-capable
+  role.
+- Because declaring `environment:` in a job mints that subject for ANY event,
+  not just a push, both gated environments are pinned to the `main` branch.
+  Without that pin, branch code declaring `environment: terraform-production`
+  would mint exactly the subject the deploy role trusts, leaving the required
+  reviewer as the only control.
 - The deploy role is denied `s3:*` on `bootstrap/*` state keys and access to its
   own IAM resources. That separation is what makes this tier meaningful, so do
   not relax it to save an apply.
