@@ -56,7 +56,7 @@ module "cloudfront" {
       compress               = true
       use_forwarded_values   = false
 
-      cache_policy_id            = data.aws_cloudfront_cache_policy.caching_optimized.id
+      cache_policy_id            = aws_cloudfront_cache_policy.immutable_assets.id
       response_headers_policy_id = aws_cloudfront_response_headers_policy.immutable_assets.id
     },
     {
@@ -68,7 +68,7 @@ module "cloudfront" {
       compress               = true
       use_forwarded_values   = false
 
-      cache_policy_id            = data.aws_cloudfront_cache_policy.caching_optimized.id
+      cache_policy_id            = aws_cloudfront_cache_policy.immutable_assets.id
       response_headers_policy_id = aws_cloudfront_response_headers_policy.immutable_assets.id
     },
     # /api/* -> contact Lambda. CachingDisabled; POST/OPTIONS allowed. The custom
@@ -305,6 +305,63 @@ resource "aws_cloudfront_response_headers_policy" "immutable_assets" {
       header   = "Cross-Origin-Resource-Policy"
       value    = "cross-origin"
       override = true
+    }
+  }
+}
+
+# EDGE TTL for /assets/* and /fonts/*.
+#
+# WHY THIS EXISTS. The immutable_assets response-headers policy above rewrites
+# what the VIEWER is told (1 year, immutable) but changes nothing about what
+# CloudFront itself keeps. Managed-CachingOptimized honours the ORIGIN's
+# Cache-Control, and the origin is GitHub Pages, which sends max-age=600 for
+# every path including /assets/ and /fonts/. So the edge was expiring these
+# every 10 minutes while promising browsers a year. Measured: an immutable asset
+# response carried `expires` at exactly `date` + 600s alongside
+# `cache-control: public, max-age=31536000, immutable`.
+#
+# The consequence was worst for fonts. index.html sets font-display: optional,
+# which gives a face a ~100ms block window and NO swap period: miss it and the
+# page renders in metric-matched Georgia and never swaps. Every edge expiry meant
+# the next viewer paid an origin fetch inside that window, roughly 144 times a
+# day per edge rather than once a year.
+#
+# min_ttl is the lever: it is a FLOOR CloudFront applies regardless of origin
+# headers, so this pins both prefixes at the edge for a year and finally makes
+# the immutable promise true on both sides.
+#
+# CAVEAT, and it is the same one the response-headers policy carries: /assets/*
+# is safe by construction because Vite content-hashes those names, so a change is
+# a new URL that was never cached. /fonts/* names are version-pinned but NOT
+# content-hashed. With a 1-year floor the edge will not revalidate, so replacing
+# a font file IN PLACE now serves the old bytes from the edge until invalidated,
+# on top of the browser copies that no invalidation can reach. Rename the file
+# (preferably content-hash it) rather than swapping it, or invalidate /fonts/* in
+# that one deploy.
+resource "aws_cloudfront_cache_policy" "immutable_assets" {
+  name    = "${replace(local.domain_name, ".", "-")}-immutable-assets-cache"
+  comment = "Pin /assets/* + /fonts/* at the edge for 1yr, overriding the origin's max-age=600"
+
+  min_ttl     = 31536000
+  default_ttl = 31536000
+  max_ttl     = 31536000
+
+  parameters_in_cache_key_and_forwarded_to_origin {
+    # Same shape as Managed-CachingOptimized: nothing but the URL in the cache
+    # key, both compressions negotiated at the edge.
+    enable_accept_encoding_brotli = true
+    enable_accept_encoding_gzip   = true
+
+    cookies_config {
+      cookie_behavior = "none"
+    }
+
+    headers_config {
+      header_behavior = "none"
+    }
+
+    query_strings_config {
+      query_string_behavior = "none"
     }
   }
 }
