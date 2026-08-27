@@ -6,16 +6,16 @@
 //
 // SECURITY: the key is read only from process.env.DEEPL_API_KEY (a NON-VITE,
 // build-time-only var). It is never logged and never reaches src/ or the client
-// bundle. This repo is public — keep it that way.
+// bundle. This repo is public, so keep it that way.
 //
 // KEYLESS: with no key set, hasApiKey() is false and callers must no-op. The
 // pipeline is complete but a keyless run leaves catalogs untranslated (English
 // only), which is the safe default for this phase.
 //
 // DO-NOT-TRANSLATE / PLACEHOLDER SAFETY: before a string is sent to DeepL, every
-// protected span — ICU/interpolation placeholders ({name}, {count, plural, …}),
+// protected span (ICU/interpolation placeholders ({name}, {count, plural, …}),
 // Lingui/HTML component tags (<0>, </0>, <1/>, <strong>), URLs, emails, and the
-// glossary terms in scripts/i18n-glossary.json — is masked into an XML <x>N</x>
+// glossary terms in scripts/i18n-glossary.json) is masked into an XML <x>N</x>
 // sentinel and DeepL is called with tag_handling=xml & ignore_tags=x, so DeepL
 // preserves those tags verbatim. The sentinels are swapped back afterwards. This
 // keeps ICU/markup and brand/proper nouns byte-identical through translation.
@@ -32,7 +32,7 @@ export const TARGET_LOCALES = ["de", "es", "fr", "it", "pt"];
 // App locale → DeepL target_lang. PT defaults to European Portuguese; change to
 // "PT-BR" here if Brazilian Portuguese is preferred.
 const DEEPL_TARGET = { de: "DE", es: "ES", fr: "FR", it: "IT", pt: "PT-PT" };
-// Targets that support the formality parameter — all five use prefer_more so the
+// Targets that support the formality parameter. All five use prefer_more so the
 // translated copy stays in the same professional register as the English source.
 const FORMALITY_LOCALES = new Set(["de", "es", "fr", "it", "pt"]);
 
@@ -67,7 +67,7 @@ function hashSource(text, salt = "") {
 // Keyed by (source-hash + locale): an unchanged English string is never
 // re-translated, and a changed English string produces a new hash that misses
 // the cache, so it is flagged for (re)translation. Shared across PO catalogs and
-// blog richtext — identical English yields one cache entry regardless of source.
+// blog richtext: identical English yields one cache entry regardless of source.
 
 export function loadCache(path) {
   try {
@@ -93,10 +93,28 @@ export function saveCache(path, cache) {
   writeFileSync(path, `${JSON.stringify({ version: CACHE_VERSION, translations }, null, 2)}\n`);
 }
 
+export const EM_DASH = "\u2014";
+
+/**
+ * Normalise an em dash that a translator invented and the English did not have.
+ *
+ * German and Spanish take it as the Gedankenstrich / raya, an EN dash, which is
+ * typographically correct in both. French, Italian and Portuguese have no safe
+ * mechanical rewrite, so the string comes back unchanged and flagged: the caller
+ * reports it rather than silently shipping a character the house style forbids.
+ */
+export function normaliseDash(text, locale) {
+  if (typeof text !== "string" || !text.includes(EM_DASH)) return { text, violation: false };
+  if (locale === "de" || locale === "es") {
+    return { text: text.split(EM_DASH).join("\u2013"), violation: false };
+  }
+  return { text, violation: true };
+}
+
 /**
  * Seed a cached translation (e.g. adopting a reviewed/edited catalog string).
  * Pass the translator's cacheSalt so reviewed strings are adopted at the same key
- * the active pipeline looks up — they then hit the cache and skip both DeepL and
+ * the active pipeline looks up, so they hit the cache and skip both DeepL and
  * the LLM post-edit.
  */
 export function seedCache(cache, locale, source, translation, salt = "") {
@@ -117,13 +135,13 @@ export function loadGlossaryTerms(path) {
 /**
  * Read PUBLISHED_LOCALES straight from src/i18n/locales.ts at build time.
  *
- * The build must NOT translate/post-edit locales it doesn't ship — prerender
+ * The build must NOT translate/post-edit locales it doesn't ship, because prerender
  * emits only PUBLISHED_LOCALES, so translating the rest is pure cost (this is
  * what turned one deploy into an 8-minute run: 5 locales, none published).
  * fetch-blog runs BEFORE the TS is compiled, so it can't import the module; and
  * PUBLISHED_LOCALES changes on every release, so mirroring it as a second
  * constant here would be a desync hazard. Parsing the source keeps locales.ts
- * the single source of truth — publishing a locale stays a one-line edit there.
+ * the single source of truth, so publishing a locale stays a one-line edit there.
  * Throws (fails the build) if the array can't be parsed, rather than silently
  * translating nothing.
  */
@@ -182,7 +200,7 @@ function braceRanges(text) {
 //
 // Exported for tests. These two functions decide whether an ICU placeholder, a
 // component tag or a URL survives a round trip through a machine translator, and
-// a bug in either corrupts every translated string in the catalog — direct tests
+// a bug in either corrupts every translated string in the catalog, so direct tests
 // are worth more here than keeping the pair private.
 export function protect(text, glossaryRegex) {
   const ranges = [];
@@ -232,8 +250,8 @@ export function restore(translated, originals) {
  * reverted: a fresh output byte-identical to its source, where the previous
  * value existed and DIFFERED, is replaced by the previous value.
  *
- * A translation that was already identical to its source stays identical — many
- * legitimately are ("Coaching", "Leadership", brand names) — so this only ever
+ * A translation that was already identical to its source stays identical, and many
+ * legitimately are ("Coaching", "Leadership", brand names), so this only ever
  * blocks a regression, never a first translation.
  *
  * The concrete case: protect() masks an ICU plural as ONE sentinel, because the
@@ -297,7 +315,7 @@ export async function deeplQuotaNotice(apiKey) {
   const usage = await fetchDeeplUsage(apiKey);
   const reset = nextQuotaReset(process.env.DEEPL_QUOTA_RESET_DAY);
   const parts = [
-    "DeepL character quota exhausted (HTTP 456) — the build fell back to Claude-only translation, so the site still builds and every locale stays translated.",
+    "DeepL character quota exhausted (HTTP 456). The build fell back to Claude-only translation, so the site still builds and every locale stays translated.",
   ];
   if (usage) {
     parts.push(
@@ -307,7 +325,7 @@ export async function deeplQuotaNotice(apiKey) {
   parts.push(
     reset
       ? `Quota renews on ${reset} (from DEEPL_QUOTA_RESET_DAY).`
-      : "Quota renews monthly — set the DEEPL_QUOTA_RESET_DAY repo variable to your DeepL account's reset day to show the exact date here.",
+      : "Quota renews monthly. Set the DEEPL_QUOTA_RESET_DAY repo variable to your DeepL account's reset day to show the exact date here.",
   );
   return parts.join(" ");
 }
@@ -331,7 +349,7 @@ async function callDeepL(apiKey, texts, targetLang, formality) {
     body,
   });
   if (!res.ok) {
-    // Never echo the request/headers — they carry the key.
+    // Never echo the request/headers, they carry the key.
     const detail = await res.text().catch(() => "");
     const err = new Error(`DeepL API ${res.status} ${res.statusText}${detail ? `: ${detail.slice(0, 200)}` : ""}`);
     err.deeplStatus = res.status; // lets callers detect quota (456) and fall back
@@ -346,8 +364,30 @@ async function callDeepL(apiKey, texts, targetLang, formality) {
  * translateAll() is cache-first and batched; only genuinely new/changed English
  * hits the network.
  */
-export function createTranslator({ apiKey, glossaryRegex, cache, postEditor = null, cacheSalt = "" }) {
-  const stats = { cacheHits: 0, translated: 0, apiCalls: 0, deeplExhausted: false, claudeFromScratch: 0 };
+export function createTranslator({
+  apiKey,
+  glossaryRegex,
+  cache,
+  postEditor = null,
+  cacheSalt = "",
+  // Cache-only: answer every string from the committed cache and never call a
+  // paid API. This is what the deploy gate runs to decide whether anything
+  // actually needs translating, and what a build runs when translation is off.
+  cacheOnly = false,
+}) {
+  const stats = {
+    cacheHits: 0,
+    translated: 0,
+    apiCalls: 0,
+    deeplExhausted: false,
+    claudeFromScratch: 0,
+    // Every (locale, source) the cache could not answer.
+    missing: [],
+    // Misses that finished the run with no translation behind them.
+    untranslated: [],
+    // Translations carrying an em dash the English did not have.
+    dashViolations: [],
+  };
   // Once DeepL returns a quota error (HTTP 456), stop calling it for the rest of
   // the run and translate the remaining misses with Claude only (see below).
   let deeplExhausted = false;
@@ -383,6 +423,18 @@ export function createTranslator({ apiKey, glossaryRegex, cache, postEditor = nu
     // for the Claude fallback below (their store[h] stays undefined). Any OTHER
     // DeepL error still throws → the build fails loudly (don't mask misconfig).
     const misses = [...missByHash.entries()];
+    for (const [, v] of misses) stats.missing.push({ locale, source: v.source });
+
+    if (cacheOnly) {
+      // Return the English for anything the cache did not have, and write
+      // NOTHING: a cache entry is a permanent hit, so caching the source here
+      // would freeze this string to English in this locale for good.
+      texts.forEach((source, i) => {
+        if (results[i] === undefined) results[i] = source;
+      });
+      return results;
+    }
+
     for (let i = 0; i < misses.length && !deeplExhausted; i += BATCH_SIZE) {
       const chunk = misses.slice(i, i + BATCH_SIZE);
       let out;
@@ -398,29 +450,43 @@ export function createTranslator({ apiKey, glossaryRegex, cache, postEditor = nu
       }
       stats.apiCalls += 1;
       chunk.forEach(([h, v], j) => {
-        store[h] = restore(out[j] ?? "", v.originals);
+        const { text, violation } = normaliseDash(restore(out[j] ?? "", v.originals), locale);
+        if (violation) stats.dashViolations.push({ locale, source: v.source, translation: text });
+        store[h] = text;
         stats.translated += 1;
       });
     }
 
-    // Second pass: LLM post-edit of the just-translated misses — AND, when DeepL
+    // Second pass: LLM post-edit of the just-translated misses, AND, when DeepL
     // was skipped (quota), a from-scratch translation. The post-edit prompt
     // returns a native translation of the SOURCE, so passing mt=source makes it
     // translate directly; if Claude can't (no key / error), that string keeps the
     // English source (build-safe, never empty). Cache hits are never re-edited.
     if (postEditor && misses.length) {
-      const items = misses.map(([h, v]) => {
-        if (store[h] === undefined) stats.claudeFromScratch += 1;
+      const fromScratch = misses.map(([h]) => store[h] === undefined);
+      const items = misses.map(([h, v], k) => {
+        if (fromScratch[k]) stats.claudeFromScratch += 1;
         return { source: v.source, mt: store[h] ?? v.source };
       });
       const edited = await postEditor.postEditBatch(items, locale);
-      misses.forEach(([h], k) => {
-        store[h] = edited[k];
+      misses.forEach(([h, v], k) => {
+        const { text, violation } = normaliseDash(edited[k], locale);
+        if (violation) stats.dashViolations.push({ locale, source: v.source, translation: text });
+        // Nothing actually translated this one if DeepL was skipped AND the
+        // post-edit handed the English straight back. Leave the cache empty so a
+        // later run with budget retries it, rather than caching English as the
+        // translation, which would be a permanent hit.
+        if (fromScratch[k] && text === v.source) {
+          stats.untranslated.push({ locale, source: v.source });
+          return;
+        }
+        store[h] = text;
       });
     } else {
-      // No post-editor available: any DeepL-skipped miss falls back to English.
+      // No post-editor: a DeepL-skipped miss has no translation behind it.
+      // Report it and leave the cache alone, for the same reason.
       misses.forEach(([h, v]) => {
-        if (store[h] === undefined) store[h] = v.source;
+        if (store[h] === undefined) stats.untranslated.push({ locale, source: v.source });
       });
     }
 

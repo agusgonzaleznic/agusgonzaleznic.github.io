@@ -1,11 +1,11 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Trigger on push to main — but only when files that affect the built site
+  # Trigger on push to main, but only when files that affect the built site
   # change. paths-ignore is a denylist (fail-safe: anything not listed still
   # deploys, so a real content change is never silently skipped) covering the
   # changes that produce identical dist output: infra, CI-only workflow, and
-  # docs. NOTE: paths filters apply ONLY to push/pull_request — the Storyblok
+  # docs. NOTE: paths filters apply ONLY to push/pull_request; the Storyblok
   # webhook rebuild uses workflow_dispatch below and is unaffected.
   push:
     branches:
@@ -35,7 +35,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Paid translation used to be a side effect of every deploy. The build always
+  # ran the DeepL + Claude pipeline, and because CI never commits the translation
+  # cache back, a string missing from that cache was paid for AGAIN on every
+  # later deploy. With a busy merge cadence that is what exhausted both quotas.
+  #
+  # This job answers one question: did any copy actually change? It runs the real
+  # pipeline in cache-only mode with the paid keys cleared, so it cannot spend
+  # anything, and the build below is handed credentials only when the answer is
+  # yes. On an ordinary merge the answer is no and the build provably cannot
+  # spend, because it has no credentials rather than because it chose not to.
+  translation-plan:
+    name: Decide whether new copy needs translating
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      needed: ${{ steps.plan.outputs.needed }}
+      misses: ${{ steps.plan.outputs.misses }}
+      characters: ${{ steps.plan.outputs.characters }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - id: plan
+        name: Translation plan (cache-only, cannot spend)
+        run: node scripts/i18n-plan.mjs
+        env:
+          STORYBLOK_PUBLIC_TOKEN: ${{ secrets.STORYBLOK_PUBLIC_TOKEN }}
+
   build-and-deploy:
+    needs: translation-plan
     # Pinned to a commit SHA (not @main) so a mutable branch ref can't be used to
     # inject malicious steps into a deploy that holds secrets + Pages write access.
     # Update the SHA deliberately on upgrade.
@@ -52,11 +85,11 @@ jobs:
       artifact-path: 'dist'
       run-lint: true
     secrets:
-      # VITE_GA_MEASUREMENT_ID is a repo VARIABLE (not a secret — a GA4
+      # VITE_GA_MEASUREMENT_ID is a repo VARIABLE (not a secret: a GA4
       # measurement ID is public by nature, visible in every tag request).
       # Unset variable → empty value → analytics feature stays off.
       #
-      # Activation checklist — the privacy policy (src/pages/Legal.tsx §6)
+      # Activation checklist: the privacy policy (src/pages/Legal.tsx §6)
       # states retention and no-advertising as facts, so configure the GA4
       # property FIRST; the code's Consent Mode denials cover the tag side
       # only, not property settings:
@@ -64,7 +97,7 @@ jobs:
       #   2. GA4 Admin → Data collection: Google Signals OFF, ads
       #      personalization OFF, advertising features data collection OFF.
       #   3. Then: gh variable set GA_MEASUREMENT_ID --body "G-XXXXXXXXXX"
-      # VITE_TURNSTILE_SITE_KEY is a repo VARIABLE (the sitekey is public — it
+      # VITE_TURNSTILE_SITE_KEY is a repo VARIABLE (the sitekey is public: it
       # ships in the bundle). Set it from the `turnstile_sitekey` Terraform
       # output after the first apply: gh variable set TURNSTILE_SITE_KEY --body "0x...".
       # Unset variable → empty value → the widget is absent and the contact
@@ -78,7 +111,7 @@ jobs:
       # bundle. It drives the i18n machine-translation pipeline (scripts/translate.mjs
       # and the blog localization in scripts/fetch-blog.mjs). Unset/empty secret →
       # keyless no-op: catalogs stay untranslated, only English blog-data.json is
-      # written, and the site ships English-only — safe and behavior-identical to now.
+      # written, and the site ships English-only (safe and behavior-identical to now).
       # A locale is published only after native review and being added to
       # PUBLISHED_LOCALES in src/i18n/locales.ts; the keys alone change nothing.
       #
@@ -88,18 +121,28 @@ jobs:
       # Unset/empty → the pass is skipped and the build ships raw DeepL; a Claude
       # outage/refusal degrades to raw DeepL per-string and never fails the build.
       # (The Lingui catalog post-edit runs offline via `node scripts/translate.mjs`,
-      # not in this workflow — the committed .po files are the source of truth.)
+      # not in this workflow; the committed .po files are the source of truth.)
       # DEEPL_QUOTA_RESET_DAY (optional, NON-secret): the day-of-month (1–28) your
       # DeepL character quota renews, from your DeepL account. If DeepL returns a
       # quota error (HTTP 456) mid-build, the pipeline falls back to Claude-only
       # translation (no build failure) and logs a warning; this variable lets that
       # warning show the exact renewal date (DeepL's API doesn't expose it). Unset
       # → the warning says "renews monthly" instead.
+      #
+      # I18N_TRANSLATION (NON-secret repo variable) is the budget switch. Set it
+      # to 'auto' to let a deploy pay for genuinely new copy; any other value,
+      # including unset, means this workflow never spends. When it is off and the
+      # plan above found new copy, the build FAILS with the exact strings listed,
+      # rather than quietly rendering English on a localized page. Fix by running
+      # a local build with the keys and committing scripts/.i18n-cache.json, which
+      # is why translation is paid for once per string and never again.
       build-env-vars: |
         STORYBLOK_PUBLIC_TOKEN=${{ secrets.STORYBLOK_PUBLIC_TOKEN }}
         STORYBLOK_REQUIRE_TOKEN=1
-        DEEPL_API_KEY=${{ secrets.DEEPL_API_KEY }}
-        ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+        DEEPL_API_KEY=${{ (needs.translation-plan.outputs.needed == 'true' && vars.I18N_TRANSLATION == 'auto') && secrets.DEEPL_API_KEY || '' }}
+        ANTHROPIC_API_KEY=${{ (needs.translation-plan.outputs.needed == 'true' && vars.I18N_TRANSLATION == 'auto') && secrets.ANTHROPIC_API_KEY || '' }}
+        I18N_CACHE_ONLY=${{ (needs.translation-plan.outputs.needed == 'true' && vars.I18N_TRANSLATION == 'auto') && '0' || '1' }}
+        I18N_FAIL_ON_MISSING_TRANSLATION=1
         DEEPL_QUOTA_RESET_DAY=${{ vars.DEEPL_QUOTA_RESET_DAY }}
         VITE_GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID }}
         VITE_TURNSTILE_SITE_KEY=${{ vars.TURNSTILE_SITE_KEY }}
@@ -107,7 +150,7 @@ jobs:
   # GitHub Pages sends Cache-Control max-age=600, so CloudFront serves stale
   # pages for up to 10 minutes after a deploy. Invalidate so new posts/pages
   # are visible immediately. Uses a dedicated OIDC role that can ONLY create
-  # invalidations on the site distribution (NOT the terraform deploy role —
+  # invalidations on the site distribution (NOT the terraform deploy role:
   # its trust policy deliberately excludes the main-ref subject).
   invalidate-cdn:
     name: Invalidate CloudFront cache

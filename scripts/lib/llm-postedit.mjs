@@ -1,24 +1,24 @@
 // Build-time LLM post-edit of DeepL machine translation for the i18n pipeline.
 //
 // WHAT: DeepL produces fluent-but-literal MT. This module runs a second pass with
-// Claude that fixes register to the site's INFORMAL voice (German du — never the
+// Claude that fixes register to the site's INFORMAL voice (German du, never the
 // formal Sie; Argentine voseo; tu for FR/IT/PT), first-person gender
 // agreement (the author writes in the first person, masculine), false friends
-// ("DevOps Lead" must never become "DevOps Blei" — Blei = the metal), and keeps
-// coaching/tech loanwords and brand names in English — turning raw MT into copy a
+// ("DevOps Lead" must never become "DevOps Blei", since Blei is the metal), and keeps
+// coaching/tech loanwords and brand names in English, turning raw MT into copy a
 // native reader wouldn't flag as machine-translated.
 //
 // WHERE IT PLUGS IN: createTranslator({ postEditor, cacheSalt }) in deepl.mjs. On
 // a cache MISS, DeepL translates, then postEditBatch() refines, and the refined
-// string is what gets cached. Cache HITS — including reviewed .po strings adopted
-// via seedCache — never reach Claude. The cache key is salted with
+// string is what gets cached. Cache HITS, including reviewed .po strings adopted
+// via seedCache, never reach Claude. The cache key is salted with
 // POSTEDIT_VERSION so post-edited entries live at distinct keys from raw-DeepL
 // ones: turning the key on later produces post-edited output automatically, and a
 // keyless build stays byte-identical to a DeepL-only build.
 //
-// SECURITY: the key is read ONLY from process.env.ANTHROPIC_API_KEY — a NON-VITE,
+// SECURITY: the key is read ONLY from process.env.ANTHROPIC_API_KEY, a NON-VITE,
 // build-time-only var. Never logged, never reaches src/ or the client bundle.
-// This repo is public — keep it that way.
+// This repo is public, so keep it that way.
 //
 // FAIL-SAFE: three independent guards, each degrading to raw DeepL, never
 // throwing, so a Claude outage/refusal can neither break a deploy nor corrupt
@@ -41,7 +41,7 @@
 // («Fuck Bingo»); FR was regenerated that way, IT/PT/de/es were unaffected.
 export const POSTEDIT_VERSION = "pe2";
 
-// Post-editing is a well-scoped rewrite, not deep reasoning — the widely-used
+// Post-editing is a well-scoped rewrite, not deep reasoning, so the widely-used
 // default model, no extended thinking. Volume here is tiny (a handful of blog
 // posts + occasional catalog changes), so cost is negligible; change this one
 // constant to trade quality for cost.
@@ -59,19 +59,19 @@ const LOCALE_NAME = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// VOICE & LANGUAGE — the standard this pass enforces, and lessons learned.
+// VOICE & LANGUAGE: the standard this pass enforces, and lessons learned.
 //
 // The site's voice is INFORMAL, warm, direct, peer-to-peer: an experienced
-// engineering leader talking shop with a colleague — never a corporate brochure
+// engineering leader talking shop with a colleague, never a corporate brochure
 // or a stiff literal rendering. Per locale (see REGISTER_RULES below):
 //   de → du (never Sie) · es → Argentine VOSEO (vos: dirigí/tenés/podés, never
 //   tú/usted) · fr/it/pt → tu (never vous / Lei / o senhor).
 // The author is male → masculine agreement for first-person self-reference. Keep
 // English brand/tech/coaching loanwords + source abbreviations ("orgs") intact.
-// German runs ~30% longer than English — prefer the tightest phrasing (UI labels
+// German runs ~30% longer than English, so prefer the tightest phrasing (UI labels
 // must not overflow).
 //
-// IMPERATIVE — the hard-won nuance; do NOT flatten it to "imperative everywhere".
+// IMPERATIVE: the hard-won nuance; do NOT flatten it to "imperative everywhere".
 // The mood depends on the STRING'S ROLE, not a blanket rule:
 //   • Headlines + persuasive MARKETING / conversion CTAs ("Lead an org that…",
 //     "Book a Session", "Get Started") → 2nd-person INFORMAL IMPERATIVE. In German
@@ -88,37 +88,37 @@ const LOCALE_NAME = {
 //     copywriting uses the imperative for marketing CTAs.)
 //
 // DRIFT GOTCHA: a string is re-translated only on a cache MISS, and the cache key
-// is the message id — which encodes the <Trans> ELEMENT/placeholder structure,
+// is the message id, which encodes the <Trans> ELEMENT/placeholder structure,
 // not just the words. So changing a translated component's JSX structure (adding
 // or removing a wrapping <span> or an inline <svg>) silently re-keys the id,
 // forces a fresh DeepL+Claude pass for that one string, and can drift its wording
 // AND its voice even though the English is unchanged. After restructuring a
-// translated component, re-check the affected strings' register/imperative — that
+// translated component, re-check the affected strings' register/imperative, because that
 // is exactly how the FR hero title drifted from "Dirige" to "Diriger".
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Per-locale register notes layered on top of the universal rules below.
 const REGISTER_RULES = {
   de: [
-    "Address the reader INFORMALLY with du / dein / dir / dich — never the formal Sie / Ihr. This is a modern Berlin tech voice: warm, direct, peer-to-peer, the way engineers actually talk to each other.",
-    "Keep it concise and don't over-expand: German runs ~30% longer than English, so prefer the tightest natural phrasing (UI labels/buttons must not overflow) and keep source abbreviations — 'orgs' stays 'Orgs', not 'Organisationen'.",
-    "Beware false friends and calques: a \"DevOps Lead\" is a role — never \"DevOps Blei\" (Blei is the metal).",
+    "Address the reader INFORMALLY with du / dein / dir / dich, never the formal Sie / Ihr. This is a modern Berlin tech voice: warm, direct, peer-to-peer, the way engineers actually talk to each other.",
+    "Keep it concise and don't over-expand: German runs ~30% longer than English, so prefer the tightest natural phrasing (UI labels/buttons must not overflow) and keep source abbreviations: 'orgs' stays 'Orgs', not 'Organisationen'.",
+    "Beware false friends and calques: a \"DevOps Lead\" is a role, never \"DevOps Blei\" (Blei is the metal).",
   ],
   es: [
-    "Use Argentine Spanish with VOSEO: address the reader as 'vos' and use vos verb forms (dirigí, tenés, podés, sabés, sos, contás) — never tú- or usted-forms (not 'dirige', 'dirija', 'tienes', 'usted', 'su equipo' → use 'tu equipo').",
-    "Warm and informal-professional, like an experienced peer talking shop — not a corporate brochure.",
+    "Use Argentine Spanish with VOSEO: address the reader as 'vos' and use vos verb forms (dirigí, tenés, podés, sabés, sos, contás), never tú- or usted-forms (not 'dirige', 'dirija', 'tienes', 'usted', 'su equipo' → use 'tu equipo').",
+    "Warm and informal-professional, like an experienced peer talking shop, not a corporate brochure.",
     "Keep natural abbreviations from the source: 'orgs' → 'orgs' (or 'org'), not 'organizaciones'.",
   ],
   fr: [
-    "Address the reader INFORMALLY with 'tu' (tu/ton/tes) — never the formal 'vous'. Warm, direct, peer-to-peer.",
+    "Address the reader INFORMALLY with 'tu' (tu/ton/tes), never the formal 'vous'. Warm, direct, peer-to-peer.",
     "Keep source abbreviations ('orgs') and English tech/coaching loanwords intact.",
   ],
   it: [
-    "Address the reader INFORMALLY with 'tu' — never the formal 'Lei'. Warm, direct, peer-to-peer.",
+    "Address the reader INFORMALLY with 'tu', never the formal 'Lei'. Warm, direct, peer-to-peer.",
     "Keep source abbreviations ('orgs') and English tech/coaching loanwords intact.",
   ],
   pt: [
-    "Use European Portuguese and address the reader INFORMALLY with 'tu' — never the formal 'o senhor / a senhora'. Warm, direct, peer-to-peer.",
+    "Use European Portuguese and address the reader INFORMALLY with 'tu', never the formal 'o senhor / a senhora'. Warm, direct, peer-to-peer.",
     "Keep source abbreviations ('orgs') and English tech/coaching loanwords intact.",
   ],
 };
@@ -168,21 +168,29 @@ function placeholdersPreserved(source, candidate) {
 function buildSystemPrompt(locale, glossaryTerms) {
   const rules = [
     `You are a professional ${LOCALE_NAME[locale]} translator post-editing machine translation for a senior engineering-leadership coach's personal website.`,
-    "For each item you get the English source (EN) and a machine translation (MT). Return a corrected, native-quality translation of the EN — faithful in meaning, no additions or omissions — that reads as if written by a native professional, not translated.",
+    "For each item you get the English source (EN) and a machine translation (MT). Return a corrected, native-quality translation of the EN, faithful in meaning with no additions or omissions, that reads as if written by a native professional, not translated.",
     "The author writes in the first person and is male: use masculine gender agreement for any first-person self-reference.",
     "Keep brand names, product names, and established English tech/coaching terms in English, with their exact casing (e.g. Leadership, Coaching, DevOps, DORA, GitOps, FinOps, Web3).",
     "Preserve EXACTLY, byte-for-byte and in place: every {placeholder} or {plural, ...} ICU expression, every <0>…</0> / <tag> markup element, every URL, and every email address. Never translate, reorder, renumber, or alter them.",
     "Preserve the source's leading/trailing whitespace and punctuation shape.",
-    "VOICE: warm, direct, confident, peer-to-peer — an experienced engineering leader talking shop with a colleague, never a corporate brochure or a stiff literal rendering; prefer the tightest natural phrasing.",
-    'CTAs / IMPERATIVE: for HEADLINES and persuasive MARKETING / conversion CTAs (e.g. "Lead an Engineering Org…", "Book a Session", "Book an Intro Call", "Get Started") use the target\'s SECOND-PERSON INFORMAL IMPERATIVE — never the infinitive or a formal form. E.g. "Lead" → de "Führe", es voseo "Dirigí", fr "Dirige" (not "Diriger"), it "Guida", pt "Lidera"; "Book a Session" → de "Buche eine Session", fr "Réserve une séance", pt "Marca uma sessão". BUT functional / system UI controls (form submit, cookie Accept / Decline, "Read" / "Read more" links, "Back to home", menu / settings actions) follow the target language\'s standard UI convention — in de / fr / pt that is the INFINITIVE (de "Akzeptieren" / "Ablehnen" / "Nachricht senden" / "Lesen", fr "Accepter" / "Refuser", pt "Aceitar" / "Ler"), NOT the imperative, which reads oddly commanding on a functional control. The informal register (du / tu / voseo, never a formal form) applies to BOTH.',
-    'PROFANITY & STRONG LANGUAGE: when the source swears or uses strong language, keep it — render an equally strong, natural equivalent in the target; never soften, censor, euphemize, or drop it. Preserve its DIRECTION, which carries the meaning: profanity aimed at a SITUATION and shared with the reader ("this fucking outage") stays solidary/inclusive, while profanity aimed AT a person ("what the fuck are you doing?") stays confrontational. The informal register still applies.',
-    "FOREIGN-LANGUAGE QUOTATIONS: if the source contains a quotation already written in a language OTHER than the target (e.g. a Spanish saying quoted inside English prose), reproduce that quotation VERBATIM — do not translate it — and translate only the surrounding narration. If the target IS that quotation's language, keep the quote exactly as written in the source.",
-    "QUOTATION MARKS: reproduce the source's quotation EXACTLY — the same spans are quoted, nothing more and nothing less — rendered in the target language's convention: French «guillemets» (with non-breaking spaces inside); German „low-high“; Spanish “curly double quotes” (comillas inglesas “…”, this is Argentine/Latin-American usage — NEVER «angulares»); Italian «»; European Portuguese «». Do NOT add quotation marks around English loanwords, brand/tech terms, titles, or any phrase that is NOT quoted in the source — e.g. an unquoted “Fuck Bingo” in a title stays unquoted (never «Fuck Bingo»). And do NOT drop quotation marks the source has.",
+    "VOICE: warm, direct, confident, peer-to-peer: an experienced engineering leader talking shop with a colleague, never a corporate brochure or a stiff literal rendering; prefer the tightest natural phrasing.",
+    'CTAs / IMPERATIVE: for HEADLINES and persuasive MARKETING / conversion CTAs (e.g. "Lead an Engineering Org…", "Book a Session", "Book an Intro Call", "Get Started") use the target\'s SECOND-PERSON INFORMAL IMPERATIVE, never the infinitive or a formal form. E.g. "Lead" → de "Führe", es voseo "Dirigí", fr "Dirige" (not "Diriger"), it "Guida", pt "Lidera"; "Book a Session" → de "Buche eine Session", fr "Réserve une séance", pt "Marca uma sessão". BUT functional / system UI controls (form submit, cookie Accept / Decline, "Read" / "Read more" links, "Back to home", menu / settings actions) follow the target language\'s standard UI convention: in de / fr / pt that is the INFINITIVE (de "Akzeptieren" / "Ablehnen" / "Nachricht senden" / "Lesen", fr "Accepter" / "Refuser", pt "Aceitar" / "Ler"), NOT the imperative, which reads oddly commanding on a functional control. The informal register (du / tu / voseo, never a formal form) applies to BOTH.',
+    'PROFANITY & STRONG LANGUAGE: when the source swears or uses strong language, keep it: render an equally strong, natural equivalent in the target; never soften, censor, euphemize, or drop it. Preserve its DIRECTION, which carries the meaning: profanity aimed at a SITUATION and shared with the reader ("this fucking outage") stays solidary/inclusive, while profanity aimed AT a person ("what the fuck are you doing?") stays confrontational. The informal register still applies.',
+    "FOREIGN-LANGUAGE QUOTATIONS: if the source contains a quotation already written in a language OTHER than the target (e.g. a Spanish saying quoted inside English prose), reproduce that quotation VERBATIM, do not translate it, and translate only the surrounding narration. If the target IS that quotation's language, keep the quote exactly as written in the source.",
+    "QUOTATION MARKS: reproduce the source's quotation EXACTLY, so that the same spans are quoted, nothing more and nothing less, rendered in the target language's convention: French «guillemets» (with non-breaking spaces inside); German „low-high“; Spanish “curly double quotes” (comillas inglesas “…”, this is Argentine/Latin-American usage, NEVER «angulares»); Italian «»; European Portuguese «». Do NOT add quotation marks around English loanwords, brand/tech terms, titles, or any phrase that is NOT quoted in the source: e.g. an unquoted “Fuck Bingo” in a title stays unquoted (never «Fuck Bingo»). And do NOT drop quotation marks the source has.",
+    // PUNCTUATION is a house rule, not a preference: an em dash anywhere in the
+    // site's copy is treated as a defect. Without this the pipeline reintroduces
+    // them on the next new string and quietly undoes the sweep.
+    "PUNCTUATION: never use an em dash (\u2014) in the translation, not even where the English has one. " +
+      "Use a comma, a colon, a semicolon, parentheses, or two sentences, whichever the sentence needs." +
+      (locale === "de" || locale === "es"
+        ? " An en dash (\u2013) is correct as the parenthetical Gedankenstrich or raya, and in numeric ranges."
+        : " An en dash (\u2013) is allowed only in a numeric or date range, never as a parenthetical dash."),
     ...(REGISTER_RULES[locale] ?? []),
   ];
   if (glossaryTerms.length) {
     rules.push(
-      `Never translate these terms — reproduce them verbatim wherever they appear: ${glossaryTerms.join(", ")}.`,
+      `Never translate these terms: reproduce them verbatim wherever they appear: ${glossaryTerms.join(", ")}.`,
     );
   }
   return rules.join("\n");
@@ -267,7 +275,7 @@ async function callClaude(client, chunk, locale, glossaryTerms) {
 /**
  * Create a post-editor bound to an Anthropic key and the do-not-translate
  * glossary. postEditBatch(items, locale) takes [{ source, mt }] and returns the
- * final strings in order — post-edited where safe, raw MT everywhere a guard
+ * final strings in order: post-edited where safe, raw MT everywhere a guard
  * fires. Never throws.
  */
 export function createPostEditor({ apiKey, glossaryTerms = [] }) {
@@ -312,7 +320,7 @@ export function createPostEditor({ apiKey, glossaryTerms = [] }) {
         continue;
       }
       // Map each result back by id. A missing id or a mangled placeholder keeps
-      // raw DeepL for THAT string only — never the whole batch.
+      // raw DeepL for THAT string only, never the whole batch.
       for (const it of chunk) {
         const cand = byId.get(it.idx);
         if (typeof cand === "string" && cand.trim() && placeholdersPreserved(it.source, cand)) {
