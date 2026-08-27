@@ -712,12 +712,25 @@ data "aws_iam_policy_document" "deploy_observability" {
   # this document before editing this list.
   #
   # Enumerated from what the provider READS, not from the verbs the config
-  # happens to use. Three of these are the ones a verb-based guess drops, and
-  # each produces the half-done apply that warning describes:
-  #   GetQueueUrl        the resource id IS the queue URL, so the provider
-  #                      resolves it on create and on every refresh
-  #   GetQueueAttributes read on every refresh to diff the queue's settings
-  #   ListQueueTags      read on every refresh because the queue declares tags
+  # happens to use. TWO of these are the ones a verb-based guess drops, and each
+  # produces the half-done apply that warning describes:
+  #   GetQueueAttributes read on every refresh to diff the queue's settings, and
+  #                      again in the create and delete waiters
+  #   ListQueueTags      read on every refresh because the queue declares tags.
+  #                      Invisible in the resource's Read function: the resource
+  #                      registers Tags{IdentifierAttribute: AttrID}, so the
+  #                      provider's transparent-tagging interceptor calls it after
+  #                      every Read. Same shape as the budgets:ListTagsForResource
+  #                      scar named in the warning above.
+  #
+  # GetQueueUrl is a DELIBERATE OVER-GRANT, not a required read, and the first
+  # version of this comment had that backwards. CreateQueue returns the URL and
+  # that URL becomes the resource id, which is exactly WHY the provider never has
+  # to resolve it: verified against the aws provider 5.100.0 source, where
+  # GetQueueUrl appears nowhere in the sqs_queue resource. It is kept because it
+  # is queue-scoped and read-only, and because `terraform import` by queue NAME
+  # does need it, so a future import would otherwise fail for a reason nobody
+  # would connect to this list. Dropping it would also be correct.
   #
   # ListQueues is deliberately absent. It cannot be ARN-scoped, and the provider
   # never needs it: it addresses a queue by name on create and by stored URL
