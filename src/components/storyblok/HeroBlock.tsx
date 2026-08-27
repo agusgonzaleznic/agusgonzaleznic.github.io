@@ -46,18 +46,15 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
 
       <div className={`container relative z-10 px-6 ${SECTION_PADDING}`}>
         <div className="max-w-6xl mx-auto">
-          {/* Running head: the tagline as the page's masthead line over a
-              thick-thin (Scotch) rule spanning BOTH grid columns. Mirrors
+          {/* Running head: the tagline as the page's masthead line, with a short
+              accent mark beside it rather than a rule under it. Mirrors
               src/components/Hero.tsx, which carries the full rationale. */}
-          <div className={`${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <p className="text-xs md:text-sm font-medium uppercase tracking-wider text-muted-foreground">
-              {blok.tagline}
-            </p>
-            <div className="mt-3 flex items-end" aria-hidden="true">
-              <span className="h-0.5 w-16 bg-accent" />
-              <span className="h-px flex-1 bg-border" />
-            </div>
-          </div>
+          <p
+            className={`${SECTION_HEADER_MARGIN} flex items-center gap-3 text-xs md:text-sm font-medium uppercase tracking-wider text-muted-foreground animate-fade-in-up`}
+          >
+            <span className="h-0.5 w-8 shrink-0 bg-accent" aria-hidden="true" />
+            {blok.tagline}
+          </p>
 
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Content */}

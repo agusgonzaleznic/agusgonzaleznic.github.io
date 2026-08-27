@@ -420,7 +420,7 @@ msgid "Faster Releases"
 msgstr "Releases más rápidos"
 
 #: src/components/Impact.tsx
-msgid "FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap"
+msgid "FinOps discipline plus hard-nosed vendor negotiations: money back into the roadmap"
 msgstr "Disciplina de FinOps más negociaciones firmes con proveedores: plata que vuelve al roadmap"
 
 #: src/components/Testimonials.tsx
@@ -849,12 +849,12 @@ msgid "restriction of processing (Art. 18),"
 msgstr "limitación del tratamiento (art. 18),"
 
 #: src/components/Impact.tsx
-msgid "Results from teams I've led as an operator — the same playbooks we'll work from"
+msgid "Results from teams I've led as an operator, the same playbooks we'll work from"
 msgstr "Resultados de equipos que dirigí como operador: los mismos playbooks con los que vamos a trabajar"
 
 #: src/components/Impact.tsx
-msgid "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now."
-msgstr "Manejo integral de la infraestructura y la seguridad de una plataforma Web3: el nombre de la empresa se mantiene confidencial por ahora."
+msgid "Running infrastructure and security end to end for a Web3 platform."
+msgstr "Manejo integral de la infraestructura y la seguridad de una plataforma Web3."
 
 #: src/components/HowIWork.tsx
 msgid "Security by Default"
@@ -1024,7 +1024,7 @@ msgid "Too many requests. Please wait a moment, or email me directly."
 msgstr "Demasiadas solicitudes. Esperá un momento, por favor, o escribime directamente por correo."
 
 #: src/components/Impact.tsx
-msgid "Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event"
+msgid "Trunk-based development, CI/CD, and GitOps: releasing became routine, not an event"
 msgstr "Desarrollo basado en trunk, CI/CD y GitOps: publicar se volvió rutina, no un evento"
 
 #: src/components/Testimonials.tsx

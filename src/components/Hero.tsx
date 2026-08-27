@@ -41,8 +41,8 @@ export const Hero = ({ block }: { block?: HeroBlock }) => {
         <div className="max-w-6xl mx-auto">
           {/* Running head. The credential is the masthead line of the page, set
               over a thick-thin (Scotch) rule that spans BOTH grid columns, so
-              the rule is the top edge of the whole composition instead of a chip
-              inside the text column. Both columns now start under it, so
+              the mark sits beside the line instead of boxing it. Both columns
+              still start under this block, so
               items-start aligns the H1's first line with the top of the photo on
               its own and the image column's hardcoded 70px top offset is gone
               (spelling that class here would be enough for Tailwind's text
@@ -53,15 +53,12 @@ export const Hero = ({ block }: { block?: HeroBlock }) => {
               the fold. `||` not `??` so an emptied CMS field falls back to the
               catalog string instead of rendering an empty kicker under an orphan
               rule (same semantics as image_alt below). */}
-          <div className={`${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
-            <p className="text-xs md:text-sm font-medium uppercase tracking-wider text-muted-foreground">
-              {block?.badge || <Trans>15+ years leading engineering teams</Trans>}
-            </p>
-            <div className="mt-3 flex items-end" aria-hidden="true">
-              <span className="h-0.5 w-16 bg-accent" />
-              <span className="h-px flex-1 bg-border" />
-            </div>
-          </div>
+          <p
+            className={`${SECTION_HEADER_MARGIN} flex items-center gap-3 text-xs md:text-sm font-medium uppercase tracking-wider text-muted-foreground animate-fade-in-up`}
+          >
+            <span className="h-0.5 w-8 shrink-0 bg-accent" aria-hidden="true" />
+            {block?.badge || <Trans>15+ years leading engineering teams</Trans>}
+          </p>
 
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
             {/* Content */}

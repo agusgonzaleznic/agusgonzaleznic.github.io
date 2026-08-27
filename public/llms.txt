@@ -1,9 +1,9 @@
-# Agustin Gonzalez Nicolini — Leadership & Engineering Coaching
+# Agustin Gonzalez Nicolini: Leadership & Engineering Coaching
 
-> Agustin Gonzalez Nicolini is an executive coach for engineering leaders —
-> from new engineering managers to CTOs — working from Berlin, Germany with
+> Agustin Gonzalez Nicolini is an executive coach for engineering leaders,
+> from new engineering managers to CTOs, working from Berlin, Germany with
 > remote clients worldwide. He currently heads infrastructure and security
-> at a Web3 company (name confidential), and his career spans fintech,
+> at Safe Labs GmbH (Web3), and his career spans fintech,
 > gaming, e-mobility (EV charging), healthtech, and web3, going back more
 > than fifteen years.
 
@@ -15,13 +15,13 @@ Spanish.
 managers; tech leads; and individual contributors stepping into management for
 the first time.
 
-**Coaching services:** *Executive Leadership Coaching (CTO & VP level)* — org
+**Coaching services:** *Executive Leadership Coaching (CTO & VP level)*: org
 design at scale, stakeholder and C-suite influence, technology strategy, and
 executive presence (bi-weekly 60-minute sessions). *Team & Manager Coaching
-(manager & director level)* — DORA metrics, healthier team rituals, hiring and
+(manager & director level)*: DORA metrics, healthier team rituals, hiring and
 performance systems, on-call and incident practice, and trunk-based DevOps/GitOps
 delivery (weekly or bi-weekly 45-minute sessions). *Career Transition Coaching
-(IC to leadership and beyond)* — 8–12 week structured programs with weekly
+(IC to leadership and beyond)*: 8–12 week structured programs with weekly
 check-ins for IC→manager, manager→director, and director→VP moves, plus interview
 preparation. New clients begin with a free 30-minute introductory call to check fit.
 
@@ -45,8 +45,8 @@ multi-account AWS with automated deployments; lifted team velocity 50% by pairin
 OKRs with DORA metrics; and sped up onboarding 60% by standardizing processes and
 documentation.
 
-**Experience:** Head of Infrastructure & Security at a Web3 company (2025–present,
-name confidential); VP of Engineering at JUCR GmbH / EV charging (2022–2025);
+**Experience:** Head of Infrastructure & Security at Safe Labs GmbH / web3
+(2025–present); VP of Engineering at JUCR GmbH / EV charging (2022–2025);
 Cloud Security Manager at Wildlife Studios / gaming (2020–2022); DevOps Lead at
 Ualá / fintech (2018–2021); and Infrastructure & Security Lead at Bdev /
 healthtech (2014–2018).

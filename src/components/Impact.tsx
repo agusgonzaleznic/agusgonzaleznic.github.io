@@ -8,19 +8,19 @@ import type { PageBlock } from "@/lib/pages";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 // Hardcoded fallback + seed source. `value` (e.g. "40%"), `period`, and
-// `company` are deliberately NOT translated (locale-neutral / proper nouns) —
+// `company` are deliberately NOT translated (locale-neutral / proper nouns):
 // the field-aware translator leaves them byte-identical across locales.
 const DEFAULT_STATS: { icon: LucideIcon; value: string; label: MessageDescriptor; description: MessageDescriptor }[] = [
-  { icon: TrendingDown, value: "40%", label: msg`Cloud Cost Reduction`, description: msg`FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap` },
+  { icon: TrendingDown, value: "40%", label: msg`Cloud Cost Reduction`, description: msg`FinOps discipline plus hard-nosed vendor negotiations: money back into the roadmap` },
   { icon: Shield, value: "99.99%", label: msg`System Uptime`, description: msg`Multi-region failover and DR/HA playbooks, built so a bad day in one region stays invisible to users` },
-  { icon: Rocket, value: "3×", label: msg`Faster Releases`, description: msg`Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event` },
+  { icon: Rocket, value: "3×", label: msg`Faster Releases`, description: msg`Trunk-based development, CI/CD, and GitOps: releasing became routine, not an event` },
   { icon: Zap, value: "75%", label: msg`Reduced Lead Time`, description: msg`A multi-account AWS migration with deployments automated end to end` },
   { icon: Users, value: "50%", label: msg`Team Velocity Boost`, description: msg`OKRs paired with DORA metrics, used as working tools rather than dashboards` },
   { icon: Target, value: "60%", label: msg`Faster Onboarding`, description: msg`Standardized processes and documentation a new hire can follow on day one` },
 ];
 
 const DEFAULT_TIMELINE: { period: string; company: string; role: MessageDescriptor; achievement: MessageDescriptor }[] = [
-  { period: "2025-Present", company: "Confidential (Web3)", role: msg`Head of Infrastructure & Security`, achievement: msg`Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now.` },
+  { period: "2025-Present", company: "Safe Labs GmbH", role: msg`Head of Infrastructure & Security`, achievement: msg`Running infrastructure and security end to end for a Web3 platform.` },
   { period: "2022-2025", company: "JUCR GmbH (EV Charging)", role: msg`VP of Engineering`, achievement: msg`Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime.` },
   { period: "2020-2022", company: "Wildlife Studios (Gaming)", role: msg`Cloud Security Manager`, achievement: msg`Kept security controls stringent while game teams shipped features at full speed.` },
   { period: "2018-2021", company: "Ualá (FinTech)", role: msg`DevOps Lead`, achievement: msg`Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout.` },
@@ -61,7 +61,7 @@ export const Impact = ({ block }: { block?: ImpactBlock }) => {
     <section id="impact" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
-          {/* Page header — the experience timeline leads the page */}
+          {/* Page header. The experience timeline leads the page */}
           <div className={`text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             <h1 className="text-fluid-3xl font-bold">
               {block?.timeline_heading ?? <Trans>Experience Timeline</Trans>}
@@ -96,7 +96,7 @@ export const Impact = ({ block }: { block?: ImpactBlock }) => {
                         <div className="flex-1">
                           <div className="flex flex-col gap-1 mb-3">
                             {/* h2: peers of the Numbers section heading under the
-                                page h1 — keeps the outline free of h1→h3 skips
+                                page h1, which keeps the outline free of h1-to-h3 skips
                                 (same pattern as the /philosophy pillar cards). */}
                             <h2 className="text-lg font-bold text-foreground">{item.role}</h2>
                             <p className="text-sm text-muted-foreground">{item.company}</p>
@@ -113,14 +113,14 @@ export const Impact = ({ block }: { block?: ImpactBlock }) => {
             ))}
           </div>
 
-          {/* Numbers — the internal pivot scales at md like every other gap
+          {/* Numbers. The internal pivot scales at md like every other gap
               (one SECTION_PADDING unit: 4rem/6rem). */}
           <div className={`mt-16 md:mt-24 text-center max-w-3xl mx-auto ${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
             <h2 className="text-fluid-2xl font-bold mb-6">
               {block?.stats_heading ?? <Trans>Numbers I Stand Behind</Trans>}
             </h2>
             <p className="text-fluid-lg text-muted-foreground">
-              {block?.stats_subheading ?? <Trans>Results from teams I've led as an operator — the same playbooks we'll work from</Trans>}
+              {block?.stats_subheading ?? <Trans>Results from teams I've led as an operator, the same playbooks we'll work from</Trans>}
             </p>
           </div>
 
