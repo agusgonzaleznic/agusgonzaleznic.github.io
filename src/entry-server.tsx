@@ -1,6 +1,10 @@
 import { renderToString } from "react-dom/server";
 import { Helmet } from "react-helmet";
-import { StaticRouter } from "react-router-dom/server";
+// react-router 7 folded the DOM and server entry points back into the
+// react-router package; the react-router-dom/server subpath no longer exists.
+// This is the only import in the tree that moved: everything else still imports
+// from react-router-dom, which v7 keeps as a re-export.
+import { StaticRouter } from "react-router";
 import { AppProviders, AppRoutes, type RoutePages } from "./App";
 import Index from "./pages/Index";
 import About from "./pages/About";

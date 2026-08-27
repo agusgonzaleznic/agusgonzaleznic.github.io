@@ -154,8 +154,12 @@ export const AppRoutes = ({ pages }: { pages: RoutePages }) => (
   </>
 );
 
+// react-router 7 graduated v7_startTransition and v7_relativeSplatPath into
+// default behaviour and REMOVED the future prop, so passing it is a type error.
+// What those flags opted into is what v7 now does unconditionally, which is why
+// this is a deletion and not a migration of the values.
 const App = () => (
-  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+  <BrowserRouter>
     <AppProviders>
       <AppRoutes pages={clientPages} />
     </AppProviders>
