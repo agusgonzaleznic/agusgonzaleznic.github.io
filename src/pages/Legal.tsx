@@ -12,13 +12,13 @@ import { SECTION_PADDING } from "@/lib/layout";
 // Shared shell for /impressum and /privacy.
 //
 // This used to be a hand-rolled <Helmet> carrying only title, description, a
-// locale-aware canonical and og:locale — no og:type, no og:title/description/
+// locale-aware canonical and og:locale. No og:type, no og:title/description/
 // url, no og:image, no twitter card, no og:site_name, no JSON-LD. Two pages the
 // GDPR and § 5 DDG require people to be able to find and share, and sharing one
 // produced a bare link with no title card.
 //
 // SeoPage already localizes the canonical the same way (localizePath on the
-// English path — the bug where /de/privacy declared /privacy as its canonical,
+// English path: the bug where /de/privacy declared /privacy as its canonical,
 // masked in the static HTML by prerender's canonical guard and visible only
 // after hydration, stays fixed), and it adds everything above. The DOM below
 // <main> is byte-for-byte what it was: SeoPage's shell is already
@@ -32,7 +32,7 @@ const LegalLayout = ({
 }: {
   title: string;
   description: string;
-  /** Breadcrumb label — pass it localized. */
+  /** Breadcrumb label. Pass it localized. */
   crumb: string;
   path: string;
   children: React.ReactNode;
@@ -151,7 +151,7 @@ export const Impressum = () => {
 };
 
 // Rendered only when GA4 is configured: withdraws analytics consent right
-// where the processing is described (Art. 7(3) GDPR — withdrawing must be as
+// where the processing is described (Art. 7(3) GDPR: withdrawing must be as
 // easy as consenting). withdrawAnalyticsConsent() also halts a running tag
 // immediately and makes the consent banner ask again on the next visit.
 const WithdrawAnalyticsConsent = () => {

@@ -7,8 +7,8 @@ import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
 import { localeFromPath } from "@/i18n/locales";
 
 // The "linktree" page (/links). CMS-managed via the pages/links Storyblok story
-// (a `page` with one links_block). Standalone/minimal — chrome={false} drops the
-// site nav + footer — but the SEO/GEO head is fully applied: a ProfilePage node
+// (a `page` with one links_block). Standalone/minimal (chrome={false} drops the
+// site nav + footer), but the SEO/GEO head is fully applied: a ProfilePage node
 // about the Person, whose identity links (is_profile) enrich the Person's sameAs.
 const LinksPage = ({ previewContent }: PagePreviewProps) => {
   const { t } = useLingui();

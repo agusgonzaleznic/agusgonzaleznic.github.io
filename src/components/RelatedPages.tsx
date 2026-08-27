@@ -4,7 +4,7 @@ import { msg } from "@lingui/core/macro";
 import type { MessageDescriptor } from "@lingui/core";
 import { LocaleLink } from "@/components/LocaleLink";
 
-// Descriptive anchor text per target page — richer than the nav labels on
+// Descriptive anchor text per target page, richer than the nav labels on
 // purpose (the anchors describe the destination, which is what search engines
 // and readers scan). One label per target, reused by every page that links it.
 // All phrases are derived from copy that already exists on the site.
@@ -17,7 +17,7 @@ const LABELS: Record<string, { to: string; label: MessageDescriptor }> = {
   contact: { to: "/contact", label: msg`Book a free 30-minute intro call` },
 };
 
-// Which pages each page links to (never itself). Services — the money page —
+// Which pages each page links to (never itself). Services (the money page)
 // gets the most inbound links.
 const RELATED: Record<string, (keyof typeof LABELS)[]> = {
   about: ["philosophy", "services", "impact"],

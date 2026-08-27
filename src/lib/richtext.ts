@@ -2,7 +2,7 @@
 //
 // These used to live in src/lib/blog.ts, which eagerly globs six locales of blog
 // JSON. Anything importing storyblokImage or extractText from there inherited
-// that payload into its own chunk — RichText and StoryblokPage both did, which is
+// that payload into its own chunk: RichText and StoryblokPage both did, which is
 // the same defect as the SITE_URL move in 1a97e41. Keeping them here means a
 // component that needs an image transform does not also download the corpus.
 
@@ -59,7 +59,7 @@ export function storyblokImage(filename: string, width: number, height = 0): str
  * Storyblok encodes it in the path: /f/<space>/<W>x<H>/<hash>/<name>. Null is
  * load-bearing rather than a convenience: real assets in this space have no
  * WxH segment at all (an SVG is /f/288632938663524/375fba9742/x.svg), and a
- * caller must OMIT width/height in that case instead of guessing — a wrong
+ * caller must OMIT width/height in that case instead of guessing: a wrong
  * aspect-ratio box is worse than none.
  */
 export function storyblokImageSize(filename: string): { width: number; height: number } | null {
@@ -73,7 +73,7 @@ export function storyblokImageSize(filename: string): { width: number; height: n
 /**
  * A srcset of Storyblok transforms.
  *
- * Returns "" for anything not on a.storyblok.com — storyblokImage passes those
+ * Returns "" for anything not on a.storyblok.com; storyblokImage passes those
  * URLs through untouched, so emitting one candidate per width would be the same
  * URL repeated with different `w` descriptors, which is actively wrong rather
  * than merely useless.

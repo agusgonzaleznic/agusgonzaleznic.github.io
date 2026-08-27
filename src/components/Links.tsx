@@ -15,7 +15,7 @@ export interface LinkField {
   is_profile?: boolean;
   /** Optional uploaded logo (Storyblok asset). Overrides `icon`; rendered monochrome. */
   image?: { filename?: string | null; alt?: string | null } | null;
-  /** Renders this link as a filled accent button — for the single primary CTA. */
+  /** Renders this link as a filled accent button, for the single primary CTA. */
   featured?: boolean;
 }
 
@@ -121,7 +121,7 @@ const LinkRow = ({ link }: { link: LinkField }) => {
 
 /**
  * The /links "linktree" body: profile header + a stacked list of Storyblok-managed
- * links. Standalone/minimal (no site nav or footer — the page wrapper passes
+ * links. Standalone/minimal (no site nav or footer; the page wrapper passes
  * chrome={false} to SeoPage) but uses the site's exact tokens and type scale.
  */
 export const Links = ({ block }: { block?: LinksBlock }) => {
@@ -131,7 +131,7 @@ export const Links = ({ block }: { block?: LinksBlock }) => {
     <div className="flex min-h-screen flex-col items-center px-6 py-16 md:py-24">
       <div className="w-full max-w-md animate-fade-in-up">
         <header className="flex flex-col items-center text-center">
-          {/* Photo + name link home — the universal "brand → home" affordance.
+          {/* Photo + name link home, the universal "brand → home" affordance.
               alt="" because the adjacent <h1> already names the person (WCAG H2:
               combined image+text link), so the link's accessible name is the name. */}
           <LocaleLink
@@ -169,7 +169,7 @@ export const Links = ({ block }: { block?: LinksBlock }) => {
           >
             agusgonzaleznic.com
           </LocaleLink>
-          {/* Minimal on-page language switch — the page has no nav, so this is
+          {/* Minimal on-page language switch: the page has no nav, so this is
               the only affordance to change language. Crawlable + instant. */}
           <LanguageSwitcher variant="inline" />
         </div>

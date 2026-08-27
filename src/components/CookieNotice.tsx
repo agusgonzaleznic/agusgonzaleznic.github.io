@@ -15,14 +15,14 @@ import { LocaleLink } from "@/components/LocaleLink";
 // Two-mode privacy banner, driven by whether GA4 is configured (via the
 // public VITE_GA_MEASUREMENT_ID build variable):
 //
-// - Not configured (default): purely informational — the site sets no cookies
+// - Not configured (default): purely informational. The site sets no cookies
 //   and does no tracking, so there is nothing to consent to. One "Got it".
 // - Configured: a real consent banner for optional analytics.
-//   Accept and Decline carry equal visual weight (no dark patterns — GDPR
+//   Accept and Decline carry equal visual weight (no dark patterns: GDPR
 //   requires declining to be as easy as accepting). gtag.js is only injected
 //   after an explicit Accept (see src/lib/analytics.ts).
 //
-// The decision is remembered in localStorage — which is NOT a cookie and never
+// The decision is remembered in localStorage, which is NOT a cookie and never
 // leaves the browser. If storage is blocked (private mode), the choice is
 // honored in memory for the current session only (see src/lib/analytics.ts)
 // and the banner re-asks on the next visit. The
@@ -54,7 +54,7 @@ export const CookieNotice = () => {
     try {
       if (localStorage.getItem(DISMISS_KEY) !== "true") setVisible(true);
     } catch {
-      // Storage blocked (private mode / disabled) — still show the notice.
+      // Storage blocked (private mode / disabled): still show the notice.
       setVisible(true);
     }
   }, [consentMode]);
@@ -63,7 +63,7 @@ export const CookieNotice = () => {
     try {
       localStorage.setItem(DISMISS_KEY, "true");
     } catch {
-      // Storage blocked — dismiss for this session only.
+      // Storage blocked: dismiss for this session only.
     }
     setVisible(false);
   };
@@ -86,7 +86,7 @@ export const CookieNotice = () => {
       role="region"
       aria-label={t`Privacy notice`}
       // bottom-24 on mobile clears the sticky "Book a Session" CTA (fixed
-      // bottom-0, z-40 in Navigation) — but only while that CTA is rendered;
+      // bottom-0, z-40 in Navigation), but only while that CTA is rendered;
       // otherwise the banner sits at the viewport bottom. z-50 stays above it.
       className={`fixed inset-x-0 ${stickyCtaVisible ? "bottom-24" : "bottom-4"} md:bottom-6 z-50 px-4 md:px-6 animate-fade-in-up`}
     >

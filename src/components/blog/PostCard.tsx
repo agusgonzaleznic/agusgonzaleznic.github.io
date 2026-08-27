@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { PostMeta } from "@/components/blog/PostMeta";
 import type { BlogPost } from "@/lib/blog";
 
-// Static class names so Tailwind's scanner keeps them — a template literal
+// Static class names so Tailwind's scanner keeps them: a template literal
 // like `delay-${n}` is invisible to it and the class gets purged.
 const STAGGER_DELAYS = ["", "delay-100", "delay-200", "delay-300", "delay-400"];
 

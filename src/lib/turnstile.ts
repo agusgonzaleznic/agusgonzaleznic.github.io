@@ -45,7 +45,7 @@ let loadPromise: Promise<TurnstileApi> | null = null;
 
 /**
  * Inject api.js on demand and resolve with the `window.turnstile` API. Safe to
- * call repeatedly — the script is only ever added once. Rejects on SSR and on a
+ * call repeatedly: the script is only ever added once. Rejects on SSR and on a
  * network/script failure (the rejection clears the cache so a later user action
  * can retry).
  */

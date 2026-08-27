@@ -13,7 +13,7 @@ import { useFocusTrap } from "@/lib/focus-trap";
 
 // Every nav entry is now its own route (About, Philosophy, … each have a page).
 // They render as locale-aware <LocaleLink>s and navigate client-side (content
-// swaps in place, no reload) — bare paths, never a /#hash.
+// swaps in place, no reload). Paths are bare, never a /#hash.
 type NavLink = { label: string; to: string };
 
 // Static class names so Tailwind's scanner keeps them; index.css only defines
@@ -56,14 +56,14 @@ export const Navigation = () => {
   }, []);
 
   // Publish whether the sticky CTA is actually rendered (same condition as
-  // the JSX below) so CookieNotice and Footer can react — CookieNotice stacks
-  // the consent banner above it, and the Footer reserves bottom space for it —
-  // only when it exists (see the store in src/lib/layout.ts). Route-gated:
+  // the JSX below) so CookieNotice and Footer can react only when it exists:
+  // CookieNotice stacks the consent banner above it, and the Footer reserves
+  // bottom space for it (see the store in src/lib/layout.ts). Route-gated:
   // /contact and /services carry their own inline booking affordances and
   // /blog would cover long-form reading, so the floating CTA is redundant on
   // all three. On home the CTA additionally waits for the first scroll
-  // (isScrolled): the landing fold stays clean — especially on a first visit,
-  // when the consent banner is also on screen — and the CTA appears with
+  // (isScrolled): the landing fold stays clean (especially on a first visit,
+  // when the consent banner is also on screen) and the CTA appears with
   // engagement.
   const showStickyCta =
     !isMobileMenuOpen &&
@@ -81,7 +81,7 @@ export const Navigation = () => {
     window.scrollTo({ top: 0, behavior: scrollBehavior() });
   };
 
-  // Booking CTAs render as real anchors (crawlable, cmd/middle-click) — this
+  // Booking CTAs render as real anchors (crawlable, cmd/middle-click). This
   // just closes the mobile menu when one is followed from there.
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
 
@@ -159,7 +159,7 @@ export const Navigation = () => {
                   <Trans>Book a Session</Trans>
                 </a>
               </Button>
-              {/* Crawlable locale links (compact dropdown) — renders nothing until
+              {/* Crawlable locale links (compact dropdown). Renders nothing until
                   >=2 locales are published, so the English DOM is unchanged today. */}
               <LanguageSwitcher variant="dropdown" />
             </div>
@@ -221,7 +221,7 @@ export const Navigation = () => {
         </div>
       )}
 
-      {/* Sticky CTA on mobile — route-gated in showStickyCta above (hidden on
+      {/* Sticky CTA on mobile, route-gated in showStickyCta above (hidden on
           /blog, /contact and /services). Stays bottom-0 z-40: the CookieNotice
           (z-50) reads the store above and moves to bottom-24 on mobile only
           while this is rendered, and the Footer reserves bottom space so this

@@ -191,7 +191,7 @@ const BlogPostPage = () => {
                 <RichText document={body} />
               </div>
 
-              {/* Author box — every post links back to the coaching pages
+              {/* Author box: every post links back to the coaching pages
                   (locale-aware, descriptive anchors shared with RelatedPages). */}
               <div className="mt-16 border-t border-border pt-8">
                 <div className="flex items-start gap-4">

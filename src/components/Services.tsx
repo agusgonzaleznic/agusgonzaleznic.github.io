@@ -8,7 +8,7 @@ import { BOOKING_URL } from "@/lib/booking";
 import type { PageBlock } from "@/lib/pages";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING, SERVICES_CTA_ID } from "@/lib/layout";
 
-// Hardcoded fallback — also the seed source for Storyblok. `featured` drives the
+// Hardcoded fallback, also the seed source for Storyblok. `featured` drives the
 // accent border + "Most Popular" badge; the small labels (Get Started / Format /
 // Best for / Most Popular / Book an Intro Call) stay Lingui chrome.
 type DefaultService = {
@@ -187,7 +187,7 @@ export const Services = ({ block }: { block?: ServicesBlock }) => {
             ))}
           </div>
 
-          {/* Bottom CTA — the id lets Navigation's observer hide the mobile
+          {/* Bottom CTA: the id lets Navigation's observer hide the mobile
               sticky CTA while this inline booking button is on screen. */}
           <div id={SERVICES_CTA_ID} className="mt-16 text-center">
             <p className="text-muted-foreground mb-4">

@@ -19,7 +19,7 @@ import type { PageBlock } from "@/lib/pages";
 
 // Same-origin endpoint (a CloudFront behavior in front of a Lambda). The Lambda
 // runs every server-side control (schema, rate limits, Turnstile siteverify,
-// honeypot, timing) and forwards the sanitized message on — the Google Apps
+// honeypot, timing) and forwards the sanitized message on: the Google Apps
 // Script URL lives server-side now and never ships in this bundle.
 const CONTACT_ENDPOINT = "/api/contact";
 
@@ -40,12 +40,12 @@ async function sha256Hex(body: string): Promise<string> {
     .join("");
 }
 
-// Client-side validation limits — MIRROR the Lambda schema (control 4,
+// Client-side validation limits: MIRROR the Lambda schema (control 4,
 // `validate()` in terraform/contact-lambda-src/index.mjs). Everything is
 // checked against the TRIMMED value, exactly as the server does, so anything
 // that passes here also passes there. We only enforce what the server enforces:
-// length bounds + rejection of control characters. Ordinary text — apostrophes,
-// accents, punctuation, and newlines in the message — is never rejected.
+// length bounds + rejection of control characters. Ordinary text (apostrophes,
+// accents, punctuation, and newlines in the message) is never rejected.
 const NAME_MAX = 100;
 const EMAIL_MAX = 200;
 const ROLE_MAX = 100;
@@ -59,20 +59,20 @@ const MESSAGE_MAX = 4000;
 // DIFFERENT UNITS: MESSAGE_MAX counts characters, the server caps UTF-8 bytes.
 // A 4,000-character message is ~4 KB in ASCII but ~12 KB in CJK, so without this
 // check a Japanese or Russian visitor could pass every visible validation and
-// still get a 413 the form never warned about — a silently lost enquiry from
+// still get a 413 the form never warned about: a silently lost enquiry from
 // exactly the visitor least likely to retry in English.
 const MAX_BODY_BYTES = 16384;
 
 // HAND-SYNCED PAIR with EMAIL_RE + EMAIL_LOCAL_MAX in
-// terraform/contact-lambda-src/index.mjs. Nothing can enforce the pairing — the
-// Lambda is a separate module the client cannot import from — so the two must be
+// terraform/contact-lambda-src/index.mjs. Nothing can enforce the pairing (the
+// Lambda is a separate module the client cannot import from), so the two must be
 // edited together. Keep this rule NO STRICTER than the server's, or the form
 // would refuse an address the server would have accepted.
 //
 // A pragmatic subset of RFC 5322: dot-atom local part, dot-separated domain
 // whose labels start and end alphanumeric, alphabetic TLD of 2-63. The rule this
 // replaced only asked for "something @ something . something", which accepted
-// `a@b.c`, `x@y..z` and `.a@b.co` — none of which can receive mail.
+// `a@b.c`, `x@y..z` and `.a@b.co`, none of which can receive mail.
 //
 // Worth being clear about what this does and does not buy: validating here helps
 // the person typing (a typo means a reply they never get), but it turns away no
@@ -191,7 +191,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
   //
   // It used to be the field id alone: the input got aria-invalid and focus, and
   // the explanation went to a toast. A screen-reader user landing on the field
-  // was told it was invalid and not why — the toast is a separate live region
+  // was told it was invalid and not why: the toast is a separate live region
   // with no relationship to the input, and it disappears. WCAG 3.3.1 wants the
   // error identified in text; 3.3.3 wants the suggestion available.
   const [fieldError, setFieldError] = useState<{ field: string; message: string } | null>(null);
@@ -300,7 +300,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
       document.getElementById(field)?.focus();
     };
 
-    // Field-level validation — each failure says exactly what's wrong and puts
+    // Field-level validation: each failure says exactly what's wrong and puts
     // focus on the offending field. We validate the TRIMMED value and mirror the
     // Lambda schema so the client never rejects anything the server would accept
     // (or vice versa). See findControlChars + the *_MAX/*_MIN constants above.
@@ -309,7 +309,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
     const role = formData.role.trim();
     const message = formData.message.trim();
 
-    // Required fields first — focus the first empty one.
+    // Required fields first: focus the first empty one.
     if (!name || !email || !message) {
       failField(
         !name ? "name" : !email ? "email" : "message",
@@ -352,8 +352,8 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
     }
     // A domain typo is syntactically valid, so it can only be raised as a
     // question. Blocking the first attempt and letting the second through keeps
-    // the check from ever permanently refusing a real address the server accepts
-    // — somebody genuinely at an unusual domain just presses send again.
+    // the check from ever permanently refusing a real address the server accepts:
+    // somebody genuinely at an unusual domain just presses send again.
     const suggestion = suggestEmailDomain(email);
     if (suggestion && typoAcknowledged !== email) {
       setTypoAcknowledged(email);
@@ -396,7 +396,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
     try {
       // The server derives the minimum-completion-time check from the Turnstile
       // token's `challenge_ts` (it can't trust a client clock), so no separate
-      // "renderedAt" timestamp is sent — only the token.
+      // "renderedAt" timestamp is sent, only the token.
       const body = JSON.stringify({
         name: formData.name,
         email: formData.email,
@@ -406,8 +406,8 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
         turnstileToken, // key must match the Lambda schema (index.mjs ALLOWED_KEYS)
       });
 
-      // Measure what we are ACTUALLY about to send — the encoded payload,
-      // including the ~2 KB Turnstile token — against the server's byte cap, so
+      // Measure what we are ACTUALLY about to send (the encoded payload,
+      // including the ~2 KB Turnstile token) against the server's byte cap, so
       // the user is told before submitting rather than getting an opaque 413.
       const bodyBytes = new TextEncoder().encode(body).length;
       if (bodyBytes > MAX_BODY_BYTES) {
@@ -445,7 +445,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
           signal: controller.signal,
         });
       } finally {
-        // Always clear it — a resolved fetch would otherwise leave a pending
+        // Always clear it: a resolved fetch would otherwise leave a pending
         // timer that fires abort() on an already-settled request.
         clearTimeout(timer);
       }
@@ -462,7 +462,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
 
       // NEVER show `data.error` to the user. Every non-2xx value the Lambda
       // returns is a machine code ("invalid", "forbidden", "too_large",
-      // "rate_limited", "delivery"), not prose — so `data.error || t\`...\``
+      // "rate_limited", "delivery"), not prose, so `data.error || t\`...\``
       // meant the localized fallback was DEAD on every real API error and a
       // German or Japanese visitor got a bare English token. The code is useful
       // for debugging, so it goes to the console.
@@ -512,14 +512,14 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
       // Reaching here means no response was ever read, which is NOT the same as
       // the message having failed. The request may have arrived, passed all ten
       // controls and been handed to SES, with only the reply lost on the way
-      // back — SES has accepted every send this endpoint has ever attempted, so
+      // back: SES has accepted every send this endpoint has ever attempted, so
       // a dropped response is the likelier reading of the two. Claiming "failed
       // to send" here told people their message was gone when it had in fact
       // been delivered, and invited a duplicate they did not need to send.
       //
       // So: say what is actually known, and steer away from an immediate retry
       // rather than towards one. The typed message is deliberately left in the
-      // form — it is the visitor's only copy.
+      // form: it is the visitor's only copy.
       console.error("Form submission error:", error, { timedOut });
       toast.warning(
         t`I could not confirm whether your message went through — it may already have arrived. Please wait a moment before trying again, or email me directly.`,
@@ -585,7 +585,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                   />
                   {errorFor("name") && (
                     // role="alert" so the reason is announced on failure, and the id is
-                    // what aria-describedby above points at — so a screen reader reads the
+                    // what aria-describedby above points at, so a screen reader reads the
                     // reason WITH the field instead of only "invalid".
                     <p id="name-error" role="alert" className="mt-2 text-sm text-destructive">
                       {errorFor("name")}
@@ -613,7 +613,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                   />
                   {errorFor("email") && (
                     // role="alert" so the reason is announced on failure, and the id is
-                    // what aria-describedby above points at — so a screen reader reads the
+                    // what aria-describedby above points at, so a screen reader reads the
                     // reason WITH the field instead of only "invalid".
                     <p id="email-error" role="alert" className="mt-2 text-sm text-destructive">
                       {errorFor("email")}
@@ -639,7 +639,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                   />
                   {errorFor("role") && (
                     // role="alert" so the reason is announced on failure, and the id is
-                    // what aria-describedby above points at — so a screen reader reads the
+                    // what aria-describedby above points at, so a screen reader reads the
                     // reason WITH the field instead of only "invalid".
                     <p id="role-error" role="alert" className="mt-2 text-sm text-destructive">
                       {errorFor("role")}
@@ -664,7 +664,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                   />
                   {errorFor("message") && (
                     // role="alert" so the reason is announced on failure, and the id is
-                    // what aria-describedby above points at — so a screen reader reads the
+                    // what aria-describedby above points at, so a screen reader reads the
                     // reason WITH the field instead of only "invalid".
                     <p id="message-error" role="alert" className="mt-2 text-sm text-destructive">
                       {errorFor("message")}

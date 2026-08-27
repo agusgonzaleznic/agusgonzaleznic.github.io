@@ -11,7 +11,7 @@ import { SITE_URL } from "@/lib/site";
 
 // Hand-rolled Storyblok richtext → React walker. Zero dependencies, pure and
 // synchronous, so it runs identically under renderToString (prerender) and in
-// the browser. Monochrome code blocks by design — syntax highlighting is a
+// the browser. Monochrome code blocks by design: syntax highlighting is a
 // possible future enhancement, deliberately skipped to avoid a heavy dep.
 
 interface Ctx {
@@ -237,7 +237,7 @@ const renderNode = (node: RichtextNode, key: number, ctx: Ctx): ReactNode => {
               // The prose column is `max-w-[70ch]`, which is font-relative and
               // cannot be pinned to a px constant the way the cover's max-w-3xl
               // can. 65ch of the body face measures ~640px, so this is an
-              // ESTIMATE that errs slightly large — a too-large `sizes` costs
+              // ESTIMATE that errs slightly large: a too-large `sizes` costs
               // bandwidth, a too-small one costs sharpness.
               return srcSet ? { srcSet, sizes: "(min-width: 688px) 640px, calc(100vw - 48px)" } : {};
             })()}
@@ -290,7 +290,7 @@ const minHeadingLevel = (node: RichtextNode): number => {
 export const RichText = ({ document: doc }: { document: RichtextNode | null }) => {
   if (!doc?.content?.length) return null;
   // The article <h1> comes from the page, so the body's top heading level
-  // should be h2. CMS content is often authored at h3 — shift the whole
+  // should be h2. CMS content is often authored at h3. Shift the whole
   // document so its outline never skips from h1 to h3.
   const min = minHeadingLevel(doc);
   const ctx: Ctx = {

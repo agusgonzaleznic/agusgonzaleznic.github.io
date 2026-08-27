@@ -7,7 +7,7 @@ import type { PageBlock } from "@/lib/pages";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
 // The H1 stays in code (a single headline with load-bearing inline emphasis
-// spans + underline-squiggle, translated as ONE reorderable unit via <Trans> —
+// spans + underline-squiggle, translated as ONE reorderable unit via <Trans>;
 // decomposing it into CMS fields would break the exact non-English rendering).
 // Everything else in the hero is CMS-managed. Industries are NOT translated
 // (loanword-ish labels, identical in every locale).
@@ -68,7 +68,7 @@ export const Hero = ({ block }: { block?: HeroBlock }) => {
                   Lead an Engineering Org That{" "}
                   <span className="text-gradient-accent">Ships, Scales,</span>{" "}
                   {/* The underline is a squiggle BACKGROUND on this wrapper (not a
-                      child SVG of the gradient text — background-clip:text would
+                      child SVG of the gradient text; background-clip:text would
                       clip it away in Chrome) with box-decoration-break:clone, so
                       it underlines every wrapped line. That is what lets a long
                       translated clause wrap without overflowing the column AND
@@ -90,7 +90,7 @@ export const Hero = ({ block }: { block?: HeroBlock }) => {
               {/* Booking lives in the nav bar (desktop CTA / mobile sticky CTA),
                   so the hero keeps a single outline action pointing at Services.
                   A real (locale-aware) link, not a JS button: crawlable href,
-                  cmd/middle-click work — it's the hero's only action. */}
+                  cmd/middle-click work. It's the hero's only action. */}
               <div className="pt-4">
                 <Button
                   asChild

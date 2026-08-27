@@ -5,7 +5,7 @@ import type { MessageDescriptor } from "@lingui/core";
 import type { PageBlock } from "@/lib/pages";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING_STACKED } from "@/lib/layout";
 
-// Composite scenarios, not client quotes — coaching is confidential, and real
+// Composite scenarios, not client quotes: coaching is confidential, and real
 // endorsements will only ever appear with a client's explicit sign-off.
 // Hardcoded fallback + seed source for Storyblok.
 const DEFAULT_ENGAGEMENTS: { role: MessageDescriptor; context: MessageDescriptor; sketch: MessageDescriptor }[] = [

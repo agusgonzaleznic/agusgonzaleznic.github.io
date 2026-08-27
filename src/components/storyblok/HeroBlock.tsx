@@ -61,7 +61,7 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
             <div className="space-y-8 animate-fade-in-up">
               <h1 className="text-fluid-4xl font-bold leading-tight">
                 {/* Squiggle underline as a wrapping-safe background (box-decoration-
-                    break:clone) around the gradient text — not a child SVG, which
+                    break:clone) around the gradient text, not a child SVG, which
                     background-clip:text would clip in Chrome, and not an absolute
                     SVG, which only underlines the last line when the title wraps.
                     See .underline-squiggle. */}

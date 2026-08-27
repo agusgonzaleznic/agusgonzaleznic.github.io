@@ -51,7 +51,7 @@ const serverPages: RoutePages = {
 // renderToString. English is preloaded + activated by ./i18n/i18n; for a
 // prefixed locale the prerender loop `await dynamicActivate(locale)` first (it
 // bundles/fetches that locale's catalog), then calls render with the same
-// locale — the activate() here is the synchronous, defensive re-assertion so a
+// locale. The activate() here is the synchronous, defensive re-assertion so a
 // single-arg render(path) call still behaves identically to English.
 export function render(url: string, locale: string = SOURCE_LOCALE) {
   i18n.activate(locale);
@@ -63,7 +63,7 @@ export function render(url: string, locale: string = SOURCE_LOCALE) {
     </StaticRouter>,
   );
   // react-helmet's module-level singleton MUST be drained via renderStatic()
-  // after every renderToString — otherwise one route's head tags leak into the
+  // after every renderToString; otherwise one route's head tags leak into the
   // next route's render (and it leaks memory). Safe here because the prerender
   // loop is sequential and single-process.
   const helmet = Helmet.renderStatic();
@@ -71,8 +71,9 @@ export function render(url: string, locale: string = SOURCE_LOCALE) {
 }
 
 // Re-exported so the Node build scripts (scripts/prerender.mjs,
-// scripts/generate-feeds.mjs) read the locale config from ONE source of truth —
-// src/i18n — compiled into this bundle, instead of duplicating the list in .mjs.
+// scripts/generate-feeds.mjs) read the locale config from ONE source of
+// truth (src/i18n, compiled into this bundle) instead of duplicating the
+// list in .mjs.
 export { dynamicActivate } from "./i18n/i18n";
 export {
   PUBLISHED_LOCALES,

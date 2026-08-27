@@ -2,7 +2,7 @@
 //
 // This is the global `@lingui/core` singleton. The prerender loop (sequential,
 // single-process) activates a locale before each renderToString, and the client
-// activates once from the URL before hydrating — both pass THIS instance to
+// activates once from the URL before hydrating. Both pass THIS instance to
 // <I18nProvider>, so no i18n object ever crosses the SSR boundary (Lingui's
 // instance is intentionally non-serialisable).
 
