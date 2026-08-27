@@ -247,10 +247,14 @@ resource "aws_sns_topic_subscription" "alerts_relay" {
 }
 
 # ---- Dead-letter target for the relay ---------------------------------------
-# BEFORE THIS APPLIES: the deploy role has NO sqs grant. Nothing in
-# terraform/bootstrap/ matches /sqs/i, so aws_sqs_queue.alert_relay_dlq fails
-# CreateQueue with AccessDenied, the same way cloudfront:CreateCachePolicy did.
-# A bootstrap-tier change is a prerequisite here, not a follow-up.
+# ORDERING, AND WHY IT WAS TWO PRS. Nothing under terraform/bootstrap/ matched
+# /sqs/i, so aws_sqs_queue.alert_relay_dlq would have failed CreateQueue with
+# AccessDenied exactly as cloudfront:CreateCachePolicy did. PR #143 granted the
+# eight queue-lifecycle actions to the deploy role and sqs:SendMessage to the
+# lambda-exec boundary, and applied first. Measured after that apply: the eight
+# returned allowed, while sqs:SendMessage on the relay role still returned
+# implicitDeny because its own half lives here, which is the intersection doing
+# what it is supposed to. Keep that order for any future queue.
 #
 # WHY ANY OF THIS. The relay is the LAST hop, so nothing downstream notices it
 # failing. SNS retries the async invocation and then DISCARDS the message; the
@@ -335,6 +339,17 @@ resource "aws_lambda_function_event_invoke_config" "alert_relay" {
   # the tail without cutting a retry short. Same reasoning as the 512 MB above:
   # an alert that arrives late is an alert that did not arrive.
   maximum_event_age_in_seconds = 300
+
+  # PutFunctionEventInvokeConfig VALIDATES the destination against the function's
+  # execution role at configure time, so the role's sqs:SendMessage must already
+  # be written or the call is rejected with InvalidParameterValueException. Both
+  # resources reference only the queue, so without this edge Terraform is free to
+  # order the Put first, and the only thing standing between that and a failed
+  # apply is the provider's 2-minute IAM-propagation retry: a race, not a
+  # guarantee, and one that leaves the queue and the role policy already created
+  # when it loses. Identical reason to the depends_on on the SNS subscription
+  # above.
+  depends_on = [aws_iam_role_policy.alert_relay]
 }
 
 # THE CIRCULARITY, STATED PLAINLY. An alarm is what would make this queue
