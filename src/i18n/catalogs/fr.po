@@ -420,8 +420,8 @@ msgid "Faster Releases"
 msgstr "Des releases plus rapides"
 
 #: src/components/Impact.tsx
-msgid "FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap"
-msgstr "Une discipline FinOps couplée à des négociations fournisseurs sans concession — de l'argent réinjecté dans la roadmap"
+msgid "FinOps discipline plus hard-nosed vendor negotiations: money back into the roadmap"
+msgstr "Une discipline FinOps couplée à des négociations fournisseurs sans concession : de l'argent réinjecté dans la roadmap"
 
 #: src/components/Testimonials.tsx
 msgid "FinTech scale-up"
@@ -849,12 +849,12 @@ msgid "restriction of processing (Art. 18),"
 msgstr "limitation du traitement (art. 18),"
 
 #: src/components/Impact.tsx
-msgid "Results from teams I've led as an operator — the same playbooks we'll work from"
-msgstr "Les résultats obtenus par les équipes que j'ai dirigées en tant qu'opérateur — les mêmes playbooks à partir desquels nous allons travailler"
+msgid "Results from teams I've led as an operator, the same playbooks we'll work from"
+msgstr "Les résultats obtenus par les équipes que j'ai dirigées en tant qu'opérateur : les mêmes playbooks à partir desquels nous allons travailler"
 
 #: src/components/Impact.tsx
-msgid "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now."
-msgstr "Gestion de bout en bout de l'infrastructure et de la sécurité d'une plateforme Web3 — le nom de l'entreprise reste confidentiel pour l'instant."
+msgid "Running infrastructure and security end to end for a Web3 platform."
+msgstr "Gestion de bout en bout de l'infrastructure et de la sécurité d'une plateforme Web3."
 
 #: src/components/HowIWork.tsx
 msgid "Security by Default"
@@ -1024,8 +1024,8 @@ msgid "Too many requests. Please wait a moment, or email me directly."
 msgstr "Trop de requêtes. Patiente un instant, ou écris-moi directement par e-mail."
 
 #: src/components/Impact.tsx
-msgid "Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event"
-msgstr "Trunk-based development, CI/CD et GitOps — livrer est devenu une routine, plus un événement"
+msgid "Trunk-based development, CI/CD, and GitOps: releasing became routine, not an event"
+msgstr "Trunk-based development, CI/CD et GitOps : livrer est devenu une routine, plus un événement"
 
 #: src/components/Testimonials.tsx
 msgid "Typical Engagements"

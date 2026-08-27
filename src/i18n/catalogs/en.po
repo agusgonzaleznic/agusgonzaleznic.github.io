@@ -422,8 +422,8 @@ msgid "Faster Releases"
 msgstr "Faster Releases"
 
 #: src/components/Impact.tsx
-msgid "FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap"
-msgstr "FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap"
+msgid "FinOps discipline plus hard-nosed vendor negotiations: money back into the roadmap"
+msgstr "FinOps discipline plus hard-nosed vendor negotiations: money back into the roadmap"
 
 #: src/components/Testimonials.tsx
 msgid "FinTech scale-up"
@@ -851,12 +851,12 @@ msgid "restriction of processing (Art. 18),"
 msgstr "restriction of processing (Art. 18),"
 
 #: src/components/Impact.tsx
-msgid "Results from teams I've led as an operator — the same playbooks we'll work from"
-msgstr "Results from teams I've led as an operator — the same playbooks we'll work from"
+msgid "Results from teams I've led as an operator, the same playbooks we'll work from"
+msgstr "Results from teams I've led as an operator, the same playbooks we'll work from"
 
 #: src/components/Impact.tsx
-msgid "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now."
-msgstr "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now."
+msgid "Running infrastructure and security end to end for a Web3 platform."
+msgstr "Running infrastructure and security end to end for a Web3 platform."
 
 #: src/components/HowIWork.tsx
 msgid "Security by Default"
@@ -1026,8 +1026,8 @@ msgid "Too many requests. Please wait a moment, or email me directly."
 msgstr "Too many requests. Please wait a moment, or email me directly."
 
 #: src/components/Impact.tsx
-msgid "Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event"
-msgstr "Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event"
+msgid "Trunk-based development, CI/CD, and GitOps: releasing became routine, not an event"
+msgstr "Trunk-based development, CI/CD, and GitOps: releasing became routine, not an event"
 
 #: src/components/Testimonials.tsx
 msgid "Typical Engagements"
