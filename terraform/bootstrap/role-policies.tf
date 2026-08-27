@@ -122,6 +122,33 @@ data "aws_iam_policy_document" "cloudfront" {
     resources = ["arn:aws:cloudfront::${local.account_id}:response-headers-policy/*"]
   }
 
+  # Cache-policy lifecycle. The site defines its own cache policy so /assets/*
+  # and /fonts/* are pinned at the EDGE for a year: the managed
+  # CachingOptimized policy honours the origin's Cache-Control, and the origin
+  # is GitHub Pages sending max-age=600, so without this the edge expired those
+  # paths every 10 minutes while telling browsers a year.
+  #
+  # Mirrors CloudFrontManageResponseHeadersPolicies above, including its
+  # tradeoff: Create cannot be scoped to a policy ID that does not exist yet, so
+  # cache-policy/* is unavoidable. That is the ARN CloudFront itself authorises
+  # CreateCachePolicy against.
+  #
+  # Read-only GetCachePolicy/ListCachePolicies already live in
+  # CloudFrontUnscopedReads below, because the MANAGED-policy data sources need
+  # them; those are unscoped and stay there.
+  statement {
+    sid    = "CloudFrontManageCachePolicies"
+    effect = "Allow"
+    actions = [
+      "cloudfront:CreateCachePolicy",
+      "cloudfront:DeleteCachePolicy",
+      "cloudfront:GetCachePolicy",
+      "cloudfront:GetCachePolicyConfig",
+      "cloudfront:UpdateCachePolicy",
+    ]
+    resources = ["arn:aws:cloudfront::${local.account_id}:cache-policy/*"]
+  }
+
   # cloudfront:List* actions and GetCachePolicy (used by the managed
   # cache-policy data source) do not support resource-level scoping;
   # Resource:* is unavoidable here and limited to read-only List/Get.
