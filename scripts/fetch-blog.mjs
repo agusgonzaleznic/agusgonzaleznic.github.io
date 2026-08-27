@@ -1,8 +1,8 @@
 // Build-time Storyblok fetch. Runs before `vite build` (and before `vite` dev via
 // predev) so src/generated/blog-data.json always exists when the app imports it.
 //
-// SECURITY: reads process.env.STORYBLOK_PUBLIC_TOKEN — never import.meta.env or a
-// VITE_-prefixed var — so the token cannot reach the client bundle. The fetched
+// SECURITY: reads process.env.STORYBLOK_PUBLIC_TOKEN, never import.meta.env or a
+// VITE_-prefixed var, so the token cannot reach the client bundle. The fetched
 // content is public and safe to bake in.
 
 import { writeFileSync, mkdirSync, readFileSync, readdirSync, rmSync, existsSync } from "node:fs";
@@ -19,6 +19,7 @@ import {
   saveCache,
   SOURCE_LOCALE,
 } from "./lib/deepl.mjs";
+import { cacheOnlyMode, reportTranslationBudget } from "./lib/i18n-budget.mjs";
 import { createPostEditor, hasAnthropicKey, POSTEDIT_VERSION } from "./lib/llm-postedit.mjs";
 import { blogDataFilename, translateStories } from "./lib/richtext-translate.mjs";
 import {
@@ -47,7 +48,7 @@ const token = process.env.STORYBLOK_PUBLIC_TOKEN;
 // draft override is for local preview builds only (requires a preview token).
 const version = process.env.STORYBLOK_VERSION === "draft" ? "draft" : "published";
 // The PR CI workflow (reusable vite-ci.yml) cannot receive secrets, so a
-// missing token only fails builds that opt in — deploy.yml sets
+// missing token only fails builds that opt in: deploy.yml sets
 // STORYBLOK_REQUIRE_TOKEN=1 so production can never ship an empty blog by
 // accident, while PR CI validates the empty-blog code path.
 const requireToken = process.env.STORYBLOK_REQUIRE_TOKEN === "1";
@@ -57,7 +58,7 @@ const requireToken = process.env.STORYBLOK_REQUIRE_TOKEN === "1";
 //
 // `body` is ~93% of every blog-data file (measured: 42,412 of 45,598 bytes for
 // English). The /blog index renders PostCard -> PostMeta, and the only body
-// consumer there is a word count for the reading estimate — so shipping six
+// consumer there is a word count for the reading estimate, so shipping six
 // locales of full article richtext to open the index cost 64 KB brotli for one
 // integer per post.
 //
@@ -70,7 +71,7 @@ const requireToken = process.env.STORYBLOK_REQUIRE_TOKEN === "1";
 // ---------------------------------------------------------------------------
 
 /** Concatenated plain text of a richtext subtree. Mirrors extractText in
- *  src/lib/blog.ts — same traversal, same join, so the baked reading_minutes
+ *  src/lib/blog.ts uses the same traversal and the same join, so the baked reading_minutes
  *  reproduces what readingTime() rendered before this split. */
 function richtextText(node) {
   if (!node) return "";
@@ -112,7 +113,7 @@ function writeOutput(posts) {
  *
  * src/generated is gitignored but NOT ephemeral outside CI, and nothing used to
  * clear it. A build that lost its Storyblok token (or DeepL) wrote an empty
- * English corpus and left the previous run's blog-data.<locale>.json in place —
+ * English corpus and left the previous run's blog-data.<locale>.json in place,
  * so prerender emitted no article pages while the locale blog indexes still
  * listed every article and linked to them. 15 links to pages that no longer
  * existed, and the build stayed green. (The broken-link assertion in
@@ -142,7 +143,7 @@ function pruneLocaleData(keep) {
 // Two policies (see scripts/lib/blog-gate.mjs), gated on PUBLISHED_LOCALES:
 //   - Review-gated locales (DE/ES): served VERBATIM from committed reviewed
 //     content (content/translations/<uuid>.<locale>.json) for approved+fresh
-//     posts only. No translation, no API key needed — fully deterministic.
+//     posts only. No translation, no API key needed, fully deterministic.
 //   - Auto locales (FR/IT/PT): translated at build via DeepL (+ optional LLM
 //     post-edit). KEYLESS → skipped, so those files fall back to English.
 // English (blog-data.json) is written by writeOutput() before this runs; each
@@ -151,7 +152,7 @@ function pruneLocaleData(keep) {
 // A reviewed translation file is a frozen snapshot: it holds the correct
 // TRANSLATED text but its GLOBAL, non-translated fields (tags, cover image,
 // dates, urls) are stale if the story changed after review. Always take those
-// from the CURRENT English story so every locale — reviewed or auto — stays in
+// from the CURRENT English story so every locale, reviewed or auto, stays in
 // sync. (tag_list is global in Storyblok: one set of tags shared by all locales.)
 function withCurrentGlobals(reviewedObj, post) {
   return {
@@ -178,7 +179,7 @@ function localizePostTags(arr, locale, tagMap) {
   if (missing.size) {
     console.warn(
       `  ⚠ fetch-blog: ${locale} tags with no translation (English fallback): ${[...missing].join(", ")} ` +
-        "— run the importer or edit content/tag-translations.json",
+        "run the importer or edit content/tag-translations.json",
     );
   }
 }
@@ -197,7 +198,7 @@ async function translateBlog(posts) {
       if (!post.approved_locales.includes(locale)) continue;
       const file = resolve(reviewedDir, `${post.uuid}.${locale}.json`);
       if (!existsSync(file)) {
-        // Approved in the manifest but the reviewed content is missing — fail
+        // Approved in the manifest but the reviewed content is missing, so fail
         // loud rather than silently drop a supposedly-approved translation.
         throw new Error(
           `fetch-blog: ${post.uuid} is approved for "${locale}" but ${file} is missing.`,
@@ -218,13 +219,20 @@ async function translateBlog(posts) {
 
   // Auto locales (FR/IT/PT): translate at build time.
   const targets = published.filter((l) => AUTO_LOCALES.includes(l));
-  if (posts.length === 0 || targets.length === 0 || !hasApiKey()) {
+  // Cache-only still has to walk every string, because answering them from the
+  // committed cache is exactly what it is for. Taking the keyless early return
+  // here would report zero misses and then render English.
+  const cacheOnly = cacheOnlyMode();
+  if (posts.length === 0 || targets.length === 0 || (!hasApiKey() && !cacheOnly)) {
     if (posts.length > 0 && targets.length > 0 && !hasApiKey()) {
       console.log(
-        "  fetch-blog: DEEPL_API_KEY not set — skipping auto blog translation (FR/IT/PT fall back to English).",
+        "  fetch-blog: DEEPL_API_KEY not set, skipping auto blog translation (FR/IT/PT fall back to English).",
       );
     }
     return;
+  }
+  if (cacheOnly) {
+    console.log("  fetch-blog: cache-only, no paid translation call will be made.");
   }
   const cache = loadCache(cachePath);
   // REGEN_LOCALES=fr,it,pt drops those locales' cached blog strings so they are
@@ -235,15 +243,19 @@ async function translateBlog(posts) {
   }
   const glossaryRegex = loadGlossary(glossaryPath);
   // Optional LLM post-edit pass (ANTHROPIC_API_KEY). Keyless → raw DeepL only.
-  const postEditor = hasAnthropicKey()
+  const postEditor = hasAnthropicKey() && !cacheOnly
     ? createPostEditor({ apiKey: process.env.ANTHROPIC_API_KEY.trim(), glossaryTerms: loadGlossaryTerms(glossaryPath) })
     : null;
   const translator = createTranslator({
-    apiKey: process.env.DEEPL_API_KEY.trim(),
+    apiKey: (process.env.DEEPL_API_KEY ?? "").trim(),
     glossaryRegex,
     cache,
     postEditor,
-    cacheSalt: postEditor ? POSTEDIT_VERSION : "",
+    // The committed cache was written by deploy builds, which always have
+    // ANTHROPIC_API_KEY and so always salt with POSTEDIT_VERSION. A cache-only
+    // run must use the SAME salt or every single string would miss.
+    cacheSalt: postEditor || cacheOnly ? POSTEDIT_VERSION : "",
+    cacheOnly,
   });
   // A human-reviewed file (from scripts/review-translations.mjs) overrides the
   // machine translation for ANY locale when it's approved + hash-fresh; otherwise
@@ -272,17 +284,18 @@ async function translateBlog(posts) {
     );
   }
   // DeepL quota fallback: if DeepL ran out mid-build, the strings above were
-  // translated by Claude instead (no build failure) — surface it loudly.
+  // translated by Claude instead (no build failure), so surface it loudly.
   if (translator.stats.deeplExhausted) {
-    const notice = await deeplQuotaNotice(process.env.DEEPL_API_KEY.trim());
+    const notice = await deeplQuotaNotice((process.env.DEEPL_API_KEY ?? "").trim());
     console.log(`::warning title=DeepL quota exhausted::${notice}`);
     console.warn(`⚠ fetch-blog: ${notice} (${translator.stats.claudeFromScratch} string(s) translated by Claude)`);
   }
-  saveCache(cachePath, cache);
+  reportTranslationBudget("fetch-blog", translator.stats);
+  if (!cacheOnly) saveCache(cachePath, cache);
   if (postEditor) {
     const { postEdited, keptMt, failures } = postEditor.stats;
     console.log(
-      `✓ fetch-blog: LLM post-edit — ${postEdited} refined, ${keptMt} kept as raw DeepL` +
+      `✓ fetch-blog: LLM post-edit: ${postEdited} refined, ${keptMt} kept as raw DeepL` +
         `${failures ? `, ${failures} call(s) failed` : ""}.`,
     );
   }
@@ -304,7 +317,7 @@ if (!token) {
   // ZERO articles: 66 pages instead of 84. Nothing on a PR ever exercised an
   // article page, the per-article language switcher, an hreflang cluster, RSS
   // item content, or the assertion that no emitted page links to an unemitted
-  // path. All of that was first exercised at deploy time — on main, after merge.
+  // path. All of that was first exercised at deploy time, on main, after merge.
   //
   // A fixture buys that coverage without putting a secret anywhere near a PR
   // build, which matters: pasting a token into the reusable workflow's
@@ -345,14 +358,14 @@ if (!token) {
       writeClientSplit(locale, localized);
     }
     console.log(
-      `✓ fetch-blog: FIXTURE corpus — ${posts.length} post(s), locales [${localesToWrite.join(", ")}].` +
+      `✓ fetch-blog: FIXTURE corpus: ${posts.length} post(s), locales [${localesToWrite.join(", ")}].` +
         " No Storyblok token in this build; this is not real content.",
     );
     process.exit(0);
   }
 
   console.warn(
-    "\n⚠ fetch-blog: STORYBLOK_PUBLIC_TOKEN not set — writing empty blog data.\n" +
+    "\n⚠ fetch-blog: STORYBLOK_PUBLIC_TOKEN not set, writing empty blog data.\n" +
       "  The blog will be EMPTY in this build (expected for tokenless local builds).\n",
   );
   pruneLocaleData([]);
@@ -371,7 +384,7 @@ try {
       process.exit(1);
     }
     console.warn(
-      "⚠ fetch-blog: token is set but 0 published posts found under blog/ — writing empty blog data.",
+      "⚠ fetch-blog: token is set but 0 published posts found under blog/, writing empty blog data.",
     );
   }
 
@@ -384,7 +397,7 @@ try {
     post.approved_locales = approvedLocalesFor(post, approvals, publishedLocales, SOURCE_LOCALE);
   }
 
-  // Drop locale data this run will not regenerate — e.g. a locale removed from
+  // Drop locale data this run will not regenerate, e.g. a locale removed from
   // PUBLISHED_LOCALES, or one whose last approval was withdrawn. The union of
   // approved_locales is exactly what translateBlog is about to write.
   pruneLocaleData(
