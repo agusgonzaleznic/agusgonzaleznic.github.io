@@ -13,7 +13,7 @@ export const Footer = () => {
   // space on mobile so the fixed CTA sits in that gap instead of covering the
   // language switcher at the very bottom of the footer. The server snapshot is
   // false so the prerendered HTML carries no extra padding and hydration
-  // matches — mirrors how CookieNotice consumes this store.
+  // matches, mirroring how CookieNotice consumes this store.
   const ctaVisible = useSyncExternalStore(
     subscribeStickyCtaVisible,
     getStickyCtaVisible,
@@ -21,7 +21,7 @@ export const Footer = () => {
   );
 
   // Each section is its own route now, so every quick link is a locale-aware
-  // <LocaleLink> that navigates client-side (no reload) — bare paths, no /#hash.
+  // <LocaleLink> that navigates client-side (no reload): bare paths, no /#hash.
   const quickLinks: { label: string; to: string }[] = [
     { label: t`About`, to: "/about" },
     { label: t`Philosophy`, to: "/philosophy" },
@@ -129,7 +129,7 @@ export const Footer = () => {
                 <LocaleLink to="/impressum" className="hover:text-accent transition-colors">
                   <Trans>Impressum</Trans>
                 </LocaleLink>
-                {/* Crawlable locale links — renders nothing until >=2 locales
+                {/* Crawlable locale links: renders nothing until >=2 locales
                     are published, so the English DOM is unchanged today. */}
                 <LanguageSwitcher />
               </div>

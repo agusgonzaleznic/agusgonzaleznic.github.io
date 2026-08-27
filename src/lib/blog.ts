@@ -26,7 +26,7 @@ export interface BlogPost {
   title: string;
   excerpt: string;
   // NOTE: no `body`. It lives in blog-body.<locale>.json and is read through
-  // src/lib/blog-body.ts on the article route only — see postCorpusLocale below.
+  // src/lib/blog-body.ts on the article route only. See postCorpusLocale below.
   // Keeping a null-valued field here would let a caller read post.body and get
   // silence instead of a type error.
   cover_image: BlogImage | null;
@@ -42,7 +42,7 @@ export interface BlogPost {
   uuid?: string;
   /**
    * Locales this article is actually EMITTED in, baked by fetch-blog.mjs from
-   * scripts/lib/blog-gate.mjs. Absent/empty means "no restriction recorded" —
+   * scripts/lib/blog-gate.mjs. Absent/empty means "no restriction recorded";
    * see getAllPosts.
    */
   approved_locales?: string[];
@@ -93,7 +93,7 @@ const normalize = (p: Partial<BlogPost>): BlogPost => ({
   tag_list: Array.isArray(p.tag_list) ? p.tag_list : [],
   approved_locales: Array.isArray(p.approved_locales) ? p.approved_locales : [],
   // Baked at build time. Defaulted here rather than only on the interface,
-  // because every consumer receives normalize()d objects — a field added to the
+  // because every consumer receives normalize()d objects. A field added to the
   // type alone would be undefined at runtime for all of them.
   reading_minutes: Math.max(1, p.reading_minutes ?? 1),
   uuid: p.uuid ?? "",
@@ -117,7 +117,7 @@ export function toIsoUtc(date: string | null | undefined): string {
 
 // Per-locale long month names + date order. Deterministic string surgery (no
 // Intl) so prerender (Node) and client (browser) always produce byte-identical
-// output — hydration-safe and timezone-independent, unlike Intl.DateTimeFormat
+// output: hydration-safe and timezone-independent, unlike Intl.DateTimeFormat
 // whose result can vary with the runtime's ICU version.
 const MONTHS: Record<string, string[]> = {
   en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -152,7 +152,7 @@ export function formatDate(date: string | null | undefined, locale: string = SOU
  * Is this article published in `locale`?
  *
  * An EMPTY/absent `approved_locales` means no restriction was recorded, and it
- * must NOT hide the post — that mirrors prerender.mjs, whose emission loop is
+ * must NOT hide the post: that mirrors prerender.mjs, whose emission loop is
  * `if (route.approvedLocales && !route.approvedLocales.includes(locale))`. The
  * two consumers agreeing matters more than either policy on its own: if they
  * disagreed, one would emit a page the other refuses to link, or link a page
@@ -167,8 +167,8 @@ export function getAllPosts(locale: string = SOURCE_LOCALE): BlogPost[] {
     .map(normalize)
     .filter((p) => p.slug && p.title)
     // Only articles that actually have a page in this locale. Without this the
-    // locale index listed the English fallback for every article — rawFor()
-    // falls back to blog-data.json when blog-data.<locale>.json is absent — so
+    // locale index listed the English fallback for every article (rawFor()
+    // falls back to blog-data.json when blog-data.<locale>.json is absent), so
     // holding a locale (AUTO_LOCALE_MODE="hold", or a withdrawn DE/ES approval)
     // left /{locale}/blog advertising PostCards that linked to pages prerender
     // had deliberately not emitted. Every one of those links was a 404.
@@ -180,7 +180,7 @@ export function getAllPosts(locale: string = SOURCE_LOCALE): BlogPost[] {
  * Which corpus supplied getPost(slug, locale)'s result.
  *
  * The body now lives in a separate file per locale, so the body lookup has to
- * resolve to the SAME corpus the post came from — otherwise the deliberate
+ * resolve to the SAME corpus the post came from; otherwise the deliberate
  * English fallback below (a locale with no approved variant still shows the
  * English article rather than a blank) would render an article with no text.
  * This mirrors rawFor() + getPost() exactly rather than re-deriving the rule.

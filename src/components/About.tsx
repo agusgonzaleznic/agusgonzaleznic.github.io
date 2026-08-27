@@ -5,7 +5,7 @@ import profileImage from "@/assets/profile.jpg";
 import type { PageBlock } from "@/lib/pages";
 import { SECTION_PADDING } from "@/lib/layout";
 
-// Hardcoded fallback — also the seed source for Storyblok. The profile photo is a
+// Hardcoded fallback, also the seed source for Storyblok. The profile photo is a
 // design asset (kept in code, same hashed URL as the hero); only its ALT is CMS
 // content. Heading/footnote fall back to their inline <Trans>; the paragraphs are
 // a list, so they fall back through these descriptors.

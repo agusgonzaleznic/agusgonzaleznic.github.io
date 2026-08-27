@@ -14,7 +14,7 @@ const COVER_WIDTHS = [640, 768, 1024, 1280, 1536];
 
 // The column is min(100vw - 48px, 768px): .max-w-3xl is 48rem = 768px and the
 // container adds px-6 (24px) each side, so the two cross at 816px. Verified
-// against the built CSS rather than inferred from the class names — px-6 wins
+// against the built CSS rather than inferred from the class names: px-6 wins
 // over .container's own 2rem padding there, and the container has no md/lg
 // max-width step.
 const COVER_SIZES = "(min-width: 816px) 768px, calc(100vw - 48px)";

@@ -16,7 +16,7 @@ const FaqPage = ({ previewContent }: PagePreviewProps) => {
 
   // FAQPage schema built from the SAME resolved Q&A the accordion renders (CMS
   // block or hardcoded fallback), so the structured data matches the visible
-  // answers in the active locale — no cloaking. @id stays the site-global id.
+  // answers in the active locale (no cloaking). @id stays the site-global id.
   const faqPageLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",

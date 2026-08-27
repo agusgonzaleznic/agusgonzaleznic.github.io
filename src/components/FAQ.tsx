@@ -13,7 +13,7 @@ export const FAQ = ({ block }: { block?: FaqBlock }) => {
   if (block?.show_section === false) return null;
   const items = resolveFaqs(block, i18n);
   return (
-    // Tinted bloom (see the plain/tinted alternation convention) — the /faq
+    // Tinted bloom (see the plain/tinted alternation convention): the /faq
     // page's single section reads better tinted between the plain nav/footer.
     <section id="faq" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
       <div className="container px-6">
@@ -32,7 +32,7 @@ export const FAQ = ({ block }: { block?: FaqBlock }) => {
             {items.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
                 <AccordionTrigger
-                  // Directly under the page <h1>, so h2 — Radix defaults to h3 and
+                  // Directly under the page <h1>, so h2: Radix defaults to h3 and
                   // that skipped a level in the heading outline.
                   headingLevel={2}
                   className="text-left text-lg font-medium"

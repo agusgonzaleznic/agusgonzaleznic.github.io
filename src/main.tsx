@@ -6,7 +6,7 @@ import { dynamicActivate } from "./i18n/i18n";
 
 // NOTE: initStoryblok() is deliberately NOT called here. The Storyblok SDK and
 // its 15 registered block components are only needed by the /preview/* Visual
-// Editor route, which lazily imports StoryblokPage — and that module initialises
+// Editor route, which lazily imports StoryblokPage, and that module initialises
 // the SDK at its own module scope, before any of its hooks run. Initialising
 // eagerly here put @storyblok/react plus every block component into the entry
 // graph of all 85 prerendered pages for a code path the live site never takes
@@ -22,7 +22,7 @@ async function bootstrap() {
   await dynamicActivate(localeFromPath(window.location.pathname));
 
   // The home page is prerendered to static HTML at build time, so #root already
-  // contains server-rendered markup in production — hydrate it instead of
+  // contains server-rendered markup in production; hydrate it instead of
   // throwing it away. In dev (or any non-prerendered route) #root is empty, so
   // mount fresh.
   if (rootEl.hasChildNodes()) {

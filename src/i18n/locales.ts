@@ -1,7 +1,7 @@
 // Single source of truth for the site's locales.
 //
 // SEO/GEO model (fixed): English is the DEFAULT/SOURCE locale and lives at the
-// ROOT (`/`, `/blog/`, …) — it is the hreflang x-default and keeps the existing
+// ROOT (`/`, `/blog/`, …): it is the hreflang x-default and keeps the existing
 // URLs + authority. Every other locale is served under a path prefix
 // (`/de/`, `/es/blog/`, …).
 //
@@ -24,7 +24,7 @@ export type Locale = (typeof ALL_LOCALES)[number];
 
 /**
  * Display metadata. `name` is the language's endonym (used by the language
- * switcher). `dir` is the writing direction — all six are LTR today.
+ * switcher). `dir` is the writing direction; all six are LTR today.
  * `ogLocale` is the Open Graph locale code (og:locale) for each language, used
  * when localizing a prefixed page's head.
  */
@@ -46,7 +46,7 @@ export const PUBLISHED_LOCALES: readonly Locale[] = ["en", "de", "es", "fr", "it
 
 /**
  * Locales whose blog articles are machine-translated (DeepL + LLM), not natively
- * reviewed — so a disclosure notice is shown on those articles. DE/ES are
+ * reviewed, so a disclosure notice is shown on those articles. DE/ES are
  * human-gated (see scripts/lib/blog-gate.mjs) and carry no notice. Keep this in
  * sync with AUTO_LOCALES in scripts/lib/blog-gate.mjs (build side).
  */

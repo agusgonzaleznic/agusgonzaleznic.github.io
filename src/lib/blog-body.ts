@@ -23,7 +23,7 @@ const localeBodies = import.meta.glob<BodyMap>("../generated/blog-body.*.json", 
  * The body for `slug` from `corpusLocale`'s corpus.
  *
  * `corpusLocale` must be what postCorpusLocale() returned for the same
- * (slug, locale) — NOT the requested locale. getPost() deliberately falls back
+ * (slug, locale), NOT the requested locale. getPost() deliberately falls back
  * to the English article when a locale has no approved variant, and pairing that
  * post with a lookup keyed on the requested locale would render an article with
  * no text at all.

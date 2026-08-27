@@ -12,7 +12,7 @@ import { PUBLISHED_LOCALES, SOURCE_LOCALE } from "./i18n/locales";
 const queryClient = new QueryClient();
 
 // The page components used by the route table. Passed in so the CLIENT can use
-// lazy (code-split) chunks while the SERVER (prerender) uses eager imports —
+// lazy (code-split) chunks while the SERVER (prerender) uses eager imports:
 // renderToString must emit full markup synchronously. See entry-server.tsx.
 export type RoutePages = {
   Index: React.ComponentType;
@@ -72,12 +72,12 @@ const PreviewSlug = ({ Comp }: { Comp: React.ComponentType<{ slug?: string }> })
 //
 // <I18nProvider> supplies the shared Lingui instance (the global singleton from
 // ./i18n/i18n) to <Trans>/useLingui() consumers. It renders a Fragment (no DOM
-// node), so the markup is unaffected. The ACTIVE locale is not held here — it is
+// node), so the markup is unaffected. The ACTIVE locale is not held here; it is
 // activated on `i18n` before render/hydrate (server: prerender loop; client:
 // main.tsx), derived from the URL prefix so both sides agree.
 //
 // <Sonner> is the toast container the contact form pushes into (Contact.tsx uses
-// `toast()` from "sonner"). The Radix <Toaster>/<TooltipProvider> were removed —
+// `toast()` from "sonner"). The Radix <Toaster>/<TooltipProvider> were removed:
 // nothing rendered a toast via the Radix hook or a <Tooltip>, so they were dead
 // weight (and pulled @radix-ui/react-toast + react-tooltip into the vendor chunk).
 export const AppProviders = ({ children }: { children: React.ReactNode }) => (
@@ -103,20 +103,20 @@ const PREFIXED_LOCALES = PUBLISHED_LOCALES.filter((l) => l !== SOURCE_LOCALE);
 export const AppRoutes = ({ pages }: { pages: RoutePages }) => (
   <>
     {/* Scroll policy: top on new navigations, restore on back/forward,
-        state-based section scrolling, hash stripping. Effects only — inert
+        state-based section scrolling, hash stripping. Effects only, inert
         during prerender. */}
     <ScrollManager />
     <Suspense fallback={null}>
       <Routes>
         <Route path="/" element={<pages.Index />} />
-        {/* Marketing section pages — each its own indexable URL (SEO). */}
+        {/* Marketing section pages: each its own indexable URL (SEO). */}
         <Route path="/about" element={<pages.About />} />
         <Route path="/philosophy" element={<pages.Philosophy />} />
         <Route path="/services" element={<pages.Services />} />
         <Route path="/impact" element={<pages.Impact />} />
         <Route path="/faq" element={<pages.Faq />} />
         <Route path="/contact" element={<pages.Contact />} />
-        {/* Linktree — standalone shareable page, intentionally not in the nav. */}
+        {/* Linktree: standalone shareable page, intentionally not in the nav. */}
         <Route path="/links" element={<pages.Links />} />
         {/* Blog */}
         <Route path="/blog" element={<pages.Blog />} />

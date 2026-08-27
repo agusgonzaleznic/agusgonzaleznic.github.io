@@ -3,7 +3,7 @@ import { useEffect, type RefObject } from "react";
 // Focus management for the mobile-nav overlay.
 //
 // That panel is a plain `fixed inset-0` div rendered as a SIBLING of <nav>,
-// before <main> — so with it open, Tab walked straight out of the menu and into
+// before <main>, so with it open, Tab walked straight out of the menu and into
 // the page underneath, where the focus ring is invisible behind an opaque
 // backdrop. A keyboard user could not tell where they were, and there was no way
 // to close the menu without a pointer.
@@ -12,7 +12,7 @@ import { useEffect, type RefObject } from "react";
 // change the markup and visual behaviour of the menu for an accessibility fix,
 // and the requirement here is small and well-defined.
 //
-// NOTE: this cannot be unit-tested in this repo — there is no jsdom/React test
+// NOTE: this cannot be unit-tested in this repo; there is no jsdom/React test
 // setup, and adding one is a bigger change than the fix. It is verified
 // structurally (the dialog attributes appear in the built HTML) and by hand in a
 // browser. Stated plainly rather than implied.
@@ -48,7 +48,7 @@ export function useFocusTrap(
 
     const focusable = () =>
       Array.from(el.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-        // offsetParent is null for anything display:none — the language
+        // offsetParent is null for anything display:none. The language
         // switcher keeps its anchors in the DOM when collapsed, so they must not
         // be counted as trap boundaries.
         (n) => n.offsetParent !== null || n === document.activeElement,
@@ -88,7 +88,7 @@ export function useFocusTrap(
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      // Only restore if the element is still in the document — a locale switch
+      // Only restore if the element is still in the document: a locale switch
       // unmounts the whole tree.
       if (previouslyFocused && document.contains(previouslyFocused)) {
         previouslyFocused.focus();

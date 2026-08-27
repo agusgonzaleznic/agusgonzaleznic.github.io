@@ -18,7 +18,7 @@ import { localeFromPath } from "@/i18n/locales";
 //
 // Index stays a static (non-lazy) import: the home page is prerendered to static
 // HTML at build time (scripts/prerender.mjs), and renderToString can only emit
-// eagerly-imported components — a lazy one would render as an empty Suspense
+// eagerly-imported components: a lazy one would render as an empty Suspense
 // fallback and defeat the prerender.
 
 const Index = ({ previewContent }: PagePreviewProps) => {
@@ -33,7 +33,7 @@ const Index = ({ previewContent }: PagePreviewProps) => {
           another route (react-helmet never resets titles on its own). The
           ENGLISH text must stay byte-identical to the static head in
           index.html (prerender keeps the template head for "/", so a mismatch
-          would flash on hydration) — with Lingui, EN renders the msgid
+          would flash on hydration). With Lingui, EN renders the msgid
           verbatim, so that contract holds; prefixed locales get the
           translated head (prerender injects the same strings statically via
           localizeHomeHead, so the rendered head matches in every locale). */}

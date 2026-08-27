@@ -1,16 +1,16 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useLocation, useNavigationType } from "react-router-dom";
 
-// SPA scroll + URL-cleanliness policy (owner preference: bare paths only —
+// SPA scroll + URL-cleanliness policy (owner preference: bare paths only,
 // never a lingering #fragment; fragments are SEO-neutral, this is UX):
 //
-//  1. New navigations (PUSH/REPLACE) open at the top — without this the
+//  1. New navigations (PUSH/REPLACE) open at the top; without this the
 //     browser keeps the previous page's scroll offset, so entering the short
 //     blog from a deeply-scrolled home landed at the blog's very end.
 //  2. Back/forward (POP) restores that history entry's last scroll position
 //     (saved per location.key in sessionStorage, so it survives reloads).
-//  3. A hash that still arrives (external deep link) is honored — scroll to
-//     the target — then stripped from the address bar.
+//  3. A hash that still arrives (external deep link) is honored (scroll to
+//     the target), then stripped from the address bar.
 //
 // (Section links used to navigate with router state { scrollTo: id }; every
 // section is now its own route, so that path was removed.)
@@ -21,7 +21,7 @@ import { useLocation, useNavigationType } from "react-router-dom";
 // cleanup that reads scrollY would record the clamped value and corrupt the
 // old entry's saved position. Instead the listener saves continuously while
 // its entry is active; the listener swap and the restore both run in layout
-// effects — synchronously after commit, before paint and before the clamp's
+// effects: synchronously after commit, before paint and before the clamp's
 // (async) scroll event can be delivered to the wrong entry's listener.
 
 export type ScrollToState = { localeSwitch?: boolean } | null;
@@ -37,7 +37,7 @@ export const ScrollManager = () => {
   const navType = useNavigationType();
   // True only for the first render after a full document load (react-router
   // reports POP + reuses location.key "default" then, so we can't trust navType
-  // alone — see the restore effect).
+  // alone; see the restore effect).
   const isFirstRenderRef = useRef(true);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export const ScrollManager = () => {
         try {
           sessionStorage.setItem(keyFor(location.key), String(window.scrollY));
         } catch {
-          // storage blocked — restoration degrades to top; rule 1 still holds
+          // storage blocked: restoration degrades to top; rule 1 still holds
         }
       });
     };
@@ -76,7 +76,7 @@ export const ScrollManager = () => {
     const state = location.state as ScrollToState;
 
     // Language switch (LanguageSwitcher's client-side navigate): keep the reader
-    // exactly where they are — same layout, only the text language changed.
+    // exactly where they are: same layout, only the text language changed.
     // Clear the state so a later POP to this entry doesn't re-run this.
     if (state?.localeSwitch) {
       window.history.replaceState({ ...window.history.state, usr: null }, "");
@@ -96,7 +96,7 @@ export const ScrollManager = () => {
 
     // On the FIRST render (a full document load) react-router reports POP and
     // reuses location.key "default", so restoring by key would apply the
-    // PREVIOUS page's saved offset to this URL — that is exactly why a
+    // PREVIOUS page's saved offset to this URL. That is exactly why a
     // full-reload language switch (a real <a href> nav) dumped you at the bottom
     // of the new page. On a fresh navigation, open at the top; only restore for a
     // genuine reload or browser back/forward document load. In-session

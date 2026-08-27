@@ -1,4 +1,4 @@
-// Typed loader around the build-time Storyblok PAGE fetch output — the marketing
+// Typed loader around the build-time Storyblok PAGE fetch output, the marketing
 // analog of src/lib/blog.ts. src/generated/page-data.json is written by
 // scripts/fetch-pages.mjs (a plain JSON array of pages); per-locale
 // page-data.<locale>.json are written by the build-time translation step. Both
@@ -8,7 +8,7 @@
 //
 // SAFETY: when a page/locale is absent (e.g. tokenless PR CI, or a page not yet
 // authored in the CMS) getPageContent returns null and the calling component
-// falls back to its hardcoded copy — so the live design can never break.
+// falls back to its hardcoded copy, so the live design can never break.
 import pageData from "@/generated/page-data.json";
 import { SOURCE_LOCALE } from "@/i18n/locales";
 

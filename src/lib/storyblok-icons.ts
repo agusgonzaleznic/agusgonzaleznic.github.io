@@ -3,7 +3,7 @@
 // Storyblok stores an icon as a NAME (an option field limited to these keys) and
 // a color as a THEME key; the components resolve them here to the exact lucide
 // component and Tailwind class the hardcoded design used. New CMS content can
-// only pick from this set, so the design system stays closed — adding an option
+// only pick from this set, so the design system stays closed: adding an option
 // is a deliberate code change here + in the Storyblok schema (terraform).
 import {
   Lightbulb,

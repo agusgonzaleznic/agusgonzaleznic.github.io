@@ -5,7 +5,7 @@
 // whole feature is off and this module does nothing.
 //
 // Privacy contract: NOTHING is injected or requested until the visitor has
-// explicitly granted consent — the gtag.js script tag must not exist in the
+// explicitly granted consent: the gtag.js script tag must not exist in the
 // DOM at all while consent is absent or denied. Consent Mode v2 signals are
 // still defaulted to "denied" before the config call as defense in depth.
 
@@ -23,7 +23,7 @@ export const isAnalyticsConfigured = (): boolean => MEASUREMENT_ID !== "";
 // the banner re-asks next visit.
 let sessionConsent: AnalyticsConsent | null = null;
 
-// null = no decision (neither stored nor made this session) — callers must
+// null = no decision (neither stored nor made this session). Callers must
 // treat that as denied.
 export const getConsent = (): AnalyticsConsent | null => {
   try {
@@ -43,7 +43,7 @@ export const setConsent = (value: AnalyticsConsent | null): void => {
       localStorage.setItem(CONSENT_KEY, value);
     }
   } catch {
-    // Storage blocked — the decision lives only in sessionConsent above.
+    // Storage blocked: the decision lives only in sessionConsent above.
   }
 };
 
@@ -57,8 +57,8 @@ type Gtag = (...args: unknown[]) => void;
 
 let loaded = false;
 
-// gtag.js only processes pushes of the live `arguments` object — pushing a
-// plain array is silently ignored — so this must be a `function` using
+// gtag.js only processes pushes of the live `arguments` object (pushing a
+// plain array is silently ignored), so this must be a `function` using
 // `arguments`, not a rest-parameter spread.
 const gtag: Gtag = function () {
   // eslint-disable-next-line prefer-rest-params
@@ -74,7 +74,7 @@ export const loadAnalytics = (): void => {
   window.dataLayer = window.dataLayer ?? [];
 
   // Consent Mode v2: default every signal to denied, then grant only
-  // analytics_storage — the visitor consented to analytics, nothing else.
+  // analytics_storage: the visitor consented to analytics, nothing else.
   gtag("consent", "default", {
     ad_storage: "denied",
     ad_user_data: "denied",
@@ -85,7 +85,7 @@ export const loadAnalytics = (): void => {
 
   gtag("js", new Date());
   // No anonymize_ip flag: that is a Universal Analytics parameter GA4
-  // ignores — GA4 does not log or store IP addresses by default.
+  // ignores: GA4 does not log or store IP addresses by default.
   gtag("config", MEASUREMENT_ID);
 
   const script = document.createElement("script");
@@ -97,7 +97,7 @@ export const loadAnalytics = (): void => {
 // Withdraws consent (Art. 7(3) GDPR). Clearing the stored decision alone is
 // not enough on a SPA: a previously consented visitor already has gtag.js
 // running, and it would keep sending hits (engagement pings, SPA page_views)
-// until the next full page load — which may never come this visit. So when
+// until the next full page load, which may never come this visit. So when
 // the tag is loaded, also push a Consent Mode update, which halts analytics
 // storage and hits immediately, and expire the GA cookies.
 export const withdrawAnalyticsConsent = (): void => {

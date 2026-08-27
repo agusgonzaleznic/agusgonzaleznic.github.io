@@ -6,7 +6,7 @@ import { resolveIcon, resolveTheme } from "@/lib/storyblok-icons";
 import type { PageBlock } from "@/lib/pages";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 
-// Hardcoded fallback — also the seed source for Storyblok. Rendered verbatim when
+// Hardcoded fallback, also the seed source for Storyblok. Rendered verbatim when
 // no CMS block is supplied (tokenless build, or page not yet authored), so the
 // design is byte-identical to before Storyblok. Icons/colors are the design's
 // own; the CMS carries them as bounded enums resolved via storyblok-icons.

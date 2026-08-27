@@ -20,11 +20,11 @@ const SITE_NAME = "Agustin Gonzalez Nicolini";
 const SITE_NAME_LONG = "Agustin Gonzalez Nicolini — Leadership & Engineering Coaching";
 
 // Compact copies of the site-global entities, embedded in EVERY page's @graph
-// under the SAME @id as the home page's full nodes (index.html) — Google
+// under the SAME @id as the home page's full nodes (index.html). Google
 // resolves @id per page, so a reference like provider:{@id:…#person} is inert
 // unless the node is defined on that page; the shared @id merges these with
-// the richer home nodes into one entity. Facts mirror index.html — nothing
-// invented; keep the two in sync.
+// the richer home nodes into one entity. Facts mirror index.html (nothing
+// invented); keep the two in sync.
 const PERSON_ID = `${SITE_URL}/#person`;
 const WEBSITE_ID = `${SITE_URL}/#website`;
 const personNode = {
@@ -59,7 +59,7 @@ type SeoPageProps = {
   title: string;
   /** Meta description. */
   description: string;
-  /** Breadcrumb name for this page (Home is prepended) — pass it localized. */
+  /** Breadcrumb name for this page (Home is prepended); pass it localized. */
   crumb: string;
   /** schema.org page type for the auto WebPage node (AboutPage, ContactPage, …). */
   pageType?: string;
@@ -71,7 +71,7 @@ type SeoPageProps = {
    * Extra <head> tags for this page (e.g. the blog index's RSS alternate).
    *
    * `children` renders inside <main> and `extraSchema` only takes JSON-LD, so a
-   * page needing one ordinary head tag had no way to use this shell at all —
+   * page needing one ordinary head tag had no way to use this shell at all,
    * which is why the blog index and the legal pages each kept a hand-rolled
    * <Helmet> and, between them, shipped no og:image, no twitter card, no
    * og:site_name and no JSON-LD for years.
@@ -95,8 +95,8 @@ type SeoPageProps = {
 // the prerender's prefixed-locale canonical guard passes), og/twitter tags, and
 // a JSON-LD @graph (WebPage + BreadcrumbList + compact Person/WebSite entity
 // nodes) plus any page-specific nodes. Client navigation between these swaps
-// content in place with no reload — same mechanism as the existing Home↔Blog
-// nav.
+// content in place with no reload, the same mechanism as the existing
+// Home↔Blog nav.
 export const SeoPage = ({
   path,
   title,
@@ -112,8 +112,8 @@ export const SeoPage = ({
   children,
 }: SeoPageProps) => {
   const { t } = useLingui();
-  // Locale from the URL prefix — drives localized self URLs + og:locale. English
-  // (root) is unchanged: localizePath(p, "en") === p.
+  // Locale from the URL prefix, which drives localized self URLs + og:locale.
+  // English (root) is unchanged: localizePath(p, "en") === p.
   const locale = localeFromPath(useLocation().pathname);
   const abs = (p: string) => `${SITE_URL}${localizePath(p, locale)}`;
   const canonical = abs(path);

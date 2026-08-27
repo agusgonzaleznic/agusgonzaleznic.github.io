@@ -12,7 +12,7 @@ import type { StoryblokComponent } from "@/lib/types/storyblok";
  * structural mismatch is absorbed here, once, instead of at twelve call sites.
  *
  * The cast is sound at runtime: the function reads only `_editable`, which every
- * blok type declares. Verified against the shipped bundle — a blok carrying
+ * blok type declares. Verified against the shipped bundle: a blok carrying
  * `_editable` yields `{ 'data-blok-c', 'data-blok-uid' }`, and one with just
  * `_uid`/`component` yields `{}` rather than throwing.
  */

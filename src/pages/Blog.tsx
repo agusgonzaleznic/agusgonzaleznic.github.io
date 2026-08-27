@@ -20,7 +20,7 @@ const Blog = () => {
 
   return (
     // Was a hand-rolled <Helmet> with title/description/canonical/og:type/
-    // og:title/og:description/og:url/og:locale and the RSS link — i.e. no
+    // og:title/og:description/og:url/og:locale and the RSS link, i.e. no
     // og:image, no twitter card, no og:site_name and no JSON-LD, so this page
     // unfurled as a bare link on every social and chat surface. SeoPage supplies
     // all of that (plus WebPage + BreadcrumbList + Person/WebSite nodes) and

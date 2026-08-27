@@ -7,7 +7,7 @@ import { resolveIcon } from "@/lib/storyblok-icons";
 import type { PageBlock } from "@/lib/pages";
 import { SECTION_HEADER_MARGIN, SECTION_PADDING_STACKED } from "@/lib/layout";
 
-// Hardcoded fallback — also the seed source for Storyblok (see Philosophy.tsx).
+// Hardcoded fallback, also the seed source for Storyblok (see Philosophy.tsx).
 const DEFAULT_VALUES: { icon: LucideIcon; title: MessageDescriptor; description: MessageDescriptor }[] = [
   {
     icon: Target,

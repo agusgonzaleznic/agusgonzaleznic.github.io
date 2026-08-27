@@ -14,11 +14,11 @@ const AccordionItem = React.forwardRef<
 ));
 AccordionItem.displayName = "AccordionItem";
 
-// VENDORED (shadcn/ui) — kept close to upstream, with ONE addition.
+// VENDORED (shadcn/ui): kept close to upstream, with ONE addition.
 //
 // `headingLevel` exists because Radix's Accordion.Header always renders an <h3>.
 // On /faq that sits directly under the page <h1>, so the document skipped h2 and
-// failed WCAG 1.3.1 — the heading outline a screen-reader user navigates by had a
+// failed WCAG 1.3.1: the heading outline a screen-reader user navigates by had a
 // hole in it. Radix exposes no `level` prop, so the level is applied by rendering
 // the Header `asChild` around our own heading element.
 //
@@ -60,15 +60,15 @@ const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
-  // forceMount keeps closed content IN THE DOM — without it the prerendered
+  // forceMount keeps closed content IN THE DOM. Without it the prerendered
   // HTML contains no answer text at all; collapsed content that exists in the
   // HTML is indexed (full weight under mobile-first indexing), unmounted
   // content is invisible to crawlers. Radix does NOT hide force-mounted
   // closed content itself, so data-[state=closed]:hidden does it (effective
-  // from first paint — the class is in the prerendered markup). Opening still
+  // from first paint; the class is in the prerendered markup). Opening still
   // animates: Radix re-measures the content height after the state flips
   // (display restored) and before the open animation runs. The close
-  // animation is skipped (display:none applies immediately) — accepted
+  // animation is skipped (display:none applies immediately), an accepted
   // tradeoff for indexable answers.
   <AccordionPrimitive.Content
     ref={ref}

@@ -12,7 +12,7 @@ import { RichText } from "@/components/blog/RichText";
 import { storyblokImage, type BlogImage, type RichtextNode } from "@/lib/richtext";
 import { CoverImage } from "@/components/blog/CoverImage";
 import type { PageBlock, PageContent, PagePreviewProps } from "@/lib/pages";
-// The real production page wrappers — rendered (fed the draft) so a page
+// The real production page wrappers: rendered (fed the draft) so a page
 // preview is pixel-identical to the live site instead of the divergent bloks.
 import Index from "@/pages/Index";
 import About from "@/pages/About";
@@ -61,7 +61,7 @@ const Centered = ({ children }: { children: ReactNode }) => (
 // Render a live blog_post draft with the SAME RichText renderer + article
 // container the production /blog/:slug page uses, so the preview matches what
 // ships. Page stories render through <StoryblokComponent> (the blok registry)
-// instead — see the dispatch in StoryblokPage below.
+// instead; see the dispatch in StoryblokPage below.
 const BlogPostPreview = ({ content }: { content: BlogPostContent }) => {
   const cover = content.cover_image?.filename ? content.cover_image : null;
   return (
@@ -104,7 +104,7 @@ const PAGE_WRAPPERS: Record<string, ComponentType<PagePreviewProps>> = {
 };
 
 // Map a live (bridge-updated) `page` story to the PageContent shape the real
-// wrappers read via getPageContent — mirrors mapPage in scripts/lib.
+// wrappers read via getPageContent; mirrors mapPage in scripts/lib.
 const pageContentFromStory = (story: ISbStoryData): PageContent => {
   const c = story.content as unknown as {
     seo_title?: string;
@@ -124,7 +124,7 @@ const pageContentFromStory = (story: ISbStoryData): PageContent => {
 /**
  * Storyblok Visual Editor preview host (dev-only; excluded from prerender).
  *
- * The Visual Editor loads {preview URL}/{story.full_slug} in an iframe — with
+ * The Visual Editor loads {preview URL}/{story.full_slug} in an iframe. With
  * the Dev environment set to https://localhost:8080/preview/, that becomes
  * /preview/blog/<slug> or /preview/pages/<slug>. The App route captures the
  * full_slug (splat) and passes it here. We fetch the DRAFT once for the first
@@ -133,7 +133,7 @@ const pageContentFromStory = (story: ISbStoryData): PageContent => {
  * else → the registered blok components.
  *
  * Requires VITE_STORYBLOK_ACCESS_TOKEN (a draft-capable preview token) in
- * .env.development.local — loaded by `vite` in dev, never by a prod build.
+ * .env.development.local, loaded by `vite` in dev, never by a prod build.
  */
 export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
   const [initialStory, setInitialStory] = useState<ISbStoryData | null>(null);
@@ -210,7 +210,7 @@ export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
     const pageContent = pageContentFromStory(story);
     const Wrapper = PAGE_WRAPPERS[pageContent.slug];
     // Real wrappers render their own Navigation/Footer (via SeoPage), so no
-    // <Shell> here — this is the exact production page fed the live draft.
+    // <Shell> here: this is the exact production page fed the live draft.
     if (Wrapper) return <Wrapper previewContent={pageContent} />;
   }
 

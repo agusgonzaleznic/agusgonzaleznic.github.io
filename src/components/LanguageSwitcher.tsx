@@ -15,10 +15,10 @@ import { cn } from "@/lib/utils";
 
 // Crawlable language switcher: real <a> anchors to the SAME route in each
 // PUBLISHED locale, so search/AI crawlers and no-JS visitors follow them to the
-// prerendered per-locale page. SSR-safe — useLocation works under StaticRouter.
+// prerendered per-locale page. SSR-safe: useLocation works under StaticRouter.
 //
 // PROGRESSIVE ENHANCEMENT: on a plain click we intercept, load the target
-// locale's catalog, update <html lang>, and client-navigate — the text swaps
+// locale's catalog, update <html lang>, and client-navigate; the text swaps
 // in place with NO full reload, and ScrollManager keeps the reader's position
 // (navigation state { localeSwitch }). Modifier/middle clicks, JS-off, and a
 // failed catalog load all fall back to the anchor's normal full navigation, so
@@ -27,8 +27,8 @@ import { cn } from "@/lib/utils";
 //
 // Renders ONLY published locales, and nothing until >=2 are published.
 //
-// variant="inline"   — flat row of codes (footer; ample room).
-// variant="dropdown" — compact trigger + collapsible menu (top nav; saves space).
+// variant="inline":   flat row of codes (footer; ample room).
+// variant="dropdown": compact trigger + collapsible menu (top nav; saves space).
 //   The menu's <a> anchors are ALWAYS in the DOM (only visually toggled), so the
 //   prerendered HTML stays crawlable exactly like the inline list.
 type Props = { className?: string; variant?: "inline" | "dropdown" };
@@ -38,13 +38,13 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
   const navigate = useNavigate();
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
-  // Hooks must run unconditionally — this sits above the PUBLISHED_LOCALES
+  // Hooks must run unconditionally: this sits above the PUBLISHED_LOCALES
   // early return below.
   const pageLinks = useLocaleLinks();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Close on outside pointer / Escape — wired only while open.
+  // Close on outside pointer / Escape, wired only while open.
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: PointerEvent) => {
@@ -100,9 +100,9 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
   const { locales: pageLocales, fallbackPath = "/", basePath: pathOverride } = pageLinks;
   const basePath = pathOverride ?? delocalizePath(pathname);
   const links = PUBLISHED_LOCALES.map((locale) => {
-    // `pageLocales` absent/empty means no restriction — same fail-open rule as
-    // prerender's emission loop and getAllPosts, so the three never disagree
-    // about whether a page exists.
+    // `pageLocales` absent/empty means no restriction, the same fail-open rule
+    // as prerender's emission loop and getAllPosts, so the three never
+    // disagree about whether a page exists.
     const hasPage = !pageLocales?.length || pageLocales.includes(locale);
     return {
       locale,
@@ -114,7 +114,7 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
       // hrefLang stays set on BOTH kinds of link. On an <a> it states the
       // language of the linked DOCUMENT (not that it is an equivalent
       // translation of this one), and the fallback target genuinely is a page in
-      // that language — so it is accurate either way. The equivalence claim
+      // that language, so it is accurate either way. The equivalence claim
       // belongs to <link rel="alternate" hreflang> in the head, which prerender
       // builds from the same approved-locale array.
       href: localizePath(hasPage ? basePath : fallbackPath, locale),
