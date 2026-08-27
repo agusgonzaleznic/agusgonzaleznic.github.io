@@ -20,7 +20,8 @@
     "i18n:extract": "lingui extract --clean",
     "i18n:compile": "lingui compile",
     "prepare": "husky",
-    "assert-no-client-secrets": "node scripts/assert-no-client-secrets.mjs"
+    "assert-no-client-secrets": "node scripts/assert-no-client-secrets.mjs",
+    "test:e2e": "node scripts/e2e.mjs"
   },
   "dependencies": {
     "@lingui/core": "6.5.0",
@@ -99,6 +100,7 @@
     "lint-staged": "16.4.0",
     "markdown-it": "14.3.0",
     "node-html-parser": "9.0.0",
+    "playwright": "1.62.1",
     "postcss": "8.5.26",
     "tailwindcss": "3.4.19",
     "terser": "5.46.1",
