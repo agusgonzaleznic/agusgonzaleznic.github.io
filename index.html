@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!--
+      Route-agnostic meta. These sit OUTSIDE the route-head markers on purpose:
+      scripts/prerender.mjs swaps the whole marker span for the route's
+      react-helmet output, so a tag placed inside ships on "/" and nowhere else.
+      All four lived inside until a review checked the live pages, where /about
+      and every other prerendered route carried none of them. robots was the
+      expensive loss: its max-image-preview / max-snippet / max-video-preview
+      directives are what permit a large thumbnail and an unclipped snippet in
+      search results, and only the homepage was asking for them.
+
+      Only /404.html carries a robots tag of its own (NotFound emits noindex via
+      Helmet, injected below this block). Conflicting robots rules resolve to the
+      most restrictive, and that page is served with a real HTTP 404
+      (terraform/cdn.tf), so it stays out of the index either way.
+    -->
+    <meta name="author" content="Agustin Gonzalez Nicolini" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="theme-color" content="#FF6B4A" />
+
+    <!--
       route-head markers: scripts/prerender.mjs replaces everything between
       start and end with react-helmet output for every prerendered route
       EXCEPT "/". The block itself is the homepage head and doubles as the SPA
@@ -15,11 +35,14 @@
     <title>Agustin Gonzalez Nicolini | Engineering Leadership Coach</title>
     <meta name="title" content="Agustin Gonzalez Nicolini | Engineering Leadership Coach" />
     <meta name="description" content="Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably — 15+ years of engineering leadership. Berlin &amp; remote." />
-    <meta name="author" content="Agustin Gonzalez Nicolini" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <!--
+      Locale-declaring, so it stays inside the markers despite not being
+      per-route: localizeHomeHead() in scripts/prerender.mjs rewrites it to the
+      locale's own name, and it does that for the "/" route only. Hoisted above
+      the markers it would declare English on every /de|/es|/fr|/it|/pt subpage
+      instead, the exact wrong-locale signal that function exists to prevent.
+    -->
     <meta name="language" content="English" />
-    <meta name="revisit-after" content="7 days" />
-    <meta name="theme-color" content="#FF6B4A" />
 
     <!-- Canonical URL -->
     <link rel="canonical" href="https://agusgonzaleznic.com/" />
