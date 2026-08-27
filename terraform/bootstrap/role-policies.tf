@@ -24,6 +24,9 @@ locals {
     "arn:aws:dynamodb:us-east-1:${local.account_id}:table/agusgonzaleznic-*",
     "arn:aws:dynamodb:us-east-1:${local.account_id}:table/agusgonzaleznic-*/index/*",
   ]
+  # The relay's dead-letter queue. Prefixed like every other ceiling here so a
+  # second queue needs no IAM change.
+  sqs_queue_arns = ["arn:aws:sqs:us-east-1:${local.account_id}:agusgonzaleznic-*"]
   lambda_log_group_arns = [
     "arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/agusgonzaleznic-*",
     "arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/agusgonzaleznic-*:*",
@@ -497,6 +500,29 @@ data "aws_iam_policy_document" "lambda_exec_boundary" {
       values   = ["noreply@agusgonzaleznic.com"]
     }
   }
+
+  # Ceiling for the relay writing a DISCARDED alert to its dead-letter queue.
+  #
+  # Lambda delivers to an on-failure destination using the FUNCTION'S OWN
+  # execution role, not a service principal, so the boundary gates it. Without
+  # this the destination is configured and every delivery into it is denied,
+  # which produces a dead-letter queue that exists, reports zero messages, and
+  # invites exactly the false confidence a DLQ is supposed to remove. That is a
+  # worse outcome than having no DLQ at all.
+  #
+  # Identical intersection trap to SendContactEmail above, and the reason the DLQ
+  # cannot land behind a single gate: the role policy in observability.tf and this
+  # ceiling must both allow it, so the bootstrap tier goes first.
+  #
+  # SendMessage ONLY. Deliberately not ReceiveMessage or DeleteMessage: draining
+  # the queue is a human recovery step, and a role that can delete from its own
+  # dead-letter queue can erase the evidence of its own failure.
+  statement {
+    sid       = "WriteDiscardedAlertToDlq"
+    effect    = "Allow"
+    actions   = ["sqs:SendMessage"]
+    resources = local.sqs_queue_arns
+  }
 }
 
 resource "aws_iam_policy" "lambda_exec_boundary" {
@@ -682,6 +708,37 @@ resource "aws_iam_role_policy_attachment" "deploy" {
 # apply half-done. The provider's resource docs list the required IAM actions per
 # resource; read those rather than inferring from the verbs you happen to use.
 data "aws_iam_policy_document" "deploy_observability" {
+  # SQS: the alert relay's dead-letter queue. Read the warning directly above
+  # this document before editing this list.
+  #
+  # Enumerated from what the provider READS, not from the verbs the config
+  # happens to use. Three of these are the ones a verb-based guess drops, and
+  # each produces the half-done apply that warning describes:
+  #   GetQueueUrl        the resource id IS the queue URL, so the provider
+  #                      resolves it on create and on every refresh
+  #   GetQueueAttributes read on every refresh to diff the queue's settings
+  #   ListQueueTags      read on every refresh because the queue declares tags
+  #
+  # ListQueues is deliberately absent. It cannot be ARN-scoped, and the provider
+  # never needs it: it addresses a queue by name on create and by stored URL
+  # thereafter. If a future import path turns out to need it, add it as its own
+  # Resource:* statement rather than widening this one.
+  statement {
+    sid    = "ManageAlertRelayDlq"
+    effect = "Allow"
+    actions = [
+      "sqs:CreateQueue",
+      "sqs:DeleteQueue",
+      "sqs:GetQueueAttributes",
+      "sqs:GetQueueUrl",
+      "sqs:ListQueueTags",
+      "sqs:SetQueueAttributes",
+      "sqs:TagQueue",
+      "sqs:UntagQueue",
+    ]
+    resources = local.sqs_queue_arns
+  }
+
   # Metric filters live ON the Lambda log groups, so they reuse the same
   # resource scope as ManageFunctionLogGroups.
   statement {
