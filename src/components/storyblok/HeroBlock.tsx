@@ -1,8 +1,8 @@
 import { editableProps } from "@/lib/storyblok-editable";
 import { HeroBlockStoryblok } from "@/lib/types/storyblok";
-import { SECTION_PADDING } from "@/lib/layout";
+import { SECTION_HEADER_MARGIN, SECTION_PADDING } from "@/lib/layout";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { scrollBehavior } from "@/lib/motion";
 
 interface HeroBlockProps {
@@ -46,14 +46,22 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
 
       <div className={`container relative z-10 px-6 ${SECTION_PADDING}`}>
         <div className="max-w-6xl mx-auto">
+          {/* Running head: the tagline as the page's masthead line over a
+              thick-thin (Scotch) rule spanning BOTH grid columns. Mirrors
+              src/components/Hero.tsx, which carries the full rationale. */}
+          <div className={`${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
+            <p className="text-xs md:text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              {blok.tagline}
+            </p>
+            <div className="mt-3 flex items-end" aria-hidden="true">
+              <span className="h-0.5 w-16 bg-accent" />
+              <span className="h-px flex-1 bg-border" />
+            </div>
+          </div>
+
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Content */}
             <div className="space-y-8 animate-fade-in-up">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full border border-accent/20">
-                <Sparkles className="w-4 h-4 text-accent" />
-                <span className="text-sm font-medium text-foreground">{blok.tagline}</span>
-              </div>
-
               <h1 className="text-fluid-4xl font-bold leading-tight">
                 {/* Squiggle underline as a wrapping-safe background (box-decoration-
                     break:clone) around the gradient text — not a child SVG, which
@@ -119,13 +127,6 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full p-1">
-          <div className="w-1.5 h-3 bg-accent rounded-full mx-auto animate-pulse" />
         </div>
       </div>
     </section>
