@@ -32,7 +32,7 @@ const BUDGET = {
   "scripts/lib/post-import.test.mjs": 1,
   // Cached machine translations of copy that lives in Storyblok, not here. These
   // entries follow the CMS copy, so they are retired when it is.
-  "scripts/.i18n-cache.json": 561,
+  "scripts/.i18n-cache.json": 360,
   // Deployed code: an edit here changes a Lambda zip or a CloudFront function and
   // so needs a gated production apply, which a punctuation sweep should not
   // trigger on its own.
