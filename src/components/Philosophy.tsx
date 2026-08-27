@@ -19,7 +19,7 @@ const DEFAULT_PILLARS: {
   {
     icon: Lightbulb,
     title: msg`Growth through Clarity`,
-    description: msg`Clear goals, working feedback loops, and OKRs that tie each person's growth to business results — so your team knows exactly what winning looks like this quarter.`,
+    description: msg`Clear goals, working feedback loops, and OKRs that tie each person's growth to business results, so your team knows exactly what winning looks like this quarter.`,
     color: "from-accent/20 to-accent/5",
   },
   {
@@ -79,7 +79,7 @@ export const Philosophy = ({ block }: { block?: PhilosophyBlock }) => {
             </h1>
             <p className="text-fluid-lg text-muted-foreground">
               {block?.subheading ?? (
-                <Trans>Three pillars behind every engagement — and what each one changes for your team</Trans>
+                <Trans>Three pillars behind every engagement, and what each one changes for your team</Trans>
               )}
             </p>
           </div>

@@ -10,8 +10,8 @@ import { SECTION_PADDING } from "@/lib/layout";
 // content. Heading/footnote fall back to their inline <Trans>; the paragraphs are
 // a list, so they fall back through these descriptors.
 const DEFAULT_PARAGRAPHS: MessageDescriptor[] = [
-  msg`I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3 — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform.`,
-  msg`I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security — and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck.`,
+  msg`I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform.`,
+  msg`I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security, and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck.`,
 ];
 
 export interface ParagraphField {
@@ -27,7 +27,7 @@ export interface AboutBlock extends PageBlock {
 export const About = ({ block }: { block?: AboutBlock }) => {
   const { t, i18n } = useLingui();
   if (block?.show_section === false) return null;
-  const alt = block?.image_alt || t`Agustin Gonzalez Nicolini — engineering leadership coach in Berlin`;
+  const alt = block?.image_alt || t`Agustin Gonzalez Nicolini, engineering leadership coach in Berlin`;
   const paragraphs = block?.paragraphs?.length
     ? block.paragraphs.map((p) => p.text ?? "")
     : DEFAULT_PARAGRAPHS.map((p) => i18n._(p));
@@ -62,7 +62,7 @@ export const About = ({ block }: { block?: AboutBlock }) => {
                 the About page itself answers where/how/in which languages. */}
             <p className="mt-6 text-sm font-medium text-muted-foreground">
               {block?.footnote ?? (
-                <Trans>Based in Berlin — coaching engineering leaders remotely worldwide, in English or Spanish.</Trans>
+                <Trans>Based in Berlin, coaching engineering leaders remotely worldwide, in English or Spanish.</Trans>
               )}
             </p>
           </div>

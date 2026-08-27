@@ -27,7 +27,7 @@ const LinksPage = ({ previewContent }: PagePreviewProps) => {
       chrome={false}
       pageType="ProfilePage"
       ogImage={content?.og_image}
-      title={content?.seo_title || t`Links & Profiles — Agustin Gonzalez Nicolini`}
+      title={content?.seo_title || t`Links & Profiles | Agustin Gonzalez Nicolini`}
       description={
         content?.seo_description ||
         t`All my links in one place: LinkedIn, GitHub, my blog, Medium, and how to book an intro call.`

@@ -12,17 +12,17 @@ const DEFAULT_ENGAGEMENTS: { role: MessageDescriptor; context: MessageDescriptor
   {
     role: msg`Senior Engineering Manager`,
     context: msg`FinTech scale-up`,
-    sketch: msg`The first call was about messy deploys. Within six months the pipeline was boring — in the best way — but the more useful work was getting them out of the middle of every decision their team makes.`,
+    sketch: msg`The first call was about messy deploys. Within six months the pipeline was boring (in the best way), but the more useful work was getting them out of the middle of every decision their team makes.`,
   },
   {
     role: msg`First-Time Engineering Manager`,
     context: msg`E-Commerce Platform`,
-    sketch: msg`A few months into the role and drowning. Instead of handing over a framework, we rehearsed the conversations they were avoiding — delegation, feedback, saying no — until having them for real felt routine.`,
+    sketch: msg`A few months into the role and drowning. Instead of handing over a framework, we rehearsed the conversations they were avoiding (delegation, feedback, saying no) until having them for real felt routine.`,
   },
   {
     role: msg`VP of Engineering`,
     context: msg`B2B SaaS Company`,
-    sketch: msg`One team became four in a year and everything got slower — it usually does. We sketched an org structure early on, then stress-tested and adjusted it over the following quarters as the company kept growing.`,
+    sketch: msg`One team became four in a year and everything got slower; it usually does. We sketched an org structure early on, then stress-tested and adjusted it over the following quarters as the company kept growing.`,
   },
 ];
 
@@ -64,7 +64,7 @@ export const Testimonials = ({ block }: { block?: TestimonialsBlock }) => {
             </h2>
             <p className="text-fluid-lg text-muted-foreground">
               {block?.subheading ?? (
-                <Trans>Three composite sketches — not client quotes — showing the problems leaders bring me and how the work tends to unfold</Trans>
+                <Trans>Three composite sketches (not client quotes) showing the problems leaders bring me and how the work tends to unfold</Trans>
               )}
             </p>
           </div>

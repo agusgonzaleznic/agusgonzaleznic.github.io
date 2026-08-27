@@ -41,7 +41,7 @@ const Index = ({ previewContent }: PagePreviewProps) => {
         <title>{t`Agustin Gonzalez Nicolini | Engineering Leadership Coach`}</title>
         <meta
           name="description"
-          content={t`Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably — 15+ years of engineering leadership. Berlin & remote.`}
+          content={t`Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably. 15+ years of engineering leadership. Berlin & remote.`}
         />
       </Helmet>
       <Navigation />

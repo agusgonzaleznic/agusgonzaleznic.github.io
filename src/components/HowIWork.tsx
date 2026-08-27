@@ -12,12 +12,12 @@ const DEFAULT_VALUES: { icon: LucideIcon; title: MessageDescriptor; description:
   {
     icon: Target,
     title: msg`Outcomes Over Optics`,
-    description: msg`Every engagement names the result it should produce — delivery speed, retention, uptime — and we check that it did.`,
+    description: msg`Every engagement names the result it should produce (delivery speed, retention, uptime), and we check that it did.`,
   },
   {
     icon: ShieldCheck,
     title: msg`Security by Default`,
-    description: msg`Resilience and compliance as design inputs, not afterthoughts — a habit from years of PCI-DSS, SOC 2, and ISO 27001 work.`,
+    description: msg`Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, and ISO 27001 work.`,
   },
   {
     icon: MessagesSquare,
@@ -27,7 +27,7 @@ const DEFAULT_VALUES: { icon: LucideIcon; title: MessageDescriptor; description:
   {
     icon: Wrench,
     title: msg`Practice Over Theory`,
-    description: msg`I only teach what I've run in production with real teams — no borrowed frameworks.`,
+    description: msg`I only teach what I've run in production with real teams: no borrowed frameworks.`,
   },
 ];
 

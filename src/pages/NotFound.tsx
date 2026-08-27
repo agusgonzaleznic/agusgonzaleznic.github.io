@@ -42,7 +42,7 @@ const NotFound = () => {
         flowing through the on-page links.
       */}
       <Helmet>
-        <title>{t`Page not found — Agustin Gonzalez Nicolini`}</title>
+        <title>{t`Page not found | Agustin Gonzalez Nicolini`}</title>
         <meta
           name="description"
           content={t`This page doesn't exist. Head back to the homepage, or jump to about, services, the blog, or contact.`}
@@ -59,7 +59,7 @@ const NotFound = () => {
                 <Trans>This page doesn't exist</Trans>
               </h1>
               <p className="mt-4 text-fluid-lg text-muted-foreground">
-                <Trans>The link may be broken or the page may have moved — but the
+                <Trans>The link may be broken or the page may have moved, but the
                 conversation can still start somewhere useful.</Trans>
               </p>
 

@@ -37,7 +37,7 @@ const Blog = () => {
         <link
           rel="alternate"
           type="application/rss+xml"
-          title={t`Writing — Agustin Gonzalez Nicolini`}
+          title={t`Writing | Agustin Gonzalez Nicolini`}
           href={`${SITE_URL}/blog/rss.xml`}
         />
       }
@@ -48,7 +48,7 @@ const Blog = () => {
               <header className={`${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
                 <h1 className="mb-4 text-fluid-3xl font-bold"><Trans>Writing</Trans></h1>
                 <p className="text-fluid-lg leading-relaxed text-muted-foreground">
-                  <Trans>Notes from fifteen years of running engineering teams — leadership,
+                  <Trans>Notes from fifteen years of running engineering teams: leadership,
                   infrastructure, and the occasional strong opinion. I publish when I
                   have something worth saying, not on a schedule.</Trans>
                 </p>

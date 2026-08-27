@@ -205,7 +205,7 @@ const BlogPostPage = () => {
                   />
                   <div>
                     <p className="font-medium text-foreground">
-                      <Trans>I'm Agustin — I coach engineering leaders, from first-time managers to CTOs.</Trans>
+                      <Trans>I'm Agustin: I coach engineering leaders, from first-time managers to CTOs.</Trans>
                     </p>
                     <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
                       <LocaleLink

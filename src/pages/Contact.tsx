@@ -17,7 +17,7 @@ const ContactPage = ({ previewContent }: PagePreviewProps) => {
     <SeoPage
       path="/contact"
       ogImage={content?.og_image}
-      title={content?.seo_title || t`Contact & Book a Session — Engineering Leadership Coaching`}
+      title={content?.seo_title || t`Contact & Book a Session | Engineering Leadership Coaching`}
       description={
         content?.seo_description ||
         t`Book a free 30-minute intro call with Agustin Gonzalez Nicolini, or email me. Remote coaching for engineering leaders worldwide, in EN, ES, and DE.`
