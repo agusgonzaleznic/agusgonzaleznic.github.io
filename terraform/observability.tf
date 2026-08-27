@@ -24,6 +24,12 @@ locals {
   # Must stay under the agusgonzaleznic-* prefix: every bootstrap ceiling that
   # lets CI manage a function, its role and its log group is scoped to it.
   alert_relay_function_name = "agusgonzaleznic-alert-relay"
+
+  # Same prefix contract, and it is not yet backed by anything: no ceiling in
+  # terraform/bootstrap/ mentions SQS at all, so the grant this queue needs has
+  # to be written from scratch and scoped to
+  # arn:aws:sqs:us-east-1:<account>:agusgonzaleznic-*.
+  alert_relay_dlq_name = "${local.alert_relay_function_name}-dlq"
 }
 
 # ---- Log groups -------------------------------------------------------------
@@ -108,8 +114,14 @@ resource "aws_iam_role" "alert_relay" {
   # REQUIRED, same as the contact role: CI may only create agusgonzaleznic-*
   # roles carrying this boundary. The boundary already allows ses:SendEmail on
   # the identity and the configuration set, pinned to the same From address, so
-  # this relay needed no bootstrap-tier change — which is the only reason this
-  # lands behind a single gate.
+  # the relay's MAIL path needed no bootstrap-tier change.
+  #
+  # Its DLQ path did. The boundary granted no SQS action at all, so
+  # WriteDiscardedAlertToDlq below would have been inert: the destination
+  # configured, the queue visible, and every delivery into it denied. That is a
+  # dead-letter queue reporting zero messages for the wrong reason, which is
+  # worse than having none. PR #143 added sqs:SendMessage to the boundary first,
+  # which is why this could not land behind a single gate.
   permissions_boundary = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/agusgonzaleznic-lambda-exec-boundary"
 
   tags = local.tags
@@ -139,6 +151,32 @@ data "aws_iam_policy_document" "alert_relay" {
       variable = "ses:FromAddress"
       values   = [local.contact_mail_from]
     }
+  }
+
+  # Lambda writes to an on-failure destination using the FUNCTION'S OWN
+  # execution role, not a service principal, so without this the destination is
+  # configured and every delivery into it is denied. That would make the DLQ a
+  # second thing that looks present and holds nothing, which is the exact
+  # failure shape the rest of this file exists to remove.
+  #
+  # HALF OF A PAIR. Effective permissions are the INTERSECTION of this role and
+  # agusgonzaleznic-lambda-exec-boundary (terraform/bootstrap/role-policies.tf),
+  # so this statement grants nothing on its own. The boundary's matching
+  # WriteDiscardedAlertToDlq shipped first in PR #143 and is applied; verified
+  # after that apply with iam simulate-principal-policy, which returned
+  # implicitDeny for sqs:SendMessage on this role while the boundary already
+  # allowed it, i.e. this half was the one still missing. Same trap the
+  # boundary's SendContactEmail statement documents: widening one side of an
+  # intersection changes nothing. If either half is ever removed, the queue keeps
+  # existing and silently stops receiving.
+  #
+  # Only SendMessage. The relay never reads or deletes from this queue; draining
+  # it is a human recovery step, and a role that can delete from its own DLQ can
+  # erase the evidence of its own failure.
+  statement {
+    sid       = "WriteDiscardedAlertToDlq"
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.alert_relay_dlq.arn]
   }
 }
 
@@ -206,6 +244,160 @@ resource "aws_sns_topic_subscription" "alerts_relay" {
   # Without the invoke permission in place first, SNS marks the subscription
   # unconfirmed and silently drops everything published to it.
   depends_on = [aws_lambda_permission.alert_relay_sns]
+}
+
+# ---- Dead-letter target for the relay ---------------------------------------
+# BEFORE THIS APPLIES: the deploy role has NO sqs grant. Nothing in
+# terraform/bootstrap/ matches /sqs/i, so aws_sqs_queue.alert_relay_dlq fails
+# CreateQueue with AccessDenied, the same way cloudfront:CreateCachePolicy did.
+# A bootstrap-tier change is a prerequisite here, not a follow-up.
+#
+# WHY ANY OF THIS. The relay is the LAST hop, so nothing downstream notices it
+# failing. SNS retries the async invocation and then DISCARDS the message; the
+# four alarms below all watch the contact form, and the relay's own failure
+# produces no metric anyone reads. So an SES throttle, an IAM or SSM problem or
+# a handler exception takes the alert with it and leaves nothing behind to find.
+# The failure of the thing that delivers failures is silent.
+#
+# WHY SQS AND NOT AN SNS DLQ. The SNS option was the shorter diff and it fails
+# twice over. Pointing it at aws_sns_topic.alerts is circular: that topic's only
+# subscriber is the relay that just failed, so the rescue path IS the broken
+# path, and a redelivery loop is the optimistic reading. A second, separate
+# topic breaks the circle and still does not work, because SNS stores nothing:
+# it pushes, retries, drops. A dead-letter target whose whole job is to still be
+# holding the message when a human finally looks cannot be a channel that
+# forgets. SQS is durable, re-readable, and passive, and passive matters here on
+# its own: nothing invokes a queue, so a broken relay cannot be re-triggered by
+# its own dead letters.
+resource "aws_sqs_queue" "alert_relay_dlq" {
+  name = local.alert_relay_dlq_name
+
+  # 14 days, the SQS maximum, and the number follows from the limitation stated
+  # above the alarm below: this queue cannot reliably page anyone, so the only
+  # thing bounding how long a discarded alert stays recoverable is how long SQS
+  # keeps it. The 4-day default silently loses anything that fails at the start
+  # of a two-week absence. Cost is not an argument against the maximum: the
+  # volume ceiling is the number of alarm transitions, single digits per month.
+  message_retention_seconds = 1209600
+
+  # SSE-SQS, stated rather than inherited from the account default. A KMS CMK
+  # would need kms:GenerateDataKey on the relay role AND the same action added
+  # to the permissions boundary, whose only KMS grant today is pinned to
+  # kms:ViaService = ssm. That is real added surface for nothing: an alarm
+  # notification carries an alarm name, a description and a metric value, never
+  # a submitter's message or IP address.
+  sqs_managed_sse_enabled = true
+
+  # No consumer and no redrive, on purpose. Draining is a human recovery step,
+  # and the default 30s visibility timeout means a message read during triage
+  # reappears instead of disappearing mid-investigation.
+
+  tags = local.tags
+}
+
+# WHICH LAMBDA MECHANISM. There are two and they are not variants of one
+# feature:
+#
+#  * dead_letter_config on the function delivers the ORIGINAL EVENT ONLY. You
+#    learn which alert was lost and nothing about why: no error, no error type,
+#    no request id, no attempt count.
+#  * an on_failure destination delivers a record that wraps that same event in
+#    requestContext (requestId, condition, approximateInvokeCount) and
+#    responsePayload (the thrown error and its type), and it is the only one of
+#    the two with retry and event-age controls.
+#
+# The destination record is a strict superset, and setting both makes Lambda
+# write to both on every failure: two messages, one of them strictly less
+# useful. So the destination, alone.
+#
+# The error half is what makes it worth the resource. The plausible causes here
+# are indistinguishable from the event alone: an SES throttle, a boundary or
+# role denial, and a code error all produce the identical SNS payload going in,
+# and each needs a different fix.
+resource "aws_lambda_function_event_invoke_config" "alert_relay" {
+  function_name = aws_lambda_function.alert_relay.function_name
+
+  destination_config {
+    on_failure {
+      destination = aws_sqs_queue.alert_relay_dlq.arn
+    }
+  }
+
+  # The AWS default (3 attempts total), restated so it cannot drift silently.
+  # Enough to ride out a transient SES throttle, which is the one failure in
+  # this path that retrying actually fixes.
+  maximum_retry_attempts = 2
+
+  # 5 minutes, against a 6-hour default. Async retries back off, so the default
+  # lets Lambda keep re-attempting an alert for hours after it stopped being
+  # actionable, and the DLQ (the only durable record) stays empty for all of
+  # them. The two retries above land roughly 1 and 3 minutes in, so 300s caps
+  # the tail without cutting a retry short. Same reasoning as the 512 MB above:
+  # an alert that arrives late is an alert that did not arrive.
+  maximum_event_age_in_seconds = 300
+}
+
+# THE CIRCULARITY, STATED PLAINLY. An alarm is what would make this queue
+# proactive rather than forensic, and it cannot be fully trusted, because its
+# only delivery path is aws_sns_topic.alerts, whose only subscriber is the relay
+# whose failure put the message here. There is no non-circular push channel in
+# this account to escape to, and each candidate was checked: an SNS email
+# subscription is the unauthenticated-unsubscribe channel this file rejects
+# above with a dated incident; a second relay Lambda would share the SES
+# dependency and the same permissions boundary that are the likeliest causes in
+# the first place, so it is independence in name only; Budgets' direct-email
+# notifications, the one push path here that does not traverse SNS, fire only on
+# cost.
+#
+# The alarm is kept, with its limits understood, because the two failure classes
+# are not equally hopeless:
+#
+#  * ONE alert fails (an SES throttle, one malformed message) and the relay is
+#    otherwise healthy. The notification goes out normally and is the only thing
+#    that will ever say so.
+#  * the relay is DOWN. The notification dies with everything else and lands in
+#    this same queue. That case is post-hoc RECOVERY only: the DLQ holds the
+#    alert for 14 days and something outside this chain has to begin the
+#    investigation.
+#
+# It does not loop. CloudWatch notifies on state TRANSITION only, and the queue
+# stays non-empty until a human drains it, so the alarm holds ALARM and
+# publishes once, adding at most one extra message here.
+resource "aws_cloudwatch_metric_alarm" "alert_relay_dlq" {
+  alarm_name        = "agusgonzaleznic-alert-relay-dlq"
+  alarm_description = "An alert was DISCARDED before it could be emailed: whatever the site was trying to report, nobody was told. The message in agusgonzaleznic-alert-relay-dlq carries the original SNS event plus the error that killed the invocation. Read it, fix the cause, then drain the queue, because this alarm cannot return to OK while anything is left in it. If the relay itself is down this notification never arrived either, so treat a non-empty queue found by hand the same way."
+
+  namespace   = "AWS/SQS"
+  metric_name = "ApproximateNumberOfMessagesVisible"
+  dimensions = {
+    QueueName = aws_sqs_queue.alert_relay_dlq.name
+  }
+
+  # Maximum, not the Sum used by the alarms below. This metric is a gauge, not a
+  # count of events, so summing the samples in a period reports a multiple of
+  # the queue depth rather than the depth. And Visible rather than
+  # NumberOfMessagesSent: Sent is a transition that self-clears, so the alarm
+  # would go green with the message still sitting undrained, which is precisely
+  # the kind of silence this file exists to remove.
+  statistic           = "Maximum"
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+
+  # SQS publishes queue metrics every 5 minutes, so a shorter period would spend
+  # most of its intervals evaluating no data.
+  period = 300
+
+  # notBreaching, and unlike the alarms below this one is load-bearing rather
+  # than conventional: SQS stops publishing metrics for a queue that has been
+  # idle and empty for about 6 hours, which is the normal state of a healthy
+  # DLQ. Under "breaching" that healthy silence becomes a permanent false alarm,
+  # and under "missing" the alarm sits in INSUFFICIENT_DATA and never evaluates.
+  treat_missing_data = "notBreaching"
+
+  alarm_actions = [aws_sns_topic.alerts.arn]
+  ok_actions    = [aws_sns_topic.alerts.arn]
+  tags          = local.tags
 }
 
 # ---- Fail-closed alarms -----------------------------------------------------
