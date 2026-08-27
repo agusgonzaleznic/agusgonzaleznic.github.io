@@ -7,6 +7,7 @@ import {
   type RichtextMark,
   type RichtextNode,
 } from "@/lib/richtext";
+import { SITE_URL } from "@/lib/site";
 
 // Hand-rolled Storyblok richtext → React walker. Zero dependencies, pure and
 // synchronous, so it runs identically under renderToString (prerender) and in
@@ -22,8 +23,43 @@ interface Ctx {
   headingShift: number;
 }
 
-// CMS href values are untrusted: refuse script-ish URL schemes outright.
-const isSafeHref = (href: string) => !/^\s*(javascript|data|vbscript):/i.test(href);
+// CMS href values are untrusted, so they are parsed with the SAME URL parser the
+// browser will use and then ALLOWLISTED by the resulting protocol.
+//
+// This replaced a blocklist over the raw string,
+// !/^\s*(javascript|data|vbscript):/i, which was bypassable. WHATWG URL parsing
+// STRIPS tab, LF and CR before resolving, so a tab inside the scheme never
+// matched the pattern while the browser still navigated to javascript:.
+// Confirmed against Node's parser for all three characters; a plain space is not
+// stripped and so was never a bypass. An allowlist over the PARSED protocol
+// cannot be fooled this way, because it asks the same question the browser does.
+//
+// `external` now comes from the same parse instead of a second, independent
+// regex. That mattered: the old /^(https?:)?\/\// test returned false for a
+// bypassing href, so the anchor got no target="_blank" and navigated in the SAME
+// tab, which is precisely the case a browser does evaluate a javascript: URL.
+// One parse means the guard and the target/rel decision cannot disagree again.
+//
+// The RAW string is what gets emitted as href, never the resolved absolute URL,
+// so relative and locale-relative CMS links keep working unchanged. The parse is
+// only used to decide.
+//
+// mailto: is permitted but never counted as external: it hands off to a mail
+// client rather than opening a tab.
+const SAFE_PROTOCOLS = new Set(["https:", "http:", "mailto:"]);
+
+const classifyHref = (raw: string): { external: boolean } | null => {
+  let url: URL;
+  try {
+    // Resolve against the site origin so scheme-less values (/about, #anchor)
+    // are parseable at all.
+    url = new URL(raw, SITE_URL);
+  } catch {
+    return null;
+  }
+  if (!SAFE_PROTOCOLS.has(url.protocol)) return null;
+  return { external: url.protocol !== "mailto:" && url.origin !== SITE_URL };
+};
 
 const PARAGRAPH_CLASS = "text-fluid-base leading-relaxed text-muted-foreground";
 const LINK_CLASS =
@@ -72,8 +108,9 @@ const applyMark = (children: ReactNode, mark: RichtextMark): ReactNode => {
         linktype === "email"
           ? `mailto:${String(attrs.href ?? "")}`
           : `${String(attrs.href ?? "")}${anchor}`;
-      if (!isSafeHref(href)) return children;
-      const external = /^(https?:)?\/\//.test(href);
+      const link = classifyHref(href);
+      if (!link) return children;
+      const { external } = link;
       return (
         <a
           href={href}

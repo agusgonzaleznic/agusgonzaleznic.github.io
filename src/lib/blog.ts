@@ -80,7 +80,13 @@ const normalize = (p: Partial<BlogPost>): BlogPost => ({
   published_date: p.published_date ?? null,
   first_published_at: p.first_published_at ?? null,
   published_at: p.published_at ?? null,
-  original_url: p.original_url ?? "",
+  // Same rule, same reason, as canonical_override below: this value is
+  // CMS-editable and lands directly in an href (src/pages/BlogPost.tsx), so
+  // anything that is not an absolute https URL is dropped. Without this a
+  // protocol-relative value like //evil.example/x resolved to a foreign origin
+  // under the site's own name, and only the target=_blank/rel=noopener chosen
+  // for tab behaviour stood between it and a scheme-based payload.
+  original_url: /^https:\/\//.test(p.original_url ?? "") ? (p.original_url ?? "") : "",
   seo_title: p.seo_title ?? "",
   seo_description: p.seo_description ?? "",
   canonical_override: p.canonical_override ?? "",
