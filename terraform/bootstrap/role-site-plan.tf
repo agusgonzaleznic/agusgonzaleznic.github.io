@@ -139,6 +139,24 @@ data "aws_iam_policy_document" "site_plan_addendum" {
     ]
   }
 
+  # SQS message bodies. ReadOnlyAccess grants sqs:Receive*, so this role could
+  # drain-read the alert relay's dead-letter queue, and a plan never calls
+  # ReceiveMessage: the refresh needs GetQueueAttributes and ListQueueTags, which
+  # are Get*/List* and stay allowed.
+  #
+  # Lower stakes than the other Denies here, and included for consistency rather
+  # than because of what the messages hold: a dead-lettered alert carries alarm
+  # metadata plus the invocation error, not submitter data. But the whole point of
+  # this role is read-only MINUS the channels that return content, and leaving one
+  # content channel open because its payload happens to be dull is how the next
+  # one gets left open too.
+  statement {
+    sid       = "DenyQueueMessageBodies"
+    effect    = "Deny"
+    actions   = ["sqs:ReceiveMessage"]
+    resources = ["*"]
+  }
+
   # DynamoDB data plane. A refresh needs DescribeTable/DescribeTimeToLive/
   # DescribeContinuousBackups, all metadata. The contact table's items are
   # rate-limit and duplicate-suppression rows keyed by hashed email and by
