@@ -1,7 +1,7 @@
 // Pure helpers for the blog importer (scripts/new-post.mjs).
 //
 // They live here rather than in new-post.mjs because that file is a CLI that
-// runs its work at import time — a test importing it would perform a real
+// runs its work at import time: a test importing it would perform a real
 // Storyblok round trip. These two functions decide whether an author's
 // punctuation survives and whether re-importing a post destroys CMS-only fields,
 // so both want direct tests.
@@ -10,7 +10,7 @@
  * HTML entities worth decoding in prose.
  *
  * Only the XML-mandatory five plus nbsp were handled before, so an imported
- * article kept `&rsquo;` and `&mdash;` as literal text — visible in the
+ * article kept `&rsquo;` and `&mdash;` as literal text, visible in the
  * published post, in the excerpt, in the RSS description and in the machine
  * translation sent to DeepL.
  *
@@ -24,7 +24,7 @@ export const NAMED_ENTITIES = {
   // ambiguous in source. `&nbsp;` used to decode to a plain U+0020, so
   // "10&nbsp;km" became breakable and the typography quietly changed.
   nbsp: "\u00A0",
-  // Quotes and dashes — the ones a word processor or CMS export emits.
+  // Quotes and dashes: the ones a word processor or CMS export emits.
   rsquo: "’", lsquo: "‘", rdquo: "”", ldquo: "“",
   sbquo: "‚", bdquo: "„", mdash: "—", ndash: "–",
   minus: "−", hellip: "…", prime: "′", Prime: "″",
@@ -79,8 +79,8 @@ export const IMPORTER_KEYS = [
  * Merge freshly imported content over what the story already holds.
  *
  * Re-importing used to PUT the built content object wholesale, which lost data
- * two different ways on the most ordinary operation there is — fixing a typo and
- * re-importing:
+ * two different ways on the most ordinary operation there is (fixing a typo and
+ * re-importing):
  *
  *   - `cover_image` is not a field the importer builds, so it was absent from
  *     the PUT and Storyblok dropped it.
@@ -90,7 +90,7 @@ export const IMPORTER_KEYS = [
  *     canonical_override also silently re-enables five locale variants of a
  *     syndicated post, because that field gates them.
  *
- * Empty frontmatter means "not specified", never "clear it" — clearing is done in
+ * Empty frontmatter means "not specified", never "clear it"; clearing is done in
  * Storyblok. So a non-empty imported value wins, an empty one defers to what is
  * already there, and any key the importer does not manage is preserved as-is.
  */

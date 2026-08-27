@@ -15,7 +15,7 @@
 //   │    src/i18n/locales.ts. A locale is PUBLISHED only after 3–5.          │
 //   └───────────────────────────────────────────────────────────────────────┘
 //
-// KEYLESS (this phase): with no DEEPL_API_KEY set, this is a clean no-op — it
+// KEYLESS (this phase): with no DEEPL_API_KEY set, this is a clean no-op; it
 // prints a notice and exits 0, leaving the catalogs untranslated. Deploys run
 // keyless until the secret exists, so the site stays English-only and unchanged.
 //
@@ -47,7 +47,7 @@ const cachePath = resolve(__dirname, ".i18n-cache.json");
 const glossaryPath = resolve(__dirname, "i18n-glossary.json");
 
 // ---- Minimal PO parse / serialize (self-contained, no deps) -----------------
-// Handles comments, msgctxt, multi-line strings and C-style escaping — enough
+// Handles comments, msgctxt, multi-line strings and C-style escaping: enough
 // for Lingui's `po` format. We only ever WRITE the target <locale>.po files;
 // en.po (owned by i18n-core) is read-only here.
 
@@ -136,7 +136,7 @@ function setLanguageHeader(headerMsgstr, locale) {
 async function main() {
   if (!hasApiKey()) {
     console.log(
-      "\ni18n:translate — DEEPL_API_KEY not set. No-op: catalogs left untranslated (English-only).\n" +
+      "\ni18n:translate: DEEPL_API_KEY not set. No-op: catalogs left untranslated (English-only).\n" +
         "  This is expected for this phase; set DEEPL_API_KEY (DeepL API Free) to generate raw\n" +
         "  machine translations, then run LLM post-edit + native review before publishing a locale.\n",
     );
@@ -144,7 +144,7 @@ async function main() {
   }
   if (!existsSync(sourcePo)) {
     console.log(
-      `\ni18n:translate — source catalog not found at ${sourcePo}.\n` +
+      `\ni18n:translate: source catalog not found at ${sourcePo}.\n` +
         "  Run `lingui extract` first (owned by the i18n-core setup). No-op.\n",
     );
     return;
@@ -156,7 +156,7 @@ async function main() {
 
   const cache = loadCache(cachePath);
   // REGEN_LOCALES=fr,it,pt regenerates ONLY those locales from scratch (clears
-  // their cache, skips catalog adoption, and rewrites only their .po) — used to
+  // their cache, skips catalog adoption, and rewrites only their .po), used to
   // re-post-edit a subset after a guard/prompt fix without disturbing reviewed
   // locales (e.g. de/es) or bumping POSTEDIT_VERSION globally.
   const regenList = (process.env.REGEN_LOCALES ?? "").split(",").map((s) => s.trim()).filter(Boolean);
@@ -213,16 +213,16 @@ async function main() {
     // nothing usable and the existing wording is kept.
     //
     // This is not hypothetical. protect() masks an ICU plural as a single
-    // sentinel — the outermost balanced { } range covers the whole message,
-    // sub-messages included — so a from-scratch run returns
+    // sentinel (the outermost balanced { } range covers the whole message,
+    // sub-messages included), so a from-scratch run returns
     // "{seconds, plural, one {# second} other {# seconds}}" unchanged. Both
     // plurals in this catalog are currently translated in all five locales, and
     // REGEN_LOCALES sets forceRetranslate, which skips adoption: running the
     // documented "re-post-edit one locale" command would have reverted them to
     // English silently, in a file nobody re-reads.
     //
-    // A translation that was ALREADY identical to the source stays identical —
-    // plenty legitimately are ("Coaching", "Leadership", brand names) — so this
+    // A translation that was ALREADY identical to the source stays identical,
+    // and plenty legitimately are ("Coaching", "Leadership", brand names), so this
     // only ever blocks a regression, never a first translation.
     const currentPo = existsSync(targetPo)
       ? new Map(
@@ -241,7 +241,7 @@ async function main() {
     if (keptIds.length) {
       console.warn(
         `  i18n:translate ${locale}: kept ${keptIds.length} existing translation(s) ` +
-          "the translator returned unchanged from English — e.g. " +
+          "the translator returned unchanged from English, e.g. " +
           `${JSON.stringify(keptIds[0].slice(0, 60))}. ICU plurals are masked whole; ` +
           "translate those by hand.",
       );
@@ -266,7 +266,7 @@ async function main() {
       `${postEditor.stats.failures ? `, ${postEditor.stats.failures} call(s) failed` : ""}.`
     : " LLM post-edit: skipped (ANTHROPIC_API_KEY not set).";
   console.log(
-    `✓ i18n:translate done — ${translated} translated, ${cacheHits} from cache, ${apiCalls} DeepL call(s).${pe} ` +
+    `✓ i18n:translate done: ${translated} translated, ${cacheHits} from cache, ${apiCalls} DeepL call(s).${pe} ` +
       "Next: native review, then add the locale to PUBLISHED_LOCALES.",
   );
 }

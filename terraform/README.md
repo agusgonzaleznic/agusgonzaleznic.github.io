@@ -1,10 +1,10 @@
-# Terraform — agusgonzaleznic.com
+# Terraform: agusgonzaleznic.com
 
 Infrastructure for the site: Route53, ACM, CloudFront (distribution, function,
 OAC, origin-request + response-headers policies), S3, SESv2 (identity, DKIM,
 custom MAIL FROM), the contact + webhook Lambdas with their exec roles, DynamoDB
 (rate limits), SSM, and the Cloudflare Turnstile widget (AWS account
-`139809104139`, `us-east-1`) plus Storyblok resources — component schemas and
+`139809104139`, `us-east-1`) plus Storyblok resources: component schemas and
 the rebuild webhook (space `288632938663524`, EU / `mapi.storyblok.com`).
 
 ## Architecture
@@ -17,7 +17,7 @@ Two root modules with a strict trust boundary:
 | **site** | `terraform/` | S3 backend, `use_lockfile = true` (native S3 locking, no DynamoDB) | **CI only** (`.github/workflows/terraform.yml`) via GitHub OIDC |
 
 - `bootstrap/` owns the chicken-and-egg pieces: the S3 state bucket, the
-  GitHub OIDC identity provider, and every IAM role/policy CI assumes —
+  GitHub OIDC identity provider, and every IAM role/policy CI assumes,
   including the deploy role's permission surface and the Lambda execution
   boundary. It runs in CI through its OWN roles (`github-terraform-bootstrap`
   for the gated apply, `github-terraform-bootstrap-plan`, read-only, for plans),
@@ -42,13 +42,13 @@ Two root modules with a strict trust boundary:
 Deliberately **not** managed here:
 
 - A manually-managed subdomain's A/AAAA records (a personal-network endpoint,
-  out of Terraform scope) — never import or define them.
+  out of Terraform scope). Never import or define them.
 - SSM SecureStrings `/agusgonzaleznic-site/webhook/github-pat` and
-  `/agusgonzaleznic-site/webhook/url-token` — referenced by name only; their
+  `/agusgonzaleznic-site/webhook/url-token`: referenced by name only; their
   values are never data-read into state. Rotating the url-token means:
   update the SSM parameter, update the `STORYBLOK_WEBHOOK_URL_TOKEN` repo
   secret, and re-apply so the Storyblok webhook endpoint is rewritten.
-- Storyblok stories/content (blog folder, draft posts) — the labd/storyblok
+- Storyblok stories/content (blog folder, draft posts): the labd/storyblok
   provider has no story resource. Component **schemas** ARE managed in HCL
   (`storyblok.tf`); only content stays in the CMS.
 
@@ -87,7 +87,7 @@ signed in.
 3. **Wire the GitHub repo variables** (non-secret):
 
    ```sh
-   # still in terraform/bootstrap — output name per bootstrap/outputs.tf
+   # still in terraform/bootstrap; output name per bootstrap/outputs.tf
    gh variable set AWS_TF_ROLE_ARN \
      --body "$(AWS_PROFILE=root-admin terraform output -raw deploy_role_arn)"
    gh variable set AWS_TF_PLAN_ROLE_ARN \
@@ -102,8 +102,8 @@ signed in.
    ```
 
    Then hand the bootstrap tier itself over to CI. Create the environment
-   **with its required reviewer first** — an existing environment with no
-   reviewer would auto-apply IAM:
+   **with its required reviewer first**, because an existing environment with
+   no reviewer would auto-apply IAM:
 
    ```sh
    gh api -X PUT repos/agusgonzaleznic/agusgonzaleznic.github.io/environments/terraform-bootstrap \
@@ -130,7 +130,7 @@ signed in.
    AWS_PROFILE=root-admin aws ssm get-parameter \
      --name /agusgonzaleznic-site/webhook/github-pat --query Parameter.Name --output text
 
-   # ONLY if missing — create them:
+   # ONLY if missing, create them:
    AWS_PROFILE=root-admin aws ssm put-parameter \
      --name /agusgonzaleznic-site/webhook/url-token \
      --type SecureString --value "$(openssl rand -hex 32)"
@@ -165,7 +165,7 @@ signed in.
    ```
 
 6. **Initialize the site module against the S3 backend.** There is no local
-   state to migrate — the live resources will be *imported* into the fresh
+   state to migrate; the live resources will be *imported* into the fresh
    remote state:
 
    ```sh
@@ -199,7 +199,7 @@ signed in.
      cert is already ISSUED.
    - Any imported Storyblok components show an in-place update filling
      `name`/`space_id` (provider import quirk). No destroy/create should
-     ever appear — if one does, STOP and fix the config.
+     ever appear; if one does, STOP and fix the config.
 
 8. **Hand over to CI**: commit, open a PR touching `terraform/**`, check the
    sticky plan comment shows no unexpected changes, merge, and approve the
@@ -211,7 +211,7 @@ All live resources were imported into the S3 remote state on 2026-07-05, so
 `imports.tf` was removed (import blocks are one-time; once state is populated
 they are inert no-ops). This section is the recovery record: if the remote
 state is ever lost, recreate `imports.tf` with these `import` blocks (address →
-live ID) and re-run in this order — later resources reference earlier ones.
+live ID) and re-run in this order: later resources reference earlier ones.
 The S3 state bucket is versioned + `prevent_destroy`, so state loss should not
 recur; this is the backstop of last resort.
 
@@ -219,7 +219,7 @@ recur; this is the backstop of last resort.
 2. The 14 managed Route53 records (apex A/AAAA/MX/TXT/CAA, `www` CNAME,
    DMARC/DKIM/MTA-STS/TLS-RPT, and the SES MAIL-FROM `mail` MX + TXT). **Never**
    the manually-managed subdomain records, NS/SOA, the 3 SES DKIM CNAMEs
-   (standalone `aws_route53_record.ses_dkim` resources — import those under
+   (standalone `aws_route53_record.ses_dkim` resources; import those under
    their own addresses), or the ACM validation CNAME (next step owns it).
 
    > **This list predates the contact/SES stack.** A full recovery today must
@@ -232,7 +232,7 @@ recur; this is the backstop of last resort.
    > the live resources rather than silently duplicating them.
 3. ACM certificate (`arn:...:certificate/5252733a-e6e7-4161-bf9e-83b791bb885a`)
    plus its validation CNAME record; `aws_acm_certificate_validation` cannot
-   be imported — first apply creates it.
+   be imported; first apply creates it.
 4. CloudFront: response headers policy
    (`a21003ee-2c03-4474-b6d9-23c6fe505af7`), function
    (`agusgonzaleznic-com-www-redirect`, imports the LIVE stage), then the
@@ -245,10 +245,10 @@ recur; this is the backstop of last resort.
    access block.
 7. Storyblok webhook(s), once defined: import ID format is
    `<SPACE_ID>/<WEBHOOK_ID>` (webhook import is clean; component import has
-   known quirks — see step 7 of the runbook).
+   known quirks: see step 7 of the runbook).
 
 The vestigial OAI `E3LG1Y2B7NO5P2` is not a resource in this config and is
-not attached to the distribution — do not import it. It IS, however, hardcoded
+not attached to the distribution. Do not import it. It IS, however, hardcoded
 as the principal of the TF-managed apex bucket policy (`s3.tf`), so deleting
 the OAI in AWS would still touch managed config.
 
@@ -257,7 +257,7 @@ the OAI in AWS would still touch managed config.
 1. Branch, edit `terraform/**`, open a PR.
 
    **Markdown-only changes under `terraform/` do not trigger this workflow at
-   all** — no plan comment, no `Tier split`, no gated apply. That is deliberate:
+   all**: no plan comment, no `Tier split`, no gated apply. That is deliberate:
    a README edit cannot change infrastructure, and queuing an approval request
    for an apply that provably does nothing is how a gate stops being read. If
    you edited a `.md` here and see no terraform checks, nothing is broken.
@@ -272,18 +272,18 @@ the OAI in AWS would still touch managed config.
    in-workflow, because a credentials failure aborts before the plan step and
    would otherwise leave the previous commit's green comment on the PR.
    **Every** terraform PR additionally runs
-   `Bootstrap plan (PR)` — the job is gated on the `AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN`
+   `Bootstrap plan (PR)`: the job is gated on the `AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN`
    variable, not on paths, so it surfaces bootstrap drift on site-only PRs too.
    Its output lands in the **job summary**, not the sticky comment (`-lock=false` by design: the plan role holds no
    `s3:PutObject`, so it cannot take the state lock). If the plan-scrub step
    redacts secret-shaped content, the job goes red *after* posting the
-   redacted comment — that means "investigate before merging", not "retry".
+   redacted comment; that means "investigate before merging", not "retry".
 3. Review the plan comment, merge.
 4. Push to `main` triggers the apply job, which waits on the
    `terraform-production` environment gate. Approve it in the Actions UI.
-   (If the *bootstrap* tier has changes — including pure drift, since
-   detection is by plan, not by paths — a `terraform-bootstrap` approval is
-   requested first.) Manual re-runs: `workflow_dispatch` only does anything
+   (If the *bootstrap* tier has changes, a `terraform-bootstrap` approval is
+   requested first. Pure drift counts, because detection is by plan, not by
+   paths.) Manual re-runs: `workflow_dispatch` only does anything
    from `main`; on any other ref every job skips silently. `TF_CLI_ARGS*`
    overrides are refused by a guard step in every job.
 5. The job re-plans (`-out=tfplan`), publishes the plan to the job summary,
@@ -298,7 +298,7 @@ cancelled.
 Bootstrap changes ride the same PR as the site change that needs them. On
 merge, `bootstrap-detect` re-plans read-only and publishes the diff, then
 `bootstrap-apply` (gated on `terraform-bootstrap`) applies it **before** the
-site apply — the ordering matters, because it is what grants the deploy role the
+site apply: the ordering matters, because it is what grants the deploy role the
 permissions the site plan is about to use. `bootstrap-apply` is skipped when that
 module has no changes, so routine merges still need exactly one approval.
 
@@ -315,11 +315,11 @@ module has no changes, so routine merges still need exactly one approval.
 ## Contact form + Turnstile activation
 
 **This activation is complete and live** (secrets, variables, grants and the
-apply all shipped 2026-07/08) — this section remains as the re-activation /
+apply all shipped 2026-07/08). This section remains as the re-activation /
 disaster-recovery runbook. The contact backend (`contact.tf`, `ses.tf`,
 `cdn.tf`) needs these secrets/variables before the CI apply can run. The ONE SSM SecureString under
 `/agusgonzaleznic-site/contact/*` is **Terraform-managed** (value comes from the
-Cloudflare widget resource) — do NOT create it by hand, unlike the webhook
+Cloudflare widget resource). Do NOT create it by hand, unlike the webhook
 params.
 
 **Mail delivery is SES, not Apps Script.** The Lambda calls `ses:SendEmail`
@@ -333,11 +333,11 @@ being edited). Nothing in this path is hand-fed now.
 default `amazonses.com` envelope aligns on neither SPF nor DKIM and is
 REJECTED, not merely spam-filed. `ses.tf` therefore configures both mechanisms:
 Easy DKIM, and a custom MAIL FROM (`mail.agusgonzaleznic.com`, MX + SPF records
-in `dns.tf`) so SPF aligns too under DMARC's relaxed `aspf` — the apex SPF
+in `dns.tf`) so SPF aligns too under DMARC's relaxed `aspf`; the apex SPF
 stays Google-only on purpose (an apex `include:amazonses.com` would authorize
 every SES customer). `ses.tf` creates the
 domain identity with Easy DKIM plus its three CNAMEs, and **the identity must
-report `Verified` BEFORE the Lambda starts sending** — see the two-stage apply
+report `Verified` BEFORE the Lambda starts sending**; see the two-stage apply
 below. The apex MX stays Google Workspace and is untouched.
 
 **SES sandbox is fine and permanent here.** The sandbox restricts RECIPIENTS to
@@ -347,7 +347,7 @@ ever want to CC the submitter, that is a different domain and DOES require
 production access.
 
 1. **Widen bootstrap in ITS OWN PR, merged and applied FIRST.** The deploy role
-   needs the new SES grants and — critically — the lambda-exec boundary must
+   needs the new SES grants and, critically, the lambda-exec boundary must
    allow `ses:SendEmail`. The boundary is the ceiling: without it the site apply
    SUCCEEDS and the function is denied at RUNTIME. The CI apply fails
    `AccessDenied` on `CreateEmailIdentity` without the deploy policy, and even
@@ -362,12 +362,12 @@ production access.
 
    The cost of getting this wrong is not theoretical. Five PRs were merged with
    that plan red, and a genuine bug hid behind the normalised redness the whole
-   time — `bootstrap-apply` was silently skipping on every commit (a `tee` in the
+   time: `bootstrap-apply` was silently skipping on every commit (a `tee` in the
    detect step swallowed terraform's `-detailed-exitcode`), so none of that
    terraform was ever applied. A green-plan rule would have caught it on the
    first PR.
 
-   So: PR 1 touches `terraform/bootstrap/` only — its own `Bootstrap plan (PR)`
+   So: PR 1 touches `terraform/bootstrap/` only; its own `Bootstrap plan (PR)`
    is green, because bootstrap grants itself nothing. Merge it, approve
    `terraform-bootstrap`, and the grant lands. PR 2 then carries the site change
    with a GREEN `Plan (PR)`. Two merges, both verified. The `tier-split` CI job
@@ -429,11 +429,11 @@ saturating the account's low Lambda concurrency.
 ### Rotation runbooks
 
 - **`CLOUDFLARE_API_TOKEN`** (deploy-time only): mint a new scoped token in
-  Cloudflare, `gh secret set CLOUDFLARE_API_TOKEN`, done — no apply needed.
+  Cloudflare, `gh secret set CLOUDFLARE_API_TOKEN`, done; no apply needed.
 - **Turnstile secret** (runtime, TF-managed): taint/replace
   `cloudflare_turnstile_widget.contact` so the SSM param re-derives from the new
   widget, apply, then rebuild the client (`deploy.yml`) so the new
   `TURNSTILE_SITE_KEY` ships in the bundle.
 - **Webhook url-token**: see the `/agusgonzaleznic-site/webhook/*` bullet under
-  "Deliberately not managed here" (Architecture section) — SSM param + repo
+  "Deliberately not managed here" (Architecture section): SSM param + repo
   secret + re-apply (the Storyblok webhook endpoint embeds the token).

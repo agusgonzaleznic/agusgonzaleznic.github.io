@@ -2,7 +2,7 @@
   "slug": "alert-fatigue-and-fuck-bingo",
   "full_slug": "blog/alert-fatigue-and-fuck-bingo",
   "title": "L'alert fatigue et le Fuck Bingo",
-  "excerpt": "Un CTO qui traitait chaque problème comme un SEV-1 a appris à son équipe à tenir une carte de « fuck bingo ». À propos des jurons, du pouvoir et de l'alert fatigue — comment les dirigeants entraînent discrètement leurs équipes à ne plus leur dire ce qui cloche.",
+  "excerpt": "Un CTO qui traitait chaque problème comme un SEV-1 a appris à son équipe à tenir une carte de « fuck bingo ». À propos des jurons, du pouvoir et de l'alert fatigue : comment les dirigeants entraînent discrètement leurs équipes à ne plus leur dire ce qui cloche.",
   "body": {
     "type": "doc",
     "content": [
@@ -470,7 +470,7 @@
             ]
           },
           {
-            "text": ". Son observation la plus utile n'est pas que les managers qui carburent à la crise sont irrationnels. C'est que la crise peut devenir un mécanisme d'adaptation face à la perte de contrôle qu'entraîne le leadership. L'organisation grandit ; le travail s'éloigne ; d'autres prennent des décisions que tu n'aurais pas prises. Créer une crise ramène le travail — et l'attention de tous — vers toi.",
+            "text": ". Son observation la plus utile n'est pas que les managers qui carburent à la crise sont irrationnels. C'est que la crise peut devenir un mécanisme d'adaptation face à la perte de contrôle qu'entraîne le leadership. L'organisation grandit ; le travail s'éloigne ; d'autres prennent des décisions que tu n'aurais pas prises. Créer une crise ramène le travail, et l'attention de tous, vers toi.",
             "type": "text"
           }
         ]

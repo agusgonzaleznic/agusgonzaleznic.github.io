@@ -1,8 +1,8 @@
-# bootstrap — state bucket + GitHub OIDC roles
+# bootstrap: state bucket + GitHub OIDC roles
 
 Self-contained root module. It creates the things CI itself depends on: the S3
 remote-state bucket, the GitHub OIDC identity provider, and every IAM role and
-policy that grants CI its permissions — including the deploy role's whole
+policy that grants CI its permissions, including the deploy role's whole
 permission surface and the Lambda execution boundary.
 
 **This module now runs in CI**, under its own OIDC roles and its own gated
@@ -19,14 +19,14 @@ use them, and they cannot both land in one apply:
 
 A single `terraform apply` that both grants a permission and consumes it is
 unreliable by construction: Terraform only orders operations joined by a
-dependency edge, IAM is eventually consistent, and — decisively — **data
+dependency edge, IAM is eventually consistent, and (decisively) **data
 sources are read at plan time**, before any apply step in the same run.
 `data.aws_cloudfront_cache_policy`, `data.aws_kms_alias` and
 `data.aws_caller_identity` are already read on every plan, so a grant applied
 later in that run can never satisfy them.
 
 So the target is not one apply. It is **one PR, one workflow run, zero local
-commands** — which is what the workflow now does, by chaining
+commands**, which is what the workflow now does, by chaining
 `bootstrap-apply` ahead of the site `apply`.
 
 The rejected alternative (letting the *deploy* role manage its own policies
@@ -39,7 +39,7 @@ the top of `role-bootstrap-ci.tf`. Read that before reviving the idea.
 |---|---|---|---|
 | `github-terraform-bootstrap-plan` | `pull_request`, `ref:refs/heads/main` | `IAMReadOnlyAccess` + `s3:Get*`/`List*` on the state bucket, objects `bootstrap/*` only | `bootstrap-plan`, `bootstrap-detect` |
 | `github-terraform-plan` | `pull_request` only | `ReadOnlyAccess`, plus `kms:Decrypt` via SSM, minus Denies on parameter values outside `/agusgonzaleznic-site/*`, log events, object bodies other than state `site/*`, and the DynamoDB data plane | `plan` (site tier) |
-| `github-terraform-bootstrap` | `environment:terraform-bootstrap` **only** | `IAMFullAccess` + `s3:*` on the state bucket (config mgmt; `DeleteBucket` denied by the ceiling), objects `bootstrap/*` only — all capped by `agusgonzaleznic-bootstrap-ceiling` | `bootstrap-apply` |
+| `github-terraform-bootstrap` | `environment:terraform-bootstrap` **only** | `IAMFullAccess` + `s3:*` on the state bucket (config mgmt; `DeleteBucket` denied by the ceiling), objects `bootstrap/*` only; all capped by `agusgonzaleznic-bootstrap-ceiling` | `bootstrap-apply` |
 
 The S3 statements are deliberately wildcards, not enumerated verbs: the
 `aws_s3_bucket` resource family reads a provider-version-dependent set of
@@ -47,7 +47,7 @@ sub-configurations on every refresh, and an enumerated list silently breaks when
 that set grows (it did, in this module's first CI run). The write role owns the
 bucket's configuration; the plan role's verbs are read-only by construction. The
 same reasoning shapes the ceiling: **Allow-\* plus targeted Denies, never an
-enumerated allow-list** — an enumerated ceiling on the one role CI depends on is
+enumerated allow-list**. An enumerated ceiling on the one role CI depends on is
 a single point of failure repairable only via break-glass. Do not "tighten" it
 into an allow-list; that is the exact failure mode the shape exists to prevent.
 Besides the Denies listed below, the ceiling also denies re-versioning or
@@ -59,7 +59,7 @@ any other main-branch job holding `id-token: write`, because declaring
 `environment:` **replaces** the ref form in the OIDC `sub` claim.
 
 `github-terraform-bootstrap` is **admin-equivalent and cannot be made
-otherwise** — it is the tier that decides who may do what. Its ceiling blocks
+otherwise**: it is the tier that decides who may do what. Its ceiling blocks
 persistence and lateral paths this module never needs (IAM users, access keys,
 SSO/Organizations roles, shedding its own boundary, deleting the state bucket);
 it does not pretend to contain a compromised *approved* run. The real control is
@@ -75,11 +75,11 @@ Edit this module in the same PR as the site change that needs it. Then:
 2. Merge → `bootstrap-detect` re-plans read-only and publishes it, so you see
    the diff **before** the approval prompt appears.
 3. Approve `terraform-bootstrap` → `bootstrap-apply` re-plans under the write
-   role (`-out=tfplan`) and applies **that** plan — the detect job's plan is not
+   role (`-out=tfplan`) and applies **that** plan: the detect job's plan is not
    reusable (different role, and an unlocked plan is not a safe apply input).
    Drift between detect and apply is therefore applied without re-approval;
    the apply-time plan is published to the job summary for after-the-fact review.
-   The job ends with a deliberate `sleep 20` — IAM is eventually consistent and
+   The job ends with a deliberate `sleep 20`: IAM is eventually consistent and
    the site plan immediately uses whatever was just granted; the sleep is
    load-bearing, not cruft.
 4. Approve `terraform-production` → the site applies, now with the permissions
@@ -87,7 +87,7 @@ Edit this module in the same PR as the site change that needs it. Then:
 
 `bootstrap-apply` is skipped entirely when this module has no changes, so
 routine site-only merges still need exactly one approval. Detection is by
-`terraform plan -detailed-exitcode`, not by changed paths — a path filter is
+`terraform plan -detailed-exitcode`, not by changed paths: a path filter is
 wrong in both directions (it prompts on no-op merges and misses drift or a
 module version bump). One honest caveat: the *workflow itself* still triggers on
 `terraform/**` paths (plus `workflow_dispatch`), so drift is only caught when a
@@ -97,7 +97,7 @@ run happens at all. A failed apply is recovered with `workflow_dispatch` from
 ## Enabling this (one-time, and the only human applies that remain)
 
 The very first apply cannot come from CI: it creates the roles CI would need to
-assume. Order matters — create the environment **with its reviewer** before the
+assume. Order matters: create the environment **with its reviewer** before the
 role exists, so there is never a window where an ungated environment can reach a
 write-capable role.
 
@@ -126,12 +126,12 @@ is what lets the workflow merge before step 2.
 Use `AWS_PROFILE=root-admin` locally only when:
 
 - **First-ever apply of this module** (the state bucket does not exist yet, so
-  `backend.tf` points at nothing — comment the `backend "s3"` block out, apply
+  `backend.tf` points at nothing: comment the `backend "s3"` block out, apply
   with local state, uncomment, `terraform init -migrate-state`, then delete the
   local `terraform.tfstate*`). `terraform init` performs live S3 calls before it
   builds a resource graph and a `backend` block cannot reference resources, so
   this circularity has no in-Terraform solution.
-- **CI locked itself out** — a change here broke the bootstrap roles' own trust
+- **CI locked itself out**: a change here broke the bootstrap roles' own trust
   or permissions. Nothing in CI can repair CI's identity.
 
 ## Wiring outputs into GitHub
@@ -152,7 +152,7 @@ Not part of the plan/apply tiers, but owned by this module
 (`role-cdn-invalidation.tf`): a dedicated role for post-deploy CloudFront
 invalidation, holding exactly two actions (`CreateInvalidation`,
 `GetInvalidation`). Its trust is deliberately **broader** than the deploy
-role's — it accepts `main`-ref subjects from this repo AND from
+role's: it accepts `main`-ref subjects from this repo AND from
 `agusgonzaleznic/drive-berlin` (proxied at `/drive-berlin/` through the same
 distribution, so it must invalidate the shared cache). That broader trust is
 exactly why it is a separate role: blast radius if abused is cache

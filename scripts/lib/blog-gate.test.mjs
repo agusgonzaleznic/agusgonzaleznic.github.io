@@ -1,6 +1,6 @@
 // Tests for the per-(article × locale) publication gate.
 //
-// This module decides which locale pages EXIST — it drives prerender's emission
+// This module decides which locale pages EXIST: it drives prerender's emission
 // loop, the hreflang clusters, and the sitemap. It had no tests at all, which is
 // how a truncated approvals manifest once silently unpublished every reviewed
 // translation while the build stayed green.
@@ -58,7 +58,7 @@ test("enSourceHash changes when translatable content changes", () => {
 
 test("enSourceHash ignores code blocks (they are never translated)", () => {
   // A code_block is served verbatim, so editing one must NOT demote an approved
-  // translation — the translator's work is unaffected by it.
+  // translation; the translator's work is unaffected by it.
   const withCode = post({
     body: {
       type: "doc",
@@ -103,7 +103,7 @@ test("enSourceHash changes when a link TARGET changes", () => {
     enSourceHash(linked("https://example.com/new")),
     enSourceHash(linked("https://example.com/old")),
   );
-  // Same href, same hash — the href must not make the hash unstable.
+  // Same href, same hash: the href must not make the hash unstable.
   assert.equal(
     enSourceHash(linked("https://example.com/same")),
     enSourceHash(linked("https://example.com/same")),
@@ -127,7 +127,7 @@ test("auto locales emit when published; gated locales do not without approval", 
   for (const l of REVIEW_GATED_LOCALES) assert.ok(!out.includes(l), `${l} must need approval`);
 });
 
-test("PUBLISHED_LOCALES is a hard ceiling — an approved locale that is not published stays out", () => {
+test("PUBLISHED_LOCALES is a hard ceiling: an approved locale that is not published stays out", () => {
   const p = post();
   const out = approvedLocalesFor(p, approve(p, ["de"]), ["en", "fr"]);
   assert.deepEqual(out.sort(), ["en", "fr"].sort());
@@ -174,8 +174,8 @@ test("an https canonical_override makes the post SOURCE-LOCALE ONLY", () => {
 });
 
 test("a non-https override does NOT suppress translations", () => {
-  // BlogPost.tsx only honours ^https:// — anything else falls back to the self
-  // URL, so the translations are perfectly canonical and must still ship. If
+  // BlogPost.tsx only honours ^https:// (anything else falls back to the self
+  // URL), so the translations are perfectly canonical and must still ship. If
   // this gate were looser than the page, a typo'd override would silently
   // unpublish five locales.
   for (const bad of ["http://example.com/x", "javascript:alert(1)", "/relative", "example.com", ""]) {

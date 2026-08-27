@@ -1,6 +1,6 @@
 // Shared Storyblok CDA fetch + post mapping. Used by BOTH fetch-blog.mjs (the
 // build) and review-translations.mjs (the local review tool) so the two can never
-// drift on the post shape — the reviewed content the review tool writes MUST
+// drift on the post shape: the reviewed content the review tool writes MUST
 // match the schema fetch-blog serves.
 //
 // SECURITY: the token travels only in the query string; a non-OK response never
@@ -73,7 +73,7 @@ export async function fetchPublishedPosts({ token, version = "published" }) {
 // ── Marketing pages ────────────────────────────────────────────────────────
 // The `page` content type is a body of section blocks. Unlike blog posts (one
 // flat shape), pages carry arbitrary nested block trees, so we strip Storyblok's
-// editor-only keys and pass every content field through verbatim — the app's
+// editor-only keys and pass every content field through verbatim: the app's
 // components read the fields by name (see src/lib/pages.ts + the section
 // components). Kept in this shared module so the build + any future automation
 // never drift on the page shape.

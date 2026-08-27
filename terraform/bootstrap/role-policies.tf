@@ -15,7 +15,7 @@ locals {
   # Configuration set the contact Lambda sends through, created by the site
   # module. Named here because the boundary has to allow SendEmail on it before
   # anything can use it, and IAM happily references an ARN that does not exist
-  # yet — which is what makes the bootstrap-first ordering possible at all.
+  # yet, which is what makes the bootstrap-first ordering possible at all.
   ses_config_set_arn    = "arn:aws:ses:us-east-1:${local.account_id}:configuration-set/agusgonzaleznic-contact"
   acm_certificate_arn   = "arn:aws:acm:us-east-1:${local.account_id}:certificate/5252733a-e6e7-4161-bf9e-83b791bb885a"
   lambda_function_arns  = ["arn:aws:lambda:us-east-1:${local.account_id}:function:agusgonzaleznic-*"]
@@ -108,7 +108,7 @@ data "aws_iam_policy_document" "cloudfront" {
 
   # Response-headers-policy lifecycle (the immutable_assets policy for the
   # /assets/* + /fonts/* long-cache behaviors). Create*/Delete* can't be scoped
-  # to a specific policy ID — it doesn't exist until CI creates it — so
+  # to a specific policy ID (it doesn't exist until CI creates it), so
   # response-headers-policy/* is unavoidable, the same single-tenant tradeoff as
   # CloudFrontManageApiPolicies below. Get/Update of the pre-existing
   # security_headers policy stay ARN-scoped in ManageSiteDistribution.
@@ -172,7 +172,7 @@ data "aws_iam_policy_document" "cloudfront" {
   # Create* actions don't accept resource ARNs, and the OAC/policy IDs don't
   # exist until CI creates them, so Resource:* is unavoidable (single-tenant
   # account; same documented tradeoff as the List* reads above). Deliberately
-  # NO distribution/*Config actions — those stay pinned to the site
+  # NO distribution/*Config actions: those stay pinned to the site
   # distribution ARN in ManageSiteDistribution.
   statement {
     sid    = "CloudFrontManageApiPolicies"
@@ -293,7 +293,7 @@ data "aws_iam_policy_document" "lambda" {
       "logs:ListTagsForResource",
     ]
     resources = local.lambda_log_group_arns
-    # logs:DescribeLogGroups is deliberately NOT here — see ReadLogGroups in the
+    # logs:DescribeLogGroups is deliberately NOT here; see ReadLogGroups in the
     # observability policy below. It was listed here for a long time and never
     # worked, because it is a LIST operation: IAM evaluates it against
     # `log-group::log-stream:` (an empty resource), so an ARN-scoped grant never
@@ -303,7 +303,7 @@ data "aws_iam_policy_document" "lambda" {
 
   # Read / delete / detach / tag: cannot grant privilege, so no condition.
   # Deliberately excludes iam:PutRolePermissionsBoundary and
-  # iam:DeleteRolePermissionsBoundary — CI must never swap or strip the
+  # iam:DeleteRolePermissionsBoundary. CI must never swap or strip the
   # boundary that the two statements below depend on.
   statement {
     sid    = "ManageLambdaExecRole"
@@ -390,7 +390,7 @@ data "aws_iam_policy_document" "lambda" {
 # --- DynamoDB (contact form state table) ------------------------------------
 # Deploy-time table management only. The runtime data-plane actions
 # (GetItem/PutItem/UpdateItem/DeleteItem) belong to the Lambda exec role, not
-# CI — they are granted by the boundary + the exec role's inline policy.
+# CI; they are granted by the boundary + the exec role's inline policy.
 
 data "aws_iam_policy_document" "dynamodb" {
   statement {
@@ -484,7 +484,7 @@ data "aws_iam_policy_document" "lambda_exec_boundary" {
     actions = ["ses:SendEmail"]
     # ses:SendEmail authorises against TWO resource types, and a request naming a
     # configuration set is checked against both. Granting only the identity means
-    # every send that passes ConfigurationSetName fails AccessDenied — and because
+    # every send that passes ConfigurationSetName fails AccessDenied, and because
     # the Lambda catches everything and returns HTTP, that surfaces as a 502 on
     # every submission with AWS/Lambda Errors still reading zero.
     #
@@ -543,7 +543,7 @@ data "aws_iam_policy_document" "ssm" {
   # The contact module MANAGES this param in Terraform (value from the
   # Cloudflare widget secret), unlike the webhook params
   # which are human-managed and read-only. Write access is scoped to the
-  # contact/ prefix ONLY — CI must never write the human-managed secrets
+  # contact/ prefix ONLY: CI must never write the human-managed secrets
   # elsewhere under /agusgonzaleznic-site/*.
   statement {
     sid    = "ManageContactParameters"
@@ -625,13 +625,13 @@ data "aws_iam_policy_document" "ses" {
   # on refresh but no config file mentions.
   #
   # Every Put*Options action is listed even though the initial resource sets only
-  # some of them — the provider calls the one matching whichever field changes, so
+  # some of them: the provider calls the one matching whichever field changes, so
   # a policy covering only today's fields turns any later edit into a failed apply
   # that needs a second bootstrap round trip and a second human approval.
   #
   # DELIBERATELY OMITTED: ses:ListConfigurationSets. It is the one action here
   # that cannot be ARN-scoped (resource type `*`), and the provider does not need
-  # it — Create/Read/Update/Delete and import all address the set by name via
+  # it: Create/Read/Update/Delete and import all address the set by name via
   # GetConfigurationSet. If a plan ever fails asking for it, that is the action to
   # add, with a comment saying why it has to be unscoped.
   statement {
@@ -697,12 +697,12 @@ resource "aws_iam_role_policy_attachment" "deploy" {
 # tenth would sit exactly on the quota, so the next service adopted would be
 # blocked behind a Service Quotas request. Inline policies count against a
 # separate limit (aggregate size, not count), so putting these here preserves
-# the last managed slot as headroom. Same tier, same reviewer, same gate — only
+# the last managed slot as headroom. Same tier, same reviewer, same gate; only
 # the attachment mechanism differs.
 ################################################################################
 # WHEN ADDING A RESOURCE TYPE HERE, ENUMERATE WHAT THE PROVIDER *READS*, NOT
 # JUST WHAT IT WRITES. Two grants in this policy were discovered only by a failed
-# apply — logs:DescribeLogGroups (a LIST action, so it cannot be ARN-scoped) and
+# apply: logs:DescribeLogGroups (a LIST action, so it cannot be ARN-scoped) and
 # budgets:ListTagsForResource (read on every refresh even with no tags declared).
 # Both times the create succeeded and the follow-up read failed, which leaves the
 # apply half-done. The provider's resource docs list the required IAM actions per
@@ -819,7 +819,7 @@ data "aws_iam_policy_document" "deploy_observability" {
   }
 
   # sns:GetSubscriptionAttributes takes the SUBSCRIPTION arn, whose suffix is a
-  # server-generated uuid — not prefixable, hence Resource "*" on a read-only
+  # server-generated uuid. Not prefixable, hence Resource "*" on a read-only
   # action. Terraform reads it on every refresh of the subscription.
   statement {
     sid       = "ReadSubscriptions"

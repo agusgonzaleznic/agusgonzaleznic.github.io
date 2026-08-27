@@ -1,6 +1,6 @@
 // Tests for the blog tag translation map.
 //
-// This module owns content/tag-translations.json — 14 tags x 5 locales of
+// This module owns content/tag-translations.json: 14 tags x 5 locales of
 // reviewed labels, committed. Two of its behaviours could destroy that file or
 // permanently pin it to English, and neither was covered.
 
@@ -80,7 +80,7 @@ test("unmappedTags reports exactly what has no label for the locale", () => {
 // -------------------------------------------- ensureTagTranslations, keyless
 
 test("a failed translation is NOT persisted as the English tag", async () => {
-  // With no ANTHROPIC_API_KEY the translator returns {} — the same result as an
+  // With no ANTHROPIC_API_KEY the translator returns {}, the same result as an
   // SDK failure, a refusal, or a rate limit. Writing the English tag here used to
   // look identical to a finished translation, and since the missing-check tests
   // only for presence, it was never retried: one keyless build pinned every tag

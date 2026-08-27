@@ -10,7 +10,7 @@
 // <url> carries a COMPLETE set of <xhtml:link rel="alternate"> hreflang entries
 // (one per published locale + x-default → English). English llms.txt stays at
 // the root (dist/llms.txt); a prefixed locale writes dist/{locale}/llms.txt from
-// its own translated brief (public/{locale}/llms.txt) — falling back to the
+// its own translated brief (public/{locale}/llms.txt), falling back to the
 // English brief when none exists, so /{locale}/llms.txt is always valid
 // Markdown. All six locales are published. The blog RSS stays English-only (a
 // single feed).
@@ -28,7 +28,7 @@ const serverEntry = resolve(projectRoot, "dist-server/entry-server.js");
 const blogDataFile = resolve(projectRoot, "src/generated/blog-data.json");
 
 const SITE_URL = "https://agusgonzaleznic.com";
-const BLOG_TITLE = "Agustin Gonzalez Nicolini — Blog";
+const BLOG_TITLE = "Agustin Gonzalez Nicolini | Blog";
 const BLOG_DESCRIPTION =
   "Writing on engineering leadership, executive coaching, and building teams that ship.";
 
@@ -51,7 +51,7 @@ function toDate(value) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-// Authored publish date — same priority as src/lib/blog.ts postDate(), so RSS
+// Authored publish date: same priority as src/lib/blog.ts postDate(), so RSS
 // pubDate matches the rendered pages and doesn't jump on every CMS re-publish
 // (Storyblok bumps published_at each time a story is re-published).
 function postDate(post) {
@@ -60,7 +60,7 @@ function postDate(post) {
   );
 }
 
-// "Last modified" for the sitemap — here published_at's re-publish semantics
+// "Last modified" for the sitemap: here published_at's re-publish semantics
 // are exactly what we want.
 function postModified(post) {
   return toDate(post.published_at) ?? postDate(post);
@@ -119,7 +119,7 @@ function buildSitemap(posts, cfg) {
     </image:image>
     <image:image>
       <image:loc>${SITE_URL}/og-image.webp</image:loc>
-      <image:title>Engineering leadership and executive coaching — agusgonzaleznic.com preview</image:title>
+      <image:title>Engineering leadership and executive coaching: agusgonzaleznic.com preview</image:title>
     </image:image>`;
 
   // Static pages come from the caller's route list (scripts/prerender.mjs), NOT
@@ -141,7 +141,7 @@ function buildSitemap(posts, cfg) {
     }));
   if (staticPages.length === 0) {
     throw new Error(
-      "generate-feeds: no static pages received. Pass `routes` from prerender.mjs — " +
+      "generate-feeds: no static pages received. Pass `routes` from prerender.mjs; " +
         "without it the sitemap would silently omit every marketing and legal page.",
     );
   }
@@ -152,7 +152,7 @@ function buildSitemap(posts, cfg) {
     // syndicated: the original lives elsewhere and this copy declares itself
     // non-canonical. A sitemap is a list of the URLs we want indexed AS
     // THEMSELVES, so listing one that canonicalises away asks Google to index a
-    // page that disclaims itself — the sitemap and the <link rel="canonical">
+    // page that disclaims itself: the sitemap and the <link rel="canonical">
     // contradict each other, and the sitemap loses.
     //
     // Matches BlogPost.tsx's test exactly (^https:// only), like the publication
@@ -253,7 +253,7 @@ export async function generateFeeds(i18nConfig) {
     // Prefer a translated brief (public/{locale}/llms.txt); otherwise fall back
     // to the English brief so /{locale}/llms.txt is still a valid Markdown file
     // (H1 + summary) rather than the SPA HTML fallback GitHub Pages would serve
-    // for a missing path — which crawlers reject as a malformed llms.txt.
+    // for a missing path, which crawlers reject as a malformed llms.txt.
     const localeBrief = resolve(projectRoot, `public/${locale}/llms.txt`);
     const templatePath =
       locale !== cfg.SOURCE_LOCALE && existsSync(localeBrief) ? localeBrief : rootBrief;
@@ -268,7 +268,7 @@ export async function generateFeeds(i18nConfig) {
 // Allow standalone runs: node scripts/generate-feeds.mjs
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   if (!existsSync(distDir)) {
-    console.error("generate-feeds: dist/ not found — run the build first.");
+    console.error("generate-feeds: dist/ not found. Run the build first.");
     process.exit(1);
   }
   await generateFeeds();

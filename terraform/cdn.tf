@@ -113,7 +113,7 @@ module "cloudfront" {
   }
 
   # Unknown paths return a REAL 404 (not 200 + homepage). This is a fully
-  # prerendered SSG — every real route has its own /path/index.html, so nothing
+  # prerendered SSG: every real route has its own /path/index.html, so nothing
   # relies on a 200 SPA fallback. Serving 200+index.html for missing paths made
   # every junk/stale URL a soft-404 (or a noindex once the client-side NotFound
   # hydrated) in Search Console, and served the homepage as duplicate content on
@@ -153,7 +153,7 @@ data "aws_cloudfront_cache_policy" "caching_disabled" {
 }
 
 # Origin request policy for /api/*. Forwards the true client IP
-# (CloudFront-Viewer-Address, cache-policy-forbidden — must live here), plus
+# (CloudFront-Viewer-Address, cache-policy-forbidden; must live here), plus
 # Origin, Content-Type, and the POST payload hash CloudFront must sign. Host is
 # deliberately NOT forwarded: OAC SigV4 requires the Function-URL Host, which
 # CloudFront re-adds. No managed policy fits (they either omit the viewer
@@ -212,8 +212,8 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
       # tighten it, first change the CSS delivery strategy in prerender.mjs.
       #
       # challenges.cloudflare.com in script-src + frame-src: Turnstile loads
-      # api.js and renders its challenge in an iframe. connect-src stays 'self'
-      # — the contact POST goes to same-origin /api/contact (siteverify is a
+      # api.js and renders its challenge in an iframe. connect-src stays 'self':
+      # the contact POST goes to same-origin /api/contact (siteverify is a
       # server-side call from the Lambda, not the browser).
       content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://app.storyblok.com https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https: blob:; connect-src 'self' https://api.storyblok.com https://api-us.storyblok.com https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com; frame-src https://calendar.google.com https://calendar.app.google https://app.storyblok.com https://challenges.cloudflare.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests;"
       override                = true
@@ -262,7 +262,7 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
 }
 
 # Long-lived immutable Cache-Control for content-hashed assets (/assets/*) and
-# self-hosted fonts (/fonts/*) — used by their ordered cache behaviors above so
+# self-hosted fonts (/fonts/*), used by their ordered cache behaviors above so
 # repeat visitors reuse them from the browser cache instead of re-requesting on
 # the GitHub Pages origin's max-age=600. Carries the security headers that
 # matter for static sub-resources (HSTS, nosniff, CORP for cross-origin font
@@ -271,7 +271,7 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
 # 600s so content deploys still go live within ~10 minutes.
 #
 # CAVEAT: /assets/* names are content-hashed (safe to pin forever); /fonts/*
-# names are version-pinned but NOT content-hashed — if you ever replace a font
+# names are version-pinned but NOT content-hashed. If you ever replace a font
 # file in place, rename it or invalidate /fonts/* on the distribution.
 resource "aws_cloudfront_response_headers_policy" "immutable_assets" {
   name    = "${replace(local.domain_name, ".", "-")}-immutable-assets"
@@ -372,7 +372,7 @@ resource "aws_cloudfront_function" "www_redirect" {
   comment = "URL normalisation + www redirect + per-subtree canonical URLs"
   publish = true
 
-  # The handler lives in its own file so it can be UNIT TESTED — see
+  # The handler lives in its own file so it can be UNIT TESTED; see
   # cdn-function/handler.test.mjs, which renders this same template and asserts
   # the full routing table (56 cases). It decides the canonical URL of every
   # page on the site, so a mistake here is a site-wide SEO or availability
@@ -380,7 +380,7 @@ resource "aws_cloudfront_function" "www_redirect" {
   # tests at all. The rationale for each rule is documented in the handler.
   #
   # `domain_name` is the ONLY template variable. If another is added, update
-  # renderHandler() in the test too — it asserts no variable is left
+  # renderHandler() in the test too: it asserts no variable is left
   # unsubstituted, so the test fails rather than silently drifting.
   code = templatefile("${path.module}/cdn-function/handler.js.tftpl", {
     domain_name = local.domain_name

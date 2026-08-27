@@ -25,7 +25,7 @@ export default tseslint.config(
   },
   // Build-pipeline and Lambda sources (.mjs). These had NO rules applied at all:
   // every `files` block above targets only .ts/.tsx, so ~4,300 lines of build
-  // scripts and the two Lambdas were completely unlinted — an undefined variable
+  // scripts and the two Lambdas were completely unlinted: an undefined variable
   // or an unreachable branch in them would only ever surface at build or run
   // time. Node globals, not browser; module scope, since they are all ESM.
   {

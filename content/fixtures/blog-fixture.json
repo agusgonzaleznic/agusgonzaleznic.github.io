@@ -1,12 +1,12 @@
 {
-  "$comment": "Blog corpus for TOKENLESS builds that opt in with BLOG_FIXTURE=1 — PR CI. Never used when STORYBLOK_PUBLIC_TOKEN is set, and refused outright when STORYBLOK_REQUIRE_TOKEN=1, so a deploy can never ship it. Titles are deliberately marked FIXTURE so a leak into a real build is obvious on sight rather than subtle. Each post exists to exercise a publication-gate shape that a real corpus does not currently contain: see approved_locales / canonical_override below.",
+  "$comment": "Blog corpus for TOKENLESS builds that opt in with BLOG_FIXTURE=1, which is PR CI. Never used when STORYBLOK_PUBLIC_TOKEN is set, and refused outright when STORYBLOK_REQUIRE_TOKEN=1, so a deploy can never ship it. Titles are deliberately marked FIXTURE so a leak into a real build is obvious on sight rather than subtle. Each post exists to exercise a publication-gate shape that a real corpus does not currently contain: see approved_locales / canonical_override below.",
   "posts": [
     {
       "uuid": "f1000000-0000-4000-8000-000000000001",
       "slug": "fixture-all-locales",
       "full_slug": "blog/fixture-all-locales",
       "title": "FIXTURE: article published in every locale",
-      "excerpt": "Exercises the ordinary case — an article emitted in all six locales, with a cover image so the card and article image paths render.",
+      "excerpt": "Exercises the ordinary case: an article emitted in all six locales, with a cover image so the card and article image paths render.",
       "seo_title": "",
       "seo_description": "",
       "canonical_override": "",

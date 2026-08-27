@@ -12,7 +12,7 @@
 #
 # The tempting fix is to let the SITE deploy role manage its own policies under
 # a permissions boundary. A boundary really does constrain iam: actions, so the
-# mechanism is sound — but the design is not:
+# mechanism is sound. But the design is not:
 #
 #   * Union-of-allows. Controls expressed as CONDITIONS inside identity
 #     policies (e.g. iam:PermissionsBoundary on CreateRole) stop meaning
@@ -26,8 +26,8 @@
 #     run cannot satisfy them.
 #
 # So one `terraform apply` that both grants a permission and consumes it is
-# unreliable by construction. The achievable target — and the one implemented
-# here — is ONE PR, ONE workflow run, ZERO local commands: this module now has
+# unreliable by construction. The achievable target (and the one implemented
+# here) is ONE PR, ONE workflow run, ZERO local commands: this module now has
 # its own OIDC roles and its own gated GitHub environment, and the workflow
 # chains bootstrap-apply ahead of the site apply.
 #
@@ -35,7 +35,7 @@
 #
 # github-terraform-bootstrap is ADMIN-EQUIVALENT and cannot be made otherwise:
 # it is the tier that decides who may do what, so anything able to edit it can
-# grant itself more. The real control is not an IAM scope — it is the
+# grant itself more. The real control is not an IAM scope; it is the
 # `terraform-bootstrap` GitHub environment's required reviewer plus the fact
 # that changes arrive only as a reviewed PR merged to main. Compared with the
 # status quo it is a NARROWING, because the previous mechanism was a human
@@ -146,7 +146,7 @@ resource "aws_iam_policy" "bootstrap_ceiling" {
 }
 
 ################################################################################
-# Write role — assumable ONLY from the gated terraform-bootstrap environment.
+# Write role: assumable ONLY from the gated terraform-bootstrap environment.
 ################################################################################
 data "aws_iam_policy_document" "bootstrap_write_trust" {
   statement {
@@ -234,7 +234,7 @@ resource "aws_iam_role_policy" "bootstrap_write_state" {
 }
 
 ################################################################################
-# Plan role — read-only, and the ONLY bootstrap role a PR job can assume.
+# Plan role: read-only, and the ONLY bootstrap role a PR job can assume.
 #
 # Split from the write role on purpose: a PR plan runs code from a branch, and
 # it must never hold iam: write. The main-branch change-detection plan uses

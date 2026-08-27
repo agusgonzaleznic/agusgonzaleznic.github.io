@@ -2,7 +2,7 @@
   "slug": "alert-fatigue-and-fuck-bingo",
   "full_slug": "blog/alert-fatigue-and-fuck-bingo",
   "title": "Alert Fatigue e Fuck Bingo",
-  "excerpt": "Um CTO que tratava todos os problemas como se fossem um SEV-1 ensinou a sua equipa a manter um cartão de «fuck bingo». Sobre palavrões, poder e alert fatigue — como os líderes, sem darem por isso, treinam as pessoas a deixarem de lhes dizer o que está errado.",
+  "excerpt": "Um CTO que tratava todos os problemas como se fossem um SEV-1 ensinou a sua equipa a manter um cartão de «fuck bingo». Sobre palavrões, poder e alert fatigue: como os líderes, sem darem por isso, treinam as pessoas a deixarem de lhes dizer o que está errado.",
   "body": {
     "type": "doc",
     "content": [
@@ -470,7 +470,7 @@
             ]
           },
           {
-            "text": ". A sua observação mais útil não é que os gestores movidos pela crise sejam irracionais. É que a crise pode tornar-se um mecanismo de defesa face à perda de controlo que vem com a liderança. A organização cresce; o trabalho afasta-se cada vez mais; outras pessoas tomam decisões que tu não terias tomado. Criar uma crise traz o trabalho — e a atenção de todos — de volta para ti.",
+            "text": ". A sua observação mais útil não é que os gestores movidos pela crise sejam irracionais. É que a crise pode tornar-se um mecanismo de defesa face à perda de controlo que vem com a liderança. A organização cresce; o trabalho afasta-se cada vez mais; outras pessoas tomam decisões que tu não terias tomado. Criar uma crise traz o trabalho, e a atenção de todos, de volta para ti.",
             "type": "text"
           }
         ]

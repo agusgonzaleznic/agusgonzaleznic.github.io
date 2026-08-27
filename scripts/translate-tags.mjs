@@ -1,4 +1,4 @@
-// scripts/translate-tags.mjs — backfill content/tag-translations.json with a
+// scripts/translate-tags.mjs: backfill content/tag-translations.json with a
 // localized label (de/es/fr/it/pt) for EVERY tag on every published post.
 //
 // scripts/new-post.mjs already fills the map for tags it sets, so this is for
@@ -26,6 +26,6 @@ console.log(`translate-tags: ${tags.length} tag(s) across de/es/fr/it/pt…`);
 const added = await ensureTagTranslations(tags, ["de", "es", "fr", "it", "pt"], mapPath);
 console.log(
   added
-    ? `✓ added ${added} label(s) to content/tag-translations.json — review + commit`
+    ? `✓ added ${added} label(s) to content/tag-translations.json; review + commit`
     : "✓ all tags already have labels",
 );

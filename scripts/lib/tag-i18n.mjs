@@ -1,4 +1,4 @@
-// scripts/lib/tag-i18n.mjs — localized labels for the global Storyblok tag_list.
+// scripts/lib/tag-i18n.mjs: localized labels for the global Storyblok tag_list.
 //
 // Storyblok's native tag_list is global (one set of English tags per story,
 // shared by all locales), and this space can't enable field-level i18n (plan
@@ -35,7 +35,7 @@ export function loadTagMap(path) {
     // blog-gate.mjs stopped conflating the two.
     throw new Error(
       `tag-i18n: ${path} exists but is not valid JSON (${e.message}). ` +
-        "Refusing to treat it as empty — that would overwrite every existing tag " +
+        "Refusing to treat it as empty: that would overwrite every existing tag " +
         "translation on the next save. Restore it from git.",
     );
   }
@@ -136,7 +136,7 @@ export async function ensureTagTranslations(tags, locales, path) {
       // Persist ONLY a real translation.
       //
       // This used to write `translated[t] || t`, i.e. the English tag itself
-      // whenever Claude produced nothing — no API key, SDK not installed, a
+      // whenever Claude produced nothing: no API key, SDK not installed, a
       // refusal, a rate limit, any thrown error. All of those return {}.
       //
       // The damage was permanent, not transient: the `missing` filter above tests
@@ -144,8 +144,8 @@ export async function ensureTagTranslations(tags, locales, path) {
       // from a finished translation and is never retried. One keyless build
       // pinned every tag to English in all five locales, for good.
       //
-      // Leaving it unmapped is not a regression in what readers see —
-      // localizeTags already falls back to the English tag for anything absent —
+      // Leaving it unmapped is not a regression in what readers see, because
+      // localizeTags already falls back to the English tag for anything absent;
       // it just keeps the work outstanding so the next build with a key does it.
       if (!translated[t]) {
         unresolved += 1;
@@ -158,8 +158,8 @@ export async function ensureTagTranslations(tags, locales, path) {
   }
   if (unresolved) {
     console.warn(
-      `  tag translation: ${unresolved} (tag, locale) pair(s) left untranslated — ` +
-        "they render as the English tag and will be retried on the next build.",
+      `  tag translation: ${unresolved} (tag, locale) pair(s) left untranslated. ` +
+        "They render as the English tag and will be retried on the next build.",
     );
   }
   if (added) saveTagMap(path, map);

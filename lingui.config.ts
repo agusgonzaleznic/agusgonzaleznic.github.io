@@ -4,7 +4,7 @@ import { ALL_LOCALES, SOURCE_LOCALE } from "./src/i18n/locales";
 
 // One source of truth: locales come from src/i18n/locales.ts. We EXTRACT all
 // six so translators can start, but PUBLISHED_LOCALES (also in locales.ts) gates
-// what actually renders/links — extracting a locale is not publishing it.
+// what actually renders/links; extracting a locale is not publishing it.
 export default defineConfig({
   sourceLocale: SOURCE_LOCALE,
   locales: [...ALL_LOCALES],

@@ -10,7 +10,7 @@ on:
       # Gate fatigue is what normalised rubber-stamping these runs in the first
       # place (#114), so keep the human decisions load-bearing: md-only changes
       # do not trigger this workflow. Negative patterns must come AFTER the
-      # positive one — later patterns win. Both forms are listed because
+      # positive one: later patterns win. Both forms are listed because
       # whether `**` can match zero directories is not worth betting a gate on:
       # *.md catches terraform/README.md, **/*.md catches bootstrap/README.md.
       - "!terraform/*.md"
@@ -28,7 +28,7 @@ on:
       # Gate fatigue is what normalised rubber-stamping these runs in the first
       # place (#114), so keep the human decisions load-bearing: md-only changes
       # do not trigger this workflow. Negative patterns must come AFTER the
-      # positive one — later patterns win. Both forms are listed because
+      # positive one: later patterns win. Both forms are listed because
       # whether `**` can match zero directories is not worth betting a gate on:
       # *.md catches terraform/README.md, **/*.md catches bootstrap/README.md.
       - "!terraform/*.md"
@@ -42,7 +42,7 @@ on:
 permissions:
   contents: read
 
-# Single state file — serialize all runs and never cancel an in-flight
+# Single state file: serialize all runs and never cancel an in-flight
 # apply mid-mutation.
 concurrency:
   group: terraform-state
@@ -56,16 +56,16 @@ env:
   TF_VAR_storyblok_webhook_url_token: ${{ secrets.STORYBLOK_WEBHOOK_URL_TOKEN }}
   # Numeric Storyblok space id (non-secret)
   TF_VAR_space_id: ${{ vars.STORYBLOK_SPACE_ID }}
-  # Cloudflare API token — Account > Turnstile > Edit (sensitive)
+  # Cloudflare API token: Account > Turnstile > Edit (sensitive)
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   # Cloudflare account id that owns the Turnstile widget (non-secret)
   TF_VAR_cloudflare_account_id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-  # NOTE: the contact Lambda sends via SESv2 — no Apps Script variables. The
+  # NOTE: the contact Lambda sends via SESv2 (no Apps Script variables). The
   # former CONTACT_APPS_SCRIPT_* GitHub secrets were deleted 2026-08-20.
 
 defaults:
   run:
-    # Site module. The bootstrap jobs below override this per job — they are
+    # Site module. The bootstrap jobs below override this per job: they are
     # the ONLY jobs allowed to run in terraform/bootstrap/, and they use
     # separate OIDC roles (read-only for plan, gated write for apply).
     working-directory: terraform
@@ -90,7 +90,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Guard — refuse to target bootstrap/
+      - name: Guard (refuse to target bootstrap/)
         run: |
           wd="$(pwd)"
           if [ "$(basename "$wd")" != "terraform" ] || printf '%s' "$wd" | grep -q 'bootstrap'; then
@@ -188,7 +188,7 @@ jobs:
           MARKER='<!-- terraform-plan-sticky -->'
           {
             echo "$MARKER"
-            echo "## Terraform plan — ${PLAN_OUTCOME}"
+            echo "## Terraform plan: ${PLAN_OUTCOME}"
             echo ""
             echo "Commit: \`${HEAD_SHA}\` | Run: [${{ github.run_id }}](${{ github.server_url }}/${REPO}/actions/runs/${{ github.run_id }})"
             echo ""
@@ -202,7 +202,7 @@ jobs:
             echo ""
             echo "</details>"
           } > comment.md
-          # Emit matching ids only (never "null") — --paginate runs the jq
+          # Emit matching ids only (never "null"): --paginate runs the jq
           # program once per page, so an array-index form would yield one
           # value per page and break on multi-page PRs.
           cid="$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --paginate \
@@ -239,7 +239,7 @@ jobs:
   # Refuse a PR that touches BOTH terraform tiers.
   #
   # A site resource that needs a new IAM grant cannot be planned before the grant
-  # exists, and bootstrap-apply only runs post-merge — so a PR carrying both
+  # exists, and bootstrap-apply only runs post-merge, so a PR carrying both
   # produces a red site plan by construction. That was tolerated for five merges
   # ("expected, the authoritative plan is the one bootstrap-apply unblocks"), and
   # it normalised a red check so thoroughly that a real bug hid behind it: the
@@ -252,7 +252,7 @@ jobs:
   #
   # Escape hatch: label the PR `allow-cross-tier` when the site change provably
   # does NOT depend on the bootstrap change (e.g. a comment-only edit in one
-  # tier). Use it sparingly — it re-opens the hole.
+  # tier). Use it sparingly; it re-opens the hole.
   tier-split:
     name: Tier split
     if: github.event_name == 'pull_request'
@@ -278,7 +278,7 @@ jobs:
             [ -z "$f" ] && continue
             # Only files that can change a PLAN count. Docs in either tier are
             # irrelevant here, and counting them produced a false positive on a
-            # two-README PR — which would have pushed people toward the override
+            # two-README PR, which would have pushed people toward the override
             # label and hollowed out the rule.
             case "$f" in
               *.md) continue ;;
@@ -297,16 +297,16 @@ jobs:
                 exit 0
                 ;;
             esac
-            echo "::error title=Split this PR by tier::It changes BOTH terraform/bootstrap/ and the site module. A site resource needing a new grant cannot plan before the grant is applied, so merging this means merging an unverified plan. Ship the bootstrap change first, apply it, then open the site PR — see the note in terraform/README.md. Override with the allow-cross-tier label only if the site change does not depend on the bootstrap change."
+            echo "::error title=Split this PR by tier::It changes BOTH terraform/bootstrap/ and the site module. A site resource needing a new grant cannot plan before the grant is applied, so merging this means merging an unverified plan. Ship the bootstrap change first, apply it, then open the site PR; see the note in terraform/README.md. Override with the allow-cross-tier label only if the site change does not depend on the bootstrap change."
             exit 1
           fi
-          echo "OK — single-tier PR (or no terraform changes)."
+          echo "OK: single-tier PR (or no terraform changes)."
 
   bootstrap-plan:
     name: Bootstrap plan (PR)
     # The AWS_TF_BOOTSTRAP_* repo variables are the adoption switch. Until the
     # roles in role-bootstrap-ci.tf exist and the variables are set, these jobs
-    # skip instead of failing on an empty role-to-assume — which is also what
+    # skip instead of failing on an empty role-to-assume, which is also what
     # makes this workflow mergeable before that first human apply.
     if: >-
       github.event_name == 'pull_request'
@@ -324,7 +324,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Guard — bootstrap dir, no CLI-arg overrides
+      - name: Guard (bootstrap dir, no CLI-arg overrides)
         run: |
           wd="$(pwd)"
           case "$wd" in
@@ -337,7 +337,7 @@ jobs:
           fi
 
       # READ-ONLY role. A PR plan runs code from a branch and must never hold
-      # iam: write — that is the whole reason there are two bootstrap roles.
+      # iam: write; that is the whole reason there are two bootstrap roles.
       - uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
         with:
           role-to-assume: ${{ vars.AWS_TF_BOOTSTRAP_PLAN_ROLE_ARN }}
@@ -370,7 +370,7 @@ jobs:
 
       - name: Publish plan to job summary
         if: always()
-        # Job summaries are world-readable on a public repo — scrub
+        # Job summaries are world-readable on a public repo: scrub
         # secret-shaped substrings (defense-in-depth beyond sensitive=true).
         run: |
           sed -E -e 's/([?&](token|access_token|api_key|apikey|key|secret)=)[^ "'"'"'&]+/\1REDACTED/gI' -e 's/(github_pat_|ghp_|gho_|ghs_)[A-Za-z0-9_]+/\1REDACTED/g' plan.txt | head -c 60000 > plan-summary.txt || true
@@ -410,7 +410,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Guard — bootstrap dir, no CLI-arg overrides
+      - name: Guard (bootstrap dir, no CLI-arg overrides)
         run: |
           wd="$(pwd)"
           case "$wd" in
@@ -442,13 +442,13 @@ jobs:
       - name: Detect changes
         id: detect
         run: |
-          # REDIRECT, then cat — do NOT pipe to tee here.
+          # REDIRECT, then cat; do NOT pipe to tee here.
           #
           # This step's whole job is to capture terraform's -detailed-exitcode
           # (0 = no changes, 2 = changes). GitHub Actions runs steps with
           # `bash -e {0}`, WITHOUT pipefail, so `terraform ... | tee` yields
           # TEE's status, not terraform's: the `||` never fired, `code` stayed 0,
-          # and has_changes was reported false on every single run — so the gated
+          # and has_changes was reported false on every single run, so the gated
           # bootstrap-apply could never execute. It skipped silently while the
           # plan printed "1 to add, 1 to change" right above it.
           code=0
@@ -460,7 +460,7 @@ jobs:
           # a wrong-but-valid code, which is exactly how the bug above survived:
           # the failure mode is a silent skip, not an error.
           if [ "$code" = "0" ] && grep -qE '^Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy' plan.txt; then
-            echo "::error::exit code reported NO changes but the plan lists changes — the exit-code capture is broken, refusing to skip the apply."
+            echo "::error::exit code reported NO changes but the plan lists changes: the exit-code capture is broken, refusing to skip the apply."
             exit 1
           fi
 
@@ -475,7 +475,7 @@ jobs:
         run: |
           sed -E -e 's/([?&](token|access_token|api_key|apikey|key|secret)=)[^ "'"'"'&]+/\1REDACTED/gI' -e 's/(github_pat_|ghp_|gho_|ghs_)[A-Za-z0-9_]+/\1REDACTED/g' plan.txt | head -c 60000 > plan-summary.txt || true
           {
-            echo "## Bootstrap plan — changes: ${{ steps.detect.outputs.has_changes }}"
+            echo "## Bootstrap plan (changes: ${{ steps.detect.outputs.has_changes }})"
             echo ""
             echo '```'
             cat plan-summary.txt
@@ -506,7 +506,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Guard — bootstrap dir, no CLI-arg overrides
+      - name: Guard (bootstrap dir, no CLI-arg overrides)
         run: |
           wd="$(pwd)"
           case "$wd" in
@@ -562,7 +562,7 @@ jobs:
 
   apply:
     name: Apply (main)
-    # main only — including manual dispatch, so the gated apply can never run
+    # main only, including manual dispatch, so the gated apply can never run
     # a non-main branch's version of the Terraform code.
     needs: [bootstrap-detect, bootstrap-apply]
     # `!failure() && !cancelled()` rather than the default success(): bootstrap-apply
@@ -577,7 +577,7 @@ jobs:
     # Add a required reviewer on this environment to gate applies.
     # NOTE: with an environment, the OIDC subject becomes
     # repo:agusgonzaleznic/agusgonzaleznic.github.io:environment:terraform-production
-    # — the CI role trust policy must allow it.
+    # The CI role trust policy must allow it.
     environment: terraform-production
     permissions:
       id-token: write # OIDC token for configure-aws-credentials
@@ -587,7 +587,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Guard — refuse to target bootstrap/
+      - name: Guard (refuse to target bootstrap/)
         run: |
           wd="$(pwd)"
           if [ "$(basename "$wd")" != "terraform" ] || printf '%s' "$wd" | grep -q 'bootstrap'; then
@@ -612,7 +612,7 @@ jobs:
       - name: Terraform init
         run: terraform init -input=false
 
-      # Plan and apply the SAME saved plan in one job — a PR-time plan file
+      # Plan and apply the SAME saved plan in one job: a PR-time plan file
       # cannot safely carry across to a different ref/run.
       - name: Terraform plan
         run: terraform plan -no-color -input=false -lock-timeout=60s -out=tfplan

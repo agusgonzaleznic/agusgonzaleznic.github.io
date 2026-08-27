@@ -1,7 +1,7 @@
 // Tests for the placeholder masking that wraps every machine translation.
 //
-// protect() replaces spans that must survive translation byte-for-byte — ICU
-// placeholders, Lingui/HTML component tags, URLs, emails, glossary terms — with
+// protect() replaces spans that must survive translation byte-for-byte (ICU
+// placeholders, Lingui/HTML component tags, URLs, emails, glossary terms) with
 // <x>N</x> sentinels, and restore() puts them back. A bug in either corrupts
 // every string in every locale catalog, so the round trip is pinned here.
 
@@ -57,7 +57,7 @@ test("adjacent and repeated placeholders keep their order", () => {
 
 test("XML-significant characters in the free text are escaped and unescaped", () => {
   // The payload goes to DeepL with tag_handling=xml, so a bare & or < in the
-  // source must not be able to break the document — and must come back intact.
+  // source must not be able to break the document, and must come back intact.
   const s = `Fish & chips < 5 > 3, "quoted" and 'apostrophed'.`;
   assert.equal(roundTrip(s), s);
   const { payload } = protect(s);
@@ -76,7 +76,7 @@ test("a translated payload restores with the placeholders in place", () => {
 
 // ------------------------------------------------- the ICU plural limitation
 
-test("an ICU plural is masked WHOLE — its sub-messages are never exposed", () => {
+test("an ICU plural is masked WHOLE: its sub-messages are never exposed", () => {
   // braceRanges() returns the OUTERMOST balanced range, so the entire plural
   // (including the translatable "second"/"seconds") becomes one sentinel. A
   // translator therefore cannot touch it, and a from-scratch run returns the
