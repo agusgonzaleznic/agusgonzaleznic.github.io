@@ -106,39 +106,91 @@ const statusOf = (approved, fresh, hasReview) =>
   approved && fresh ? "approved" : approved ? "stale" : hasReview ? "pending" : "new";
 
 // ── PAGES ────────────────────────────────────────────────────────────────────
-// Ordered translatable slots ({obj,key}) of a page — same walk the translator +
-// hash use (mirrors page-translate.collect). De-dup by English string for display
-// (a repeated string is reviewed once; the edit applies to every occurrence).
+// Ordered translatable slots of a page, one per writable string field: the same
+// walk the translator + hash use (mirrors page-translate.collect), plus a stable
+// `id` per slot so a target tree can be aligned to it by NAME rather than by
+// position (see pageDisplaySlots). De-dup by English string for display (a
+// repeated string is reviewed once; the edit applies to every occurrence).
 const PAGE_NON_TEXT = new Set([
   "component", "_uid", "_editable", "slug", "full_slug", "uuid", "id",
   "icon", "color", "value", "period", "company", "featured", "is_highlighted",
   "show_section", "background_style", "industries",
   "url", "cta_url", "secondary_cta_url", "href", "image", "og_image", "filename",
 ]);
-function pageSlots(node, acc) {
-  if (Array.isArray(node)) { for (const c of node) pageSlots(c, acc); return; }
+// Path segment for one array element. A block is named by its `component` plus
+// its ordinal among siblings of that SAME component, never by its raw index, so
+// inserting one block type does not renumber the others: adding a `cta_block`
+// between two `about_block`s leaves both `about_block#n` ids untouched. Elements
+// that are not blocks (a plain string in an array) fall back to the index.
+function slotSegment(child, list, i) {
+  const comp = child && typeof child === "object" && typeof child.component === "string" ? child.component : "";
+  if (!comp) return String(i);
+  let n = 0;
+  for (let j = 0; j < i; j += 1) if (list[j] && list[j].component === comp) n += 1;
+  return `${comp}#${n}`;
+}
+function pageSlots(node, acc, path = "page") {
+  if (Array.isArray(node)) {
+    node.forEach((c, i) => pageSlots(c, acc, `${path}[${slotSegment(c, node, i)}]`));
+    return;
+  }
   if (!node || typeof node !== "object") return;
   for (const [key, value] of Object.entries(node)) {
     if (typeof value === "string") {
-      if (value.trim() && !PAGE_NON_TEXT.has(key)) acc.push({ obj: node, key });
+      if (value.trim() && !PAGE_NON_TEXT.has(key)) acc.push({ obj: node, key, id: `${path}.${key}` });
     } else if (value && typeof value === "object" && !PAGE_NON_TEXT.has(key)) {
-      pageSlots(value, acc);
+      pageSlots(value, acc, `${path}.${key}`);
     }
   }
 }
 // Build display slots (unique EN → current target) for one (page, locale).
+//
+// Aligned by slot id, NOT by index. The old test was `en.length === tg.length`
+// with `tg[i]`, which fails on the WHOLE page for any drift at all: publish one
+// added or removed Storyblok block and every target slot renders blank, the
+// reviewer cannot tell blank-because-drifted from blank-because-untranslated, and
+// a Save then persisted those blanks stamped provenance:"human-reviewed" over the
+// reviewed copy (savePage refuses that now, the other half of this fix). Keying
+// each slot costs exactly the slots that actually moved: the rest still show
+// their reviewed wording, and the ones that did not match are named in the label.
+//
+// `_uid` is deliberately NOT part of the id even though Storyblok blocks carry
+// one: storyblok-fetch.mapPage runs stripStoryblok over every page this tool
+// sees, so all four possible target sources (reviewed file, baked
+// page-data.<locale>.json, a fresh machine translation, none) are uid-less and a
+// uid key would match nothing. Measured on this repo's own data: 0 `_uid` and 64
+// `component` fields across the 8 pages in src/generated/page-data*.json. The
+// block tree is what every source does preserve, so that is what the id encodes.
 function pageDisplaySlots(enPage, targetPage) {
   const en = []; pageSlots(enPage, en);
-  const tg = []; if (targetPage) pageSlots(targetPage, tg);
-  const aligned = en.length === tg.length;
-  const seen = new Set();
-  const slots = [];
-  en.forEach((s, i) => {
+  const byId = new Map();
+  if (targetPage) {
+    const tg = []; pageSlots(targetPage, tg);
+    for (const s of tg) if (!byId.has(s.id)) byId.set(s.id, s.obj[s.key]);
+  }
+  const rows = new Map();
+  for (const s of en) {
     const enText = s.obj[s.key];
-    if (seen.has(enText)) return;
-    seen.add(enText);
-    slots.push({ key: `s:${slots.length}`, en: enText, target: aligned ? tg[i].obj[tg[i].key] : "" });
-  });
+    let row = rows.get(enText);
+    if (!row) { row = { key: `s:${rows.size}`, en: enText, target: "", unmatched: [] }; rows.set(enText, row); }
+    const hit = byId.get(s.id) ?? "";
+    // A repeated EN string is reviewed once, so the first occurrence that DID
+    // match supplies the wording for every occurrence of it.
+    if (!hit.trim()) row.unmatched.push(s.id);
+    else if (!row.target) row.target = hit;
+  }
+  const slots = [...rows.values()];
+  for (const row of slots) {
+    // Name the slots that could not be matched, so drift reads as "these two
+    // moved" instead of an unexplained empty form. Only meaningful when there IS
+    // a target to align against: with no translation at all every slot is blank
+    // for the obvious reason, which the item's `source` badge already says.
+    const n = row.unmatched.length;
+    row.label = targetPage && !row.target && n
+      ? `no match in target: ${row.unmatched.slice(0, 3).join(", ")}${n > 3 ? ` +${n - 3} more` : ""}`
+      : "";
+    delete row.unmatched; // keep the JSON embedded in the page small
+  }
   return slots;
 }
 
@@ -188,12 +240,42 @@ function assertKnownLocale(locale, locales) {
 function savePage(pages, { slug, locale, values }) {
   const page = pages.find((p) => pageSlug(p) === slug);
   if (!page) throw new Error(`unknown page ${slug}`);
+  if (!values || typeof values !== "object") throw new Error(`refusing to save ${slug}.${locale}: no values submitted`);
   // Rebuild the reviewed page tree: clone EN, set every translatable slot to the
   // edited value for its English string (all occurrences of a repeated string
   // get the same translation).
   const tree = structuredClone(page);
   const slots = []; pageSlots(tree, slots);
-  for (const s of slots) { const en = s.obj[s.key]; if (en in values) s.obj[s.key] = values[en]; }
+  // Refuse the write BEFORE anything is on disk if any slot would be persisted
+  // empty or would be skipped. This save is what stamps status:"approved" +
+  // provenance:"human-reviewed", and the build then serves the file VERBATIM, so
+  // a lossy write destroys the reviewed copy and marks the wreckage as
+  // human-reviewed, recoverable only from git. Both failures are silent:
+  //   • empty  → a blank translation ships as the approved copy.
+  //   • absent → the slot keeps its ENGLISH string, which the build serves as
+  //              though a human had chosen to leave it in English.
+  // A non-string value is refused with the empties: `values` is JSON from the
+  // browser, so an inherited or non-text member must never reach the tree.
+  const empty = [];
+  const absent = [];
+  for (const s of slots) {
+    const en = s.obj[s.key];
+    if (!Object.hasOwn(values, en)) absent.push(s.id);
+    else if (typeof values[en] !== "string" || !values[en].trim()) empty.push(s.id);
+  }
+  if (empty.length || absent.length) {
+    const list = (xs) => `${xs.slice(0, 5).join(", ")}${xs.length > 5 ? ` +${xs.length - 5} more` : ""}`;
+    throw new Error(
+      `refusing to save ${slug}.${locale}: ${[
+        empty.length ? `${empty.length} slot(s) would be written empty (${list(empty)})` : null,
+        absent.length ? `${absent.length} slot(s) were not submitted and would keep the English text (${list(absent)})` : null,
+      ].filter(Boolean).join("; ")}. `
+      + "Nothing was written and the approval is unchanged. Fill in every field and Save again; "
+      + "if a field says \"no match in target\", the page structure changed since that translation "
+      + "was made and those slots have to be re-reviewed by hand.",
+    );
+  }
+  for (const s of slots) { const en = s.obj[s.key]; s.obj[s.key] = values[en]; }
   mkdirSync(contentPagesDir, { recursive: true });
   writeFileSync(reviewedPagePath(contentPagesDir, slug, locale), `${JSON.stringify(tree, null, 2)}\n`);
   const manifest = loadPageApprovals(pageApprovalsPath);
