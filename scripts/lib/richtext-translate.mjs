@@ -53,7 +53,7 @@ export async function translateStory(story, locale, translator) {
   // Deep clone so the English source object is never mutated.
   const copy = structuredClone(story);
 
-  // 1. Richtext text nodes (skipping code) — batch them through one call.
+  // 1. Richtext text nodes (skipping code): batch them through one call.
   const textNodes = [];
   collectTextNodes(copy.body, textNodes);
   if (textNodes.length) {

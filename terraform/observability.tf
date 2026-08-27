@@ -1,5 +1,5 @@
 ################################################################################
-# Observability — the fix for SILENT failure.
+# Observability: the fix for SILENT failure.
 #
 # WHY THIS FILE EXISTS
 #
@@ -7,7 +7,7 @@
 # HTTP response (502 {"error":"delivery"} / 429), which is correct for the
 # caller but means the AWS/Lambda `Errors` metric stays at ZERO no matter how
 # broken the form is. Before this file there was no alarm, no SNS topic, no
-# budget and no log retention anywhere in either tier — so the site's only
+# budget and no log retention anywhere in either tier, so the site's only
 # lead-capture path could be completely dead and nothing would say so. That is
 # not hypothetical here: a contact-form failure that produced no signal already
 # cost the owner a collaboration opportunity.
@@ -36,7 +36,7 @@ locals {
 # Lambda creates these implicitly on first invocation with retention "Never
 # expire". Two problems: unbounded ingest cost on a PUBLIC endpoint, and the
 # contact log records the submitter's IP address, so "never expire" means
-# indefinite retention of personal data — which the privacy notice now says is
+# indefinite retention of personal data, which the privacy notice now says is
 # kept only as long as needed. 30 days is the shortest window that still allows
 # diagnosing a report that arrives a few weeks late.
 #
@@ -74,7 +74,7 @@ resource "aws_cloudwatch_log_group" "webhook" {
 # unauthenticated HTTP GET, so anything able to fetch a URL out of that mailbox
 # can cancel the subscription: no credentials, no confirmation step, and nothing
 # attributable in CloudTrail, because there is no principal to record. That is
-# not hypothetical here — the subscription was confirmed on 2026-08-21 at
+# not hypothetical here: the subscription was confirmed on 2026-08-21 at
 # 08:30 UTC, unsubscribed at 15:49, re-subscribed by hand, and unsubscribed
 # again 13 minutes later, leaving a live topic whose subscription ARN read
 # `Deleted` while all four alarms below still pointed at it. Alerts went
@@ -418,10 +418,10 @@ resource "aws_cloudwatch_metric_alarm" "alert_relay_dlq" {
 # ---- Fail-closed alarms -----------------------------------------------------
 # Two metric filters over the contact log, one per fail-closed CLASS:
 #
-#  * ddb_error  — the rate-limit / replay / duplicate backend is unreachable.
+#  * ddb_error  the rate-limit / replay / duplicate backend is unreachable.
 #    Every such path deliberately fails CLOSED (rejects the submission) rather
 #    than admitting unmetered traffic, so this is silent lost mail.
-#  * ses_send   — the message passed all ten controls and then could not be
+#  * ses_send   the message passed all ten controls and then could not be
 #    delivered. This is the exact shape of the incident that lost the lead.
 #
 # Both patterns key on the JSON log fields the Lambda emits. `ses_send` is
@@ -530,7 +530,7 @@ resource "aws_budgets_budget" "monthly" {
 }
 
 ################################################################################
-# SES delivery outcomes — the half the log contract cannot see.
+# SES delivery outcomes: the half the log contract cannot see.
 #
 # The alarms above watch this Lambda's own log lines, which is right for anything
 # the handler decides. Bounces and complaints are different: they happen minutes
@@ -539,7 +539,7 @@ resource "aws_budgets_budget" "monthly" {
 #
 # Metrics come from the configuration set's CloudWatch event destination
 # (ses.tf). Dimension name and value must match the dimension_configuration
-# there exactly, or the alarm watches an empty series and stays green forever —
+# there exactly, or the alarm watches an empty series and stays green forever,
 # which is the failure mode these exist to prevent, so it is worth re-reading
 # both sides together when either changes.
 ################################################################################

@@ -57,13 +57,13 @@ jobs:
           while IFS= read -r f; do
             [ -z "$f" ] && continue
             # These subtrees are NOT part of the site bundle, so they must not
-            # set site=true — but they carry unit suites, which used to run
+            # set site=true, but they carry unit suites, which used to run
             # nowhere: `terraform/*` is denylisted here, so a Lambda-only PR got
             # zero CI verification. Route them to the unit-tests job instead.
-            #   contact-lambda-src — the 10 anti-abuse controls
-            #   cdn-function       — the edge routing table (canonical URLs)
-            #   alert-relay-src    — the last hop of the alerting chain, which
-            #                        nothing downstream would notice failing
+            #   contact-lambda-src: the 10 anti-abuse controls
+            #   cdn-function:       the edge routing table (canonical URLs)
+            #   alert-relay-src:    the last hop of the alerting chain, which
+            #                       nothing downstream would notice failing
             # scripts/lib is NOT denylisted (it sets site=true too, since the
             # build imports it), but it must also run its own suite: blog-gate
             # decides which locale pages exist at all.
@@ -94,7 +94,7 @@ jobs:
       node-version: '22'
       install-command: 'npm ci'
       # i18n:check belongs in the static-analysis slot, not the build chain: it
-      # only reads src/, so unlike typecheck it needs no generated data — and a
+      # only reads src/, so unlike typecheck it needs no generated data, and a
       # stale catalog should fail before anything expensive runs. It catches the
       # one failure mode a green build cannot: a <Trans> absent from the catalogs
       # renders its raw message ID (`s3qJ3e`) in production while the build exits
@@ -105,14 +105,14 @@ jobs:
       # modules import src/generated/*.json, which is gitignored build output
       # produced by fetch-blog/fetch-pages, so type-checking a fresh checkout
       # fails with TS2307 on files that are supposed to be absent. It runs
-      # inside `npm run build` instead — after fetch, before the Vite builds —
+      # inside `npm run build` instead (after fetch, before the Vite builds),
       # which covers exactly the same PRs, since any TS change sets site=true.
       # (The build compiles via esbuild and STRIPS types, so without this step
       # nothing type-checked this repo at all.)
       # BLOG_FIXTURE=1 makes fetch-blog use content/fixtures/blog-fixture.json
       # instead of writing an empty blog. PR CI cannot receive secrets, so without
-      # it every PR validated the site with ZERO articles — 66 pages instead of
-      # 84 — and no PR ever exercised an article page, the per-article language
+      # it every PR validated the site with ZERO articles (66 pages instead of
+      # 84), and no PR ever exercised an article page, the per-article language
       # switcher, an hreflang cluster, RSS item content, or the assertion that no
       # emitted page links to an unemitted path.
       #
@@ -126,8 +126,8 @@ jobs:
       artifact-path: 'dist'
       verify-build-output: true
 
-  # Every unit suite outside the site bundle. Both have NO dependencies — pure
-  # Node builtins, injected deps — so there is nothing to install and the job
+  # Every unit suite outside the site bundle. Both have NO dependencies (pure
+  # Node builtins, injected deps), so there is nothing to install and the job
   # takes seconds. Runs only when one of those subtrees changed; gated by
   # ci-required either way.
   unit-tests:
@@ -166,9 +166,27 @@ jobs:
   # The required status check. Always runs (needs + if: always()), so branch
   # protection always gets a result. Green when the build passed OR was skipped
   # (site unaffected); red only when the build actually ran and failed.
+  # House style, enforced rather than remembered. A one-time sweep decays: the
+  # next comment or piece of copy reintroduces the character and review misses it.
+  # Unconditional and cheap, because the rule covers every tracked text file, not
+  # just the ones a site build touches.
+  no-em-dash:
+    name: No em dash
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '22'
+      - run: node scripts/assert-no-em-dash.mjs
+
   ci-required:
     name: CI required
-    needs: [changes, build, unit-tests]
+    needs: [changes, build, unit-tests, no-em-dash]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -182,13 +200,14 @@ jobs:
           # Bracket notation is REQUIRED for a hyphenated job id: the dotted
           # form `needs.unit-tests.result` parses as a subtraction.
           TESTS_RESULT: ${{ needs['unit-tests'].result }}
+          DASH_RESULT: ${{ needs['no-em-dash'].result }}
         run: |
-          echo "changes=${CHANGES_RESULT} site=${SITE} build=${BUILD_RESULT} tests=${TESTS_RESULT}"
+          echo "changes=${CHANGES_RESULT} site=${SITE} build=${BUILD_RESULT} tests=${TESTS_RESULT} dash=${DASH_RESULT}"
           # The detection job itself must have succeeded. Without this, a
           # checkout/network failure in `changes` made `build` "skipped" and this
           # gate went GREEN having built and tested nothing.
           if [ "$CHANGES_RESULT" != "success" ]; then
-            echo "::error::Change detection did not succeed (${CHANGES_RESULT}) — cannot certify this PR."
+            echo "::error::Change detection did not succeed (${CHANGES_RESULT}): cannot certify this PR."
             exit 1
           fi
           if [ "$BUILD_RESULT" = "failure" ] || [ "$BUILD_RESULT" = "cancelled" ]; then
@@ -197,6 +216,12 @@ jobs:
           fi
           if [ "$TESTS_RESULT" = "failure" ] || [ "$TESTS_RESULT" = "cancelled" ]; then
             echo "::error::Unit tests failed."
+            exit 1
+          fi
+          # This one runs unconditionally, so anything other than success is a
+          # real result and must block, including "skipped".
+          if [ "$DASH_RESULT" != "success" ]; then
+            echo "::error::Em dash check did not pass (${DASH_RESULT})."
             exit 1
           fi
           echo "OK (build ${BUILD_RESULT:-skipped}, tests ${TESTS_RESULT:-skipped})"

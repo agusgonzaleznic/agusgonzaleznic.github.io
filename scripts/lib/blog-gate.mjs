@@ -6,7 +6,7 @@
 //     translation has been reviewed + approved in content/i18n-approvals.json
 //     AND the stored sourceHash still matches the current English content
 //     (editing the English auto-demotes a stale translation until re-reviewed).
-//     Reviewed content is served verbatim from content/translations/ — the
+//     Reviewed content is served verbatim from content/translations/; the
 //     build never re-translates it, so it is fully deterministic and needs no
 //     API key.
 //   - FR/IT/PT (AUTO_LOCALES): auto-translated at build time (DeepL + LLM
@@ -28,13 +28,13 @@ export const AUTO_LOCALES = ["fr", "it", "pt"];
 
 // Per-locale mode for the auto-translated locales. Flip any to "hold" to pull
 // that locale's articles back to the English fallback (no /{locale}/ variant
-// emitted, no hreflang/sitemap entry) — e.g. if unreviewed machine translation
+// emitted, no hreflang/sitemap entry), e.g. if unreviewed machine translation
 // is ever judged too risky for the brand. One-line change, no other edits.
 // (Keep the "auto" set in sync with AUTO_TRANSLATED_LOCALES in src/i18n/locales.ts.)
 export const AUTO_LOCALE_MODE = { fr: "auto", it: "auto", pt: "auto" };
 
 // Richtext node types whose text is NOT translated (kept verbatim), so they
-// must not contribute to the source hash either — matches richtext-translate.
+// must not contribute to the source hash either (matches richtext-translate).
 const OPAQUE_RICHTEXT = new Set(["code_block"]);
 
 function collectText(node, acc) {
@@ -48,12 +48,12 @@ function collectText(node, acc) {
   // Link TARGETS count as source, even though no translator retypes them.
   //
   // A reviewed DE/ES translation is served verbatim from content/translations/,
-  // so it carries its own copy of the body — including hrefs. Retargeting a link
+  // so it carries its own copy of the body, including hrefs. Retargeting a link
   // in the English article therefore changed nothing in the reviewed locales, and
   // because the hash ignored marks the approval still looked fresh: the German
   // page kept pointing at the OLD url indefinitely, with no signal anywhere.
   //
-  // Hashing the href demotes the approval instead, which is the honest outcome —
+  // Hashing the href demotes the approval instead, which is the honest outcome:
   // somebody has to look at where the translated link now goes.
   for (const mark of node.marks ?? []) {
     if (mark?.attrs?.href) acc.push(`\u0000href:${mark.attrs.href}`);
@@ -64,7 +64,7 @@ function collectText(node, acc) {
 /**
  * Stable short hash of an English post's translatable content (title, excerpt,
  * SEO fields, and body text). Changes iff the source a translator would read
- * changed — so a stale approval can be detected and demoted.
+ * changed, so a stale approval can be detected and demoted.
  */
 export function enSourceHash(post) {
   const text = [];
@@ -81,7 +81,7 @@ export function enSourceHash(post) {
 
 /** Read the approvals manifest.
  *
- * ABSENT is fine and means "nothing is approved yet" — that is the intended
+ * ABSENT is fine and means "nothing is approved yet": that is the intended
  * fail-safe and is how a fresh checkout behaves. A file that EXISTS but does not
  * parse is a different thing entirely and now throws.
  *
@@ -89,7 +89,7 @@ export function enSourceHash(post) {
  * total: a truncated manifest made every reviewed locale variant look
  * unapproved, so prerender emitted no /de/ or /es/ pages, the sitemap and
  * hreflang sets lost them, and the build stayed GREEN. The same loader is used by
- * scripts/review-translations.mjs, where the consequence is worse — it would read
+ * scripts/review-translations.mjs, where the consequence is worse: it would read
  * the manifest as empty and then write that back, permanently discarding every
  * approval on the next save. */
 export function loadApprovals(path) {
@@ -101,7 +101,7 @@ export function loadApprovals(path) {
   } catch (e) {
     throw new Error(
       `blog-gate: ${path} exists but is not valid JSON (${e.message}). ` +
-        "Refusing to treat it as empty — that would silently unpublish every " +
+        "Refusing to treat it as empty: that would silently unpublish every " +
         "reviewed translation. Restore it from git.",
     );
   }
@@ -126,7 +126,7 @@ export function approvedGatedLocales(post, approvals) {
  *
  * Mirrors BlogPost.tsx exactly: only an `https://` override is honoured there
  * (an editor must not be able to aim canonical/og:url/JSON-LD @id at
- * javascript:/data:/http:). The two tests MUST agree — if this one were looser,
+ * javascript:/data:/http:). The two tests MUST agree; if this one were looser,
  * a malformed override the page ignores would silently suppress every
  * translation of that post.
  */
@@ -141,8 +141,8 @@ function hasExternalCanonical(post) {
  *
  * A post with an external canonical_override (a syndicated piece whose original
  * lives elsewhere) is SOURCE-LOCALE ONLY. Emitting translations of it produced
- * six URLs that all declared the SAME foreign canonical — six pages disclaiming
- * themselves — wrapped in a six-way hreflang cluster. hreflang is only valid
+ * six URLs that all declared the SAME foreign canonical (six pages disclaiming
+ * themselves) wrapped in a six-way hreflang cluster. hreflang is only valid
  * between canonical pages, so the cluster was inert at best; the translations
  * could never rank, and they diluted the signal for the original. One page with
  * one honest canonical is the whole intent of setting an override.

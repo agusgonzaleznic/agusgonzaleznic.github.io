@@ -3,7 +3,7 @@
 // Runs after `vite build` (client) and `vite build --ssr` (server). It imports
 // the compiled server entry, renders each route to an HTML string, and injects
 // that markup into the built dist/index.html so the served HTML contains the
-// full page — readable by AI crawlers and search engines that don't run JS.
+// full page, readable by AI crawlers and search engines that don't run JS.
 //
 // i18n: the route list is the cross product of PUBLISHED_LOCALES × routes.
 // English (the source locale) renders at the ROOT (dist/index.html, …); every
@@ -34,11 +34,11 @@ const SITE_URL = "https://agusgonzaleznic.com";
 // Routes to prerender. `canonical` is the canonical URL path (matching each
 // page's <link rel="canonical">): the blog paths carry a trailing slash, the
 // legal pages don't. hreflang alternates are built from it. Storyblok preview
-// routes are intentionally excluded — they fetch live CMS data at runtime.
+// routes are intentionally excluded: they fetch live CMS data at runtime.
 //
 // `sitemap` carries this route's sitemap metadata and is passed straight through
 // to generate-feeds. It lives HERE, on the route, because generate-feeds used to
-// keep its OWN copy of the page list — a third hand-synced route set that had
+// keep its OWN copy of the page list, a third hand-synced route set that had
 // already drifted: /links was prerendered and indexable in all six locales while
 // being absent from sitemap.xml entirely. One list now feeds both, and the
 // assertion at the end of this file fails the build if any emitted page is
@@ -59,7 +59,7 @@ const routes = [
 // Blog routes come from the build-time Storyblok fetch (scripts/fetch-blog.mjs).
 if (!existsSync(blogDataFile)) {
   throw new Error(
-    "src/generated/blog-data.json not found — run `npm run fetch-blog` (part of `npm run build`) first.",
+    "src/generated/blog-data.json not found. Run `npm run fetch-blog` (part of `npm run build`) first.",
   );
 }
 const blogPosts = JSON.parse(readFileSync(blogDataFile, "utf-8"));
@@ -113,7 +113,7 @@ function setHtmlLang(html, locale) {
 }
 
 // Override <link rel="canonical"> to the localized (self) URL. Only used for
-// prefixed locales — English pages already emit their correct root canonical, so
+// prefixed locales: English pages already emit their correct root canonical, so
 // the English output is never touched.
 //
 // The regex is tolerant of attribute order/extra attributes so it matches BOTH
@@ -125,7 +125,7 @@ function setCanonical(html, url) {
   return html.replace(/(<link\b[^>]*\brel="canonical"[^>]*\bhref=")[^"]*(")/, `$1${url}$2`);
 }
 
-// Replace exactly one occurrence or fail the build — a silent non-match would
+// Replace exactly one occurrence or fail the build: a silent non-match would
 // ship a half-localized (or stale-English) home head for a published locale.
 function replaceExactlyOnce(html, re, replacement, what, locale) {
   let n = 0;
@@ -144,18 +144,18 @@ function replaceExactlyOnce(html, re, replacement, what, locale) {
 // Localize the STATIC homepage head for a prefixed locale. The "/" route keeps
 // the template head verbatim (it doubles as the SPA shell), so the locale-
 // declaring tags hard-coded to English there must be swapped to match
-// <html lang> / the localized URL — otherwise a published /de/ home advertises
+// <html lang> / the localized URL; otherwise a published /de/ home advertises
 // og:locale=en_US, og:url=<root>, and JSON-LD inLanguage="en" on a lang="de"
 // page. The human-readable title/description now localize too: Index.tsx emits
 // them through Lingui, so this per-locale render's helmet output carries the
-// translated (and already HTML-escaped) strings — inject them into all seven
+// translated (and already HTML-escaped) strings; inject them into all seven
 // title/description tags of the static block. English never runs this (its
 // helmet text is byte-identical to the template anyway).
 function localizeHomeHead(html, locale, helmet) {
   const meta = LOCALE_META[locale];
   const homeUrl = `${SITE_URL}${localizePath("/", locale)}`;
 
-  // react-helmet output is already HTML-escaped — extract and inject verbatim.
+  // react-helmet output is already HTML-escaped; extract and inject verbatim.
   const title = helmet.title.toString().replace(/<[^>]*>/g, "").trim();
   const description = helmet.meta
     .toString()
@@ -176,8 +176,8 @@ function localizeHomeHead(html, locale, helmet) {
     ["twitter:description", /(<meta name="twitter:description" content=")[^"]*(")/, description],
     // These five were plain .replace() calls on exact English literals until they
     // joined this loop. String.replace is silent when it matches nothing, so any
-    // edit to index.html's head — reformatting an attribute, changing the site
-    // URL, prettier moving a self-closing slash — would have stopped localizing
+    // edit to index.html's head (reformatting an attribute, changing the site
+    // URL, prettier moving a self-closing slash) would have stopped localizing
     // the tag and shipped a lang="de" page still declaring content="English",
     // og:locale="en_US", an English og:url and "inLanguage": "en". The build
     // would have stayed green, and the tags are the ones search engines read to
@@ -204,7 +204,7 @@ function injectRouteHead(html, route, helmet, extraHead) {
   const end = html.indexOf(HEAD_END);
   if (start === -1 || end === -1) {
     throw new Error(
-      `Could not find "${HEAD_START}" / "${HEAD_END}" markers in dist/index.html — required to inject per-route head for ${route.path}.`,
+      `Could not find "${HEAD_START}" / "${HEAD_END}" markers in dist/index.html; required to inject per-route head for ${route.path}.`,
     );
   }
 
@@ -214,7 +214,7 @@ function injectRouteHead(html, route, helmet, extraHead) {
     .trim();
   if (!titleText) {
     throw new Error(
-      `Route ${route.path} rendered an empty <title>. Its page component must set one via a react-helmet <Helmet> block — refusing to fall back to the homepage head.`,
+      `Route ${route.path} rendered an empty <title>. Its page component must set one via a react-helmet <Helmet> block; refusing to fall back to the homepage head.`,
     );
   }
 
@@ -235,9 +235,9 @@ function injectRouteHead(html, route, helmet, extraHead) {
 // CSS the page actually uses and rewrites the render-blocking
 // <link rel="stylesheet"> to load asynchronously (media=print + onload swap,
 // with a <noscript> fallback), so the stylesheet no longer blocks first paint.
-//   fonts:false            — leave the hand-tuned inline @font-face untouched.
-//   reduceInlineStyles:false — keep the existing critical <style> block.
-//   pruneSource:false      — don't rewrite the source .css (the async load needs it).
+//   fonts:false, to leave the hand-tuned inline @font-face untouched.
+//   reduceInlineStyles:false, to keep the existing critical <style> block.
+//   pruneSource:false, to avoid rewriting the source .css (the async load needs it).
 // The CSP already allows inline styles + the onload handler (terraform/cdn.tf).
 const beasties = new Beasties({
   path: distDir,
@@ -263,8 +263,8 @@ for (const locale of PUBLISHED_LOCALES) {
     //
     // The two differ only in the blog subtree (path /blog, canonical /blog/).
     // Rendering at the bare form made every language-switcher anchor on a blog
-    // page point at the bare form too — the switcher derives its hrefs from
-    // useLocation().pathname — so each of those links took a 301 to the slash
+    // page point at the bare form too (the switcher derives its hrefs from
+    // useLocation().pathname), so each of those links took a 301 to the slash
     // form. That is 10 anchors per page (the nav dropdown and the footer both
     // render the switcher, and both keep their anchors in the DOM for crawlers)
     // across 4 blog routes x 6 locales.
@@ -300,7 +300,7 @@ for (const locale of PUBLISHED_LOCALES) {
 
       // Guard: a prefixed page MUST self-canonicalize to its /{locale}/ URL. If
       // setCanonical failed to match (e.g. helmet changed its tag shape), a
-      // localized page would canonicalize to English and be de-indexed — fail
+      // localized page would canonicalize to English and be de-indexed; fail
       // the build loudly instead of shipping that.
       const got = html.match(/<link\b[^>]*\brel="canonical"[^>]*\bhref="([^"]*)"/)?.[1];
       if (got !== wantCanonical) {
@@ -362,7 +362,7 @@ await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath, routes });
 // emitted but unlisted no matter which list drifted. That is not hypothetical:
 // /links was prerendered and indexable in all six locales while missing from
 // sitemap.xml entirely, because generate-feeds kept its own copy of the page
-// list. 404.html is excluded — it is deliberately noindex and deliberately
+// list. 404.html is excluded: it is deliberately noindex and deliberately
 // absent from the sitemap.
 {
   const sitemapXml = readFileSync(resolve(distDir, "sitemap.xml"), "utf-8");
@@ -375,7 +375,7 @@ await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath, routes });
   const emitted = [];
   // Every emitted HTML document, INCLUDING 404.html. The sitemap check below
   // wants routes only (`emitted`), but the link check wants every page that can
-  // contain an href — 404.html is noindex, which excuses it from the sitemap and
+  // contain an href. 404.html is noindex, which excuses it from the sitemap and
   // excuses it from nothing else. Its links are exactly the ones a lost visitor
   // clicks. (Found the hard way: a deliberately broken link planted on the 404
   // page sailed past the first version of the link assertion, because that
@@ -401,7 +401,7 @@ await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath, routes });
     // Attribute ORDER is not guaranteed: react-helmet emits
     // `<link data-react-helmet="true" rel="canonical" href="...">`, so a
     // rel-first regex silently matches nothing on every helmet-rendered page.
-    // (setCanonical above carries the same warning — same trap, same file.)
+    // (setCanonical above carries the same warning: same trap, same file.)
     const canonicalTag = [...html.matchAll(/<link\b[^>]*>/g)]
       .map((m) => m[0])
       .find((tag) => /rel="canonical"/.test(tag));
@@ -410,7 +410,7 @@ await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath, routes });
       orphans.push(`${file} (no canonical)`);
       continue;
     }
-    // A page can declare a canonical on ANOTHER origin — a syndicated article
+    // A page can declare a canonical on ANOTHER origin: a syndicated article
     // whose original lives elsewhere (CMS `canonical_override`). Such a page is
     // deliberately absent from our sitemap: it is telling crawlers it is not the
     // canonical copy, and listing it would contradict that. Only its pathname
@@ -460,9 +460,9 @@ await generateFeeds({ PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath, routes });
  * The body moved out of the index corpus into blog-body.<locale>.json, read
  * through src/lib/blog-body.ts, so an article page now depends on TWO lookups
  * agreeing: getPost() resolves the post from one corpus and getPostBody() must
- * resolve the body from the same one. If they disagree — which is exactly what
+ * resolve the body from the same one. If they disagree (which is exactly what
  * happens if the body is keyed on the requested locale instead of the resolved
- * one — the page still renders, with a correct title, date and byline, and no
+ * one), the page still renders, with a correct title, date and byline, and no
  * article at all.
  *
  * Nothing else can catch that. There is no React test setup here, and the
@@ -474,7 +474,7 @@ function assertArticlesHaveBody(distDir, emitted) {
   // Needle per (locale, slug): a run of plain words taken from the body we
   // GENERATED, asserted present in the page we EMITTED.
   //
-  // A length threshold was the first attempt and it was too weak — it caught
+  // A length threshold was the first attempt and it was too weak: it caught
   // only 6 of 18 pages with the body removed, because the fr/it/pt pages carry a
   // machine-translation notice that pushed them back over the limit. Comparing
   // against the actual body text has no such blind spot.
@@ -539,7 +539,7 @@ function assertArticlesHaveBody(distDir, emitted) {
   if (missing.length) {
     throw new Error(
       `${missing.length} article page(s) do not contain their own body text:\n  ${missing.join("\n  ")}\n` +
-        "The post and its body resolved from different corpora — see postCorpusLocale " +
+        "The post and its body resolved from different corpora. See postCorpusLocale " +
         "in src/lib/blog.ts and getPostBody in src/lib/blog-body.ts.",
     );
   }
@@ -553,7 +553,7 @@ function assertArticlesHaveBody(distDir, emitted) {
  * The sitemap assertion above answers "is every page we emitted discoverable?".
  * This answers the opposite and equally load-bearing question: "does every link
  * we emitted go somewhere?" Nothing checked that, and the gap was not
- * theoretical — the language switcher offered all six locales on every blog
+ * theoretical: the language switcher offered all six locales on every blog
  * article regardless of which ones the review gate had approved, so a partially
  * approved post published twelve links to four URLs that prerender had
  * deliberately not emitted. All twelve were 404s sitting in crawlable HTML,
@@ -574,7 +574,7 @@ function assertNoBrokenInternalLinks(distDir, emitted, allHtml) {
     const html = readFileSync(file, "utf-8");
     const from = relative(distDir, file);
     for (const m of html.matchAll(/\shref="(\/[^"]*)"/g)) {
-      // Strip the fragment/query — they do not change which document is fetched.
+      // Strip the fragment/query: they do not change which document is fetched.
       const target = m[1].replace(/[?#].*$/, "");
       if (target === "") continue;
       const clean = target.replace(/^\/+|\/+$/g, "");

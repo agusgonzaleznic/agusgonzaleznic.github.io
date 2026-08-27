@@ -6,18 +6,18 @@ name: Synthetic check
 # and cannot be blocked by an IAM gap.
 #
 # Each assertion guards a specific past or plausible incident:
-#   /                  200 — the site is served at all.
-#   /api/contact       405 — the whole CloudFront -> OAC -> SigV4 -> Lambda chain
-#                            is intact. This is the ONE check that would have
-#                            caught the October-2025 Lambda Function URL auth
-#                            change, which needed a second IAM statement and
-#                            silently 403'd the contact form until found by hand.
-#   /<random>          404 — the soft-404 invariant: a prerendered SSG must NOT
-#                            serve 200 for unknown paths (see the SEO lessons —
-#                            this is the failure that put pages in Search
-#                            Console's soft-404 bucket).
-#   /de/               200 — locale prefixes still resolve.
-#   /blog/rss.xml      200 — generated feeds survived the build.
+#   /                  200: the site is served at all.
+#   /api/contact       405: the whole CloudFront -> OAC -> SigV4 -> Lambda chain
+#                           is intact. This is the ONE check that would have
+#                           caught the October-2025 Lambda Function URL auth
+#                           change, which needed a second IAM statement and
+#                           silently 403'd the contact form until found by hand.
+#   /<random>          404: the soft-404 invariant: a prerendered SSG must NOT
+#                           serve 200 for unknown paths (see the SEO lessons;
+#                           this is the failure that put pages in Search
+#                           Console's soft-404 bucket).
+#   /de/               200: locale prefixes still resolve.
+#   /blog/rss.xml      200: generated feeds survived the build.
 
 on:
   schedule:
@@ -54,7 +54,7 @@ jobs:
             if [ "$got" = "$want" ]; then
               printf '  ok   %-28s %s\n' "$path" "$got"
             else
-              printf '  FAIL %-28s got %s, want %s — %s\n' "$path" "$got" "$want" "$desc"
+              printf '  FAIL %-28s got %s, want %s: %s\n' "$path" "$got" "$want" "$desc"
               echo "::error title=Synthetic check failed::$path returned $got, expected $want. $desc"
               fails=$((fails + 1))
             fi
@@ -62,7 +62,7 @@ jobs:
 
           check "/"                       200 "The site is not being served."
           check "/api/contact"            405 "The contact API is unreachable: CloudFront -> OAC -> SigV4 -> Lambda is broken (a 403 here is the Function-URL auth regression)."
-          check "/synthetic-404-probe-$RANDOM" 404 "Unknown paths are not 404ing — the SPA fallback has returned and will produce soft-404s."
+          check "/synthetic-404-probe-$RANDOM" 404 "Unknown paths are not 404ing; the SPA fallback has returned and will produce soft-404s."
           check "/de/"                    200 "Locale-prefixed routes are not resolving."
           check "/blog/rss.xml"           200 "Generated feeds are missing from the build output."
 

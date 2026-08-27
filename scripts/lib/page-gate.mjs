@@ -1,4 +1,4 @@
-// Per-(marketing-page × locale) review gate — the page analogue of blog-gate.mjs.
+// Per-(marketing-page × locale) review gate, the page analogue of blog-gate.mjs.
 //
 // Mirrors the blog gate EXACTLY, at whole-page granularity: a page's translatable
 // copy hashes to a sourceHash; a locale is served VERBATIM from
@@ -27,7 +27,7 @@ export function pageSlug(page) {
 }
 
 /**
- * Stable short hash of a page's translatable copy — uses the SAME extractor the
+ * Stable short hash of a page's translatable copy. Uses the SAME extractor the
  * translator uses (page-translate.collectTranslatableStrings), so review-unit ==
  * translate-unit and the hash changes iff copy a reviewer would read changed.
  */
@@ -38,7 +38,7 @@ export function pageSourceHash(page) {
 
 /** Read the page-approvals manifest.
  *
- * ABSENT is fine and means "nothing is approved yet" — that is the intended
+ * ABSENT is fine and means "nothing is approved yet": that is the intended
  * fail-safe and is how a fresh checkout behaves. A file that EXISTS but does not
  * parse is a different thing entirely and now throws.
  *
@@ -46,7 +46,7 @@ export function pageSourceHash(page) {
  * total: a truncated manifest made every reviewed locale variant look
  * unapproved, so prerender emitted no /de/ or /es/ pages, the sitemap and
  * hreflang sets lost them, and the build stayed GREEN. The same loader is used by
- * scripts/review-translations.mjs, where the consequence is worse — it would read
+ * scripts/review-translations.mjs, where the consequence is worse: it would read
  * the manifest as empty and then write that back, permanently discarding every
  * approval on the next save. */
 export function loadPageApprovals(path) {
@@ -58,7 +58,7 @@ export function loadPageApprovals(path) {
   } catch (e) {
     throw new Error(
       `page-gate: ${path} exists but is not valid JSON (${e.message}). ` +
-        "Refusing to treat it as empty — that would silently unpublish every " +
+        "Refusing to treat it as empty: that would silently unpublish every " +
         "reviewed translation. Restore it from git.",
     );
   }
@@ -71,13 +71,13 @@ export function loadPageApprovals(path) {
 /** Path to a reviewed page's per-locale store.
  *
  * Both `slug` and `locale` are interpolated into the filename, and `locale` can
- * originate from a request body in the local review tool — so a traversal value
+ * originate from a request body in the local review tool, so a traversal value
  * would escape contentDir entirely. Callers validate, and this asserts, because
  * this builder is shared by the build (fetch-pages) and the review server and
  * only one of them had a guard. */
 export function reviewedPagePath(contentDir, slug, locale) {
   // NOTE for future editors: comparing resolve(...) against join(...) does NOT
-  // work as a containment check — join normalises `..` exactly like resolve, so
+  // work as a containment check: join normalises `..` exactly like resolve, so
   // both sides collapse to the same escaped path and the comparison always
   // passes. Reject the dangerous characters in the INPUTS, then assert the file
   // lands directly in the base directory.

@@ -1,13 +1,13 @@
-// scripts/review-translations.mjs — ONE local tool to review ALL site copy.
+// scripts/review-translations.mjs: ONE local tool to review ALL site copy.
 //
 // A single local web app to read English side-by-side with each translation,
-// edit in context, and Save — covering the three places copy lives:
-//   • pages — Storyblok marketing pages (/about, /services, …), grouped by page.
-//   • blog  — Storyblok blog posts, grouped by post.
-//   • ui    — Lingui UI/chrome strings (.po catalogs), grouped by source file.
+// edit in context, and Save, covering the three places copy lives:
+//   • pages: Storyblok marketing pages (/about, /services, …), grouped by page.
+//   • blog:  Storyblok blog posts, grouped by post.
+//   • ui:    Lingui UI/chrome strings (.po catalogs), grouped by source file.
 //
 // LANGUAGES: English is the source (left column). By default you review only the
-// two languages you actually speak — Argentinian Spanish (es) and German (de).
+// two languages you actually speak: Argentinian Spanish (es) and German (de).
 // French/Italian/Portuguese stay machine-translated and are never shown unless
 // you pass --all. A locale selector in the header filters the view live.
 //
@@ -227,7 +227,7 @@ async function buildPageItems() {
 // output filename (`${slug}.${locale}.json`), so an unvalidated value is an
 // arbitrary-.json-write primitive: resolve("content/pages", "about." +
 // "./../../../package" + ".json") escapes the repo. Validate against the
-// locales actually in scope for this run — deliberately NOT ALL_LOCALES, which
+// locales actually in scope for this run, deliberately NOT ALL_LOCALES, which
 // lives in src/i18n/locales.ts, a TS module these .mjs build scripts cannot
 // import (see docs/architecture.md on why PUBLISHED_LOCALES is regex-parsed).
 function assertKnownLocale(locale, locales) {
@@ -497,7 +497,7 @@ fl.onchange=render;fd.onchange=render;render();
 // single one is sufficient:
 //
 //  1. Bind to 127.0.0.1. `listen(port)` with no host binds `::`/0.0.0.0, i.e.
-//     every interface — on shared wifi any peer could POST /save.
+//     every interface: on shared wifi any peer could POST /save.
 //  2. Require a per-run token in a CUSTOM header. Loopback alone does NOT stop
 //     browser CSRF (a malicious tab can reach http://127.0.0.1:4477), and a
 //     `<form enctype="text/plain">` can forge a body that JSON.parse accepts
@@ -554,6 +554,6 @@ const server = createServer((req, res) => {
 server.listen(port, "127.0.0.1", () => {
   const need = items.filter((i) => i.status !== "approved").length;
   const byDom = [...new Set(items.map((i) => i.domain))].map((d) => `${items.filter((i) => i.domain === d).length} ${d}`).join(", ");
-  console.log(`\n  Copy review — ${items.length} item(s) [${byDom}] across ${locales.map((l) => LOCALE_NAME[l]).join(", ")} (${need} needing review)`);
-  console.log(`  ▶ open http://127.0.0.1:${port}  — edit, Save & approve, then Ctrl+C and:  git add content/ src/i18n/catalogs/ && git commit -S`);
+  console.log(`\n  Copy review: ${items.length} item(s) [${byDom}] across ${locales.map((l) => LOCALE_NAME[l]).join(", ")} (${need} needing review)`);
+  console.log(`  ▶ open http://127.0.0.1:${port}, edit, Save & approve, then Ctrl+C and:  git add content/ src/i18n/catalogs/ && git commit -S`);
 });

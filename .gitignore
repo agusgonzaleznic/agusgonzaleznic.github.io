@@ -18,7 +18,7 @@ bun.lockb
 .env.local
 # All local env overrides, incl. .env.development.local (holds the dev-only
 # VITE_STORYBLOK_ACCESS_TOKEN for the Visual Editor preview). vite loads
-# .env.development.local only in dev — never in a production build.
+# .env.development.local only in dev, never in a production build.
 .env*.local
 
 # Editor directories and files
@@ -51,7 +51,7 @@ src/generated/blog-body.*.json
 src/generated/page-data.json
 src/generated/page-data.*.json
 
-# Compiled Lingui catalogs — derived from the .po sources by @lingui/vite-plugin
+# Compiled Lingui catalogs: derived from the .po sources by @lingui/vite-plugin
 # at build time (the app imports the .po, never the .js). The .po files are the
 # committed source of truth.
 src/i18n/catalogs/*.js

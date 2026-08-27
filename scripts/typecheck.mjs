@@ -1,8 +1,8 @@
-// Type-check every TS project — and prove the check is actually looking at files.
+// Type-check every TS project, and prove the check is actually looking at files.
 //
 // Why this is a script and not just `tsc --noEmit`:
 //
-// tsconfig.json here is a SOLUTION file — `"files": []` plus `references`. Run
+// tsconfig.json here is a SOLUTION file: `"files": []` plus `references`. Run
 // bare `tsc --noEmit` against it and TypeScript resolves ZERO input files, prints
 // nothing, and exits 0. It is a perfect green check that verifies nothing. That
 // is not hypothetical: it hid 14 real type errors in this repo indefinitely, and
@@ -16,7 +16,7 @@
 
 import { spawnSync } from "node:child_process";
 
-// Minimum input files per project. Deliberately loose — this is a canary for
+// Minimum input files per project. Deliberately loose: this is a canary for
 // "the project resolved to nothing", not a coverage metric to keep updating.
 const PROJECTS = [
   { config: "tsconfig.app.json", minFiles: 50 },
@@ -59,7 +59,7 @@ for (const { config, minFiles } of PROJECTS) {
     console.error(`\n✖ typecheck: ${config}\n${output}\n`);
     failed = true;
   } else {
-    console.log(`✓ typecheck: ${config} — ${localFiles.length} file(s), no errors`);
+    console.log(`✓ typecheck: ${config}, ${localFiles.length} file(s), no errors`);
   }
 }
 

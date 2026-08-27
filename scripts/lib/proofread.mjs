@@ -1,12 +1,12 @@
-// scripts/lib/proofread.mjs — authoring-time source checks (English especially),
+// scripts/lib/proofread.mjs: authoring-time source checks (English especially),
 // run BEFORE a post reaches Storyblok / the DeepL+Claude translation pass, so a
 // source typo can't corrupt six machine translations. Two independent checks:
 //
-//   proofread(text)            — Claude finds objective errors only (never style,
+//   proofread(text):             Claude finds objective errors only (never style,
 //                                voice, or profanity). Degrades to {ran:false} with
 //                                no ANTHROPIC_API_KEY / SDK, so the caller keeps
 //                                working. Reuses the key resolver from llm-postedit.
-//   glossaryCandidates(text,…) — keyless heuristic: surfaces ALLCAPS acronyms and
+//   glossaryCandidates(text,…):  keyless heuristic: surfaces ALLCAPS acronyms and
 //                                CamelCase/product tokens NOT already in the
 //                                do-not-translate glossary, to add before translating.
 //
@@ -14,7 +14,7 @@
 
 import { hasAnthropicKey, resolveAnthropicKey } from "./llm-postedit.mjs";
 
-// Proofreading is a well-scoped copy-edit, not deep reasoning — same model the
+// Proofreading is a well-scoped copy-edit, not deep reasoning: same model the
 // post-edit pass uses; volume is one post at a time, so cost is trivial.
 const MODEL = "claude-opus-4-8";
 
@@ -38,7 +38,7 @@ export async function proofread(text) {
     "You are a meticulous copy editor proofreading English text BEFORE it is machine-translated into other languages.",
     "Report ONLY objective errors: misspellings, typos, doubled words, subject–verb/agreement errors, wrong or missing punctuation, and clear grammar mistakes.",
     "Do NOT report style, tone, concision, or word-choice preferences. Do NOT flag profanity, slang, dialect, or intentional informal usage. Do NOT rewrite sentences.",
-    "Preserve the author's voice. When unsure whether something is an error or a deliberate choice, leave it out — false positives are worse than misses here.",
+    "Preserve the author's voice. When unsure whether something is an error or a deliberate choice, leave it out; false positives are worse than misses here.",
     "For each error, return the exact substring to replace as `original` (copied verbatim, long enough to be unique in the text), the corrected `suggestion`, and a short `reason`.",
   ].join(" ");
   try {
@@ -100,7 +100,7 @@ export async function suggestMetadata(text) {
   const system = [
     "You write publication metadata for a blog post by a senior engineering-leadership coach.",
     "Return: excerpt (one or two sentences, <=200 chars, a teaser that also works as the default meta description); seo_title (<=60 chars, specific and compelling); seo_description (<=160 chars, a meta description).",
-    "Match the author's voice: direct, warm, informal-professional — never clickbait or corporate filler.",
+    "Match the author's voice: direct, warm, informal-professional; never clickbait or corporate filler.",
     "Keep English tech/coaching loanwords and any profanity from the source as-is. Do NOT wrap terms in quotation marks that the source doesn't quote.",
   ].join(" ");
   try {
@@ -190,14 +190,14 @@ export async function suggestTags(text, existing = []) {
   }
 }
 
-// Common all-caps English words that are never do-not-translate terms — filtered
+// Common all-caps English words that are never do-not-translate terms, filtered
 // out of candidates to cut noise. (Real terms like SRE/SEV-1/TTL are NOT here.)
 const STOP_CAPS = new Set(["STOP", "ASAP", "NOW", "OK", "OKAY", "YES", "NO", "TLDR", "FYI", "AKA", "ETA", "DIY"]);
 
 /**
  * Heuristic do-not-translate candidates present in `text` but missing from
  * `existingTerms`: ALLCAPS acronyms (incl. hyphen/number forms like SEV-1) and
- * CamelCase/product tokens (GitOps). Advisory — the caller confirms each.
+ * CamelCase/product tokens (GitOps). Advisory: the caller confirms each.
  */
 export function glossaryCandidates(text, existingTerms) {
   const have = new Set(existingTerms);

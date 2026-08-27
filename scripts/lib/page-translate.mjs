@@ -1,9 +1,9 @@
-// Build-time translation of marketing PAGE stories — the structured analog of
+// Build-time translation of marketing PAGE stories, the structured analog of
 // scripts/lib/richtext-translate.mjs. Consumed by scripts/fetch-pages.mjs.
 //
 // A page is a tree of blocks with plain-string fields. This walker translates
 // EVERY string field EXCEPT those whose key is structural/non-text (NON_TEXT
-// below) — so icons, colors, `featured`, stat `value` like "40%", `period`,
+// below), so icons, colors, `featured`, stat `value` like "40%", `period`,
 // `company` names, the untranslated `industries` list, URLs, slugs, and
 // component/_uid stay byte-identical, while all copy is translated. Uses the
 // same DeepL client + content-hash cache as the blog (translator.translateAll).
@@ -40,7 +40,7 @@ function collect(node, acc) {
     if (typeof value === "string") {
       if (value.trim() && !NON_TEXT_FIELDS.has(key)) acc.push({ obj: node, key });
     } else if (value && typeof value === "object" && !NON_TEXT_FIELDS.has(key)) {
-      // Don't descend into non-text subtrees (e.g. an `image` asset object) —
+      // Don't descend into non-text subtrees (e.g. an `image` asset object):
       // their metadata (alt, title, copyright…) must not be translated.
       collect(value, acc);
     }
@@ -87,7 +87,7 @@ export async function translatePages(pages, locale, translator) {
  * structure, aligned by translatable-slot order. Used by the page-gate path
  * (fetch-pages.mjs): when a (page, locale) is approved AND hash-fresh, the copy
  * is served verbatim from the human-reviewed file while non-text/structural
- * fields (URLs, icons, images, `featured`, …) come from the LIVE English page —
+ * fields (URLs, icons, images, `featured`, …) come from the LIVE English page,
  * so a reviewed translation never goes stale on structure. Because the gate only
  * calls this when the source hash matches, the two slot sequences are identical
  * in count + order; if they ever differ (defensive), returns null so the caller

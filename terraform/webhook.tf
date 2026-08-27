@@ -2,7 +2,7 @@
 # Storyblok -> GitHub Actions rebuild webhook (Lambda + Function URL)
 #
 # SecureString parameter VALUES are created/rotated outside Terraform and are
-# only referenced by name here — never data-read into state.
+# only referenced by name here, never data-read into state.
 ################################################################################
 
 locals {
@@ -43,7 +43,7 @@ resource "aws_iam_role" "webhook" {
 
   # REQUIRED: the CI deploy role may only iam:CreateRole/PutRolePolicy on
   # roles carrying this boundary (anti-privilege-escalation; defined in
-  # bootstrap/role-policies.tf — the policy NAME is the cross-module
+  # bootstrap/role-policies.tf: the policy NAME is the cross-module
   # contract). Removing this makes the CI apply fail with AccessDenied.
   permissions_boundary = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/agusgonzaleznic-lambda-exec-boundary"
 
@@ -145,7 +145,7 @@ resource "aws_lambda_permission" "webhook_url" {
 # the Bool condition lambda:InvokedViaFunctionUrl=true, or every URL request
 # gets 403 AccessDeniedException before reaching the handler. Provider 5.100.0
 # has no invoked_via_function_url argument on aws_lambda_permission, so that
-# statement is CLI-managed (invisible to TF's per-statement tracking — plans
+# statement is CLI-managed (invisible to TF's per-statement tracking; plans
 # stay clean). Fold into TF when the aws provider is bumped past 6.x:
 #   aws lambda add-permission --function-name agusgonzaleznic-storyblok-rebuild \
 #     --statement-id UrlPolicyInvokeFunction --action lambda:InvokeFunction \

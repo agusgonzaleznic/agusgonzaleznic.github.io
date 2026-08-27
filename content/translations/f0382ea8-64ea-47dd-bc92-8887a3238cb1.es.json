@@ -44,7 +44,7 @@
         "type": "paragraph",
         "content": [
           {
-            "text": "Supongo que el mundo inmobiliario va rezagado. Mientras buscaba un departamento en Berlín —una tarea no apta para cualquiera—, noté algo que se repetía: algunos avisos están disponibles por muy poco tiempo, así que ",
+            "text": "Supongo que el mundo inmobiliario va rezagado. Mientras buscaba un departamento en Berlín –una tarea no apta para cualquiera–, noté algo que se repetía: algunos avisos están disponibles por muy poco tiempo, así que ",
             "type": "text"
           },
           {
@@ -266,7 +266,7 @@
                     ]
                   },
                   {
-                    "text": "  que quieran automatizar la creación de listings y mantener la paridad entre varias plataformas —quizás, en el futuro, con un ",
+                    "text": "  que quieran automatizar la creación de listings y mantener la paridad entre varias plataformas –quizás, en el futuro, con un ",
                     "type": "text"
                   },
                   {
@@ -581,7 +581,7 @@
             ]
           },
           {
-            "text": ", lo que genera otra barrera para los innovadores y los proyectos de la comunidad —y, por lo tanto, me impide probar realmente el provider en la vida real—.",
+            "text": ", lo que genera otra barrera para los innovadores y los proyectos de la comunidad –y, por lo tanto, me impide probar realmente el provider en la vida real–.",
             "type": "text"
           }
         ]

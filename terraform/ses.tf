@@ -1,5 +1,5 @@
 ################################################################################
-# SES — sender identity for the contact form's owner-notification mail.
+# SES: sender identity for the contact form's owner-notification mail.
 #
 # Replaces the previous Google Apps Script hop. The Apps Script was a web-app
 # deployment whose /exec URL is an opaque, non-derivable id: Terraform could
@@ -17,7 +17,7 @@
 # RECIPIENTS to verified identities, and a verified DOMAIN identity covers
 # every address on it. The only recipient is local.contact_mail_to, which is
 # on this domain. Sending to any OTHER domain (e.g. echoing a copy to the
-# submitter) would require production access — do not add that without it.
+# submitter) would require production access; do not add that without it.
 ################################################################################
 
 resource "aws_sesv2_email_identity" "main" {
@@ -38,7 +38,7 @@ resource "aws_sesv2_email_identity" "main" {
 # list: that module for_each's over the list, and a for_each whose KEYS derive
 # from unknown-at-plan values fails with "value depends on resource attributes
 # that cannot be determined until apply". Records created outside that list are
-# already established practice here — the ACM module publishes its own
+# already established practice here: the ACM module publishes its own
 # validation records the same way (acm.tf).
 resource "aws_route53_record" "ses_dkim" {
   count = 3
@@ -71,7 +71,7 @@ output "ses_dkim_verification_note" {
 }
 
 ################################################################################
-# Configuration set — so a bounce or a complaint is visible.
+# Configuration set, so a bounce or a complaint is visible.
 #
 # Without one, SES tells us nothing after the API call returns. SendEmail
 # succeeding means SES ACCEPTED the message, not that anyone received it: a hard
@@ -83,12 +83,12 @@ output "ses_dkim_verification_note" {
 # the metrics itself, so there is no topic policy to widen and no cross-service
 # trust to add, and the result plugs into the alarm pattern observability.tf
 # already uses. An SNS destination would need SetTopicAttributes on the alerts
-# topic and a ses.amazonaws.com principal in its policy — more surface for the
+# topic and a ses.amazonaws.com principal in its policy: more surface for the
 # same signal.
 #
 # ORDERING: the lambda-exec boundary already allows ses:SendEmail on this set's
 # ARN (bootstrap, applied separately). IAM accepts an ARN for a resource that
-# does not exist yet, which is what let that grant land first — the reverse order
+# does not exist yet, which is what let that grant land first; the reverse order
 # cannot work, because the site plan would run before the grant existed.
 ################################################################################
 

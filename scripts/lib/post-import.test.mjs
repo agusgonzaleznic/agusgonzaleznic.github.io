@@ -104,7 +104,7 @@ test("a non-empty imported value wins", () => {
   assert.equal(out.title, "New title");
 });
 
-test("the body is always replaced — that is the point of re-importing", () => {
+test("the body is always replaced: that is the point of re-importing", () => {
   const prior = { body: { type: "doc", content: [{ type: "paragraph" }] } };
   const next = built({ body: { type: "doc", content: [{ type: "heading" }] } });
   assert.deepEqual(mergeStoryContent(prior, next).body, next.body);

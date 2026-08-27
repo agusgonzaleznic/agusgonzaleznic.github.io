@@ -2,7 +2,7 @@
 #
 # Deliberately separate from the terraform deploy role: that role's trust
 # policy excludes `ref:refs/heads/main` (applies go through the gated
-# environment), while this role must be assumable by every ordinary deploy —
+# environment), while this role must be assumable by every ordinary deploy:
 # push to main and the Storyblok webhook's workflow_dispatch both carry the
 # main-ref subject. Blast radius if abused: someone can invalidate the CDN
 # cache. Nothing else.

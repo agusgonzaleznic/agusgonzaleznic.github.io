@@ -1,12 +1,12 @@
-// scripts/new-post.mjs — author a blog post from a Markdown OR HTML file.
+// scripts/new-post.mjs: author a blog post from a Markdown OR HTML file.
 // Full guide: docs/publishing-a-post.md.
 //
 // Converts the body to Storyblok richtext (only the node types
 // src/components/blog/RichText.tsx renders) and creates/updates the DRAFT story
-// `blog/<slug>` via the Management API. Frontmatter is OPTIONAL — a raw article
+// `blog/<slug>` via the Management API. Frontmatter is OPTIONAL; a raw article
 // works: title comes from the leading <h1>, slug/date are derived, and
 // excerpt/SEO + tags are generated (Claude). A leading <h1> is dropped (the
-// title field owns it). Nothing is published — review in Storyblok, then Publish.
+// title field owns it). Nothing is published: review in Storyblok, then Publish.
 //
 //   op run --env-file="$HOME/.env" --no-masking -- node scripts/new-post.mjs post.md
 //   node scripts/new-post.mjs post.md --dry-run   # print richtext, no API call
@@ -218,7 +218,7 @@ function listItems(listEl) {
 
 // Refuse rather than silently mangle. <table> is not in BLOCK_TAGS, so a
 // Markdown table used to fall through to the inline path and every cell was
-// concatenated into ONE run-on paragraph — the author only discovered it by
+// concatenated into ONE run-on paragraph; the author only discovered it by
 // reading the published post. Storyblok richtext does support tables, but
 // emitting them needs a real converter; until then, failing loudly is strictly
 // better than publishing corrupted content.
@@ -231,7 +231,7 @@ function assertConvertible(html) {
     if (re.test(html)) {
       throw new Error(
         `This document contains a ${label}, which the Richtext converter cannot ` +
-          `represent — it would be flattened into a single run-on paragraph. ` +
+          `represent: it would be flattened into a single run-on paragraph. ` +
           `Remove it from the source, or add the ${label} to the converter first.`,
       );
     }
@@ -289,13 +289,13 @@ async function promptMissing(data, fallbackName) {
     data[key] = ans || def;
   };
   try {
-    console.log("\nMissing frontmatter — press Enter to accept a [default]:");
+    console.log("\nMissing frontmatter. Press Enter to accept a [default]:");
     await ask("title", "Title");
     await ask("slug", "Slug (URL segment under /blog/)", slugify(data.title || fallbackName));
-    await ask("excerpt", "Excerpt (<=200 — also the default meta description)");
-    await ask("seo_title", "SEO title (<=60 — blank falls back to Title)");
-    await ask("seo_description", "SEO description (<=160 — blank falls back to Excerpt)");
-    await ask("original_url", "Original URL (only if republished first elsewhere — blank = self-canonical)");
+    await ask("excerpt", "Excerpt (<=200, also the default meta description)");
+    await ask("seo_title", "SEO title (<=60, blank falls back to Title)");
+    await ask("seo_description", "SEO description (<=160, blank falls back to Excerpt)");
+    await ask("original_url", "Original URL (only if republished first elsewhere; blank = self-canonical)");
   } catch {
     rl.close();
     console.error("\nCancelled.");
@@ -310,7 +310,7 @@ const occurrences = (s, sub) => (sub ? s.split(sub).length - 1 : 0);
 // Proofread the English source and surface do-not-translate candidates BEFORE the
 // content reaches Storyblok / translation. Mutates data/body in place for fixes
 // the author accepts (and best-effort-syncs the source file); returns the raw.
-// Everything is advisory — proofread degrades to a no-op without ANTHROPIC_API_KEY.
+// Everything is advisory: proofread degrades to a no-op without ANTHROPIC_API_KEY.
 async function runSourceChecks({ file, data, body, raw, dryRun }) {
   const interactive = process.stdin.isTTY && !process.argv.includes("--no-prompt") && !dryRun;
   const prose = [data.title, data.excerpt, data.seo_title, data.seo_description, body]
@@ -331,7 +331,7 @@ async function runSourceChecks({ file, data, body, raw, dryRun }) {
         rl.close();
         apply = ans === "" || ans === "y" || ans === "yes";
       } else {
-        console.log("  (not applying automatically — fix the source and re-run)");
+        console.log("  (not applying automatically; fix the source and re-run)");
       }
       if (apply) {
         let applied = 0;
@@ -349,7 +349,7 @@ async function runSourceChecks({ file, data, body, raw, dryRun }) {
           applied += 1;
         }
         writeFileSync(resolve(file), raw);
-        console.log(`  ✓ applied ${applied} fix(es)` + (stuck.length ? `; ${stuck.length} couldn't be auto-located — fix manually` : ""));
+        console.log(`  ✓ applied ${applied} fix(es)` + (stuck.length ? `; ${stuck.length} couldn't be auto-located: fix manually` : ""));
       }
     }
   }
@@ -366,7 +366,7 @@ async function runSourceChecks({ file, data, body, raw, dryRun }) {
       if (add.length) {
         gloss.terms.push(...add);
         writeFileSync(GLOSSARY_PATH, `${JSON.stringify(gloss, null, 2)}\n`);
-        console.log(`  ✓ added ${add.join(", ")} to scripts/i18n-glossary.json — remember to commit it`);
+        console.log(`  ✓ added ${add.join(", ")} to scripts/i18n-glossary.json; remember to commit it`);
       }
     }
   }
@@ -456,7 +456,7 @@ if (!slug) {
 }
 // Frontmatter prose goes through the same entity decoding as the body. It did
 // not before, so an excerpt copied out of a CMS or word processor published
-// "it&rsquo;s" verbatim — and the excerpt is what PostCard shows, what the RSS
+// "it&rsquo;s" verbatim, and the excerpt is what PostCard shows, what the RSS
 // <description> carries, what the meta description says, and what gets sent to
 // DeepL for five locales.
 //
@@ -517,13 +517,13 @@ if (existing) {
   // the interactive prompt that was supposed to catch this could never fire
   // (ask() returns early once the key is set, and autofill runs first). So
   // re-importing a three-week-old post to fix a typo silently re-dated it to
-  // today — which re-sorts it to the top of the blog index (Storyblok is queried
+  // today, which re-sorts it to the top of the blog index (Storyblok is queried
   // sort_by content.published_date:desc), re-stamps its RSS pubDate so feed
   // readers surface it as new, and moves its sitemap lastmod.
   //
   // The list endpoint returns story summaries without full content, so fetch the
   // single story to read its stored date. Only applies when the author did NOT
-  // put a date in the source file — an explicit frontmatter date still wins.
+  // put a date in the source file; an explicit frontmatter date still wins.
   // Fetched unconditionally now: the date logic below needs it, and so does
   // preserving every content field this importer does not build.
   const full = await api("GET", `/stories/${existing.id}`);

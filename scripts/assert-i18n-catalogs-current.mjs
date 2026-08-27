@@ -17,7 +17,7 @@
 // real text. The defect existed ONLY in the built output.
 //
 // Note what this means for the shape of the check. The failure mode is NOT
-// "English leaked into a translated page" — the usual i18n heuristic of comparing
+// "English leaked into a translated page": the usual i18n heuristic of comparing
 // msgstr to msgid would not have found this, because the entry was absent, not
 // untranslated. The only reliable question is: does `lingui extract` still agree
 // with the source?
@@ -31,7 +31,7 @@
 //
 // An entry that EXISTS with an empty msgstr is a different, much milder problem:
 // the page renders readable English instead of a hash. That is reported loudly
-// but does NOT fail the build — failing it would block every unrelated PR behind
+// but does NOT fail the build; failing it would block every unrelated PR behind
 // a human translation task, and the whole point of a guard is that people keep
 // listening to it.
 
@@ -78,7 +78,7 @@ try {
 } finally {
   // Always put the tree back. A catalog extract CREATED (a locale added to
   // lingui.config.ts but never extracted) has no snapshot to restore, so it is
-  // removed outright — otherwise this guard would leave a stray untracked .po
+  // removed outright; otherwise this guard would leave a stray untracked .po
   // behind and become a source of the very diff noise it is meant to detect.
   for (const f of poFiles()) {
     const old = before.get(f);
@@ -104,7 +104,7 @@ if (changed.length) {
   }
   console.error(
     "\n  A message used in src/ but absent from the catalogs does not fall back to\n" +
-      "  English in a production build — it renders its raw ID (e.g. `-kGSzl`),\n" +
+      "  English in a production build: it renders its raw ID (e.g. `-kGSzl`),\n" +
       "  because @lingui/swc-plugin strips the fallback text. `npm run dev` hides\n" +
       "  this completely.\n\n" +
       "  Fix: npm run i18n:extract   (then translate the new messages, or ship them\n" +
@@ -113,7 +113,7 @@ if (changed.length) {
   process.exit(1);
 }
 
-// Catalogs are current. Report untranslated messages — readable English, not a
+// Catalogs are current. Report untranslated messages: readable English, not a
 // hash, so this is a warning rather than a failure.
 const gaps = [];
 // An ICU plural whose translation is byte-identical to English. Reported
@@ -121,7 +121,7 @@ const gaps = [];
 // translator cannot produce these at all (protect() masks a plural as one
 // sentinel, sub-messages included), so they will never fill themselves in and
 // need translating by hand. The generic "msgstr equals msgid" heuristic is
-// useless site-wide — plenty of strings are legitimately identical — but for a
+// useless site-wide (plenty of strings are legitimately identical), but for a
 // plural it is unambiguous.
 const untranslatedPlurals = [];
 const IS_PLURAL = /\{[^{}]*,\s*(plural|select|selectordinal)\s*,/;
@@ -137,13 +137,13 @@ console.log("✓ i18n: catalogs match the source");
 const trim = (s) => (s.length > 70 ? `${s.slice(0, 70)}…` : s);
 if (gaps.length) {
   console.log(
-    `⚠ i18n: untranslated messages — these render in ENGLISH on translated pages:\n` +
+    `⚠ i18n: untranslated messages. These render in ENGLISH on translated pages:\n` +
       gaps.map((g) => `    ${g.f}: ${g.n}  e.g. "${trim(g.sample)}"`).join("\n"),
   );
 }
 if (untranslatedPlurals.length) {
   console.log(
-    "⚠ i18n: ICU plurals still identical to English — the translator CANNOT produce\n" +
+    "⚠ i18n: ICU plurals still identical to English. The translator CANNOT produce\n" +
       "  these (they are masked whole), so they need translating by hand:\n" +
       untranslatedPlurals.map((g) => `    ${g.f}: ${g.n}  e.g. "${trim(g.sample)}"`).join("\n"),
   );

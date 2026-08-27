@@ -21,6 +21,7 @@
     "i18n:compile": "lingui compile",
     "prepare": "husky",
     "assert-no-client-secrets": "node scripts/assert-no-client-secrets.mjs",
+    "assert-no-em-dash": "node scripts/assert-no-em-dash.mjs",
     "test:e2e": "node scripts/e2e.mjs"
   },
   "dependencies": {

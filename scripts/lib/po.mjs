@@ -1,10 +1,10 @@
 // Minimal gettext .po parse/serialize for the unified copy-review tool
 // (scripts/review-translations.mjs) to read/write Lingui catalogs. Handles
-// comments, msgctxt, multi-line strings, and C-style escaping — enough for
+// comments, msgctxt, multi-line strings, and C-style escaping: enough for
 // Lingui's `po` format.
 //
 // NOTE: scripts/translate.mjs keeps its OWN byte-identical inline copy of this
-// parser (it can't be imported here — it runs main() on import). The two MUST
+// parser (it can't be imported here; it runs main() on import). The two MUST
 // stay in sync so a .po written by the translator and one saved from the review
 // UI serialize identically (no reformat churn / spurious diffs). If you change
 // serialization here, mirror it in translate.mjs, and vice-versa.

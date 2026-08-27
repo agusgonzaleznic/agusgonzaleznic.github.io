@@ -7,7 +7,7 @@
 #
 # The Turnstile SECRET is a SecureString SSM param MANAGED HERE by Terraform
 # (value from the Cloudflare widget resource). This differs from webhook.tf's
-# params, whose values are human-managed and only referenced by name — hence
+# params, whose values are human-managed and only referenced by name, hence
 # the deploy role has scoped ssm:PutParameter on
 # /agusgonzaleznic-site/contact/* (bootstrap/role-policies.tf).
 #
@@ -27,7 +27,7 @@ locals {
 
   # Derived, not variables: nothing here should need hand-feeding. The From
   # address is pinned in the boundary's ses:FromAddress condition
-  # (bootstrap/role-policies.tf) — change both together or sends are denied.
+  # (bootstrap/role-policies.tf). Change both together or sends are denied.
   contact_mail_from      = "noreply@${local.domain_name}"
   contact_mail_from_name = "agusgonzaleznic.com contact form"
   contact_mail_to        = "me@${local.domain_name}"
@@ -57,7 +57,7 @@ resource "aws_ssm_parameter" "contact_turnstile_secret" {
 }
 
 ################################################################################
-# DynamoDB — rate limits, dedupe, and Turnstile token replay guard.
+# DynamoDB: rate limits, dedupe, and Turnstile token replay guard.
 # Single table, control-prefixed `pk`, numeric TTL (`expires_at`) so rows
 # self-expire. On-demand billing: no capacity to manage or over-provision.
 ################################################################################
@@ -81,7 +81,7 @@ resource "aws_dynamodb_table" "contact" {
 }
 
 ################################################################################
-# IAM — exec role (boundary-bound, mirrors webhook.tf) + least-privilege inline
+# IAM: exec role (boundary-bound, mirrors webhook.tf) + least-privilege inline
 ################################################################################
 
 data "aws_iam_policy_document" "contact_assume" {
@@ -101,7 +101,7 @@ resource "aws_iam_role" "contact" {
 
   # REQUIRED: CI may only create agusgonzaleznic-* roles that carry this
   # boundary (anti-privilege-escalation; bootstrap/role-policies.tf). The
-  # boundary is the CEILING — it must also allow the DynamoDB actions below
+  # boundary is the CEILING: it must also allow the DynamoDB actions below
   # and the /agusgonzaleznic-site/* SSM read, or they are silently denied.
   permissions_boundary = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/agusgonzaleznic-lambda-exec-boundary"
 
@@ -151,7 +151,7 @@ data "aws_iam_policy_document" "contact" {
     sid     = "SendContactEmail"
     actions = ["ses:SendEmail"]
     # BOTH resource types. ses:SendEmail authorises against the identity AND, when
-    # the request names one, the configuration set — so granting only the identity
+    # the request names one, the configuration set, so granting only the identity
     # makes every send fail AccessDenied. Effective permissions are the
     # INTERSECTION with the lambda-exec boundary, which was widened the same way
     # in the bootstrap tier first; widening one side alone changes nothing.
@@ -217,7 +217,7 @@ resource "aws_lambda_function" "contact" {
   # reserving requires keeping >=100 unreserved (see webhook.tf). Abuse is
   # bounded by the in-handler rate limits + 10s timeout.
 
-  # Env contract is defined by contact-lambda-src/index.mjs — keep names in sync.
+  # Env contract is defined by contact-lambda-src/index.mjs; keep names in sync.
   environment {
     variables = {
       DDB_TABLE              = aws_dynamodb_table.contact.name
@@ -243,7 +243,7 @@ resource "aws_lambda_function" "contact" {
   depends_on = [aws_iam_role_policy_attachment.contact_logs]
 }
 
-# AWS_IAM (not NONE): the URL is invocable only by a SigV4-signing caller —
+# AWS_IAM (not NONE): the URL is invocable only by a SigV4-signing caller:
 # here, CloudFront via the OAC below. Public direct hits get 403.
 resource "aws_lambda_function_url" "contact" {
   function_name      = aws_lambda_function.contact.function_name

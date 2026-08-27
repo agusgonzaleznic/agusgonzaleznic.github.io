@@ -31,7 +31,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     ...(useHttps ? [mkcert()] : []),
     // NO build-time precompression. CloudFront compresses on the fly
     // (`compress = true` on every cache behaviour), and GitHub Pages does not do
-    // content negotiation against .gz/.br siblings at all — verified live: a
+    // content negotiation against .gz/.br siblings at all. Verified live: a
     // request to the Pages origin with `Accept-Encoding: br` returns no
     // content-encoding, while the same request through CloudFront returns
     // `content-encoding: br`. So the siblings were 2.30 MB across 240 files,
@@ -61,7 +61,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         safari10: true, // Fix Safari 10 issues
       },
     },
-    // Optimize chunk splitting (client build only — manual chunks don't apply
+    // Optimize chunk splitting (client build only: manual chunks don't apply
     // to the SSR build used for prerendering).
     rollupOptions: isSsrBuild
       ? {}

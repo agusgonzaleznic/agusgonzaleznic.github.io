@@ -2,7 +2,7 @@
 //
 // One fixed 1536px render was served to every viewport, and no width/height meant
 // the LCP element had no aspect-ratio box, so its arrival shifted the article
-// text. Both are invisible in review — the page looks right — so the rule lives
+// text. Both are invisible in review (the page looks right), so the rule lives
 // here as a build assertion instead.
 //
 // Scoped to the BLOG subtree on purpose. The same defect exists in
@@ -13,7 +13,7 @@
 /** Attribute tokens of one tag, matched individually.
  *
  *  Never match a whole tag shape: prerender re-serializes every page through
- *  beasties, so the quoting is the serializer's and not React's — React's
+ *  beasties, so the quoting is the serializer's and not React's. React's
  *  `alt=""` comes out as a bare `alt`, and `srcSet` comes out lowercased as
  *  `srcset`. */
 const hasAttr = (tag, name) => new RegExp(`\\s${name}(=|\\s|>|$)`, "i").test(tag);
@@ -35,14 +35,14 @@ export function findResponsiveImageViolations(pages) {
       const missing = [];
       if (!hasAttr(tag, "srcset")) missing.push("srcset");
       if (!hasAttr(tag, "sizes")) missing.push("sizes");
-      // width/height only when the URL states the intrinsic size — a guessed
+      // width/height only when the URL states the intrinsic size: a guessed
       // aspect ratio is worse than none, so an unsized asset is exempt.
       if (SIZED_URL.test(tag)) {
         if (!hasAttr(tag, "width")) missing.push("width");
         if (!hasAttr(tag, "height")) missing.push("height");
       }
       if (missing.length) {
-        problems.push(`${path}: <img> missing ${missing.join(", ")} — ${tag.slice(0, 110)}`);
+        problems.push(`${path}: <img> missing ${missing.join(", ")} in ${tag.slice(0, 110)}`);
       }
     }
   }
