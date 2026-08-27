@@ -121,6 +121,14 @@ export function seedCache(cache, locale, source, translation, salt = "") {
   (cache.translations[locale] ??= {})[hashSource(source, salt)] = translation;
 }
 
+/**
+ * Read a cached translation, or undefined. Same key derivation as seedCache, so a
+ * caller can ask "is this already cached?" without reimplementing the hash.
+ */
+export function cachedTranslation(cache, locale, source, salt = "") {
+  return (cache.translations[locale] ?? {})[hashSource(source, salt)];
+}
+
 // ---- Glossary + masking -----------------------------------------------------
 
 export function loadGlossaryTerms(path) {

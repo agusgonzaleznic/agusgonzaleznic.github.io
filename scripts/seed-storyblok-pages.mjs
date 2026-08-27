@@ -18,7 +18,7 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadCache, saveCache, seedCache, TARGET_LOCALES } from "./lib/deepl.mjs";
+import { loadCache, saveCache, seedCache, cachedTranslation, TARGET_LOCALES } from "./lib/deepl.mjs";
 import { collectTranslatableStrings } from "./lib/page-translate.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -103,7 +103,7 @@ const COMPONENTS = {
       // Every block type a `page` story may contain. links_block was missing while
       // the live /links story already used one, so re-running this seeder would
       // have rewritten the schema with a whitelist that excludes a block already
-      // in published content — after which the block cannot be re-added, and an
+      // in published content, after which the block cannot be re-added, and an
       // out-of-band delete removes it for good.
       //
       // Anything added to src/components/storyblok must be added here too. The
@@ -137,17 +137,17 @@ const PAGES = [
   },
   {
     slug: "about",
-    seo_title: "About Agustin Gonzalez Nicolini — Engineering Leadership Coach",
-    seo_description: "Meet Agustin Gonzalez Nicolini — engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3.",
+    seo_title: "About Agustin Gonzalez Nicolini | Engineering Leadership Coach",
+    seo_description: "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3.",
     body: [{
       component: "about_block",
       heading: "From Haedo to Berlin, One Engineering Team at a Time",
-      image_alt: "Agustin Gonzalez Nicolini — engineering leadership coach in Berlin",
-      footnote: "Based in Berlin — coaching engineering leaders remotely worldwide, in English or Spanish.",
+      image_alt: "Agustin Gonzalez Nicolini, engineering leadership coach in Berlin",
+      footnote: "Based in Berlin, coaching engineering leaders remotely worldwide, in English or Spanish.",
       show_section: true,
       paragraphs: [
-        ti("I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3 — shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."),
-        ti("I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security — and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck."),
+        ti("I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."),
+        ti("I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security, and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck."),
       ],
     }],
   },
@@ -159,10 +159,10 @@ const PAGES = [
       {
         component: "philosophy_block",
         heading: "My Coaching Philosophy",
-        subheading: "Three pillars behind every engagement — and what each one changes for your team",
+        subheading: "Three pillars behind every engagement, and what each one changes for your team",
         show_section: true,
         principles: [
-          { component: "principle_item", icon: "Lightbulb", color: "accent", title: "Growth through Clarity", description: "Clear goals, working feedback loops, and OKRs that tie each person's growth to business results — so your team knows exactly what winning looks like this quarter." },
+          { component: "principle_item", icon: "Lightbulb", color: "accent", title: "Growth through Clarity", description: "Clear goals, working feedback loops, and OKRs that tie each person's growth to business results, so your team knows exactly what winning looks like this quarter." },
           { component: "principle_item", icon: "Cog", color: "primary", title: "Empowerment through Systems", description: "DevOps/GitOps workflows, DORA metrics, and decision frameworks that let your team move fast without waiting on you." },
           { component: "principle_item", icon: "Heart", color: "accent", title: "Leadership through Empathy", description: "Psychological safety, deliberate mentoring, and a culture people choose to stay in. Retention is a leadership outcome, not an HR metric." },
         ],
@@ -172,18 +172,18 @@ const PAGES = [
         heading: "How I Work",
         show_section: true,
         values: [
-          { component: "value_item", icon: "Target", title: "Outcomes Over Optics", description: "Every engagement names the result it should produce — delivery speed, retention, uptime — and we check that it did." },
-          { component: "value_item", icon: "ShieldCheck", title: "Security by Default", description: "Resilience and compliance as design inputs, not afterthoughts — a habit from years of PCI-DSS, SOC 2, and ISO 27001 work." },
+          { component: "value_item", icon: "Target", title: "Outcomes Over Optics", description: "Every engagement names the result it should produce (delivery speed, retention, uptime), and we check that it did." },
+          { component: "value_item", icon: "ShieldCheck", title: "Security by Default", description: "Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, and ISO 27001 work." },
           { component: "value_item", icon: "MessagesSquare", title: "Direct, Kind Feedback", description: "You'll hear what I actually think, specifically and early. That candor is most of the value." },
-          { component: "value_item", icon: "Wrench", title: "Practice Over Theory", description: "I only teach what I've run in production with real teams — no borrowed frameworks." },
+          { component: "value_item", icon: "Wrench", title: "Practice Over Theory", description: "I only teach what I've run in production with real teams: no borrowed frameworks." },
         ],
       },
     ],
   },
   {
     slug: "services",
-    seo_title: "Engineering Leadership Coaching — CTO, VP & Manager",
-    seo_description: "One-on-one coaching for CTOs, VPs, directors, and engineering managers — executive coaching, delivery and team coaching, and IC-to-manager programs.",
+    seo_title: "Engineering Leadership Coaching | CTO, VP & Manager",
+    seo_description: "One-on-one coaching for CTOs, VPs, directors, and engineering managers: executive coaching, delivery and team coaching, and IC-to-manager programs.",
     body: [
       {
         component: "services_block",
@@ -215,38 +215,38 @@ const PAGES = [
       {
         component: "testimonials_block",
         heading: "Typical Engagements",
-        subheading: "Three composite sketches — not client quotes — showing the problems leaders bring me and how the work tends to unfold",
+        subheading: "Three composite sketches (not client quotes) showing the problems leaders bring me and how the work tends to unfold",
         note: "Coaching conversations are confidential by default, so named endorsements will only ever appear here with a client's explicit sign-off.",
         show_section: true,
         engagements: [
-          { component: "engagement_item", role: "Senior Engineering Manager", context: "FinTech scale-up", sketch: "The first call was about messy deploys. Within six months the pipeline was boring — in the best way — but the more useful work was getting them out of the middle of every decision their team makes." },
-          { component: "engagement_item", role: "First-Time Engineering Manager", context: "E-Commerce Platform", sketch: "A few months into the role and drowning. Instead of handing over a framework, we rehearsed the conversations they were avoiding — delegation, feedback, saying no — until having them for real felt routine." },
-          { component: "engagement_item", role: "VP of Engineering", context: "B2B SaaS Company", sketch: "One team became four in a year and everything got slower — it usually does. We sketched an org structure early on, then stress-tested and adjusted it over the following quarters as the company kept growing." },
+          { component: "engagement_item", role: "Senior Engineering Manager", context: "FinTech scale-up", sketch: "The first call was about messy deploys. Within six months the pipeline was boring (in the best way), but the more useful work was getting them out of the middle of every decision their team makes." },
+          { component: "engagement_item", role: "First-Time Engineering Manager", context: "E-Commerce Platform", sketch: "A few months into the role and drowning. Instead of handing over a framework, we rehearsed the conversations they were avoiding (delegation, feedback, saying no) until having them for real felt routine." },
+          { component: "engagement_item", role: "VP of Engineering", context: "B2B SaaS Company", sketch: "One team became four in a year and everything got slower; it usually does. We sketched an org structure early on, then stress-tested and adjusted it over the following quarters as the company kept growing." },
         ],
       },
     ],
   },
   {
     slug: "impact",
-    seo_title: "Experience & Impact — Engineering Leadership Coaching",
-    seo_description: "My track record leading engineering orgs — and the results coaching delivers: faster delivery, lower attrition, and teams that run without heroics.",
+    seo_title: "Experience & Impact | Engineering Leadership Coaching",
+    seo_description: "My track record leading engineering orgs, and the results coaching delivers: faster delivery, lower attrition, and teams that run without heroics.",
     body: [{
       component: "impact_block",
       timeline_heading: "Experience Timeline",
       stats_heading: "Numbers I Stand Behind",
-      stats_subheading: "Results from teams I've led as an operator — the same playbooks we'll work from",
+      stats_subheading: "Results from teams I've led as an operator: the same playbooks we'll work from",
       show_section: true,
       timeline: [
-        { component: "timeline_item", period: "2025-Present", company: "Confidential (Web3)", role: "Head of Infrastructure & Security", achievement: "Running infrastructure and security end to end for a Web3 platform — the company's name stays confidential for now." },
+        { component: "timeline_item", period: "2025-Present", company: "Safe Labs GmbH (Web3)", role: "Head of Infrastructure & Security", achievement: "Running infrastructure and security end to end for a Web3 platform." },
         { component: "timeline_item", period: "2022-2025", company: "JUCR GmbH (EV Charging)", role: "VP of Engineering", achievement: "Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime." },
         { component: "timeline_item", period: "2020-2022", company: "Wildlife Studios (Gaming)", role: "Cloud Security Manager", achievement: "Kept security controls stringent while game teams shipped features at full speed." },
         { component: "timeline_item", period: "2018-2021", company: "Ualá (FinTech)", role: "DevOps Lead", achievement: "Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout." },
         { component: "timeline_item", period: "2014-2018", company: "Bdev (HealthTech)", role: "Infrastructure & Security Lead", achievement: "Migrated on-premise infrastructure to AWS and implemented SOC 2 and ISO 27001 compliance." },
       ],
       stats: [
-        { component: "stat_item", icon: "TrendingDown", value: "40%", label: "Cloud Cost Reduction", description: "FinOps discipline plus hard-nosed vendor negotiations — money back into the roadmap" },
+        { component: "stat_item", icon: "TrendingDown", value: "40%", label: "Cloud Cost Reduction", description: "FinOps discipline plus hard-nosed vendor negotiations: money back into the roadmap" },
         { component: "stat_item", icon: "Shield", value: "99.99%", label: "System Uptime", description: "Multi-region failover and DR/HA playbooks, built so a bad day in one region stays invisible to users" },
-        { component: "stat_item", icon: "Rocket", value: "3×", label: "Faster Releases", description: "Trunk-based development, CI/CD, and GitOps — releasing became routine, not an event" },
+        { component: "stat_item", icon: "Rocket", value: "3×", label: "Faster Releases", description: "Trunk-based development, CI/CD, and GitOps: releasing became routine, not an event" },
         { component: "stat_item", icon: "Zap", value: "75%", label: "Reduced Lead Time", description: "A multi-account AWS migration with deployments automated end to end" },
         { component: "stat_item", icon: "Users", value: "50%", label: "Team Velocity Boost", description: "OKRs paired with DORA metrics, used as working tools rather than dashboards" },
         { component: "stat_item", icon: "Target", value: "60%", label: "Faster Onboarding", description: "Standardized processes and documentation a new hire can follow on day one" },
@@ -255,8 +255,8 @@ const PAGES = [
   },
   {
     slug: "faq",
-    seo_title: "Engineering Leadership Coaching FAQ — Agustin Gonzalez Nicolini",
-    seo_description: "Answers on engineering leadership coaching — who I work with, what sessions cover, remote coaching, languages, and how to get started.",
+    seo_title: "Engineering Leadership Coaching FAQ | Agustin Gonzalez Nicolini",
+    seo_description: "Answers on engineering leadership coaching: who I work with, what sessions cover, remote coaching, languages, and how to get started.",
     body: [{
       component: "faq_block",
       heading: "Frequently Asked Questions",
@@ -266,19 +266,19 @@ const PAGES = [
         { component: "faq_item", question: "Who is Agustin Gonzalez Nicolini?", answer: "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev; today I head infrastructure and security at a Web3 company and coach senior technology leaders one-on-one." },
         { component: "faq_item", question: "Who does Agustin coach?", answer: "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role." },
         { component: "faq_item", question: "What does engineering leadership coaching cover?", answer: "Whatever stands between you and a team that delivers: scaling and org design, stakeholder and C-suite communication, delivery speed and DORA metrics, DevOps and GitOps workflows, hiring and performance frameworks, incident readiness, and executive presence." },
-        { component: "faq_item", question: "Does Agustin coach remotely?", answer: "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English or Spanish — whichever you think best in." },
-        { component: "faq_item", question: "How do I start working with Agustin?", answer: "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way." },
+        { component: "faq_item", question: "Does Agustin coach remotely?", answer: "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English or Spanish, whichever you think best in." },
+        { component: "faq_item", question: "How do I start working with Agustin?", answer: "Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com (no preparation needed). On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way." },
       ],
     }],
   },
   {
     slug: "contact",
-    seo_title: "Contact & Book a Session — Engineering Leadership Coaching",
+    seo_title: "Contact & Book a Session | Engineering Leadership Coaching",
     seo_description: "Book a free 30-minute intro call with Agustin Gonzalez Nicolini, or email me. Remote coaching for engineering leaders worldwide, in EN, ES, and DE.",
     body: [{
       component: "contact_block",
       heading: "What's the Hardest Part of the Job Right Now?",
-      subheading: "Tell me in a few lines — a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for.",
+      subheading: "Tell me in a few lines: a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for.",
       get_in_touch_heading: "Get in Touch",
       response_time_heading: "Response Time",
       response_time_text: "I typically respond within 24 hours. For urgent inquiries, please mention it in your message.",
@@ -316,16 +316,41 @@ function primeCache() {
   const strings = [...new Set(PAGES.flatMap((p) => collectTranslatableStrings(p)))];
   let primed = 0;
   const missing = [];
+  const diverged = [];
   for (const locale of TARGET_LOCALES) {
     const po = parsePo(readFileSync(resolve(catalogsDir, `${locale}.po`), "utf8"));
     for (const en of strings) {
       const tr = po.get(en);
-      if (tr && tr.trim()) { seedCache(cache, locale, en, tr, PAGE_CACHE_SALT); primed += 1; }
-      else missing.push(`${locale}: ${en.slice(0, 55)}`);
+      if (!tr || !tr.trim()) {
+        missing.push(`${locale}: ${en.slice(0, 55)}`);
+        continue;
+      }
+      // ADDITIVE ONLY. This step exists so a first seed reproduces the wording
+      // already shipping, and the header calls that "nothing changes day one".
+      // That stopped being automatic once the cache started carrying post-edited
+      // CMS translations of its own: re-running this used to overwrite them from
+      // the catalogs, silently rewriting live copy (measured at 78 strings, 75 of
+      // them French, on 2026-08-27). An existing entry is therefore left alone
+      // and reported, so replacing one is always a deliberate act.
+      const existing = cachedTranslation(cache, locale, en, PAGE_CACHE_SALT);
+      if (existing !== undefined) {
+        if (existing !== tr) diverged.push(`${locale}: ${en.slice(0, 48)}`);
+        continue;
+      }
+      seedCache(cache, locale, en, tr, PAGE_CACHE_SALT);
+      primed += 1;
     }
   }
   saveCache(cachePath, cache);
-  console.log(`✓ cache primed: ${primed} entries (${strings.length} strings × ${TARGET_LOCALES.length} locales)`);
+  console.log(`✓ cache primed: ${primed} new entries (${strings.length} strings × ${TARGET_LOCALES.length} locales)`);
+  if (diverged.length) {
+    console.warn(
+      `  ⚠ ${diverged.length} string(s) already cached with different wording, left untouched.\n` +
+        "    The cache is what ships. To adopt the catalog wording instead, delete those\n" +
+        "    entries (or the locale) from scripts/.i18n-cache.json and re-run.",
+    );
+    for (const d of diverged.slice(0, 12)) console.warn(`    - ${d}`);
+  }
   if (missing.length) {
     console.warn(`  ⚠ ${missing.length} string(s) had no .po translation (will fall back / DeepL):`);
     for (const m of missing.slice(0, 12)) console.warn(`    - ${m}`);
@@ -400,7 +425,7 @@ async function ensureStories() {
 primeCache();
 TOKEN = process.env.STORYBLOK_MANAGEMENT_TOKEN;
 if (!TOKEN) {
-  console.warn("\n⚠ STORYBLOK_MANAGEMENT_TOKEN not set — cache primed only; skipped schema + stories (run via op).");
+  console.warn("\n⚠ STORYBLOK_MANAGEMENT_TOKEN not set: cache primed only, skipped schema + stories (run via op).");
   process.exit(0);
 }
 try {
