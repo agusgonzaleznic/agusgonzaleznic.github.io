@@ -79,7 +79,7 @@ export const Impressum = () => {
   const { t } = useLingui();
   return (
   <LegalLayout
-    title={t`Impressum — Agustin Gonzalez Nicolini`}
+    title={t`Impressum | Agustin Gonzalez Nicolini`}
     description={t`Impressum (legal notice) for agusgonzaleznic.com pursuant to § 5 DDG.`}
     crumb={t`Impressum`}
     path="/impressum"
@@ -92,7 +92,7 @@ export const Impressum = () => {
       <br />
       Coaching (sole proprietor / Einzelunternehmer)
       <br />
-      [STREET ADDRESS REQUIRED — §5 DDG requires a physical address]
+      [STREET ADDRESS REQUIRED: §5 DDG requires a physical address]
       <br />
       Berlin, Germany
     </P>
@@ -104,7 +104,7 @@ export const Impressum = () => {
 
     <H2>VAT</H2>
     <P>
-      [VAT ID or note "Kleinunternehmer" if applicable — e.g. "Not subject to
+      [VAT ID or note "Kleinunternehmer" if applicable, e.g. "Not subject to
       VAT pursuant to § 19 UStG (Kleinunternehmerregelung)" or "USt-IdNr.:
       DE…"]
     </P>
@@ -113,7 +113,7 @@ export const Impressum = () => {
     <P>
       Agustin Gonzalez Nicolini
       <br />
-      [STREET ADDRESS REQUIRED — §5 DDG requires a physical address]
+      [STREET ADDRESS REQUIRED: §5 DDG requires a physical address]
       <br />
       Berlin, Germany
     </P>
@@ -142,7 +142,7 @@ export const Impressum = () => {
 
     <Note>
       <Trans>
-        As of July 2026 — reviewed by the site owner. This page was drafted with
+        As of July 2026, reviewed by the site owner. This page was drafted with
         assistance and is not legal advice.
       </Trans>
     </Note>
@@ -192,7 +192,7 @@ export const Privacy = () => {
   const { t } = useLingui();
   return (
   <LegalLayout
-    title={t`Privacy Policy — Agustin Gonzalez Nicolini`}
+    title={t`Privacy Policy | Agustin Gonzalez Nicolini`}
     description={t`Privacy policy for agusgonzaleznic.com: how personal data is processed under the GDPR.`}
     crumb={t`Privacy Policy`}
     path="/privacy"
@@ -211,7 +211,7 @@ export const Privacy = () => {
     <P>
       Agustin Gonzalez Nicolini
       <br />
-      [STREET ADDRESS REQUIRED — §5 DDG requires a physical address]
+      [STREET ADDRESS REQUIRED: §5 DDG requires a physical address]
       <br />
       Berlin, Germany
       <br />
@@ -224,9 +224,9 @@ export const Privacy = () => {
         This website is a static site hosted on <strong>GitHub Pages</strong>{" "}
         (GitHub, Inc., USA) and delivered via <strong>Amazon CloudFront</strong>{" "}
         (Amazon Web Services), a content delivery network. When you access the
-        site, these providers process connection data as a technical necessity —
-        in particular your IP address, date and time of the request, browser
-        type, operating system, and the pages accessed — in server logs to
+        site, these providers process connection data as a technical necessity
+        (in particular your IP address, date and time of the request, browser
+        type, operating system, and the pages accessed) in server logs to
         deliver the site and ensure its security and stability.
       </Trans>
     </P>
@@ -260,7 +260,7 @@ export const Privacy = () => {
         enforce rate limits and to avoid sending me the same message twice:
         counters keyed to your IP address and to your email address, and a
         one-way hash of your email address together with your message. These
-        entries are deleted automatically — after 10 minutes (IP), one hour
+        entries are deleted automatically: after 10 minutes (IP), one hour
         (email address) and at most 24 hours (duplicate check). Server logs
         record the IP address of form submissions; they never contain the
         content of your message.
@@ -325,7 +325,7 @@ export const Privacy = () => {
         <P>
           <Trans>
             This website uses <strong>Google Analytics 4</strong> (Google Ireland
-            Ltd. / Google LLC) — but <strong>only if you accept it</strong> in
+            Ltd. / Google LLC), but <strong>only if you accept it</strong> in
             the consent banner. Before you accept (and always if you decline),
             no analytics script is loaded, no request is made to Google, and no
             analytics cookies are set. The purpose is to understand, in
@@ -337,7 +337,7 @@ export const Privacy = () => {
           <Trans>
             Google's <strong>Consent Mode v2</strong> is used: every consent
             signal defaults to "denied", and only the analytics-storage signal is
-            set to "granted" after you accept — advertising signals remain
+            set to "granted" after you accept; advertising signals remain
             denied. Google Analytics 4 does not log or store IP addresses; IP
             data is used only transiently to derive coarse location. If you
             accept, Google Analytics
@@ -367,7 +367,7 @@ export const Privacy = () => {
         <P>
           <Trans>
             Beyond this, the website sets no cookies of its own. Website content
-            is fetched from the Storyblok CMS only at build time — no visitor
+            is fetched from the Storyblok CMS only at build time; no visitor
             data is sent to Storyblok.
           </Trans>
         </P>
@@ -377,7 +377,7 @@ export const Privacy = () => {
         <Trans>
           This website sets <strong>no cookies</strong> of its own and uses{" "}
           <strong>no analytics or tracking tools</strong>. Website content is
-          fetched from the Storyblok CMS only at build time — no visitor data is
+          fetched from the Storyblok CMS only at build time; no visitor data is
           sent to Storyblok.
         </Trans>
       </P>
@@ -417,7 +417,8 @@ export const Privacy = () => {
         Berliner Beauftragte für Datenschutz und Informationsfreiheit (BlnBDI)
       </strong>
       <br />
-      Alt-Moabit 59–61, 10555 Berlin, Germany —{" "}
+      Alt-Moabit 59–61, 10555 Berlin, Germany
+      <br />
       <A href="https://www.datenschutz-berlin.de">https://www.datenschutz-berlin.de</A>
     </P>
 
@@ -432,7 +433,7 @@ export const Privacy = () => {
 
     <Note>
       <Trans>
-        As of July 2026 — reviewed by the site owner. This page was drafted with
+        As of July 2026, reviewed by the site owner. This page was drafted with
         assistance and is not legal advice.
       </Trans>
     </Note>

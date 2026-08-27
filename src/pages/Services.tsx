@@ -15,10 +15,10 @@ const ServicesPage = ({ previewContent }: PagePreviewProps) => {
   const servicesBlock = getBlock<ServicesBlock>(content, "services_block");
   const testimonialsBlock = getBlock<TestimonialsBlock>(content, "testimonials_block");
 
-  const title = content?.seo_title || t`Engineering Leadership Coaching — CTO, VP & Manager`;
+  const title = content?.seo_title || t`Engineering Leadership Coaching | CTO, VP & Manager`;
   const description =
     content?.seo_description ||
-    t`One-on-one coaching for CTOs, VPs, directors, and engineering managers — executive coaching, delivery and team coaching, and IC-to-manager programs.`;
+    t`One-on-one coaching for CTOs, VPs, directors, and engineering managers: executive coaching, delivery and team coaching, and IC-to-manager programs.`;
 
   // ProfessionalService + offer catalog. The @id stays the site-global entity id
   // so every locale page's copy merges into ONE entity; description reuses the
@@ -29,7 +29,7 @@ const ServicesPage = ({ previewContent }: PagePreviewProps) => {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
     "@id": `${SITE_URL}/#service`,
-    name: "Agustin Gonzalez Nicolini — Leadership & Engineering Coaching",
+    name: "Agustin Gonzalez Nicolini | Leadership & Engineering Coaching",
     url: `${SITE_URL}${localizePath("/services", locale)}`,
     image: `${SITE_URL}/profile.jpg`,
     description,

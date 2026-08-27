@@ -101,7 +101,7 @@ export const CookieNotice = () => {
                     optional analytics cookies
                   </span>{" "}
                   (Google Analytics) to understand how it is used. Nothing is
-                  loaded unless you accept — details are in the{" "}
+                  loaded unless you accept; details are in the{" "}
                   <LocaleLink
                     to="/privacy"
                     className="font-medium text-accent hover:underline"

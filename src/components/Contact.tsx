@@ -325,21 +325,21 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
       const list = chars.join(", ");
       failField(
         field,
-        t`Please remove these characters — they aren't allowed for security reasons: ${list}`,
+        t`Please remove these characters (they aren't allowed for security reasons): ${list}`,
       );
       return true;
     };
 
     // Name: length bound + control chars.
     if (name.length > NAME_MAX) {
-      failField("name", t`Your name is too long — please use ${NAME_MAX} characters or fewer.`);
+      failField("name", t`Your name is too long: please use ${NAME_MAX} characters or fewer.`);
       return;
     }
     if (rejectControlChars("name", findControlChars(name, false))) return;
 
     // Email: length bound, control chars, then format.
     if (email.length > EMAIL_MAX) {
-      failField("email", t`Your email is too long — please use ${EMAIL_MAX} characters or fewer.`);
+      failField("email", t`Your email is too long: please use ${EMAIL_MAX} characters or fewer.`);
       return;
     }
     if (rejectControlChars("email", findControlChars(email, false))) return;
@@ -366,18 +366,18 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
 
     // Role: optional, but the server still bounds its length + rejects controls.
     if (role.length > ROLE_MAX) {
-      failField("role", t`Your role is too long — please use ${ROLE_MAX} characters or fewer.`);
+      failField("role", t`Your role is too long: please use ${ROLE_MAX} characters or fewer.`);
       return;
     }
     if (rejectControlChars("role", findControlChars(role, false))) return;
 
     // Message: minimum + maximum length, then control chars (newlines allowed).
     if (message.length < MESSAGE_MIN) {
-      failField("message", t`Your message is too short — please write at least ${MESSAGE_MIN} characters.`);
+      failField("message", t`Your message is too short: please write at least ${MESSAGE_MIN} characters.`);
       return;
     }
     if (message.length > MESSAGE_MAX) {
-      failField("message", t`Your message is too long — please use ${MESSAGE_MAX} characters or fewer.`);
+      failField("message", t`Your message is too long: please use ${MESSAGE_MAX} characters or fewer.`);
       return;
     }
     if (rejectControlChars("message", findControlChars(message, true))) return;
@@ -454,7 +454,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
       const data = await response.json().catch(() => ({}) as { error?: string });
 
       if (response.ok) {
-        toast.success(t`Message sent — I typically reply within 24 hours.`);
+        toast.success(t`Message sent. I typically reply within 24 hours.`);
         setFormData({ name: "", email: "", role: "", message: "" });
         setCompanyWebsite("");
         return;
@@ -498,7 +498,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                     other: "about # minutes",
                   });
             toast.error(
-              t`Too many requests — please wait ${wait} before trying again, or email me directly.`,
+              t`Too many requests: please wait ${wait} before trying again, or email me directly.`,
             );
           } else {
             toast.error(t`Too many requests. Please wait a moment, or email me directly.`);
@@ -522,7 +522,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
       // form: it is the visitor's only copy.
       console.error("Form submission error:", error, { timedOut });
       toast.warning(
-        t`I could not confirm whether your message went through — it may already have arrived. Please wait a moment before trying again, or email me directly.`,
+        t`I could not confirm whether your message went through; it may already have arrived. Please wait a moment before trying again, or email me directly.`,
       );
     } finally {
       // The Turnstile token is single-use; always clear + reset the widget so a
@@ -544,7 +544,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
             </h1>
             <p className="text-fluid-lg text-muted-foreground">
               {block?.subheading ?? (
-                <Trans>Tell me in a few lines — a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for.</Trans>
+                <Trans>Tell me in a few lines: a stalled team, a rough transition, a decision you keep circling. That's exactly what a first conversation is for.</Trans>
               )}
             </p>
           </div>
@@ -705,7 +705,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                   <div ref={widgetContainerRef} className="min-h-[65px]" />
                   {turnstileError && (
                     <p className="mt-2 text-sm text-destructive" role="alert">
-                      <Trans>Verification isn't available right now — please email me
+                      <Trans>Verification isn't available right now: please email me
                       directly at info@agusgonzaleznic.com.</Trans>
                     </p>
                   )}

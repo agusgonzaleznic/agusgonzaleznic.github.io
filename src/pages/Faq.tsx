@@ -32,10 +32,10 @@ const FaqPage = ({ previewContent }: PagePreviewProps) => {
     <SeoPage
       path="/faq"
       ogImage={content?.og_image}
-      title={content?.seo_title || t`Engineering Leadership Coaching FAQ — Agustin Gonzalez Nicolini`}
+      title={content?.seo_title || t`Engineering Leadership Coaching FAQ | Agustin Gonzalez Nicolini`}
       description={
         content?.seo_description ||
-        t`Answers on engineering leadership coaching — who I work with, what sessions cover, remote coaching, languages, and how to get started.`
+        t`Answers on engineering leadership coaching: who I work with, what sessions cover, remote coaching, languages, and how to get started.`
       }
       crumb={t`FAQ`}
       about={{ "@id": `${SITE_URL}/#faq` }}

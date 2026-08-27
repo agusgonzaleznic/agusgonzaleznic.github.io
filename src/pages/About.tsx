@@ -17,10 +17,10 @@ const AboutPage = ({ previewContent }: PagePreviewProps) => {
     <SeoPage
       path="/about"
       ogImage={content?.og_image}
-      title={content?.seo_title || t`About Agustin Gonzalez Nicolini — Engineering Leadership Coach`}
+      title={content?.seo_title || t`About Agustin Gonzalez Nicolini | Engineering Leadership Coach`}
       description={
         content?.seo_description ||
-        t`Meet Agustin Gonzalez Nicolini — engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3.`
+        t`Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3.`
       }
       crumb={t`About`}
       pageType="AboutPage"

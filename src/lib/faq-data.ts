@@ -18,11 +18,11 @@ export const faqs = [
   },
   {
     question: msg`Does Agustin coach remotely?`,
-    answer: msg`Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English or Spanish — whichever you think best in.`,
+    answer: msg`Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English or Spanish, whichever you think best in.`,
   },
   {
     question: msg`How do I start working with Agustin?`,
-    answer: msg`Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com — no preparation needed. On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way.`,
+    answer: msg`Book a free 30-minute intro call from this page or email me at info@agusgonzaleznic.com (no preparation needed). On that call we go through where you're stuck and whether coaching is the right tool; you'll leave with a concrete next step either way.`,
   },
 ];
 

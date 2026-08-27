@@ -17,7 +17,7 @@ const jsonLd = (data: unknown) => JSON.stringify(data).replace(/</g, "\\u003c");
 // WebSite JSON-LD name in index.html): short proper name as the primary,
 // long form as the alternate.
 const SITE_NAME = "Agustin Gonzalez Nicolini";
-const SITE_NAME_LONG = "Agustin Gonzalez Nicolini — Leadership & Engineering Coaching";
+const SITE_NAME_LONG = "Agustin Gonzalez Nicolini | Leadership & Engineering Coaching";
 
 // Compact copies of the site-global entities, embedded in EVERY page's @graph
 // under the SAME @id as the home page's full nodes (index.html). Google
@@ -122,7 +122,7 @@ export const SeoPage = ({
   // legacy LinkedIn). The alt describes the banner, so it's the same everywhere.
   const ogImageWebp = `${SITE_URL}/og-image.webp`;
   const ogImageJpg = `${SITE_URL}/og-image.jpg`;
-  const ogAlt = "Agustin Gonzalez Nicolini — Engineering Leadership Coach";
+  const ogAlt = "Agustin Gonzalez Nicolini | Engineering Leadership Coach";
 
   const breadcrumbId = `${canonical}#breadcrumb`;
   const graph = {

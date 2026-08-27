@@ -17,10 +17,10 @@ const ImpactPage = ({ previewContent }: PagePreviewProps) => {
     <SeoPage
       path="/impact"
       ogImage={content?.og_image}
-      title={content?.seo_title || t`Experience & Impact — Engineering Leadership Coaching`}
+      title={content?.seo_title || t`Experience & Impact | Engineering Leadership Coaching`}
       description={
         content?.seo_description ||
-        t`My track record leading engineering orgs — and the results coaching delivers: faster delivery, lower attrition, and teams that run without heroics.`
+        t`My track record leading engineering orgs, and the results coaching delivers: faster delivery, lower attrition, and teams that run without heroics.`
       }
       crumb={t`Impact`}
       about={{ "@id": `${SITE_URL}/#person` }}
