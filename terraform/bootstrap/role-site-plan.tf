@@ -96,14 +96,29 @@ data "aws_iam_policy_document" "site_plan_addendum" {
   }
 
   # ReadOnlyAccess grants ssm:Get*, which returns parameter VALUES account-wide.
-  # The site's own parameters have to stay readable (the plan refreshes them),
-  # so this denies every parameter OUTSIDE that prefix rather than the action.
+  # Only the parameter Terraform MANAGES has to stay readable, so the allowed
+  # window is contact/, not the whole site prefix.
+  #
+  # This role is the one that matters here: the Plan (PR) job assumes it on every
+  # pull_request touching terraform/**, with no environment gate and therefore no
+  # approval. Allowing the whole prefix meant a branch could add
+  #
+  #   data "aws_ssm_parameter" "x" {
+  #     name = "/agusgonzaleznic-site/webhook/github-pat"
+  #     with_decryption = true
+  #   }
+  #   output "y" { value = nonsensitive(data.aws_ssm_parameter.x.value) }
+  #
+  # and the plan would resolve it and print a PAT with Actions read and write on
+  # this repository straight into a public job log. The plan output is teed to the
+  # log before any scrubbing runs, so no amount of comment redaction covers it;
+  # the parameter simply must not be readable by this role.
   statement {
-    sid     = "DenyParameterValuesOutsideSite"
+    sid     = "DenyParameterValuesOutsideContact"
     effect  = "Deny"
     actions = ["ssm:Get*"]
     not_resources = [
-      "arn:aws:ssm:us-east-1:${local.account_id}:parameter/agusgonzaleznic-site/*",
+      "arn:aws:ssm:us-east-1:${local.account_id}:parameter/agusgonzaleznic-site/contact/*",
     ]
   }
 

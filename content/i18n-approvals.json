@@ -18,14 +18,14 @@
   "f0382ea8-64ea-47dd-bc92-8887a3238cb1": {
     "de": {
       "status": "approved",
-      "sourceHash": "710771af7199ce69081551ee",
+      "sourceHash": "d49901e19c0721520c294738",
       "provenance": "grandfathered-mt",
       "reviewedAt": null,
       "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
     },
     "es": {
       "status": "approved",
-      "sourceHash": "710771af7199ce69081551ee",
+      "sourceHash": "d49901e19c0721520c294738",
       "provenance": "grandfathered-mt",
       "reviewedAt": null,
       "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."

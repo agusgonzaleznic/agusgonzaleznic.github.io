@@ -31,16 +31,47 @@ export interface PageContent {
 const rawPages = (Array.isArray(pageData) ? pageData : []) as Partial<PageContent>[];
 
 // Per-locale page data (src/generated/page-data.<locale>.json), same shape as
-// page-data.json. Vite bundles whatever files exist at build time; with none
-// present this map is empty and every locale falls back to the English source.
-const localePageData = import.meta.glob<Partial<PageContent>[]>("../generated/page-data.*.json", {
-  eager: true,
-  import: "default",
-});
+// page-data.json, registered rather than eagerly imported.
+//
+// WHY NOT AN EAGER GLOB. It used to be `import.meta.glob(..., { eager: true })`,
+// and because this module is reachable from the eager Index route, all six
+// locales' JSON landed in the ENTRY chunk that all 85 prerendered pages load:
+// 108,186 of its 271,128 characters, about 25 kB of its gzip. A visitor on /es/
+// downloaded and parsed the German, French, Italian, Portuguese and English
+// marketing copy on the render-blocking path to read none of it, since the locale
+// is fixed by the URL prefix and rawFor() can only ever return one of them.
+//
+// getPageContent must stay SYNCHRONOUS: it is called inside render on both sides
+// (Index.tsx, and renderToString on the server). So loading stays out of here.
+// The client awaits loadLocalePages() in main.tsx alongside the Lingui catalog it
+// already awaits, so this costs no additional serial round trip; the server
+// registers all locales eagerly in entry-server.tsx, where bundle size is
+// irrelevant and rendering has to be sync.
+const localePageData: Record<string, Partial<PageContent>[]> = {};
+
+/** Register a locale's page array. Called by the client loader and by SSR. */
+export function setLocalePages(locale: string, data: unknown): void {
+  if (Array.isArray(data)) localePageData[locale] = data as Partial<PageContent>[];
+}
+
+/**
+ * Load one locale's page data into the registry. Resolves either way: a missing
+ * file is the documented tokenless case (no CMS token, so no locale output), and
+ * the caller then falls back to the English source, exactly as before.
+ */
+export async function loadLocalePages(locale: string): Promise<void> {
+  if (locale === SOURCE_LOCALE || localePageData[locale]) return;
+  try {
+    const mod = await import(`../generated/page-data.${locale}.json`);
+    setLocalePages(locale, mod.default);
+  } catch {
+    // No data for this locale in this build; English is the fallback.
+  }
+}
 
 function rawFor(locale: string): Partial<PageContent>[] {
   if (locale !== SOURCE_LOCALE) {
-    const data = localePageData[`../generated/page-data.${locale}.json`];
+    const data = localePageData[locale];
     if (Array.isArray(data)) return data;
   }
   return rawPages;

@@ -168,6 +168,79 @@ test("a Claude translation carrying an em dash is normalised for de and flagged 
   });
 });
 
+// -------------------------------------------------- raw MT must not pin the cache
+
+/** Run body with DeepL answering successfully with `reply` for every text. */
+async function withDeeplReturning(reply, body) {
+  const real = globalThis.fetch;
+  globalThis.fetch = async (_url, opts) => {
+    const n = [...new URLSearchParams(opts.body).getAll("text")].length;
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ translations: Array.from({ length: n }, () => ({ text: reply })) }),
+    };
+  };
+  try {
+    return await body();
+  } finally {
+    globalThis.fetch = real;
+  }
+}
+
+test("persistWithoutPostEdit:false uses a raw DeepL result but does NOT cache it", async () => {
+  await withDeeplReturning("Buche eine Session", async () => {
+    const cache = emptyCache();
+    const t = createTranslator({
+      apiKey: "k",
+      glossaryRegex: null,
+      cache,
+      postEditor: null, // the keyless-Claude case pages must survive
+      cacheSalt: "pages-v1",
+      persistWithoutPostEdit: false,
+    });
+    const out = await t.translateAll(["Book a session"], "de");
+    assert.deepEqual(out, ["Buche eine Session"], "this build still gets the translation");
+    assert.deepEqual(cache.translations.de ?? {}, {}, "but nothing is pinned into the committed cache");
+    assert.deepEqual(t.stats.unpersisted, [{ locale: "de", source: "Book a session" }]);
+    assert.deepEqual(t.stats.untranslated, [], "it translated, so it is not a gap");
+  });
+});
+
+test("persistWithoutPostEdit:false still caches when the post-edit pass DID run", async () => {
+  await withDeeplReturning("raw", async () => {
+    const cache = emptyCache();
+    const t = createTranslator({
+      apiKey: "k",
+      glossaryRegex: null,
+      cache,
+      postEditor: { postEditBatch: async () => ["Buche eine Session"], stats: {} },
+      cacheSalt: "pages-v1",
+      persistWithoutPostEdit: false,
+    });
+    const out = await t.translateAll(["Book a session"], "de");
+    assert.deepEqual(out, ["Buche eine Session"]);
+    assert.deepEqual(Object.values(cache.translations.de), ["Buche eine Session"]);
+    assert.deepEqual(t.stats.unpersisted, []);
+  });
+});
+
+test("the default still persists, so catalogs and blog are unaffected", async () => {
+  await withDeeplReturning("Buche eine Session", async () => {
+    const cache = emptyCache();
+    const t = createTranslator({
+      apiKey: "k",
+      glossaryRegex: null,
+      cache,
+      postEditor: null,
+      cacheSalt: "pe2",
+    });
+    await t.translateAll(["Book a session"], "de");
+    assert.deepEqual(Object.values(cache.translations.de), ["Buche eine Session"]);
+    assert.deepEqual(t.stats.unpersisted, []);
+  });
+});
+
 // ------------------------------------------------------------------ dash rule
 
 test("German and Spanish take the permitted en dash", () => {

@@ -187,6 +187,7 @@ function localizePostTags(arr, locale, tagMap) {
 async function translateBlog(posts) {
   const published = readPublishedLocales(localesTsPath);
   const tagMap = loadTagMap(tagMapPath);
+  const manifest = loadApprovals(approvalsPath);
 
   // Review-gated locales: assemble from committed reviewed content. A post is
   // included only when its approved_locales set contains the locale (approved +
@@ -194,8 +195,20 @@ async function translateBlog(posts) {
   for (const locale of REVIEW_GATED_LOCALES) {
     if (!published.includes(locale)) continue;
     const reviewed = [];
+    const demoted = [];
     for (const post of posts) {
-      if (!post.approved_locales.includes(locale)) continue;
+      if (!post.approved_locales.includes(locale)) {
+        // A locale the manifest still calls "approved", yet which did not make it
+        // into approved_locales, means the stored sourceHash no longer matches the
+        // English. That is the ONLY silent path out of this pipeline: the variant
+        // is dropped from dist, from the sitemap and from every hreflang cluster,
+        // and the loop below would still print a checkmark and exit 0. Say it out
+        // loud, because the fix (re-review, or re-point the hash) needs a human.
+        if (manifest[post.uuid]?.[locale]?.status === "approved") {
+          demoted.push(post.uuid);
+        }
+        continue;
+      }
       const file = resolve(reviewedDir, `${post.uuid}.${locale}.json`);
       if (!existsSync(file)) {
         // Approved in the manifest but the reviewed content is missing, so fail
@@ -215,6 +228,18 @@ async function translateBlog(posts) {
     console.log(
       `✓ fetch-blog: ${reviewed.length} reviewed post(s) → src/generated/${blogDataFilename(locale)} (gated)`,
     );
+    if (demoted.length) {
+      console.log(
+        `::warning title=Stale translation approval::${demoted.length} ${locale} article variant(s) ` +
+          "were dropped because the stored sourceHash no longer matches the English",
+      );
+      console.warn(
+        `  ⚠ fetch-blog: ${locale} is marked approved for ${demoted.length} post(s) whose stored\n` +
+          "    sourceHash is stale, so those variants are NOT emitted (no page, no sitemap entry,\n" +
+          "    no hreflang). Re-review them, or re-point the hash if only formatting changed:",
+      );
+      for (const uuid of demoted) console.warn(`      ${uuid}`);
+    }
   }
 
   // Auto locales (FR/IT/PT): translate at build time.

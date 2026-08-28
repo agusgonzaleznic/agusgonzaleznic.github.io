@@ -21,6 +21,21 @@ import { StoryblokPage } from "./pages/StoryblokPage";
 import NotFound from "./pages/NotFound";
 import { i18n } from "./i18n/i18n";
 import { SOURCE_LOCALE } from "./i18n/locales";
+import { setLocalePages } from "./lib/pages";
+
+// Register every locale's marketing-page JSON up front. renderToString is
+// synchronous, so the data has to be present before render() is called, and this
+// is the SERVER bundle, where an eager glob costs nothing that ships to a reader.
+// The client loads only the locale it is on (src/main.tsx). With no CMS token this
+// map is empty and every locale falls back to the English source, unchanged.
+const serverLocalePages = import.meta.glob<unknown>("./generated/page-data.*.json", {
+  eager: true,
+  import: "default",
+});
+for (const [path, data] of Object.entries(serverLocalePages)) {
+  const locale = path.match(/page-data\.([a-z-]+)\.json$/)?.[1];
+  if (locale) setLocalePages(locale, data);
+}
 
 // All-eager page map for the prerender: renderToString must emit each route's
 // full markup synchronously, so NO lazy() here. The client uses code-split lazy
