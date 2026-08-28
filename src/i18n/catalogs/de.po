@@ -639,6 +639,10 @@ msgstr "Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an d
 msgid "Liability for Content and Links"
 msgstr "Haftung für Inhalte und Links"
 
+#: src/components/blog/RichText.tsx
+msgid "Link to this section"
+msgstr "Link zu diesem Abschnitt"
+
 #: src/components/Contact.tsx
 #: src/components/Footer.tsx
 msgid "LinkedIn Profile"

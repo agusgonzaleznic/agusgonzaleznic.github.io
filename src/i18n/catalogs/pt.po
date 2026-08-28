@@ -639,6 +639,10 @@ msgstr "Base jurídica: Artigo 6.º, n.º 1, alínea f) do RGPD (interesse legí
 msgid "Liability for Content and Links"
 msgstr "Responsabilidade pelo conteúdo e pelas ligações"
 
+#: src/components/blog/RichText.tsx
+msgid "Link to this section"
+msgstr "Link para esta secção"
+
 #: src/components/Contact.tsx
 #: src/components/Footer.tsx
 msgid "LinkedIn Profile"

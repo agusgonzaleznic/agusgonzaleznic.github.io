@@ -639,6 +639,10 @@ msgstr "Fundamento jurídico: Art. 6(1)(f) RGPD (interés legítimo en la provis
 msgid "Liability for Content and Links"
 msgstr "Responsabilidad por los contenidos y los enlaces"
 
+#: src/components/blog/RichText.tsx
+msgid "Link to this section"
+msgstr "Enlace a esta sección"
+
 #: src/components/Contact.tsx
 #: src/components/Footer.tsx
 msgid "LinkedIn Profile"

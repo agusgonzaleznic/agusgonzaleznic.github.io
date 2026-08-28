@@ -86,7 +86,7 @@ const specs = readdirSync(resolve(root, "tests", "e2e"))
 // A FLOOR, not a zero check. Deleting a spec file, or renaming one out of tests/,
 // is a silent loss: the runner runs what is left and reports a green pass. Raise
 // this deliberately when a suite is added.
-const MIN_SPECS = 5;
+const MIN_SPECS = 6;
 if (specs.length < MIN_SPECS) {
   console.error(
     `e2e: found ${specs.length} spec file(s) in tests/e2e, expected at least ${MIN_SPECS}` +

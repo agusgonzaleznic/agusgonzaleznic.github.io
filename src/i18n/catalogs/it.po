@@ -639,6 +639,10 @@ msgstr "Base giuridica: art. 6, comma 1, lettera f) del GDPR (interesse legittim
 msgid "Liability for Content and Links"
 msgstr "Responsabilità in merito ai contenuti e ai link"
 
+#: src/components/blog/RichText.tsx
+msgid "Link to this section"
+msgstr "Link a questa sezione"
+
 #: src/components/Contact.tsx
 #: src/components/Footer.tsx
 msgid "LinkedIn Profile"

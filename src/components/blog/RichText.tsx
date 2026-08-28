@@ -7,7 +7,9 @@ import {
   type RichtextMark,
   type RichtextNode,
 } from "@/lib/richtext";
+import { t } from "@lingui/core/macro";
 import { SITE_URL } from "@/lib/site";
+import { SOURCE_LOCALE, localeFromPath, localizePath } from "@/i18n/locales";
 
 // Hand-rolled Storyblok richtext → React walker. Zero dependencies, pure and
 // synchronous, so it runs identically under renderToString (prerender) and in
@@ -17,6 +19,13 @@ import { SITE_URL } from "@/lib/site";
 interface Ctx {
   /** Dedupe heading anchor ids within one document. */
   ids: Map<string, number>;
+  /**
+   * The locale this document is being rendered for, threaded rather than read
+   * from a hook so the walker stays pure and synchronous: it has to produce
+   * byte-identical output under renderToString and in the browser, or hydration
+   * mismatches.
+   */
+  locale: string;
   /** Inside list items / blockquotes: paragraphs drop their bottom margin. */
   compact: boolean;
   /** Added to every heading level so the document's top level lands on h2. */
@@ -65,6 +74,34 @@ const PARAGRAPH_CLASS = "text-fluid-base leading-relaxed text-muted-foreground";
 const LINK_CLASS =
   "text-accent underline underline-offset-4 decoration-accent/40 hover:decoration-accent transition-colors";
 
+/**
+ * Give a CMS-authored internal link the reader's locale.
+ *
+ * A translated article's body is a translation of the ENGLISH body, so its
+ * internal links are the English ones copied across: a German reader following
+ * `/about` silently left the German site. Prefixing is the fix, but only for the
+ * shape where it is unambiguous, because localizePath() blindly prepends and CMS
+ * hrefs are authored by hand:
+ *
+ *   `#section`      a pure fragment. Prefixing gives `/de/#section`, which is a
+ *                   different page. Left alone.
+ *   `about`         relative. Resolves against the current URL, so prefixing it
+ *                   would change what it means. Left alone.
+ *   `https://…`     absolute, including the site's own origin. Left alone; an
+ *                   author who typed the whole URL said what they meant.
+ *   `/de/about`     already carries a locale, so the author was explicit. Left
+ *                   alone, which also makes this function idempotent.
+ *   `/about`        the actual case. Becomes `/de/about`.
+ *
+ * External links never reach here: the caller checks classifyHref first.
+ */
+const localizeCmsHref = (href: string, locale: string): string => {
+  if (locale === SOURCE_LOCALE) return href;
+  if (!href.startsWith("/") || href.startsWith("//")) return href;
+  if (localeFromPath(href) !== SOURCE_LOCALE) return href;
+  return localizePath(href, locale);
+};
+
 const slugify = (text: string) =>
   text
     .toLowerCase()
@@ -80,7 +117,7 @@ const headingId = (text: string, ctx: Ctx) => {
   return seen === 0 ? base : `${base}-${seen}`;
 };
 
-const applyMark = (children: ReactNode, mark: RichtextMark): ReactNode => {
+const applyMark = (children: ReactNode, mark: RichtextMark, ctx: Ctx): ReactNode => {
   const attrs = mark.attrs ?? {};
   switch (mark.type) {
     case "bold":
@@ -113,7 +150,7 @@ const applyMark = (children: ReactNode, mark: RichtextMark): ReactNode => {
       const { external } = link;
       return (
         <a
-          href={href}
+          href={external ? href : localizeCmsHref(href, ctx.locale)}
           target={external ? "_blank" : undefined}
           rel={external ? "noopener noreferrer" : undefined}
           className={LINK_CLASS}
@@ -127,10 +164,10 @@ const applyMark = (children: ReactNode, mark: RichtextMark): ReactNode => {
   }
 };
 
-const renderTextNode = (node: RichtextNode, key: number): ReactNode => {
+const renderTextNode = (node: RichtextNode, key: number, ctx: Ctx): ReactNode => {
   let el: ReactNode = node.text ?? "";
   for (const mark of node.marks ?? []) {
-    el = applyMark(el, mark);
+    el = applyMark(el, mark, ctx);
   }
   return <Fragment key={key}>{el}</Fragment>;
 };
@@ -165,7 +202,7 @@ const renderNode = (node: RichtextNode, key: number, ctx: Ctx): ReactNode => {
             {renderChildren(node, ctx)}
             <a
               href={`#${id}`}
-              aria-label="Link to this section"
+              aria-label={t`Link to this section`}
               className="ml-2 font-normal text-accent opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
             >
               #
@@ -269,14 +306,14 @@ const renderNode = (node: RichtextNode, key: number, ctx: Ctx): ReactNode => {
       return <Fragment key={key}>{String(node.attrs?.emoji ?? "")}</Fragment>;
 
     case "text":
-      return renderTextNode(node, key);
+      return renderTextNode(node, key, ctx);
 
     default:
       // Unknown node type: render its children so content degrades gracefully.
       return node.content?.length ? (
         <Fragment key={key}>{renderChildren(node, ctx)}</Fragment>
       ) : node.text ? (
-        renderTextNode(node, key)
+        renderTextNode(node, key, ctx)
       ) : null;
   }
 };
@@ -287,7 +324,19 @@ const minHeadingLevel = (node: RichtextNode): number => {
   return Math.min(own, ...(node.content?.map(minHeadingLevel) ?? []));
 };
 
-export const RichText = ({ document: doc }: { document: RichtextNode | null }) => {
+export const RichText = ({
+  document: doc,
+  locale,
+}: {
+  document: RichtextNode | null;
+  /**
+   * REQUIRED on purpose, with no default. An optional locale would let a new
+   * caller forget it and silently render every internal link and the heading
+   * anchor label in English, which is precisely the bug this prop exists to fix
+   * and is invisible unless someone reads the page in that language.
+   */
+  locale: string;
+}) => {
   if (!doc?.content?.length) return null;
   // The article <h1> comes from the page, so the body's top heading level
   // should be h2. CMS content is often authored at h3. Shift the whole
@@ -295,6 +344,7 @@ export const RichText = ({ document: doc }: { document: RichtextNode | null }) =
   const min = minHeadingLevel(doc);
   const ctx: Ctx = {
     ids: new Map(),
+    locale,
     compact: false,
     headingShift: Number.isFinite(min) ? 2 - min : 0,
   };
