@@ -95,6 +95,7 @@ data "aws_iam_policy_document" "site_plan_addendum" {
     }
   }
 
+  # Verified 2026-08-28: this role plans successfully with the contact-only window.
   # ReadOnlyAccess grants ssm:Get*, which returns parameter VALUES account-wide.
   # Only the parameter Terraform MANAGES has to stay readable, so the allowed
   # window is contact/, not the whole site prefix.
