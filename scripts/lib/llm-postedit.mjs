@@ -134,6 +134,66 @@ export function hasAnthropicKey() {
 // Structural spans that MUST survive translation byte-for-byte: ICU/interpolation
 // braces, HTML/Lingui component tags, URLs and emails. If a candidate's multiset
 // of these differs from the source, the post-edit is rejected for that string.
+/**
+ * Reduce an ICU expression to the parts a translation must NOT change: the
+ * argument name, the type, the category keywords, any nested placeholder, and the
+ * number of `#` markers. The submessage BODIES are prose and must be free to
+ * change, because translating them is the entire point.
+ *
+ * WHY THIS EXISTS. protectedTokens used to collect a whole depth-0 `{...}` as ONE
+ * token, and placeholdersPreserved demanded it byte-identical. For a plural that
+ * made a correct translation indistinguishable from a mangled one: any candidate
+ * that actually translated "one {about # minute}" was rejected, and the raw MT was
+ * kept. Since protect() masks the whole expression before DeepL sees it, the raw
+ * MT for a plural-only message IS the English source, so the guard guaranteed the
+ * one outcome it was meant to prevent.
+ *
+ * A plain placeholder (`{count}`) and a typed one (`{n, number}`) come back
+ * unchanged, so the guard is exactly as strict as before for everything that is
+ * not a plural or a select.
+ */
+export function icuSkeleton(token) {
+  const inner = token.slice(1, -1);
+  const comma = inner.indexOf(",");
+  if (comma === -1) return token;
+  const arg = inner.slice(0, comma).trim();
+  const typed = inner.slice(comma + 1).match(/^\s*(plural|selectordinal|select)\s*,/);
+  if (!typed) return token;
+  const body = inner.slice(comma + 1 + typed[0].length);
+
+  // Split the body into the category keywords at depth 0 and the submessage
+  // contents at depth 1 or deeper.
+  const cats = [];
+  const subs = [];
+  let depth = 0;
+  let word = "";
+  let buf = "";
+  for (const ch of body) {
+    if (ch === "{") {
+      depth += 1;
+      if (depth === 1) {
+        if (word.trim()) cats.push(word.trim());
+        word = "";
+        buf = "";
+        continue;
+      }
+    } else if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        subs.push(buf);
+        continue;
+      }
+    }
+    if (depth === 0) word += ch;
+    else buf += ch;
+  }
+  const nested = subs
+    .flatMap((s) => [...s.matchAll(/\{[^{}]*\}/g)].map((m) => m[0]))
+    .sort();
+  const hashes = subs.join("").split("#").length - 1;
+  return `{${arg},${typed[1]},${cats.sort().join("|")},${nested.join("|")},#${hashes}}`;
+}
+
 function protectedTokens(text) {
   const tokens = [];
   let depth = 0;
@@ -145,7 +205,7 @@ function protectedTokens(text) {
       depth += 1;
     } else if (c === "}" && depth > 0) {
       depth -= 1;
-      if (depth === 0) tokens.push(text.slice(start, i + 1));
+      if (depth === 0) tokens.push(icuSkeleton(text.slice(start, i + 1)));
     }
   }
   const patterns = [

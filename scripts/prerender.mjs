@@ -82,6 +82,71 @@ const { render, dynamicActivate, PUBLISHED_LOCALES, SOURCE_LOCALE, localizePath,
   await import(pathToFileURL(serverEntry).href);
 const template = readFileSync(resolve(distDir, "index.html"), "utf-8");
 
+// ---- Locale chunk hints -----------------------------------------------------
+// A prefixed locale needs two code-split chunks before it can hydrate: its Lingui
+// catalog (src/i18n/i18n.ts awaits it) and its marketing-page JSON (src/lib/pages
+// loads it, awaited in the same Promise.all in src/main.tsx). Neither is
+// referenced by the prerendered HTML, so the browser could only discover them
+// AFTER downloading and executing the ~180 kB entry chunk: a third serial hop that
+// blocks hydration on 5 of 6 locales, leaving the mobile menu and the contact form
+// inert for an extra round trip.
+//
+// PLACEMENT IS THE WHOLE CARE HERE. A modulepreload is fetched at High priority,
+// so injecting these at the top of the head would put them AHEAD of the three font
+// preloads and contend with the text render that is the LCP element. They go
+// immediately AFTER the last font preload instead, which keeps the fonts' position
+// unchanged and is a property that can be asserted, unlike LCP itself.
+const assetFiles = readdirSync(resolve(distDir, "assets"));
+const LAST_FONT_PRELOAD =
+  '<link rel="preload" as="font" type="font/woff2" href="/fonts/playfair-display-v40-latin-700.woff2" crossorigin />';
+
+function localeChunkHrefs(locale) {
+  // The two chunks do NOT have the same guarantee, and treating them alike broke
+  // the tokenless build.
+  //
+  // The Lingui catalog is committed, so it is always emitted: exactly one match,
+  // or fail, because a silent zero would drop the hint and a silent two would
+  // hint the wrong file.
+  //
+  // The page-data chunk only exists when that locale HAS fetched CMS content. A
+  // build with no STORYBLOK_PUBLIC_TOKEN writes empty page data on purpose (PR CI
+  // runs exactly that way), so Vite emits no chunk and every locale falls back to
+  // its hardcoded copy. Zero is therefore correct there, not an error; more than
+  // one still is.
+  const required = new RegExp(`^${locale}-[A-Za-z0-9_-]{8}\\.js$`);
+  const optional = new RegExp(`^page-data\\.${locale}-[A-Za-z0-9_-]{8}\\.js$`);
+  const hrefs = [];
+  for (const [re, mustExist] of [
+    [required, true],
+    [optional, false],
+  ]) {
+    const hits = assetFiles.filter((f) => re.test(f));
+    if (hits.length > 1 || (mustExist && hits.length === 0)) {
+      throw new Error(
+        `Prerender: expected ${mustExist ? "exactly one" : "at most one"} dist/assets file matching ` +
+          `${re}, found ${hits.length}${hits.length ? `: ${hits.join(", ")}` : ""}. ` +
+          "The locale preload hint would be wrong.",
+      );
+    }
+    if (hits.length === 1) hrefs.push(`/assets/${hits[0]}`);
+  }
+  return hrefs;
+}
+
+function injectLocalePreloads(html, locale) {
+  if (locale === SOURCE_LOCALE) return html; // English rides in the entry chunk
+  if (!html.includes(LAST_FONT_PRELOAD)) {
+    throw new Error(
+      "Prerender: the last font preload was not found in the template, so the locale " +
+        "preload hints cannot be placed after it. Fix the anchor rather than moving them earlier.",
+    );
+  }
+  const links = localeChunkHrefs(locale)
+    .map((href) => `<link rel="modulepreload" crossorigin href="${href}" />`)
+    .join("\n    ");
+  return html.replace(LAST_FONT_PRELOAD, `${LAST_FONT_PRELOAD}\n\n    ${links}`);
+}
+
 const ROOT = '<div id="root"></div>';
 // Markers in index.html delimiting the route-specific head block (title, meta,
 // canonical, JSON-LD). Between the markers sits the HOMEPAGE head, which is
@@ -293,6 +358,7 @@ for (const locale of PUBLISHED_LOCALES) {
     // the canonical at the localized self URL and localize the locale-declaring
     // tags of the static homepage head. English output is never touched.
     html = setHtmlLang(html, locale);
+    html = injectLocalePreloads(html, locale);
     if (locale !== SOURCE_LOCALE) {
       const wantCanonical = `${SITE_URL}${localizePath(route.canonical, locale)}`;
       html = setCanonical(html, wantCanonical);

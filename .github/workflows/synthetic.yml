@@ -18,6 +18,9 @@ name: Synthetic check
 #                           Console's soft-404 bucket).
 #   /de/               200: locale prefixes still resolve.
 #   /blog/rss.xml      200: generated feeds survived the build.
+#   TLS cert          >30d: ACM auto-renewal actually happened. ACM starts
+#                           renewing 60 days out, so a cert inside 30 days means
+#                           the automation has already burned half its window.
 
 on:
   schedule:
@@ -71,3 +74,35 @@ jobs:
             exit 1
           fi
           echo "All checks passed."
+
+      - name: Assert the certificate is not near expiry
+        run: |
+          set -uo pipefail
+          host="agusgonzaleznic.com"
+          # ACM begins renewing a DNS-validated certificate 60 days before it
+          # expires, so any threshold near 60 fires on every healthy renewal.
+          # 30 days lets ACM have half its window unattended, and still leaves
+          # a month to renew by hand if the automation is the thing that broke.
+          min_days=30
+
+          not_after="$(openssl s_client -connect "$host:443" -servername "$host" \
+                         </dev/null 2>/dev/null \
+                       | openssl x509 -noout -enddate \
+                       | cut -d= -f2)"
+
+          if [ -z "$not_after" ]; then
+            printf '  FAIL %-28s no certificate returned\n' "$host"
+            echo "::error title=Synthetic check failed::Could not read a TLS certificate for $host; the TLS listener itself may be down."
+            exit 1
+          fi
+
+          expires_at="$(date -u -d "$not_after" +%s)"
+          days_left=$(( (expires_at - $(date -u +%s)) / 86400 ))
+
+          if [ "$days_left" -lt "$min_days" ]; then
+            printf '  FAIL %-28s %s day(s) left, want at least %s\n' "$host" "$days_left" "$min_days"
+            echo "::error title=Synthetic check failed::The TLS certificate for $host expires in $days_left day(s), under the $min_days-day threshold. ACM auto-renewal has not completed; renew it by hand."
+            exit 1
+          fi
+
+          printf '  ok   %-28s %s day(s) left (expires %s)\n' "$host" "$days_left" "$not_after"

@@ -12,6 +12,15 @@ resource "aws_s3_bucket_versioning" "terraform_state" {
   versioning_configuration {
     status = "Enabled"
   }
+
+  # Versioning, not the bucket, is what makes a bad state write recoverable, so
+  # a destroy or a replacement of this resource must never be planned. Terraform
+  # enforces prevent_destroy only for resources that are still present in the
+  # configuration, so it does NOT stop someone deleting this block; the guard on
+  # the bootstrap plan in .github/workflows/terraform.yml covers that case.
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # SSE-S3 (AES256) is sufficient for a personal-site state bucket; KMS skipped

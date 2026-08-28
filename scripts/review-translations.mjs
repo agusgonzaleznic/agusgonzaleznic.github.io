@@ -34,7 +34,10 @@
 // Then commit the changes yourself (signed): git add content/ src/i18n/catalogs/ && git commit -S
 
 import { createServer } from "node:http";
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from "node:fs";
+import {
+  writeFileSync, readFileSync, existsSync, mkdirSync,
+  openSync, writeSync, fsyncSync, closeSync, renameSync, rmSync,
+} from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -104,6 +107,74 @@ function getTranslator() {
 const readJson = (p) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : null);
 const statusOf = (approved, fresh, hasReview) =>
   approved && fresh ? "approved" : approved ? "stale" : hasReview ? "pending" : "new";
+
+// Write an approval manifest by temp-file + fsync + rename, never
+// truncate-then-write. content/i18n-approvals.json and content/page-approvals.json
+// are what the build reads to decide which locale variants are published, so a
+// half-written one (Ctrl+C, OOM or power loss in the gap between the truncate and
+// the write) is a repo-level failure: the gates throw on a corrupt manifest rather
+// than silently delisting every approved variant, which is the right behaviour but
+// still a broken build, and the reviewed JSON files themselves are untouched and
+// look fine. rename(2) is atomic within a directory, so an interrupted save leaves
+// either the previous manifest or the new one, never a truncated one. The fsync is
+// the point of the dance: without it the rename can land while the temp file's
+// bytes are still only in the page cache, which is the power-loss case.
+function writeJsonAtomic(path, text) {
+  const tmp = `${path}.${process.pid}.tmp`;
+  const fd = openSync(tmp, "w");
+  try {
+    writeSync(fd, text);
+    fsyncSync(fd);
+  } finally {
+    closeSync(fd);
+  }
+  try {
+    renameSync(tmp, path);
+  } catch (e) {
+    rmSync(tmp, { force: true }); // never leave a stray .tmp in content/ to be committed
+    throw e;
+  }
+}
+
+// Refuse a save whose reviewable content IS the English source.
+//
+// The tool is deliberately usable with no DEEPL_API_KEY: an item that already has
+// a reviewed file on disk never touches the translator. But a blog item with no
+// reviewed file and no translator is prefilled with the ENGLISH text and badged
+// `source: "empty"` (buildBlogItems), and an untouched Save then wrote that
+// English article to content/translations/<uuid>.<locale>.json stamped
+// status:"approved", provenance:"human-reviewed" with a fresh sourceHash. For a
+// REVIEW_GATED locale the build serves that file VERBATIM, so a full English
+// article ships under /de/ or /es/, in the sitemap and in every locale's
+// hreflang, with no machine-translation disclosure (that covers AUTO_LOCALES
+// only) and nothing for the build to detect.
+//
+// The rule is WHOLE-PAYLOAD, never per-field, because plenty of strings are
+// legitimately identical in every language: "Blog", "FAQ", "DevOps Lead", brand
+// and product names. Rejecting any single identical value would block real
+// reviews. What cannot be a real review is a payload in which NOT ONE string
+// differs from English, so the guard fires only when every one of them matches:
+// a legitimately-identical field cannot trip it, because the same payload also
+// carries the strings that do differ. The line is drawn at two DISTINCT English
+// strings for exactly that reason. With a single reviewable string, "still the
+// English prefill" and "correctly the same word in this language" are the same
+// payload and cannot be told apart, so a one-string item is left alone. Pages
+// de-dup by English string for display (pageDisplaySlots), so the count here is
+// distinct strings, i.e. exactly the textareas the reviewer saw. Comparison is
+// byte-exact: only the untouched prefill matches, and any real edit clears it.
+function assertNotEnglishSource(what, locale, pairs) {
+  if (!REVIEW_GATED_LOCALES.includes(locale)) return;
+  const byEn = new Map();
+  for (const { en, value } of pairs) if (!byEn.has(en)) byEn.set(en, value);
+  if (byEn.size < 2) return;
+  for (const [en, value] of byEn) if (value !== en) return;
+  throw new Error(
+    `refusing to save ${what}: all ${byEn.size} reviewable string(s) are byte-identical to the English source, `
+    + `so this would publish English as a human-reviewed ${locale} translation and the build would serve it verbatim. `
+    + "Nothing was written and the approval is unchanged. With no DEEPL_API_KEY every field is prefilled with the "
+    + "English source (badge `new · empty`), so either re-run under `op run` with a working key or type the translation in.",
+  );
+}
 
 // ── PAGES ────────────────────────────────────────────────────────────────────
 // Ordered translatable slots of a page, one per writable string field: the same
@@ -275,13 +346,17 @@ function savePage(pages, { slug, locale, values }) {
       + "was made and those slots have to be re-reviewed by hand.",
     );
   }
+  assertNotEnglishSource(`${slug}.${locale}`, locale, slots.map((s) => {
+    const en = s.obj[s.key];
+    return { en, value: values[en] };
+  }));
   for (const s of slots) { const en = s.obj[s.key]; s.obj[s.key] = values[en]; }
   mkdirSync(contentPagesDir, { recursive: true });
   writeFileSync(reviewedPagePath(contentPagesDir, slug, locale), `${JSON.stringify(tree, null, 2)}\n`);
   const manifest = loadPageApprovals(pageApprovalsPath);
   manifest[slug] = manifest[slug] ?? {};
   manifest[slug][locale] = { status: "approved", sourceHash: pageSourceHash(page), provenance: "human-reviewed", reviewedAt: new Date().toISOString() };
-  writeFileSync(pageApprovalsPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  writeJsonAtomic(pageApprovalsPath, `${JSON.stringify(manifest, null, 2)}\n`);
   return `${slug}.${locale}`;
 }
 
@@ -341,12 +416,21 @@ function saveBlog(posts, { ref, locale, fields, body }) {
   const post = posts.find((p) => p.uuid === ref);
   if (!post) throw new Error(`unknown post ${ref}`);
   const story = rebuildBlog(post, { fields: fields ?? {}, body: body ?? {} });
+  // Compare what is ABOUT TO BE WRITTEN with English, not merely what the browser
+  // submitted: rebuildBlog clones the English post, so a field the payload omits
+  // keeps its English string too. The pairs mirror blogSlots, i.e. the same slots
+  // the reviewer was shown.
+  const storyNodes = bodyTextNodes(story);
+  assertNotEnglishSource(`${post.slug}.${locale}`, locale, [
+    ...BLOG_FIELDS.filter((f) => (post[f] ?? "").trim()).map((f) => ({ en: post[f], value: story[f] ?? "" })),
+    ...bodyTextNodes(post).map((n, i) => ({ en: n.text, value: storyNodes[i]?.text ?? "" })),
+  ]);
   mkdirSync(reviewedDir, { recursive: true });
   writeFileSync(resolve(reviewedDir, `${ref}.${locale}.json`), `${JSON.stringify(story, null, 2)}\n`);
   const manifest = loadApprovals(approvalsPath);
   manifest[ref] = manifest[ref] ?? {};
   manifest[ref][locale] = { status: "approved", sourceHash: enSourceHash(post), provenance: "human-reviewed", reviewedAt: new Date().toISOString() };
-  writeFileSync(approvalsPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  writeJsonAtomic(approvalsPath, `${JSON.stringify(manifest, null, 2)}\n`);
   return `${post.slug}.${locale}`;
 }
 
@@ -483,6 +567,19 @@ function render(){
    btn.textContent=j.ok?"Saved ✓ "+j.saved:"Error: "+j.error;btn.disabled=false;
    if(j.ok){const b=box.querySelector(".badge");b.className="badge approved";b.textContent="approved · saved";}
   };
+  // An item badged "empty" has no translation at all: every textarea below holds
+  // the ENGLISH source, so it is not offered as reviewable until something is
+  // actually typed. Mirrors assertNotEnglishSource server-side, which is the
+  // guard that counts; one edited field is enough for both, since a string like
+  // "Blog" or "FAQ" is legitimately the same in every language.
+  if(it.source==="empty"){
+   btn.disabled=true;
+   const warn=document.createElement("div");
+   warn.style.cssText="font-size:13px;color:#c0392b;margin-bottom:8px";
+   warn.textContent="No translation available (no DeepL key): the fields above hold the ENGLISH source. Edit them to enable Save.";
+   foot.appendChild(warn);
+   body.addEventListener("input",()=>{btn.disabled=false;},{once:true});
+  }
   foot.appendChild(btn);body.appendChild(foot);box.appendChild(body);root.appendChild(box);
  });
 }

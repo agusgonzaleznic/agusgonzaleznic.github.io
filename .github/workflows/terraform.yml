@@ -387,6 +387,43 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
+      # The state bucket carries prevent_destroy and the ceiling denies
+      # s3:DeleteBucket, but neither covers aws_s3_bucket_versioning, which is
+      # the resource that actually makes state loss recoverable. Deleting that
+      # block from the config plans as a benign "1 to destroy" and the provider
+      # then sets versioning to Suspended, after which every later plan is clean
+      # because HCL and reality agree. prevent_destroy cannot catch that (it is
+      # only enforced for resources still in the configuration) and an IAM deny
+      # on s3:PutBucketVersioning cannot either (it cannot distinguish Enable
+      # from Suspend, so it would lock CI out of its own resource). So gate on
+      # the plan TEXT. Mirrored in bootstrap-detect below.
+      - name: Guard (state-bucket versioning)
+        run: |
+          # Reuses plan.txt written by the plan step above. Do NOT plan again.
+          fail=0
+
+          # Terraform prints one action header per resource, e.g.
+          #   # aws_s3_bucket_versioning.terraform_state will be destroyed
+          # "will be created" is the only benign one (a bucket that has no
+          # versioning resource yet); every other action, and any out-of-band
+          # drift note on the same address, needs a human to look.
+          if grep -nE '^[[:space:]]*# aws_s3_bucket_versioning\.terraform_state(\[[^]]*\])?[[:space:]]' plan.txt \
+            | grep -vE 'will be created$'; then
+            fail=1
+          fi
+
+          # A suspend is an in-place update, so the header check above already
+          # catches it; this pins the actual value so the intent is greppable.
+          if grep -nE '^[[:space:]~+-]*status[[:space:]]*=.*"Suspended"' plan.txt; then
+            fail=1
+          fi
+
+          if [ "$fail" = 1 ]; then
+            echo "::error title=State-bucket versioning would be weakened::The plan destroys, replaces, suspends or drops aws_s3_bucket_versioning.terraform_state. Versioning is the only thing that makes a bad state write recoverable (terraform/README.md), and prevent_destroy does not fire when the block is deleted from the config. If this is deliberate, change this guard in the same commit and say why."
+            exit 1
+          fi
+          echo "OK: plan leaves aws_s3_bucket_versioning.terraform_state enabled and intact."
+
   bootstrap-detect:
     name: Bootstrap plan (main)
     # Runs UNGATED because it is read-only, and it exists so the reviewer sees
@@ -482,6 +519,36 @@ jobs:
             echo ""
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # Same guard as in bootstrap-plan above, see the reasoning there. This
+      # copy is the load-bearing one: bootstrap-apply needs this job, so a
+      # failure here blocks the apply instead of only warning a reviewer.
+      - name: Guard (state-bucket versioning)
+        run: |
+          # Reuses plan.txt written by the plan step above. Do NOT plan again.
+          fail=0
+
+          # Terraform prints one action header per resource, e.g.
+          #   # aws_s3_bucket_versioning.terraform_state will be destroyed
+          # "will be created" is the only benign one (a bucket that has no
+          # versioning resource yet); every other action, and any out-of-band
+          # drift note on the same address, needs a human to look.
+          if grep -nE '^[[:space:]]*# aws_s3_bucket_versioning\.terraform_state(\[[^]]*\])?[[:space:]]' plan.txt \
+            | grep -vE 'will be created$'; then
+            fail=1
+          fi
+
+          # A suspend is an in-place update, so the header check above already
+          # catches it; this pins the actual value so the intent is greppable.
+          if grep -nE '^[[:space:]~+-]*status[[:space:]]*=.*"Suspended"' plan.txt; then
+            fail=1
+          fi
+
+          if [ "$fail" = 1 ]; then
+            echo "::error title=State-bucket versioning would be weakened::The plan destroys, replaces, suspends or drops aws_s3_bucket_versioning.terraform_state. Versioning is the only thing that makes a bad state write recoverable (terraform/README.md), and prevent_destroy does not fire when the block is deleted from the config. If this is deliberate, change this guard in the same commit and say why."
+            exit 1
+          fi
+          echo "OK: plan leaves aws_s3_bucket_versioning.terraform_state enabled and intact."
 
   bootstrap-apply:
     name: Bootstrap apply (gated)

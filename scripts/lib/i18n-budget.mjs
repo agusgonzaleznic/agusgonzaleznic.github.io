@@ -69,6 +69,19 @@ export function reportTranslationBudget(label, stats) {
 
   appendReport(label, stats);
 
+  const untranslatable = stats.noTranslatableContent ?? [];
+  if (untranslatable.length) {
+    // Masking left only sentinels, so a translator saw nothing and the English
+    // comes back unchanged. For a plural that means the message stays English.
+    console.log(
+      `::warning title=Nothing to translate::${untranslatable.length} string(s) in ${label} were masked ` +
+        "down to placeholders only, so they come back as their English source",
+    );
+    for (const u of untranslatable.slice(0, 6)) {
+      console.warn(`  ${label}: ${u.locale} received no translatable text for: ${u.source.slice(0, 100)}`);
+    }
+  }
+
   const unpersisted = stats.unpersisted ?? [];
   if (unpersisted.length) {
     // Not an error: the run is correct, it just cannot be allowed to pin raw MT

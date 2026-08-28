@@ -145,7 +145,9 @@ function pruneLocaleData(keep) {
 //     content (content/translations/<uuid>.<locale>.json) for approved+fresh
 //     posts only. No translation, no API key needed, fully deterministic.
 //   - Auto locales (FR/IT/PT): translated at build via DeepL (+ optional LLM
-//     post-edit). KEYLESS → skipped, so those files fall back to English.
+//     post-edit). KEYLESS → no machine translation, but an approved + fresh
+//     reviewed file is still served verbatim (no key needed for a file read);
+//     every other post falls back to English.
 // English (blog-data.json) is written by writeOutput() before this runs; each
 // post already carries its baked `approved_locales`.
 
@@ -182,6 +184,49 @@ function localizePostTags(arr, locale, tagMap) {
         "run the importer or edit content/tag-translations.json",
     );
   }
+}
+
+// Emit one auto locale's blog data (blog-data.<locale>.json + the client split).
+//
+// A human-reviewed file (written by scripts/review-translations.mjs) overrides
+// the machine translation for ANY locale when it is approved + hash-fresh.
+// Everything else is machine-translated, or, when `translator` is null (a build
+// with no DEEPL_API_KEY), served as the English post verbatim.
+//
+// The emitted array MUST stay index-aligned with blog-data.json and the SAME
+// LENGTH as it: src/lib/blog.ts loads it as a parallel post list, so emitting
+// only the reviewed subset would silently shorten this locale's blog index.
+async function writeAutoLocale(locale, posts, approvals, tagMap, translator) {
+  const localized = [];
+  let reviewed = 0;
+  for (const post of posts) {
+    const appr = approvals[post.uuid]?.[locale];
+    const file = resolve(reviewedDir, `${post.uuid}.${locale}.json`);
+    if (appr?.status === "approved" && appr.sourceHash === enSourceHash(post) && existsSync(file)) {
+      localized.push(withCurrentGlobals(JSON.parse(readFileSync(file, "utf-8")), post));
+      reviewed += 1;
+    } else if (translator) {
+      localized.push((await translateStories([post], locale, translator))[0]);
+    } else {
+      // Copy, because localizePostTags rewrites tag_list in place and these
+      // English objects are shared with blog-data.json and with every other
+      // locale in the caller's loop.
+      localized.push({ ...post });
+    }
+  }
+  localizePostTags(localized, locale, tagMap);
+  writeFileSync(
+    resolve(generatedDir, blogDataFilename(locale)),
+    `${JSON.stringify(localized, null, 2)}\n`,
+  );
+  writeClientSplit(locale, localized);
+  const notes = [];
+  if (reviewed) notes.push(`${reviewed} reviewed`);
+  if (!translator) notes.push(`${localized.length - reviewed} English fallback`);
+  console.log(
+    `✓ fetch-blog: ${localized.length} post(s) → src/generated/${blogDataFilename(locale)}` +
+      `${notes.length ? ` (${notes.join(", ")})` : ""}`,
+  );
 }
 
 async function translateBlog(posts) {
@@ -244,15 +289,25 @@ async function translateBlog(posts) {
 
   // Auto locales (FR/IT/PT): translate at build time.
   const targets = published.filter((l) => AUTO_LOCALES.includes(l));
+  if (posts.length === 0 || targets.length === 0) return;
   // Cache-only still has to walk every string, because answering them from the
-  // committed cache is exactly what it is for. Taking the keyless early return
-  // here would report zero misses and then render English.
+  // committed cache is exactly what it is for. Taking the keyless branch below
+  // would report zero misses and then render English.
   const cacheOnly = cacheOnlyMode();
-  if (posts.length === 0 || targets.length === 0 || (!hasApiKey() && !cacheOnly)) {
-    if (posts.length > 0 && targets.length > 0 && !hasApiKey()) {
-      console.log(
-        "  fetch-blog: DEEPL_API_KEY not set, skipping auto blog translation (FR/IT/PT fall back to English).",
-      );
+  if (!hasApiKey() && !cacheOnly) {
+    // No machine translation without a key, but serving a reviewed file is a
+    // VERBATIM read that needs no key at all, exactly like the review-gated
+    // loop above. Writing nothing here discarded approved, hash-fresh,
+    // human-reviewed FR/IT/PT copy and prerendered English under
+    // `<html lang="fr">` instead, with the route, the hreflang cluster and the
+    // sitemap entry all still in place (approved_locales comes from
+    // PUBLISHED_LOCALES + AUTO_LOCALE_MODE, never from these files).
+    console.log(
+      "  fetch-blog: DEEPL_API_KEY not set, skipping auto blog translation " +
+        "(FR/IT/PT fall back to English apart from reviewed posts).",
+    );
+    for (const locale of targets) {
+      await writeAutoLocale(locale, posts, manifest, tagMap, null);
     }
     return;
   }
@@ -282,31 +337,8 @@ async function translateBlog(posts) {
     cacheSalt: postEditor || cacheOnly ? POSTEDIT_VERSION : "",
     cacheOnly,
   });
-  // A human-reviewed file (from scripts/review-translations.mjs) overrides the
-  // machine translation for ANY locale when it's approved + hash-fresh; otherwise
-  // the auto locale is machine-translated. (Un-reviewed today → identical output.)
-  const approvals = loadApprovals(approvalsPath);
   for (const locale of targets) {
-    const localized = [];
-    let reviewed = 0;
-    for (const post of posts) {
-      const appr = approvals[post.uuid]?.[locale];
-      const file = resolve(reviewedDir, `${post.uuid}.${locale}.json`);
-      if (appr?.status === "approved" && appr.sourceHash === enSourceHash(post) && existsSync(file)) {
-        localized.push(withCurrentGlobals(JSON.parse(readFileSync(file, "utf-8")), post));
-        reviewed += 1;
-      } else {
-        localized.push((await translateStories([post], locale, translator))[0]);
-      }
-    }
-    localizePostTags(localized, locale, tagMap);
-    const localeFile = resolve(generatedDir, blogDataFilename(locale));
-    writeFileSync(localeFile, `${JSON.stringify(localized, null, 2)}\n`);
-    writeClientSplit(locale, localized);
-    console.log(
-      `✓ fetch-blog: ${localized.length} post(s) → src/generated/${blogDataFilename(locale)}` +
-        `${reviewed ? ` (${reviewed} reviewed)` : ""}`,
-    );
+    await writeAutoLocale(locale, posts, manifest, tagMap, translator);
   }
   // DeepL quota fallback: if DeepL ran out mid-build, the strings above were
   // translated by Claude instead (no build failure), so surface it loudly.
@@ -318,11 +350,29 @@ async function translateBlog(posts) {
   reportTranslationBudget("fetch-blog", translator.stats);
   if (!cacheOnly) saveCache(cachePath, cache);
   if (postEditor) {
-    const { postEdited, keptMt, failures } = postEditor.stats;
+    const { postEdited, keptMt, failures, calls } = postEditor.stats;
     console.log(
       `✓ fetch-blog: LLM post-edit: ${postEdited} refined, ${keptMt} kept as raw DeepL` +
         `${failures ? `, ${failures} call(s) failed` : ""}.`,
     );
+    // Those counts sit in a collapsed step log under a green tick, so a pass that
+    // failed WHOLESALE (revoked key, lapsed billing) shipped FR/IT/PT copy that
+    // bypassed the entire voice standard with no CI signal at all. Annotate in
+    // ADDITION to the line above, so the counts stay in the log either way.
+    //
+    // A re-run is owed, not just a second look: the raw-DeepL strings were
+    // written to the committed cache under the POSTEDIT_VERSION salt as if they
+    // had been refined, and a cache hit is never re-edited, so the next healthy
+    // build will not repair them.
+    if (failures) {
+      // failures/calls, not keptMt: keptMt counts only strings a SUCCESSFUL call
+      // declined to improve, so a wholesale failure leaves it at 0 while every
+      // string behind those calls shipped raw.
+      console.log(
+        `::warning title=LLM post-edit degraded::${failures} of ${calls} post-edit call(s) failed, ` +
+          "so the FR/IT/PT strings behind them shipped as raw DeepL. Re-run with REGEN_LOCALES=fr,it,pt.",
+      );
+    }
   }
 }
 

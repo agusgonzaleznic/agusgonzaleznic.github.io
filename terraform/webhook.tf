@@ -108,10 +108,19 @@ resource "aws_lambda_function" "webhook" {
   filename         = data.archive_file.webhook.output_path
   source_code_hash = data.archive_file.webhook.output_base64sha256
 
-  # NO reserved_concurrent_executions: this account's concurrency limit is 10
-  # (verified via get-account-settings 2026-07-05) and reserving any requires
-  # keeping >=100 unreserved, so PutFunctionConcurrency would fail on apply.
-  # Abuse is bounded by the ?token gate and the 10s timeout instead.
+  # null today, so this function is UNRESERVED: this account's concurrency
+  # limit is 10 (verified via get-account-settings 2026-07-05) and reserving
+  # any requires keeping >=100 unreserved, so PutFunctionConcurrency fails on
+  # apply until the quota is raised (see variables.tf).
+  #
+  # Consequence, and the reason this is not cosmetic: the publish pipeline
+  # shares that one 10-slot pool with the public /api/contact function, so a
+  # flood there can throttle Storyblok's webhook deliveries here. The ?token
+  # gate is no defence against that: it runs inside an invocation that has
+  # already claimed a slot, and under throttling Lambda rejects the delivery
+  # with 429 before the handler runs at all, so the gate never executes. The
+  # visible symptom is a post that silently never goes live.
+  reserved_concurrent_executions = var.lambda_reserved_concurrency
 
   environment {
     variables = {

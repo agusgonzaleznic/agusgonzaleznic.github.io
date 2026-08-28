@@ -213,9 +213,21 @@ resource "aws_lambda_function" "contact" {
   filename         = data.archive_file.contact.output_path
   source_code_hash = data.archive_file.contact.output_base64sha256
 
-  # No reserved_concurrent_executions: account concurrency limit is 10 and
-  # reserving requires keeping >=100 unreserved (see webhook.tf). Abuse is
-  # bounded by the in-handler rate limits + 10s timeout.
+  # null today, so this function is UNRESERVED and shares the account's whole
+  # 10-slot concurrency pool with the webhook Lambda: reserving anything needs
+  # >=100 unreserved, which an account limit of 10 cannot satisfy (see
+  # variables.tf for the quota precondition and webhook.tf for the other half
+  # of the shared pool). There is therefore no isolation between the two
+  # functions today, in either direction.
+  #
+  # The in-handler rate limits are NOT a substitute. They run inside an
+  # invocation that has already claimed a concurrency slot, so a request the
+  # global/per-IP limiter answers with 429 costs exactly the same slot as an
+  # accepted one; and a Lambda-level throttle rejects the request before the
+  # handler runs at all. What those limits bound is SES spend, DynamoDB writes
+  # and outbound Turnstile calls, not concurrency. Edge rate limiting (a WAF
+  # rate-based rule on /api/*) and a reservation are the controls that would.
+  reserved_concurrent_executions = var.lambda_reserved_concurrency
 
   # Env contract is defined by contact-lambda-src/index.mjs; keep names in sync.
   environment {

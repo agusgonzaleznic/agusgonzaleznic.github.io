@@ -224,6 +224,15 @@ async function main() {
     // A translation that was ALREADY identical to the source stays identical,
     // and plenty legitimately are ("Coaching", "Leadership", brand names), so this
     // only ever blocks a regression, never a first translation.
+    //
+    // There is deliberately NO plural-specific skip here. It would have been the
+    // interim guard for the same problem, and it is now redundant from both ends:
+    // the post-edit guard compares an ICU SKELETON rather than the whole
+    // expression (see icuSkeleton in scripts/lib/llm-postedit.mjs), so Claude can
+    // now translate the submessage bodies and have the candidate accepted; and
+    // when there is no Claude key the translator reports the string as having had
+    // no translatable content, so the silent case is visible. This block remains
+    // the floor under both.
     const currentPo = existsSync(targetPo)
       ? new Map(
           parsePo(readFileSync(targetPo, "utf8"))

@@ -238,9 +238,12 @@ recur; this is the backstop of last resort.
    (`agusgonzaleznic-com-www-redirect`, imports the LIVE stage), then the
    distribution (`E33TSNW29S4RDQ`).
 5. S3 `agusgonzaleznic.com`: bucket, website config, SSE config, CORS,
-   policy, public access block (all import by bucket name). Note: a
+   public access block (all import by bucket name). Note: a
    spurious SSE diff may appear because AWS now returns
-   `BlockedEncryptionTypes` which provider 5.100.0 does not know.
+   `BlockedEncryptionTypes` which provider 5.100.0 does not know. There is
+   **no bucket policy** to import any more: `s3.tf` no longer attaches one
+   (see the OAI note below), which is what took this step off the OAI
+   dependency.
 6. S3 `www.agusgonzaleznic.com`: bucket, website config, SSE config, public
    access block.
 7. Storyblok webhook(s), once defined: import ID format is
@@ -248,9 +251,15 @@ recur; this is the backstop of last resort.
    known quirks: see step 7 of the runbook).
 
 The vestigial OAI `E3LG1Y2B7NO5P2` is not a resource in this config and is
-not attached to the distribution. Do not import it. It IS, however, hardcoded
-as the principal of the TF-managed apex bucket policy (`s3.tf`), so deleting
-the OAI in AWS would still touch managed config.
+not attached to the distribution. Do not import it. It is no longer referenced
+by any resource either: it used to be the sole principal of the TF-managed
+apex bucket policy, and that policy was deleted from `s3.tf` because OAI ids
+are AWS-assigned. Had anyone tidied up the unused OAI, no Terraform run could
+have recreated `E3LG1Y2B7NO5P2`, and this recovery would have stopped at
+step 5 with `MalformedPolicy: Invalid principal in policy` on a resource that
+serves no traffic: nothing reads either S3 bucket, since `cdn.tf`'s only
+origins are `github-pages` and `contact-lambda`. Deleting the OAI in AWS is
+now a no-op for Terraform.
 
 ## Day-2 workflow
 
@@ -422,9 +431,30 @@ production access.
 
 Recommended further hardening (not yet applied): an AWS WAF rate-based rule on
 the `/api/*` CloudFront behavior. The Lambda now throttles per-IP and with a
-global burst counter BEFORE the outbound Turnstile siteverify call, but a WAF
-rate rule at the edge is the strongest defense against a distributed flood
-saturating the account's low Lambda concurrency.
+global burst counter BEFORE the outbound Turnstile siteverify call, but those
+run INSIDE an invocation that has already claimed a concurrency slot, so they
+bound SES spend and Turnstile calls rather than concurrency. A WAF rate rule at
+the edge is the strongest defense against a distributed flood saturating the
+account's low Lambda concurrency.
+
+That saturation is not contained to the contact form. Both Lambdas are
+unreserved, so they share ONE 10-slot account pool: a flood against `/api/*`
+throttles Storyblok's rebuild webhook too, and the post silently never goes
+live. **Owner action, requested 2026-08-28 and still open:** a Service Quotas
+increase for `L-B99A9384` (AWS Lambda, "Concurrent executions", us-east-1) to
+1000. It is `CASE_OPENED`, not granted: the applied value is still 10. AWS
+refuses any reservation that leaves less than 100 unreserved, so until the case
+closes no per-function reservation can exist. Check the applied value with:
+
+```sh
+aws service-quotas get-service-quota \
+  --service-code lambda --quota-code L-B99A9384 --region us-east-1
+```
+
+Once it reads above 10, isolation is one line: set
+`lambda_reserved_concurrency` (`variables.tf`, currently `null`), which applies
+to both functions and caps legitimate concurrent contact submissions at the
+same number.
 
 ### Rotation runbooks
 
@@ -437,3 +467,63 @@ saturating the account's low Lambda concurrency.
 - **Webhook url-token**: see the `/agusgonzaleznic-site/webhook/*` bullet under
   "Deliberately not managed here" (Architecture section): SSM param + repo
   secret + re-apply (the Storyblok webhook endpoint embeds the token).
+- **Webhook GitHub PAT** (`/agusgonzaleznic-site/webhook/github-pat`, runtime,
+  value NOT TF-managed). This one is the rebuild pipeline's single point of
+  failure and its expiry is silent, so read the whole bullet before touching it.
+
+  A **fine-grained PAT cannot be non-expiring**: 366 days is GitHub's maximum,
+  so "set it to never expire" is not an option and there is no AWS-side control
+  that can infer the date. Either diarise the expiry (calendar reminder ~2
+  weeks before, and record the date here when you rotate) or replace the PAT
+  with a **GitHub App installation token**: an App with `actions: write` on this
+  repo only, its private key in SSM, and the Lambda minting a 1-hour
+  installation token per invocation. That is the only variant with nothing to
+  diarise, and it is the right end state; the PAT is the interim.
+
+  Why it must be diarised: on expiry the dispatch POST returns 401, the Lambda
+  logs `{"msg":"dispatch failed","status":401}` and returns 502 to Storyblok,
+  but **the invocation itself succeeds**, so the Lambda `Errors` metric stays
+  flat and an Errors alarm can never fire. CloudFront and GitHub Pages keep
+  serving the last good build with HTTP 200, so the site looks healthy while
+  every publish silently never ships.
+
+  To rotate:
+
+  1. Mint the replacement: GitHub > Settings > Developer settings > Personal
+     access tokens > Fine-grained tokens. Resource owner `agusgonzaleznic`,
+     **Only select repositories** = this repo, permission **Actions: Read and
+     write**, nothing else. Set the longest expiry you are willing to diarise.
+  2. Prove the new token can dispatch BEFORE storing it (a scope typo returns
+     404, not 401, which is easy to misread as "wrong token"):
+
+     ```sh
+     read -rs NEW_PAT   # not an argument, not in shell history
+     curl -sS -o /dev/null -w '%{http_code}\n' \
+       -H "authorization: Bearer $NEW_PAT" \
+       -H "accept: application/vnd.github+json" \
+       https://api.github.com/repos/agusgonzaleznic/agusgonzaleznic.github.io/actions/workflows/deploy.yml
+     # expect 200. 401 = bad/expired token, 404 = repo not selected or
+     # Actions permission missing.
+     ```
+
+  3. Overwrite the SecureString in place, same name (the Lambda reads it by
+     name, so nothing else changes):
+
+     ```sh
+     AWS_PROFILE=root-admin aws ssm put-parameter \
+       --name /agusgonzaleznic-site/webhook/github-pat \
+       --type SecureString --overwrite --value "$NEW_PAT"
+     unset NEW_PAT
+     ```
+
+  4. **No `terraform apply` is needed**, unlike the url-token: no repo secret
+     and no Terraform argument embeds this value. Do not add one.
+  5. Wait ~5 minutes before believing a failure: the handler
+     (`lambda-src/storyblok-rebuild/index.mjs`) caches SSM parameters for 5
+     minutes per warm container, so a warm container keeps using the old PAT
+     until that cache expires.
+  6. Verify end to end: republish any story in Storyblok and check that
+     `deploy.yml` starts (`gh run list --workflow=deploy.yml --limit 3`). A
+     manual `gh workflow run deploy.yml` proves nothing here, it uses your
+     credentials, not the PAT.
+  7. Revoke the old PAT in GitHub, and record the new expiry date.
