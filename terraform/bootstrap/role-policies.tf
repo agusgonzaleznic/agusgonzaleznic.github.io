@@ -439,11 +439,19 @@ data "aws_iam_policy_document" "lambda_exec_boundary" {
     resources = local.lambda_log_group_arns
   }
 
+  # The CEILING for the Lambda exec roles, so it is the union of what the two
+  # functions actually read at runtime and nothing more: the contact function
+  # reads contact/turnstile-secret, the rebuild function reads webhook/url-token
+  # and webhook/github-pat. Anything added under a THIRD prefix later is denied by
+  # default rather than granted in advance, which is the point of a boundary.
   statement {
-    sid       = "ReadSiteParameters"
-    effect    = "Allow"
-    actions   = ["ssm:GetParameter", "ssm:GetParameters"]
-    resources = ["arn:aws:ssm:us-east-1:${local.account_id}:parameter/agusgonzaleznic-site/*"]
+    sid     = "ReadSiteParameters"
+    effect  = "Allow"
+    actions = ["ssm:GetParameter", "ssm:GetParameters"]
+    resources = [
+      "arn:aws:ssm:us-east-1:${local.account_id}:parameter/agusgonzaleznic-site/contact/*",
+      "arn:aws:ssm:us-east-1:${local.account_id}:parameter/agusgonzaleznic-site/webhook/*",
+    ]
   }
 
   statement {
@@ -533,11 +541,24 @@ resource "aws_iam_policy" "lambda_exec_boundary" {
 # --- SSM Parameter Store (read-only; secret values are human-managed) -------
 
 data "aws_iam_policy_document" "ssm" {
+  # Scoped to contact/, not the whole site prefix.
+  #
+  # Terraform reads exactly one parameter: the one it manages,
+  # aws_ssm_parameter.contact_turnstile_secret (contact.tf). There is no
+  # aws_ssm_parameter DATA source anywhere in terraform/, and the webhook
+  # parameters are referenced by NAME only (webhook.tf passes the names to the
+  # Lambda as env vars) because they are human-managed.
+  #
+  # The whole prefix used to be readable, which combined with DecryptViaSsm below
+  # let this role read AND decrypt /agusgonzaleznic-site/webhook/github-pat: a
+  # fine-grained PAT with Actions read and write on this repository. Nothing
+  # needed that, and a role that can reach a token which can dispatch workflows
+  # is a privilege-escalation path, not a convenience.
   statement {
     sid       = "ReadSiteParameters"
     effect    = "Allow"
     actions   = ["ssm:GetParameter", "ssm:GetParameters", "ssm:ListTagsForResource"]
-    resources = ["arn:aws:ssm:us-east-1:${local.account_id}:parameter/agusgonzaleznic-site/*"]
+    resources = ["arn:aws:ssm:us-east-1:${local.account_id}:parameter/agusgonzaleznic-site/contact/*"]
   }
 
   # The contact module MANAGES this param in Terraform (value from the

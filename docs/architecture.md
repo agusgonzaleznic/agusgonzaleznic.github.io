@@ -127,7 +127,14 @@ hreflang `x-default`. The full URL model lives in `src/i18n/locales.ts`.
     `sha256(source + salt)` per locale, shared by PO catalogs, blog richtext, and
     pages. Unchanged English never re-translates; changed English auto-misses.
     Post-edited entries live under a different salt (`POSTEDIT_VERSION`) than raw
-    DeepL, so enabling `ANTHROPIC_API_KEY` upgrades output automatically.
+    DeepL for PO catalogs and blog richtext, so enabling `ANTHROPIC_API_KEY`
+    upgrades those automatically. **Marketing pages are the exception:** they are
+    salted by `PAGE_CACHE_SALT` alone, deliberately, so day-one priming is
+    deterministic whether or not the Claude key is present. A `POSTEDIT_VERSION`
+    bump therefore does NOT regenerate page copy, and because raw and post-edited
+    results would share one key, `fetch-pages` refuses to write a result produced
+    without the post-edit pass (`persistWithoutPostEdit: false`): a keyless-Claude
+    run uses it for that build and reports it, rather than pinning raw MT.
     `REGEN_LOCALES=<csv>` drops one locale's cache (the sanctioned re-translate).
     The global re-translate is a `POSTEDIT_VERSION` bump (or clearing the cache
     file), so don't bump it for a single-locale prompt fix, it regenerates
@@ -254,9 +261,20 @@ Things with no enforcing check (change one, change the other):
 | `AUTO_LOCALES` | `AUTO_TRANSLATED_LOCALES` (MT disclosure) | `scripts/lib/blog-gate.mjs` ↔ `src/i18n/locales.ts` |
 | `PAGE_NON_TEXT` (review app) | `NON_TEXT_FIELDS` (translator + hash) | `scripts/review-translations.mjs` ↔ `scripts/lib/page-translate.mjs` |
 | `PAGE_CACHE_SALT` (`pages-v1`) | same constant in the seeder | `scripts/fetch-pages.mjs` ↔ `scripts/seed-storyblok-pages.mjs` |
+| seeder `PAGES` copy | the published Storyblok stories | `scripts/seed-storyblok-pages.mjs` ↔ the CMS |
+| `enSourceHash` canonical form | every stored `sourceHash` | `scripts/lib/blog-gate.mjs` ↔ `content/i18n-approvals.json` |
 | PO serializer | byte-identical duplicate | `scripts/lib/po.mjs` ↔ inline copy in `scripts/translate.mjs` |
 | Claude model id | three hardcoded copies | `llm-postedit.mjs`, `proofread.mjs`, `tag-i18n.mjs` |
 | ci.yml denylist | deploy.yml `paths-ignore` (±ci.yml itself) | `.github/workflows/` |
+
+Two notes on that list. The Storyblok component SCHEMA is no longer a pair:
+Terraform owns it alone, and `seed-storyblok-pages.mjs` no longer writes it (its
+copy had drifted and a re-run would have de-whitelisted the Links Block). Its
+`PAGES` copy is still a second writer for CONTENT, which is why writing stories is
+now opt-in behind `--write-stories` while priming the cache stays the default. And
+`enSourceHash` is pinned by a fixture in `scripts/lib/blog-gate.test.mjs`: if that
+test fails the canonical form changed, and every stored hash has to be re-pointed
+in the same commit or the DE and ES article variants stop being emitted.
 | Route table (`AppRoutes`) | `routes` array | `src/App.tsx` ↔ `scripts/prerender.mjs` |
 | `MAX_BODY_BYTES` (client) | `MAX_BODY_BYTES` (Lambda) | `src/components/Contact.tsx` ↔ `terraform/contact-lambda-src/index.mjs` |
 

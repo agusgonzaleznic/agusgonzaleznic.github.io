@@ -69,6 +69,21 @@ export function reportTranslationBudget(label, stats) {
 
   appendReport(label, stats);
 
+  const unpersisted = stats.unpersisted ?? [];
+  if (unpersisted.length) {
+    // Not an error: the run is correct, it just cannot be allowed to pin raw MT
+    // into a cache that a later post-edited build would then never revisit.
+    console.log(
+      `::warning title=Translation not cached::${unpersisted.length} string(s) translated without the ` +
+        "post-edit pass, used for this build only",
+    );
+    console.warn(
+      `  ${label}: ${unpersisted.length} string(s) were translated by DeepL alone and deliberately NOT\n` +
+        "    written to the cache, because raw output would occupy the post-edited key forever.\n" +
+        "    Re-run with ANTHROPIC_API_KEY set to translate and cache them properly.",
+    );
+  }
+
   if (violations.length) {
     // The house style forbids the em dash. de/es are normalised to the permitted
     // en dash automatically; fr/it/pt have no safe mechanical rewrite, so they

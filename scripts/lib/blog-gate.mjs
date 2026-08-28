@@ -33,9 +33,28 @@ export const AUTO_LOCALES = ["fr", "it", "pt"];
 // (Keep the "auto" set in sync with AUTO_TRANSLATED_LOCALES in src/i18n/locales.ts.)
 export const AUTO_LOCALE_MODE = { fr: "auto", it: "auto", pt: "auto" };
 
-// Richtext node types whose text is NOT translated (kept verbatim), so they
-// must not contribute to the source hash either (matches richtext-translate).
+// Richtext node types whose text is NOT translated: a translator never retypes a
+// code sample, and richtext-translate skips these subtrees for that reason.
+//
+// They still have to reach the HASH, which is the opposite of what "opaque"
+// suggests. A reviewed DE/ES body is served VERBATIM from content/translations/,
+// so it carries whatever the code said at review time. Skipping code here meant
+// that fixing a broken sample in the English article demoted nothing: the approval
+// stayed fresh and the translated page kept shipping the OLD sample indefinitely,
+// with no signal anywhere. Verified by mutation on the real corpus, where changing
+// consumer_key to client_id inside the one code_block left the hash unchanged.
 const OPAQUE_RICHTEXT = new Set(["code_block"]);
+
+/** Every text string inside a subtree, translated or not, in document order. */
+function collectRaw(node, acc) {
+  if (!node || typeof node !== "object") return;
+  if (Array.isArray(node)) {
+    for (const child of node) collectRaw(child, acc);
+    return;
+  }
+  if (typeof node.text === "string" && node.text) acc.push(node.text);
+  if (Array.isArray(node.content)) collectRaw(node.content, acc);
+}
 
 function collectText(node, acc) {
   if (!node || typeof node !== "object") return;
@@ -43,7 +62,14 @@ function collectText(node, acc) {
     for (const child of node) collectText(child, acc);
     return;
   }
-  if (OPAQUE_RICHTEXT.has(node.type)) return;
+  if (OPAQUE_RICHTEXT.has(node.type)) {
+    // Not translated, but hashed: see the note on OPAQUE_RICHTEXT. Tagged so a
+    // code edit can never be confused with a prose edit of the same text.
+    const code = [];
+    collectRaw(node, code);
+    if (code.length) acc.push(`\u0000code:${code.join("\u0000")}`);
+    return;
+  }
   if (typeof node.text === "string" && node.text) acc.push(node.text);
   // Link TARGETS count as source, even though no translator retypes them.
   //

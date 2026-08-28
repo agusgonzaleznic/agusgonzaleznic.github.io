@@ -32,8 +32,19 @@ export const TARGET_LOCALES = ["de", "es", "fr", "it", "pt"];
 // App locale → DeepL target_lang. PT defaults to European Portuguese; change to
 // "PT-BR" here if Brazilian Portuguese is preferred.
 const DEEPL_TARGET = { de: "DE", es: "ES", fr: "FR", it: "IT", pt: "PT-PT" };
-// Targets that support the formality parameter. All five use prefer_more so the
-// translated copy stays in the same professional register as the English source.
+// Targets that support the formality parameter. All five ask for prefer_LESS,
+// because this site addresses the reader informally in every language: German du,
+// Argentine voseo, and tu in French, Italian and Portuguese. The catalogs are
+// unambiguous about it (de.po carries 75 informal-pronoun hits against a single
+// Sie, which is not even an address; fr.po has 71 tu/ton/te and no vous).
+//
+// This used to ask for prefer_more, rationalised as keeping "the same
+// professional register as the English source". That conflated professional with
+// formal, which are different things: the English source is professional AND
+// informal. The practical consequence was that the documented fail-safe, "a
+// degraded run is merely raw DeepL", degraded into the WRONG REGISTER rather than
+// a rougher one, so a keyless-Claude run could ship a Sie-form headline into a
+// page whose other strings all address the reader as du.
 const FORMALITY_LOCALES = new Set(["de", "es", "fr", "it", "pt"]);
 
 const CACHE_VERSION = 1;
@@ -382,6 +393,12 @@ export function createTranslator({
   // paid API. This is what the deploy gate runs to decide whether anything
   // actually needs translating, and what a build runs when translation is off.
   cacheOnly = false,
+  // Whether a result produced WITHOUT the post-edit pass may be written to the
+  // committed cache. Pages set this false: their salt deliberately does not
+  // include POSTEDIT_VERSION, so a raw-DeepL result occupies the same key as the
+  // post-edited one and, because a hit is never re-edited, would pin raw MT there
+  // permanently. Such a result is still used for the current run.
+  persistWithoutPostEdit = true,
 }) {
   const stats = {
     cacheHits: 0,
@@ -395,6 +412,8 @@ export function createTranslator({
     untranslated: [],
     // Translations carrying an em dash the English did not have.
     dashViolations: [],
+    // Results used for this run but deliberately not written to the cache.
+    unpersisted: [],
   };
   // Once DeepL returns a quota error (HTTP 456), stop calling it for the rest of
   // the run and translate the remaining misses with Claude only (see below).
@@ -404,7 +423,19 @@ export function createTranslator({
     const target = DEEPL_TARGET[locale];
     if (!target) throw new Error(`Unsupported target locale: ${locale}`);
     const store = (cache.translations[locale] ??= {});
-    const formality = FORMALITY_LOCALES.has(locale) ? "prefer_more" : undefined;
+    // Results this run may use but must not commit (see persistWithoutPostEdit).
+    // Discarded when the run ends.
+    const ephemeral = new Map();
+    const persist = postEditor !== null || persistWithoutPostEdit;
+    const keep = (h, source, text) => {
+      if (persist) {
+        store[h] = text;
+        return;
+      }
+      ephemeral.set(h, text);
+      stats.unpersisted.push({ locale, source });
+    };
+    const formality = FORMALITY_LOCALES.has(locale) ? "prefer_less" : undefined;
 
     // Resolve from cache; collect the unique, non-empty misses.
     const results = new Array(texts.length);
@@ -460,7 +491,7 @@ export function createTranslator({
       chunk.forEach(([h, v], j) => {
         const { text, violation } = normaliseDash(restore(out[j] ?? "", v.originals), locale);
         if (violation) stats.dashViolations.push({ locale, source: v.source, translation: text });
-        store[h] = text;
+        keep(h, v.source, text);
         stats.translated += 1;
       });
     }
@@ -471,10 +502,10 @@ export function createTranslator({
     // translate directly; if Claude can't (no key / error), that string keeps the
     // English source (build-safe, never empty). Cache hits are never re-edited.
     if (postEditor && misses.length) {
-      const fromScratch = misses.map(([h]) => store[h] === undefined);
+      const fromScratch = misses.map(([h]) => store[h] === undefined && !ephemeral.has(h));
       const items = misses.map(([h, v], k) => {
         if (fromScratch[k]) stats.claudeFromScratch += 1;
-        return { source: v.source, mt: store[h] ?? v.source };
+        return { source: v.source, mt: store[h] ?? ephemeral.get(h) ?? v.source };
       });
       const edited = await postEditor.postEditBatch(items, locale);
       misses.forEach(([h, v], k) => {
@@ -494,13 +525,17 @@ export function createTranslator({
       // No post-editor: a DeepL-skipped miss has no translation behind it.
       // Report it and leave the cache alone, for the same reason.
       misses.forEach(([h, v]) => {
-        if (store[h] === undefined) stats.untranslated.push({ locale, source: v.source });
+        if (store[h] === undefined && !ephemeral.has(h)) {
+          stats.untranslated.push({ locale, source: v.source });
+        }
       });
     }
 
     // Fill the misses back into their positions.
     texts.forEach((source, i) => {
-      if (results[i] === undefined) results[i] = store[hashSource(source, cacheSalt)] ?? source;
+      if (results[i] !== undefined) return;
+      const h = hashSource(source, cacheSalt);
+      results[i] = store[h] ?? ephemeral.get(h) ?? source;
     });
     return results;
   }

@@ -1,15 +1,27 @@
-// One-time seeder for migrating the marketing pages into Storyblok, run by the
-// owner via `op` (needs STORYBLOK_MANAGEMENT_TOKEN). Idempotent and DRAFT-ONLY
-// for content (publish=0), so it never affects production; re-running updates in
-// place. Three steps:
-//   1. Prime the page-translation cache from the CURRENT Lingui .po catalogs, so
-//      every locale reproduces today's exact wording (nothing changes day one).
-//   2. Ensure the Storyblok component schema matches the design (create/replace
-//      the components below). Mirrors terraform/storyblok.tf.
-//   3. Create/update the DRAFT `pages/<slug>` stories from the current copy.
+// Primes the page-translation cache from the committed Lingui .po catalogs, and,
+// only when asked, writes the DRAFT `pages/<slug>` stories from the copy below.
 //
-// Usage:
-//   op run --env-file ~/.env --no-masking -- node scripts/seed-storyblok-pages.mjs
+// Priming is the default because it is the one job nothing else does: fetch-pages
+// relies on it so every locale reproduces today's exact wording. It needs no
+// token and touches no remote state.
+//
+//   node scripts/seed-storyblok-pages.mjs                  prime the cache only
+//   op run --env-file ~/.env --no-masking -- \
+//     node scripts/seed-storyblok-pages.mjs --write-stories also write drafts
+//
+// WHY WRITING IS OPT-IN. This file is a SECOND WRITER to content the CMS owns, and
+// a second writer goes stale. Its timeline entry once still said the employer was
+// confidential months after that changed, so a re-run would have pushed that back
+// over the published story. Any copy edited in Storyblok, or anywhere else, has to
+// be mirrored here or this script will undo it. Write only deliberately.
+//
+// It no longer touches the component SCHEMA at all. Terraform owns that
+// (terraform/storyblok.tf, and docs/publishing-links.md names it as the source of
+// truth), and this script's copy of it had already drifted: it was missing
+// links_block and link_item, and its `page.body` whitelist omitted links_block, so
+// the wholesale component PUT it used to perform would have de-whitelisted the
+// Links Block from the Visual Editor and left the live schema disagreeing with
+// Terraform state, surfacing as an unexplained diff in the next gated apply.
 //
 // SECURITY: the token is read from env only, sent in the Authorization header,
 // never logged. A non-OK response never echoes the request.
@@ -28,94 +40,6 @@ const catalogsDir = resolve(__dirname, "../src/i18n/catalogs");
 const SPACE_ID = "288632938663524";
 const API = `https://mapi.storyblok.com/v1/spaces/${SPACE_ID}`;
 const PAGE_CACHE_SALT = "pages-v1"; // must match scripts/fetch-pages.mjs
-
-const ICON = [
-  "Lightbulb", "Cog", "Heart", "Target", "ShieldCheck", "MessagesSquare",
-  "Wrench", "TrendingDown", "Shield", "Rocket", "Zap", "Users",
-].map((v) => ({ name: v, value: v }));
-const THEME = [
-  { name: "Accent", value: "accent" },
-  { name: "Primary", value: "primary" },
-];
-
-// ── Schema field helpers ──────────────────────────────────────────────────────
-const T = (pos, display_name, extra = {}) => ({ type: "text", pos, display_name, ...extra });
-const TA = (pos, display_name, extra = {}) => ({ type: "textarea", pos, display_name, ...extra });
-const OPT = (pos, display_name, options, extra = {}) => ({ type: "option", pos, display_name, options, ...extra });
-const BLOKS = (pos, display_name, whitelist) => ({ type: "bloks", pos, display_name, restrict_components: true, component_whitelist: whitelist });
-const BOOL = (pos, display_name) => ({ type: "boolean", pos, display_name, default_value: "true" });
-const nest = (display_name, icon, schema) => ({ display_name, is_root: false, is_nestable: true, icon, schema });
-
-// ── Component schemas (the design's real content model) ───────────────────────
-const COMPONENTS = {
-  text_item: nest("Text", "block-paragraph", { text: TA(0, "Text", { required: true }) }),
-  value_item: nest("Value", "block-sticker", {
-    icon: OPT(0, "Icon", ICON), title: T(1, "Title", { required: true }), description: TA(2, "Description", { required: true }),
-  }),
-  how_i_work_block: nest("How I Work Block", "block-sticker", {
-    heading: T(0, "Heading"), values: BLOKS(1, "Values", ["value_item"]), show_section: BOOL(2, "Show This Section"),
-  }),
-  philosophy_block: nest("Philosophy Block", "block-sticker", {
-    heading: T(0, "Heading"), subheading: TA(1, "Subheading"), principles: BLOKS(2, "Principles", ["principle_item"]), show_section: BOOL(3, "Show This Section"),
-  }),
-  principle_item: nest("Principle", "block-sticker", {
-    icon: OPT(0, "Icon", ICON), title: T(1, "Title", { required: true }), description: TA(2, "Description", { required: true }), color: OPT(3, "Color Theme", THEME, { default_value: "accent" }),
-  }),
-  about_block: nest("About Block", "block-image", {
-    heading: T(0, "Heading", { required: true }), image_alt: T(1, "Image Alt Text"), paragraphs: BLOKS(2, "Paragraphs", ["text_item"]), footnote: TA(3, "Footnote"), show_section: BOOL(4, "Show This Section"),
-  }),
-  service_item: nest("Service Item", "block-suitcase", {
-    title: T(0, "Title", { required: true }), subtitle: T(1, "Subtitle"), description: TA(2, "Description", { required: true }), features: BLOKS(3, "Features", ["text_item"]), format: T(4, "Session Format"), best_for: T(5, "Best For"), featured: { type: "boolean", pos: 6, display_name: "Featured (Most Popular)", default_value: "false" },
-  }),
-  services_block: nest("Services Block", "block-suitcase", {
-    heading: T(0, "Heading"), subheading: TA(1, "Subheading"), services: BLOKS(2, "Services", ["service_item"]), bottom_prompt: TA(3, "Bottom Prompt"), show_section: BOOL(4, "Show This Section"),
-  }),
-  engagement_item: nest("Engagement", "block-comment", {
-    role: T(0, "Role", { required: true }), context: T(1, "Context"), sketch: TA(2, "Sketch", { required: true }),
-  }),
-  testimonials_block: nest("Testimonials Block", "block-comment", {
-    heading: T(0, "Heading"), subheading: TA(1, "Subheading"), engagements: BLOKS(2, "Engagements", ["engagement_item"]), note: TA(3, "Confidentiality Note"), show_section: BOOL(4, "Show This Section"),
-  }),
-  timeline_item: nest("Timeline Item", "block-table", {
-    period: T(0, "Period"), company: T(1, "Company"), role: T(2, "Role", { required: true }), achievement: TA(3, "Achievement", { required: true }),
-  }),
-  stat_item: nest("Stat Item", "block-table-2", {
-    icon: OPT(0, "Icon", ICON), value: T(1, "Value", { required: true }), label: T(2, "Label", { required: true }), description: TA(3, "Description"),
-  }),
-  impact_block: nest("Impact Block", "block-table", {
-    timeline_heading: T(0, "Timeline Heading"), timeline: BLOKS(1, "Timeline", ["timeline_item"]), stats_heading: T(2, "Stats Heading"), stats_subheading: TA(3, "Stats Subheading"), stats: BLOKS(4, "Stats", ["stat_item"]), show_section: BOOL(5, "Show This Section"),
-  }),
-  faq_item: nest("FAQ Item", "block-comment", {
-    question: T(0, "Question", { required: true }), answer: TA(1, "Answer", { required: true }),
-  }),
-  faq_block: nest("FAQ Block", "block-comment", {
-    heading: T(0, "Heading"), subheading: TA(1, "Subheading"), faqs: BLOKS(2, "FAQs", ["faq_item"]), show_section: BOOL(3, "Show This Section"),
-  }),
-  contact_block: nest("Contact Block", "block-email", {
-    heading: T(0, "Heading"), subheading: TA(1, "Subheading"), get_in_touch_heading: T(2, "Get in Touch Heading"), response_time_heading: T(3, "Response Time Heading"), response_time_text: TA(4, "Response Time Text"), discovery_call_heading: T(5, "Discovery Call Heading"), discovery_call_text: TA(6, "Discovery Call Text"), show_section: BOOL(7, "Show This Section"),
-  }),
-  hero_block: nest("Hero Block", "block-block", {
-    badge: T(0, "Badge"), subheading: TA(1, "Subheading"), cta_text: T(2, "CTA Text"), industries_label: T(3, "Industries Label"), industries: TA(4, "Industries (one per line, not translated)"), image_alt: T(5, "Image Alt Text"), show_section: BOOL(6, "Show This Section"),
-  }),
-  page: {
-    display_name: "Page", is_root: true, is_nestable: false, icon: "block-doc",
-    schema: {
-      // Every block type a `page` story may contain. links_block was missing while
-      // the live /links story already used one, so re-running this seeder would
-      // have rewritten the schema with a whitelist that excludes a block already
-      // in published content, after which the block cannot be re-added, and an
-      // out-of-band delete removes it for good.
-      //
-      // Anything added to src/components/storyblok must be added here too. The
-      // seeder is idempotent and safe to re-run, which is exactly why a stale
-      // whitelist is dangerous rather than merely incomplete.
-      body: BLOKS(0, "Page Content", ["hero_block", "about_block", "philosophy_block", "how_i_work_block", "services_block", "impact_block", "testimonials_block", "faq_block", "contact_block", "links_block"]),
-      seo_title: T(1, "SEO Title", { max_length: 60 }),
-      seo_description: TA(2, "SEO Description", { max_length: 160 }),
-      og_image: { type: "asset", pos: 3, display_name: "Social Media Image", filetypes: ["images"] },
-    },
-  },
-};
 
 // ── Page content (English source == current component copy) ───────────────────
 const ti = (text) => ({ component: "text_item", text });
@@ -385,21 +309,6 @@ function addUids(node) {
   return node;
 }
 
-async function ensureSchema() {
-  const { components } = await api("GET", "/components?per_page=100");
-  const byName = Object.fromEntries(components.map((c) => [c.name, c.id]));
-  for (const [name, def] of Object.entries(COMPONENTS)) {
-    const payload = { component: { name, ...def } };
-    if (byName[name]) {
-      await api("PUT", `/components/${byName[name]}`, payload);
-      console.log(`✓ updated component ${name}`);
-    } else {
-      await api("POST", "/components", payload);
-      console.log(`✓ created component ${name}`);
-    }
-  }
-}
-
 async function ensureStories() {
   const { stories } = await api("GET", "/stories?starts_with=pages&per_page=100");
   let folder = stories.find((s) => s.is_folder && s.slug === "pages");
@@ -423,15 +332,21 @@ async function ensureStories() {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 primeCache();
-TOKEN = process.env.STORYBLOK_MANAGEMENT_TOKEN;
-if (!TOKEN) {
-  console.warn("\n⚠ STORYBLOK_MANAGEMENT_TOKEN not set: cache primed only, skipped schema + stories (run via op).");
+
+const WRITE_STORIES = process.argv.includes("--write-stories");
+if (!WRITE_STORIES) {
+  console.log("\n✓ Cache primed. No story was written; pass --write-stories for that.");
   process.exit(0);
 }
+
+TOKEN = process.env.STORYBLOK_MANAGEMENT_TOKEN;
+if (!TOKEN) {
+  console.error("\n--write-stories needs STORYBLOK_MANAGEMENT_TOKEN (run it through op).");
+  process.exit(1);
+}
 try {
-  await ensureSchema();
   await ensureStories();
-  console.log("\n✓ Seed complete (all pages, DRAFT).");
+  console.log("\n✓ Drafts written (all pages, DRAFT).");
 } catch (err) {
   console.error(`\nseed-storyblok-pages: ${err instanceof Error ? err.message : err}`);
   process.exit(1);

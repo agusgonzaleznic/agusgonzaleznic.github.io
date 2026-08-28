@@ -103,6 +103,13 @@ async function translatePagesForLocales(pages) {
     postEditor,
     cacheSalt: PAGE_CACHE_SALT,
     cacheOnly,
+    // A raw-DeepL result must never be written to the cache for pages. The salt
+    // above is fixed on purpose, so raw and post-edited output share one key, and
+    // a hit is never re-edited: a single keyless-Claude run would otherwise pin
+    // raw MT into the committed cache forever, and a POSTEDIT_VERSION bump cannot
+    // recover it because the pages salt ignores POSTEDIT_VERSION. The result is
+    // still used for the run that produced it.
+    persistWithoutPostEdit: false,
   });
 
   // Review gate: a (page, locale) that is approved AND hash-fresh is served

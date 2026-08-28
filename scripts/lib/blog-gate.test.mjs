@@ -44,6 +44,110 @@ const approve = (p, locales) => ({
 
 // ---------------------------------------------------------------- source hash
 
+// ---------------------------------------------- the canonical form is PINNED
+
+// A fixture whose hash is a hardcoded literal.
+//
+// enSourceHash's output is PERSISTED in content/i18n-approvals.json. Nothing else
+// pins it, so any change to the canonical form (a field added to the tuple, a
+// different separator, a different slice length, a change to which node types
+// contribute) silently invalidates every stored hash. approvedGatedLocales then
+// returns [], the DE and ES article variants stop being emitted, and they vanish
+// from dist, from sitemap.xml and from every hreflang cluster while the build
+// prints checkmarks and exits 0.
+//
+// If this test fails, the canonical form changed. That is allowed, but it is never
+// free: re-point every stored sourceHash in content/i18n-approvals.json in the
+// same commit, and update the literal here. Do not "fix" it by recomputing the
+// expected value alone, because that hides exactly the breakage it exists to
+// catch.
+const PINNED = {
+  uuid: "fixture-0000-0000-0000-000000000000",
+  title: "Pinned",
+  excerpt: "A fixture that pins the canonical form.",
+  seo_title: "Pinned | fixture",
+  seo_description: "Pins title, excerpt, both SEO fields, body text, hrefs and code.",
+  body: {
+    type: "doc",
+    content: [
+      { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "A heading" }] },
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Prose with a " },
+          { type: "text", text: "link", marks: [{ type: "link", attrs: { href: "https://example.com/a" } }] },
+          { type: "text", text: " and " },
+          { type: "text", text: "inline_code", marks: [{ type: "code" }] },
+          { type: "text", text: "." },
+        ],
+      },
+      {
+        type: "code_block",
+        attrs: { class: "language-hcl" },
+        content: [{ type: "text", text: 'provider "x" {\n  consumer_key = "K"\n}' }],
+      },
+    ],
+  },
+};
+const PINNED_HASH = "56b8a84bb946a004d3c74c73";
+
+/** Deep clone so a mutation case cannot leak into the next test. */
+const clone = (o) => JSON.parse(JSON.stringify(o));
+
+test("enSourceHash matches its pinned literal", () => {
+  assert.equal(enSourceHash(PINNED), PINNED_HASH);
+  assert.equal(PINNED_HASH.length, 24, "the persisted form is 24 hex chars");
+});
+
+test("editing prose changes the hash", () => {
+  const p = clone(PINNED);
+  p.body.content[1].content[0].text = "Different prose with a ";
+  assert.notEqual(enSourceHash(p), PINNED_HASH);
+});
+
+test("editing a link target changes the hash", () => {
+  // A reviewed body carries its own hrefs, so retargeting a link in the English
+  // has to demote the approval; otherwise the translated page keeps the old URL.
+  const p = clone(PINNED);
+  p.body.content[1].content[1].marks[0].attrs.href = "https://example.com/MOVED";
+  assert.notEqual(enSourceHash(p), PINNED_HASH);
+});
+
+test("editing a code sample changes the hash", () => {
+  // The reason: a reviewed body is served verbatim, so it keeps whatever the code
+  // said at review time. This was the R026 leak, measured on the real corpus.
+  const p = clone(PINNED);
+  p.body.content[2].content[0].text = 'provider "x" {\n  client_id = "K"\n}';
+  assert.notEqual(enSourceHash(p), PINNED_HASH);
+});
+
+test("code text is tagged, so a code edit cannot collide with the same prose edit", () => {
+  const asCode = clone(PINNED);
+  asCode.body.content[2].content[0].text = "collide";
+  const asProse = clone(PINNED);
+  asProse.body.content[2].content[0].text = 'provider "x" {\n  consumer_key = "K"\n}';
+  asProse.body.content[1].content[0].text = "collide";
+  assert.notEqual(enSourceHash(asCode), enSourceHash(asProse));
+});
+
+test("a code MARK is ordinary translatable text, and counts", () => {
+  // Only the code_block NODE type is opaque. Text carrying a `code` mark is
+  // translated normally, so it belongs in the hash like any other prose.
+  const p = clone(PINNED);
+  p.body.content[1].content[3].text = "renamed_code";
+  assert.notEqual(enSourceHash(p), PINNED_HASH);
+});
+
+test("a stale stored hash excludes that locale, which is the demotion path", () => {
+  const approvals = {
+    [PINNED.uuid]: {
+      de: { status: "approved", sourceHash: PINNED_HASH },
+      es: { status: "approved", sourceHash: "0".repeat(24) },
+    },
+  };
+  assert.deepEqual(approvedGatedLocales(PINNED, approvals), ["de"]);
+});
+
 test("enSourceHash is stable across calls and independent of key order", () => {
   const a = post();
   const b = { body: a.body, excerpt: a.excerpt, title: a.title, seo_title: "", seo_description: "", uuid: "u-1" };
@@ -56,9 +160,16 @@ test("enSourceHash changes when translatable content changes", () => {
   assert.notEqual(enSourceHash(post({ excerpt: "Different" })), base);
 });
 
-test("enSourceHash ignores code blocks (they are never translated)", () => {
-  // A code_block is served verbatim, so editing one must NOT demote an approved
-  // translation; the translator's work is unaffected by it.
+test("enSourceHash COUNTS code blocks, because a reviewed body freezes them", () => {
+  // This test used to assert the opposite, on the reasoning that a code_block is
+  // never translated so editing one should not demote an approval. True for the
+  // auto-translated locales, false for the review-gated ones: DE and ES are served
+  // VERBATIM from content/translations/, so the reviewed body carries whatever the
+  // code said at review time. Skipping code here meant fixing a broken sample in
+  // the English article changed nothing in those locales and demoted nothing, so
+  // the wrong sample shipped indefinitely with no signal. Measured on the real
+  // corpus before the change: consumer_key -> client_id inside the one code_block
+  // left the hash byte-identical.
   const withCode = post({
     body: {
       type: "doc",
@@ -73,11 +184,11 @@ test("enSourceHash ignores code blocks (they are never translated)", () => {
       type: "doc",
       content: [
         { type: "paragraph", content: [{ type: "text", text: "Hello" }] },
-        { type: "code_block", content: [{ type: "text", text: "totally different code" }] },
+        { type: "code_block", content: [{ type: "text", text: "totally different command" }] },
       ],
     },
   });
-  assert.equal(enSourceHash(withCode), enSourceHash(withOtherCode));
+  assert.notEqual(enSourceHash(withCode), enSourceHash(withOtherCode));
 });
 
 test("enSourceHash changes when a link TARGET changes", () => {
