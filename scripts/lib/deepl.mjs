@@ -414,6 +414,8 @@ export function createTranslator({
     dashViolations: [],
     // Results used for this run but deliberately not written to the cache.
     unpersisted: [],
+    // Strings where masking left nothing for a translator to read.
+    noTranslatableContent: [],
   };
   // Once DeepL returns a quota error (HTTP 456), stop calling it for the rest of
   // the run and translate the remaining misses with Claude only (see below).
@@ -453,6 +455,20 @@ export function createTranslator({
       }
       if (!missByHash.has(h)) {
         const { payload, originals } = protect(source, glossaryRegex);
+        // Nothing translatable survived masking, so the payload is sentinels only:
+        // DeepL receives zero characters and restore() hands the English back
+        // byte-for-byte. An ICU plural that is the entire message hits this, which
+        // is how a plural could silently stay English.
+        //
+        // This is the precise detector, deliberately not "the result equals its
+        // English source": the committed catalogs legitimately hold 14 to 23
+        // msgstrs per locale identical to their source ("Blog", "FAQ", "DevOps
+        // Lead", the site title), so that test would be false positives all the
+        // way down. This one has none, and it also catches URL-only and
+        // glossary-only strings, which are harmless but worth seeing.
+        if (payload.replace(/<x>\d+<\/x>/g, "").trim() === "") {
+          stats.noTranslatableContent.push({ locale, source });
+        }
         missByHash.set(h, { source, payload, originals });
       }
     });

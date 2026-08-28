@@ -22,19 +22,16 @@ module "s3_main" {
     }
   }
 
-  attach_policy = true
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = ""
-        Effect    = "Allow"
-        Principal = { AWS = "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E3LG1Y2B7NO5P2" }
-        Action    = "s3:GetObject"
-        Resource  = "arn:aws:s3:::${local.domain_name}/*"
-      }
-    ]
-  })
+  # NO bucket policy. The only statement this bucket ever had granted
+  # s3:GetObject to CloudFront Origin Access Identity E3LG1Y2B7NO5P2, which is
+  # not a resource in this config and is not attached to the distribution
+  # (cdn.tf's only origins are github-pages and contact-lambda, so nothing
+  # reads either S3 bucket). OAI ids are AWS-assigned: if that OAI were ever
+  # deleted, no Terraform run could recreate it, and every apply that re-put
+  # the policy would fail MalformedPolicy on a resource serving no traffic.
+  # Do not reintroduce a hardcoded principal here; if an origin ever needs to
+  # read this bucket, give it an OAC (see contact.tf) or a
+  # TF-managed aws_cloudfront_origin_access_identity.
 
   cors_rule = [
     {

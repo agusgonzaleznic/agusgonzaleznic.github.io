@@ -150,11 +150,29 @@ async function translatePagesForLocales(pages) {
   // untouched rather than rewriting it byte-for-byte.
   if (!cacheOnly) saveCache(cachePath, cache);
   if (postEditor) {
-    const { postEdited, keptMt, failures } = postEditor.stats;
+    const { postEdited, keptMt, failures, calls } = postEditor.stats;
     console.log(
       `✓ fetch-pages: LLM post-edit: ${postEdited} refined, ${keptMt} kept as raw DeepL` +
         `${failures ? `, ${failures} call(s) failed` : ""}.`,
     );
+    // Those counts sit in a collapsed step log under a green tick, so a pass that
+    // failed WHOLESALE (revoked key, lapsed billing) shipped locale copy that
+    // bypassed the entire voice standard with no CI signal at all. Annotate in
+    // ADDITION to the line above, so the counts stay in the log either way.
+    //
+    // A re-run is owed, not just a second look: persistWithoutPostEdit only
+    // withholds a result when there is no post-editor at all, so a FAILED call
+    // still writes its raw DeepL text to the committed cache, and PAGE_CACHE_SALT
+    // ignores POSTEDIT_VERSION, so no version bump can dislodge it.
+    if (failures) {
+      // failures/calls, not keptMt: keptMt counts only strings a SUCCESSFUL call
+      // declined to improve, so a wholesale failure leaves it at 0 while every
+      // string behind those calls shipped raw.
+      console.log(
+        `::warning title=LLM post-edit degraded::${failures} of ${calls} post-edit call(s) failed, ` +
+          "so the locale strings behind them shipped as raw DeepL. Re-run with REGEN_LOCALES for those locales.",
+      );
+    }
   }
 }
 
