@@ -14,17 +14,132 @@
       "published_date": "2026-01-15 09:00",
       "first_published_at": "2026-01-15T09:00:00.000Z",
       "published_at": "2026-01-15T09:00:00.000Z",
-      "tag_list": ["fixture", "leadership"],
+      "tag_list": [
+        "fixture",
+        "leadership"
+      ],
       "cover_image": {
         "filename": "https://a.storyblok.com/f/288632938663524/1600x900/fixture/cover.jpg",
         "alt": "Fixture cover image"
       },
-      "approved_locales": ["en", "de", "es", "fr", "it", "pt"],
+      "approved_locales": [
+        "en",
+        "de",
+        "es",
+        "fr",
+        "it",
+        "pt"
+      ],
       "body": {
         "type": "doc",
         "content": [
-          { "type": "paragraph", "content": [{ "type": "text", "text": "Fixture body paragraph. Present so the article route renders real content and the RSS item has a description." }] },
-          { "type": "code_block", "content": [{ "type": "text", "text": "npm run build" }] }
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Fixture body paragraph. Present so the article route renders real content and the RSS item has a description."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Fixture heading for the anchor label"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A root-relative link to "
+              },
+              {
+                "type": "text",
+                "text": "the about page",
+                "marks": [
+                  {
+                    "type": "link",
+                    "attrs": {
+                      "href": "/about",
+                      "linktype": "url"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "text": ", a fragment link to "
+              },
+              {
+                "type": "text",
+                "text": "a section",
+                "marks": [
+                  {
+                    "type": "link",
+                    "attrs": {
+                      "href": "#fixture-heading-for-the-anchor-label",
+                      "linktype": "url"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "text": ", an already-prefixed link to "
+              },
+              {
+                "type": "text",
+                "text": "the German about page",
+                "marks": [
+                  {
+                    "type": "link",
+                    "attrs": {
+                      "href": "/de/about",
+                      "linktype": "url"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "text": ", and an external one to "
+              },
+              {
+                "type": "text",
+                "text": "example.com",
+                "marks": [
+                  {
+                    "type": "link",
+                    "attrs": {
+                      "href": "https://example.com/",
+                      "linktype": "url"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "text": "."
+              }
+            ]
+          },
+          {
+            "type": "code_block",
+            "content": [
+              {
+                "type": "text",
+                "text": "npm run build"
+              }
+            ]
+          }
         ]
       }
     },
@@ -41,13 +156,26 @@
       "published_date": "2026-01-10 09:00",
       "first_published_at": "2026-01-10T09:00:00.000Z",
       "published_at": "2026-01-10T09:00:00.000Z",
-      "tag_list": ["fixture"],
+      "tag_list": [
+        "fixture"
+      ],
       "cover_image": null,
-      "approved_locales": ["en", "de"],
+      "approved_locales": [
+        "en",
+        "de"
+      ],
       "body": {
         "type": "doc",
         "content": [
-          { "type": "paragraph", "content": [{ "type": "text", "text": "Fixture body for the partially approved article." }] }
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Fixture body for the partially approved article."
+              }
+            ]
+          }
         ]
       }
     },
@@ -64,13 +192,25 @@
       "published_date": "2026-01-05 09:00",
       "first_published_at": "2026-01-05T09:00:00.000Z",
       "published_at": "2026-01-05T09:00:00.000Z",
-      "tag_list": ["fixture"],
+      "tag_list": [
+        "fixture"
+      ],
       "cover_image": null,
-      "approved_locales": ["en"],
+      "approved_locales": [
+        "en"
+      ],
       "body": {
         "type": "doc",
         "content": [
-          { "type": "paragraph", "content": [{ "type": "text", "text": "Fixture body for the syndicated article." }] }
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Fixture body for the syndicated article."
+              }
+            ]
+          }
         ]
       }
     }

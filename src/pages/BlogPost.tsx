@@ -188,7 +188,7 @@ const BlogPostPage = () => {
               )}
 
               <div className="max-w-[70ch]">
-                <RichText document={body} />
+                <RichText document={body} locale={locale} />
               </div>
 
               {/* Author box: every post links back to the coaching pages

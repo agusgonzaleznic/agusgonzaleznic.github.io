@@ -10,6 +10,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { RichText } from "@/components/blog/RichText";
 import { storyblokImage, type BlogImage, type RichtextNode } from "@/lib/richtext";
+import { SOURCE_LOCALE } from "@/i18n/locales";
 import { CoverImage } from "@/components/blog/CoverImage";
 import type { PageBlock, PageContent, PagePreviewProps } from "@/lib/pages";
 // The real production page wrappers: rendered (fed the draft) so a page
@@ -81,7 +82,13 @@ const BlogPostPreview = ({ content }: { content: BlogPostContent }) => {
               </figure>
             )}
             <div className="max-w-[70ch]">
-              <RichText document={content.body ?? null} />
+              <RichText
+                  document={content.body ?? null}
+                  // The Visual Editor preview has no locale prefix in its URL and
+                  // renders the draft as authored, which is the English source.
+                  // Stated rather than defaulted, so the choice is visible.
+                  locale={SOURCE_LOCALE}
+                />
             </div>
           </div>
         </div>
