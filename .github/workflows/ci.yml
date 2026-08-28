@@ -9,6 +9,15 @@ on:
   # Allow manual workflow dispatch
   workflow_dispatch:
 
+# Supersede an in-flight run when the branch is pushed again. deploy.yml,
+# terraform.yml and synthetic.yml all set one of these; ci.yml did not, so three
+# pushes in a minute queued three builds AND three browser suites against commits
+# nobody was waiting on any more. Never cancels on the default branch, where each
+# commit's result is a record worth keeping.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 # Skip-job pattern: the workflow ALWAYS runs (no top-level paths filter), so the
 # required status check "CI required" always reports. A cheap `changes` job
 # decides whether the site actually changed; the expensive build only runs when
@@ -50,7 +59,14 @@ jobs:
             echo "No PR diff (dispatch) → building and testing."
             exit 0
           fi
-          changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          # --no-renames, deliberately. With rename detection on, `git mv
+          # src/Thing.tsx docs/Thing.md` prints ONLY docs/Thing.md, so a file moved
+          # OUT of the site into a denylisted path reads as a docs-only change and
+          # skips both the build and the browser suite, while the import it left
+          # behind is broken. Measured on git 2.55.0: --name-only gives one path,
+          # --name-status --no-renames gives the delete AND the add, so the source
+          # path is seen and site=true. cut -f2- drops the status column.
+          changed="$(git diff --name-status --no-renames "$BASE_SHA" "$HEAD_SHA" | cut -f2-)"
           echo "Changed files:"; echo "$changed"
           site=false
           tests=false
@@ -166,6 +182,85 @@ jobs:
   # The required status check. Always runs (needs + if: always()), so branch
   # protection always gets a result. Green when the build passed OR was skipped
   # (site unaffected); red only when the build actually ran and failed.
+  # The 46 browser tests that drive the BUILT site: hydration on all 84 documents,
+  # client-side navigation, the contact form's client validation, the mobile menu,
+  # the real 404, and the per-locale page-data loader.
+  #
+  # WHEN IT RUNS: exactly when the built site can be affected, reusing the SAME
+  # `changes.outputs.site` signal the build job uses rather than a second path list
+  # that would drift from it. That signal is a DENYLIST, so it is true unless every
+  # changed file is infra, docs or CI-only config: a terraform-only or docs-only PR
+  # skips this job, and anything touching src/, index.html, the catalogs, the build
+  # scripts, tests/e2e or a dependency runs it. Fail-safe in the right direction,
+  # since a missed run is a regression shipped and a needless run costs two minutes.
+  #
+  # WHY IT BUILDS ITS OWN dist: the reusable build workflow's `artifact-path` input
+  # only VERIFIES the directory exists, it uploads nothing (checked: a CI run has
+  # zero artifacts), so there is no artifact to download. The duplicate build is the
+  # price, and it runs in parallel with the build job rather than after it, so it
+  # costs latency only when both would have failed anyway.
+  #
+  # NO SECRETS, so this works on a fork PR: the build is the same tokenless
+  # `BLOG_FIXTURE=1` one the build job runs, and the suite adapts to that mode. See
+  # tests/e2e/locale-page-data.test.mjs for why both modes assert something real.
+  e2e:
+    name: End-to-end tests
+    needs: changes
+    if: needs.changes.outputs.site == 'true'
+    runs-on: ubuntu-latest
+    # A hung browser would otherwise sit here until the 6-hour default.
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Cache the browser download only. System deps are installed every run
+      # because they live outside this path, so a cache hit with missing libs
+      # would fail in a way that looks like a browser bug.
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install chromium
+        run: |
+          npx playwright install-deps chromium
+          npx playwright install chromium
+
+      # Byte-for-byte the build job's command, and note WHICH invariants that
+      # buys. This build has no Storyblok token, so the suite takes its tokenless
+      # branch: no page-data chunk, one preload hint, and the hardcoded fallback
+      # copy must hydrate clean. That is a real production path, the one taken when
+      # the CMS is unreachable at build time, and nothing had exercised it in a
+      # browser before. It is NOT the CMS branch though: the assertions that the
+      # CMS-only copy survives hydration and that two hints are emitted run only
+      # where a Storyblok token exists, which today means a developer's machine.
+      # The regression that motivated the suite, an eager glob returning all six
+      # locales to the entry chunk, IS covered in both modes by a source-level
+      # check in tests/e2e/locale-page-data.test.mjs. So the residual gap is the
+      # hint emission and the CMS copy survival, not the bundle size. The suite
+      # prints the mode it detected, so a green check is never silent about which
+      # set it measured.
+      - name: Build the site
+        run: BLOG_FIXTURE=1 npm run build
+
+      - name: Run the browser suite
+        env:
+          # Playwright's own chromium, which is what `playwright install` provides.
+          # The local default is channel "chrome", a browser the runner lacks.
+          E2E_CHANNEL: bundled
+        run: npm run test:e2e
+
   # House style, enforced rather than remembered. A one-time sweep decays: the
   # next comment or piece of copy reintroduces the character and review misses it.
   # Unconditional and cheap, because the rule covers every tracked text file, not
@@ -186,7 +281,7 @@ jobs:
 
   ci-required:
     name: CI required
-    needs: [changes, build, unit-tests, no-em-dash]
+    needs: [changes, build, unit-tests, no-em-dash, e2e]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -201,8 +296,9 @@ jobs:
           # form `needs.unit-tests.result` parses as a subtraction.
           TESTS_RESULT: ${{ needs['unit-tests'].result }}
           DASH_RESULT: ${{ needs['no-em-dash'].result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
         run: |
-          echo "changes=${CHANGES_RESULT} site=${SITE} build=${BUILD_RESULT} tests=${TESTS_RESULT} dash=${DASH_RESULT}"
+          echo "changes=${CHANGES_RESULT} site=${SITE} build=${BUILD_RESULT} tests=${TESTS_RESULT} dash=${DASH_RESULT} e2e=${E2E_RESULT}"
           # The detection job itself must have succeeded. Without this, a
           # checkout/network failure in `changes` made `build` "skipped" and this
           # gate went GREEN having built and tested nothing.
@@ -224,4 +320,10 @@ jobs:
             echo "::error::Em dash check did not pass (${DASH_RESULT})."
             exit 1
           fi
-          echo "OK (build ${BUILD_RESULT:-skipped}, tests ${TESTS_RESULT:-skipped})"
+          # Conditional on changes.outputs.site, so "skipped" is a real and
+          # correct outcome here, unlike the em dash check above which always runs.
+          if [ "$E2E_RESULT" = "failure" ] || [ "$E2E_RESULT" = "cancelled" ]; then
+            echo "::error::End-to-end tests failed."
+            exit 1
+          fi
+          echo "OK (build ${BUILD_RESULT:-skipped}, tests ${TESTS_RESULT:-skipped}, e2e ${E2E_RESULT:-skipped})"

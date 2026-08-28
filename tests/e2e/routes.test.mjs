@@ -45,7 +45,9 @@
 
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
-import { BASE, openBrowser, pageAt, markSpa, stayedSpa } from "./helpers.mjs";
+import { BASE, openBrowser, pageAt, markSpa, stayedSpa,
+  HYDRATED,
+} from "./helpers.mjs";
 
 // page.evaluate/waitForFunction callbacks are serialised and run in the BROWSER,
 // so they use globals this Node process does not have. eslint.config.js gives
@@ -146,24 +148,8 @@ async function installProductionUrlShape(target, { corrupt } = {}) {
   });
 }
 
-/**
- * True once React has rendered the whole tree under #root.
- *
- * Deliberately not `__reactContainer$` on #root: hydrateRoot() stamps that when
- * the root is CREATED, before hydrating anything, so it only says "started".
- * React attaches `__reactProps$` to each DOM node as it renders that node, so
- * the LAST node inside #root is the last to get one: a whole-tree signal.
- *
- * Verified rather than assumed: running this file with every *.js request
- * aborted times out here after 15s instead of sailing through on un-hydrated
- * server markup, which is what a check on the prerendered DOM alone (an <h1>
- * exists, #root has children) would have done.
- */
-const HYDRATED = () => {
-  const nodes = document.querySelectorAll("#root *");
-  const last = nodes[nodes.length - 1];
-  return !!last && Object.keys(last).some((k) => k.startsWith("__reactProps$"));
-};
+// HYDRATED now lives in ./helpers.mjs, so every suite that needs to know whether
+// the client actually ran uses the same verified predicate instead of a copy.
 
 /**
  * Navigate to a canonical route URL and return once it is hydrated AND any
@@ -335,9 +321,19 @@ test("the mismatch detector itself is not asleep", async () => {
   });
 
   await visit(canary, "/about");
-  const react = canaryErrors.filter((e) =>
-    /Minified React error #(418|422|423|425)|hydrat|did not match/i.test(e),
-  );
+  // POLL for the diagnostic rather than trusting visit()'s two-frame wait. That
+  // budget is enough on a fast laptop and measured NOT to be on a CI runner, where
+  // CDP delivery of the console event lags further: the canary failed there with
+  // "Collected: []", which is exactly what it exists to detect and would have read
+  // as the detector being broken. The error arrives in milliseconds when it arrives
+  // at all, so a genuinely absent diagnostic still fails in about a second.
+  const isReact = (e) => /Minified React error #(418|422|423|425)|hydrat|did not match/i.test(e);
+  const deadline = Date.now() + 5000;
+  let react = canaryErrors.filter(isReact);
+  while (react.length === 0 && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    react = canaryErrors.filter(isReact);
+  }
   assert.ok(
     react.length > 0,
     `a planted hydration mismatch produced no React diagnostic. Collected: ${JSON.stringify(canaryErrors)}`,

@@ -431,7 +431,7 @@ test("closing in place hands focus back to the toggle", async () => {
   await p2.close();
 });
 
-test("following a nav link replaces the nav, so focus is NOT restored", async () => {
+test("following a nav link leaves focus consistent with whether the nav survived", async () => {
   // The boundary case the hook's `document.contains(previouslyFocused)` guard
   // exists for. <Navigation> renders inside each page component and every route
   // except Index is a lazy chunk under <Suspense fallback={null}> (src/App.tsx),
@@ -460,16 +460,36 @@ test("following a nav link replaces the nav, so focus is NOT restored", async ()
       capturedStillAttached: document.contains(window.__toggleAtOpen),
       capturedIsCurrentToggle: window.__toggleAtOpen === document.querySelector(sel),
       activeIsBody: document.activeElement === document.body,
+      activeIsCaptured: document.activeElement === window.__toggleAtOpen,
     }),
     TOGGLE,
   );
-  assert.equal(
-    outcome.capturedStillAttached,
-    false,
-    "if the nav now SURVIVES a route change, assert restoration here instead",
-  );
-  assert.equal(outcome.capturedIsCurrentToggle, false, "the new nav is a new element");
-  assert.equal(outcome.activeIsBody, true);
+
+  // BOTH outcomes are correct, so branch on which happened instead of pinning one.
+  // Every route except Index is a lazy chunk under <Suspense fallback={null}>, so
+  // following a link unmounts the nav ONLY IF that chunk is not already resolved.
+  // When it resolves fast enough React commits the destination without ever
+  // showing the fallback, and the very same toggle element survives. That is what
+  // happened on a CI runner, where this assertion failed with "true !== false",
+  // and it is what the previous message ("if the nav now SURVIVES a route change,
+  // assert restoration here instead") anticipated. The guard's contract is the
+  // invariant worth holding: focus returns to the captured element if and only if
+  // that element is still in the document.
+  if (outcome.capturedStillAttached) {
+    assert.equal(
+      outcome.capturedIsCurrentToggle,
+      true,
+      "the nav survived the route change, so the captured toggle is still the live one",
+    );
+    assert.equal(
+      outcome.activeIsCaptured,
+      true,
+      "the captured element is still in the document, so the hook must restore focus to it",
+    );
+  } else {
+    assert.equal(outcome.capturedIsCurrentToggle, false, "the new nav is a new element");
+    assert.equal(outcome.activeIsBody, true, "the captured element is detached, so focus falls to body");
+  }
   assert.deepEqual(errors, []);
   await page.close();
 });

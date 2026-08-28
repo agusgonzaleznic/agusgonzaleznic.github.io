@@ -183,7 +183,26 @@ test("the NotFound view sends a dead-end visitor back in, client-side", async ()
   //    `routes` vs App.tsx's <Route> table). A path present in dist but absent
   //    from the route table serves fine on a direct hit and falls through to the
   //    catch-all "*" on a client-side click, which is precisely this assertion.
+  // Wait for the CONTENT, not just the URL. react-router pushes the new path
+  // before the lazy() destination has rendered, so `main` can still hold the 404
+  // view for a beat. Same race as the /de/ test below: it passed under the local
+  // Chrome and flaked under the bundled chromium CI uses. The catch is deliberate,
+  // so a real regression fails on the readable assertion rather than a timeout.
+  await page
+    .waitForFunction(
+      () => {
+        // POSITIVE predicate. `!text.startsWith("404")` alone is satisfied by a
+        // MISSING or EMPTY main, so it can return inside the very Suspense gap it
+        // was added to wait past, and the assertion below then reads that same
+        // blank. Require real content first, then require it not to be the 404.
+        const text = (document.querySelector("main")?.innerText ?? "").trim();
+        return text.length > 0 && !text.startsWith("404");
+      },
+      { timeout: 10000 },
+    )
+    .catch(() => {});
   const mainText = await page.textContent("main");
+  assert.ok(mainText.trim().length > 0, `client navigation to ${target} left main empty`);
   assert.ok(
     !mainText.trimStart().startsWith("404"),
     `client navigation to ${target} landed on the 404 view again`,
@@ -333,9 +352,33 @@ test("an unknown path under a locale prefix keeps the locale", async () => {
   await markSpa(de.page);
   await de.page.click("main nav ul li a");
   await de.page.waitForURL((url) => url.pathname === target, { timeout: 10000 });
+  // The URL is NOT the finish line. react-router pushes the new path immediately,
+  // but the destination component is lazy() behind Suspense, so `main` can still
+  // hold the 404 view for a beat afterwards. Waiting only on the URL made the
+  // assertion below a race: it passed under the locally installed Chrome and
+  // failed 2 runs in 3 under Playwright's bundled chromium, which is what CI
+  // uses. Wait for the CONTENT, which is what the assertion is about.
+  //
+  // The catch is deliberate: on a real regression this wait times out, and the
+  // assertion below then produces the readable message instead of a bare timeout.
+  await de.page
+    .waitForFunction(
+      () => {
+        // POSITIVE predicate. `!text.startsWith("404")` alone is satisfied by a
+        // MISSING or EMPTY main, so it can return inside the very Suspense gap it
+        // was added to wait past, and the assertion below then reads that same
+        // blank. Require real content first, then require it not to be the 404.
+        const text = (document.querySelector("main")?.innerText ?? "").trim();
+        return text.length > 0 && !text.startsWith("404");
+      },
+      { timeout: 10000 },
+    )
+    .catch(() => {});
   assert.equal(await stayedSpa(de.page), true, "the localized exit link did a full page reload");
+  const deMain = await de.page.textContent("main");
+  assert.ok(deMain.trim().length > 0, `client navigation to ${target} left main empty`);
   assert.ok(
-    !(await de.page.textContent("main")).trimStart().startsWith("404"),
+    !deMain.trimStart().startsWith("404"),
     `client navigation to ${target} landed on the 404 view again`,
   );
 

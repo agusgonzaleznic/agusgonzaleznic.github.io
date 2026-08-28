@@ -83,8 +83,16 @@ const specs = readdirSync(resolve(root, "tests", "e2e"))
   .sort()
   .map((f) => `tests/e2e/${f}`);
 
-if (specs.length === 0) {
-  console.error("e2e: no tests/e2e/*.test.mjs files found, so nothing would run.");
+// A FLOOR, not a zero check. Deleting a spec file, or renaming one out of tests/,
+// is a silent loss: the runner runs what is left and reports a green pass. Raise
+// this deliberately when a suite is added.
+const MIN_SPECS = 5;
+if (specs.length < MIN_SPECS) {
+  console.error(
+    `e2e: found ${specs.length} spec file(s) in tests/e2e, expected at least ${MIN_SPECS}` +
+      `${specs.length ? `: ${specs.join(", ")}` : ""}.\n` +
+      "     Either a suite went missing, or MIN_SPECS in this file needs raising.",
+  );
   stop();
   process.exit(1);
 }
