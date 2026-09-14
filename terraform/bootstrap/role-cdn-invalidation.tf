@@ -32,9 +32,31 @@ data "aws_iam_policy_document" "cdn_invalidation_trust" {
       # distribution. Its deploy has to clear that subtree or the canonical URL
       # serves stale HTML for the CDN's 600s TTL, which is indistinguishable from
       # a failed deploy.
+      #
+      # drive-berlin is listed TWICE, and the second form is the one that
+      # actually matches today. That repository has GitHub's immutable subject
+      # claims enabled, so its OIDC token carries numeric IDs rather than names:
+      #
+      #   repo:agusgonzaleznic@85371331/drive-berlin@1324040618:ref:refs/heads/main
+      #
+      # 85371331 is the owner ID and 1324040618 is the repository ID, both stable
+      # across renames, which is the entire point of the feature: drive-berlin was
+      # renamed from german-driving-school, and a name-based subject would have
+      # followed the rename rather than the repository.
+      #
+      # Check the current setting with:
+      #   gh api repos/agusgonzaleznic/drive-berlin/actions/oidc/customization/sub
+      #
+      # The name form is kept so the policy still matches if the setting is ever
+      # turned off. It is not a weakening: both subjects denote the same
+      # repository under an account only this owner controls. It matters because
+      # the consumer of this role tolerates its own failure, so a subject mismatch
+      # is silent, and a policy that only matches one of the two settings would
+      # break the cache invalidation without anything going red.
       values = [
         "repo:${var.github_org}/${var.github_repo}:ref:refs/heads/main",
         "repo:${var.github_org}/drive-berlin:ref:refs/heads/main",
+        "repo:${var.github_org}@85371331/drive-berlin@1324040618:ref:refs/heads/main",
       ]
     }
   }
