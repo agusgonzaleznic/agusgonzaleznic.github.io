@@ -72,7 +72,7 @@ jobs:
     # Pinned to a commit SHA (not @main) so a mutable branch ref can't be used to
     # inject malicious steps into a deploy that holds secrets + Pages write access.
     # Update the SHA deliberately on upgrade.
-    uses: agusgonzaleznic/github-reusable-workflows/.github/workflows/vite-build-deploy.yml@ee1cc3d04e2a1cf7998da955c0093c43c20fa199 # v1.1.0
+    uses: agusgonzaleznic/github-reusable-workflows/.github/workflows/vite-build-deploy.yml@d729884573689aa39e1153d171c48d938b757280 # v1.2.0
     permissions:
       contents: read
       pages: write
