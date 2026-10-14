@@ -1,0 +1,40 @@
+# Version updates for the site's npm packages and its GitHub Actions.
+#
+# Updates wait a week after their release, so that a compromised version is
+# more likely to be found and pulled before it gets here. Security updates do
+# not wait.
+#
+# Terraform (terraform/ and terraform/bootstrap/) is not listed: its pull
+# request plan needs the Cloudflare API token, an Actions secret, and workflows
+# triggered by Dependabot cannot read Actions secrets, so every Terraform update
+# would arrive with a failed plan.
+version: 2
+updates:
+  # Minor and patch updates arrive as one grouped pull request. Each major
+  # arrives on its own, since a major can need a migration.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      npm-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Every action in .github/workflows is pinned to a commit SHA with its version
+  # in a comment; Dependabot bumps both together. This includes the reusable
+  # workflows from agusgonzaleznic/github-reusable-workflows, so a new release
+  # there arrives here as a pull request.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
