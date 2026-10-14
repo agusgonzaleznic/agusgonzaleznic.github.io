@@ -251,6 +251,15 @@ All colors MUST be HSL
    alongside core's transition-delay. Converting them to `@utility` (what the
    upgrade tool does) lets Tailwind re-sort them and changed the card hover.
    Trade-off: no variants (`md:hover-lift`); nothing uses one. */
+
+/* Registered, so it computes to px on the element that sets it and is inherited
+   as px. .text-fluid-4xl sets it; the title's .underline-squiggle reads it. */
+@property --fluid-font-size {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
 @layer utilities {
   /* Fluid typography */
   .text-fluid-xs {
@@ -282,7 +291,8 @@ All colors MUST be HSL
   }
   
   .text-fluid-4xl {
-    font-size: clamp(2.5rem, 1.75rem + 3.75vw, 4.5rem);
+    --fluid-font-size: clamp(2.5rem, 1.75rem + 3.75vw, 4.5rem);
+    font-size: var(--fluid-font-size);
   }
 
   /* Custom animations */
@@ -409,6 +419,19 @@ All colors MUST be HSL
     padding-bottom: 1rem;
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
+  }
+
+  /* Chrome's full-page capture (captureBeyondViewport, used by Playwright and
+     other screenshot tools) lays the page out again at a temporary size. In
+     about one capture in three, that pass gave this span, and only this span,
+     about 40px (the floor of the title's clamp()) instead of 72px, so the title
+     re-wrapped in the screenshot. It needs both the inherited vw-based size
+     and a background image on the span. Reading the size from the registered
+     property, already computed to px on the title, removes the race: 0 odd
+     captures in 36, against 9 in 24 without it. Browsers render the same size
+     either way. */
+  .text-fluid-4xl .underline-squiggle {
+    font-size: var(--fluid-font-size);
   }
 }
 
