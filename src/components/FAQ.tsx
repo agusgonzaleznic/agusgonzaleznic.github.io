@@ -15,7 +15,7 @@ export const FAQ = ({ block }: { block?: FaqBlock }) => {
   return (
     // Tinted bloom (see the plain/tinted alternation convention): the /faq
     // page's single section reads better tinted between the plain nav/footer.
-    <section id="faq" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
+    <section id="faq" className={`${SECTION_PADDING} bg-linear-to-b/srgb from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-3xl mx-auto">
           {/* Section header */}

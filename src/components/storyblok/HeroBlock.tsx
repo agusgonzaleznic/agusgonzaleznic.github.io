@@ -36,7 +36,7 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
     <section
       {...editableProps(blok)}
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-secondary/30 to-background"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-linear-to-b/srgb from-background via-secondary/30 to-background"
     >
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -107,7 +107,7 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
             <div className="relative animate-fade-in delay-200">
               <div className="relative aspect-square max-w-lg mx-auto">
                 {/* Glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-accent/5 rounded-3xl blur-2xl" />
+                <div className="absolute inset-0 bg-linear-to-br/srgb from-accent/20 to-accent/5 rounded-3xl blur-2xl" />
 
                 {/* Image container */}
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl hover-lift">
@@ -119,7 +119,7 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
                     width="512"
                     height="512"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t/srgb from-primary/20 to-transparent" />
                 </div>
               </div>
             </div>

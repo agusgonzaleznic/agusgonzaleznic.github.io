@@ -136,7 +136,7 @@ export const Links = ({ block }: { block?: LinksBlock }) => {
               combined image+text link), so the link's accessible name is the name. */}
           <LocaleLink
             to="/"
-            className="group flex flex-col items-center rounded-2xl outline-none transition focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+            className="group flex flex-col items-center rounded-2xl outline-hidden transition focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 focus-visible:ring-offset-background"
           >
             <img
               src={profileImage}

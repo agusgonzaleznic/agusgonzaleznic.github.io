@@ -277,8 +277,27 @@ test fails the canonical form changed, and every stored hash has to be re-pointe
 in the same commit or the DE and ES article variants stop being emitted.
 | Route table (`AppRoutes`) | `routes` array | `src/App.tsx` ↔ `scripts/prerender.mjs` |
 | `MAX_BODY_BYTES` (client) | `MAX_BODY_BYTES` (Lambda) | `src/components/Contact.tsx` ↔ `terraform/contact-lambda-src/index.mjs` |
+| Pre-paint shell tokens (`--accent`, `--border`, ...) | `:root` tokens | `index.html` inline `<style>` ↔ `src/index.css` |
 
 And the traps that aren't pairs:
+
+- Tailwind 4 puts all of its CSS in cascade layers, and a rule outside any layer
+  beats every layered rule, whatever the source order. Hand-written CSS has to sit
+  in a layer: the `index.html` pre-paint shell is in `@layer base`, behind an
+  explicit `@layer properties, theme, base, components, utilities;`, and the
+  site's own utilities stay plain CSS in `@layer utilities` after
+  `@import 'tailwindcss'`, so they keep v3's "custom after core" order (that is
+  what lets `.hover-lift` override `transition-all`). Outside a layer, the shell's
+  stale `--accent` and its `*{border-color}` silently overrode the stylesheet.
+  The same rule applies to any stylesheet a library injects at runtime: sonner's
+  outranks every utility in `ui/sonner.tsx`, whatever their specificity, so the
+  answer is an unlayered, more specific rule in `src/index.css` (there is one for
+  the toast), never a longer utility stack.
+- Theme colours resolve once, at `:root` (`--color-border: hsl(var(--border))` is
+  computed there and inherited as a value). Overriding a token such as `--accent`
+  or adding `.dark` on a wrapper no longer recolours the utilities inside it;
+  under v3 each element re-evaluated `hsl(var(--x))`. The site never does either
+  today.
 
 - `gtag()` must stay a `function` pushing the live `arguments` object: gtag.js
   silently ignores plain-array pushes; a refactor to rest parameters kills analytics

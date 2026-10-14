@@ -1,6 +1,107 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Scan only the .ts and .tsx files under src for class names, as the v3
+   `content` globs did. Tailwind 4 would otherwise scan every file that is not
+   gitignored (docs, scripts, tests), and any class-like word in them, comments
+   included, lands in the bundle. */
+@import 'tailwindcss' source(none);
+@source './**/*.{ts,tsx}';
+
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+@theme {
+  --font-sans: Inter, Inter Fallback, system-ui, sans-serif;
+  --font-serif: Playfair Display, Playfair Display Fallback, Georgia, serif;
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-hover: hsl(var(--accent-hover));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* The theme owns these values outright: Tailwind 4 reads `--shadow-*` from the
+     theme namespace, so a `:root` copy of the same names would make each one
+     refer to itself. */
+  --shadow-sm: 0 2px 8px -2px hsl(220 15% 12% / 0.08);
+  --shadow-md: 0 8px 24px -8px hsl(220 15% 12% / 0.12);
+  --shadow-lg: 0 16px 48px -12px hsl(220 15% 12% / 0.16);
+  --shadow-accent: 0 8px 32px -8px hsl(10 85% 58% / 0.3);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL
@@ -77,11 +178,7 @@ All colors MUST be HSL
        clear 4.5:1 (4.57:1 and 4.61:1). */
     --gradient-accent: linear-gradient(135deg, hsl(10 85% 47%), hsl(20 80% 43%));
 
-    /* Shadows */
-    --shadow-sm: 0 2px 8px -2px hsl(220 15% 12% / 0.08);
-    --shadow-md: 0 8px 24px -8px hsl(220 15% 12% / 0.12);
-    --shadow-lg: 0 16px 48px -12px hsl(220 15% 12% / 0.16);
-    --shadow-accent: 0 8px 32px -8px hsl(10 85% 58% / 0.3);
+    /* Shadows live in the @theme block above. */
 
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -138,8 +235,22 @@ All colors MUST be HSL
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
   }
+
+  /* Tailwind 4's preflight gives buttons the default cursor; keep the pointer
+     every button had under v3. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
+/* The site's own utilities stay plain CSS in the utilities layer, as under v3.
+   Written after `@import 'tailwindcss'`, they come after every generated
+   utility, so on a tie they still win: `.hover-lift`'s transition overrides
+   `transition-all`/`duration-*`, and `.delay-*` keeps the animation delay
+   alongside core's transition-delay. Converting them to `@utility` (what the
+   upgrade tool does) lets Tailwind re-sort them and changed the card hover.
+   Trade-off: no variants (`md:hover-lift`); nothing uses one. */
 @layer utilities {
   /* Fluid typography */
   .text-fluid-xs {
@@ -245,6 +356,10 @@ All colors MUST be HSL
   }
   .delay-400 {
     animation-delay: 400ms;
+    /* v3's delay scale had no 400, so this class never delayed transitions;
+       v4 generates delay-<any number>, which would hold the mobile-menu CTA's
+       hover colour for 400ms. Keep v3's behaviour. */
+    transition-delay: 0s;
   }
 
   /* Hover effects */
@@ -252,8 +367,13 @@ All colors MUST be HSL
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  .hover-lift:hover {
-    transform: translateY(-4px);
+  /* Gated like Tailwind 4's own hover: variants. Ungated, a tap on a touch
+     screen would leave the card lifted while its hover:border and hover:shadow
+     (which v4 gates) do not apply. */
+  @media (hover: hover) {
+    .hover-lift:hover {
+      transform: translateY(-4px);
+    }
   }
 
   /* Gradient text */
@@ -286,6 +406,18 @@ All colors MUST be HSL
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
+}
+
+/* sonner appends its own stylesheet at runtime, outside any cascade layer, and an
+   unlayered rule beats every layered one, so the group-[.toaster]: utilities in
+   ui/sonner.tsx lose to it. This rule is unlayered too and more specific (0,3,0)
+   than sonner's [data-sonner-toast][data-styled="true"] (0,2,0), so it wins
+   whatever order sonner injects in. */
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  border-color: var(--color-border);
+  box-shadow: --theme(--shadow-lg);
 }
 
 @media (prefers-reduced-motion: reduce) {

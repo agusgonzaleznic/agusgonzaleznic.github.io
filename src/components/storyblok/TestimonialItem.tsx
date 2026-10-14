@@ -45,7 +45,7 @@ export const TestimonialItem = ({ blok }: TestimonialItemProps) => {
               className="w-12 h-12 rounded-full object-cover"
             />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center text-accent-foreground font-bold">
+            <div className="w-12 h-12 rounded-full bg-linear-to-br/srgb from-accent to-accent-hover flex items-center justify-center text-accent-foreground font-bold">
               {blok.author_name
                 .split(" ")
                 .map((n) => n[0])
