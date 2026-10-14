@@ -372,9 +372,13 @@ All colors MUST be HSL
     transition-delay: 0s;
   }
 
-  /* Hover effects */
+  /* Hover effects. The lift uses translate, not transform: the entrance
+     animations above fill both ways, so an animated card keeps the final
+     keyframe's transform after it lands, and an animation's value beats any
+     declared transform, so a transform lift never moved those cards. translate
+     is a separate property and adds to it. */
   .hover-lift {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: translate 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   /* Gated like Tailwind 4's own hover: variants. Ungated, a tap on a touch
@@ -382,7 +386,7 @@ All colors MUST be HSL
      (which v4 gates) do not apply. */
   @media (hover: hover) {
     .hover-lift:hover {
-      transform: translateY(-4px);
+      translate: 0 -4px;
     }
   }
 
