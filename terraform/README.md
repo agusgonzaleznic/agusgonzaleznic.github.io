@@ -144,7 +144,7 @@ signed in.
    Then wire the secrets:
 
    ```sh
-   op run --env-file ~/.env --no-masking -- bash -c \
+   ~/bin/op-sa run --env-file ~/.env --no-masking -- bash -c \
      'gh secret set STORYBLOK_MANAGEMENT_TOKEN --body "$STORYBLOK_MANAGEMENT_TOKEN"'
 
    gh secret set STORYBLOK_WEBHOOK_URL_TOKEN --body "$(AWS_PROFILE=root-admin \
@@ -177,11 +177,11 @@ signed in.
 7. **Run the imports** (see execution order below), then verify.
    `var.token`, `var.storyblok_webhook_url_token`, `var.cloudflare_api_token`
    and `var.cloudflare_account_id` have no defaults, so plan must run under
-   `op` (otherwise it drops into interactive prompts and the Storyblok imports
+   `~/bin/op-sa` (otherwise it drops into interactive prompts and the Storyblok imports
    fail):
 
    ```sh
-   op run --env-file ~/.env --no-masking -- bash -c \
+   ~/bin/op-sa run --env-file ~/.env --no-masking -- bash -c \
      'AWS_PROFILE=root-admin \
       TF_VAR_token=$STORYBLOK_MANAGEMENT_TOKEN \
       TF_VAR_storyblok_webhook_url_token=$STORYBLOK_WEBHOOK_URL_TOKEN \

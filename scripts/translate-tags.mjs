@@ -5,7 +5,7 @@
 // posts tagged directly in Storyblok (or to backfill after adding a tag).
 // Missing labels are translated by Claude (keeping loanwords) and written to the
 // map; review + commit the result. Run:
-//   op run --env-file="$HOME/.env" --no-masking -- node scripts/translate-tags.mjs
+//   ~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- node scripts/translate-tags.mjs
 
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,7 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const mapPath = resolve(__dirname, "../content/tag-translations.json");
 const token = process.env.STORYBLOK_PUBLIC_TOKEN;
 if (!token) {
-  console.error("translate-tags: STORYBLOK_PUBLIC_TOKEN is required (run under `op run`).");
+  console.error("translate-tags: STORYBLOK_PUBLIC_TOKEN is required (run under `~/bin/op-sa run`).");
   process.exit(1);
 }
 

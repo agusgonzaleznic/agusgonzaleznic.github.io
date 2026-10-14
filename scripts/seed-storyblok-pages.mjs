@@ -6,7 +6,7 @@
 // token and touches no remote state.
 //
 //   node scripts/seed-storyblok-pages.mjs                  prime the cache only
-//   op run --env-file ~/.env --no-masking -- \
+//   ~/bin/op-sa run --env-file ~/.env --no-masking -- \
 //     node scripts/seed-storyblok-pages.mjs --write-stories also write drafts
 //
 // WHY WRITING IS OPT-IN. This file is a SECOND WRITER to content the CMS owns, and

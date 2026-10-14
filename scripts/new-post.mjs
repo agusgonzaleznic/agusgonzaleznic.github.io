@@ -8,10 +8,10 @@
 // excerpt/SEO + tags are generated (Claude). A leading <h1> is dropped (the
 // title field owns it). Nothing is published: review in Storyblok, then Publish.
 //
-//   op run --env-file="$HOME/.env" --no-masking -- node scripts/new-post.mjs post.md
+//   ~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- node scripts/new-post.mjs post.md
 //   node scripts/new-post.mjs post.md --dry-run   # print richtext, no API call
 //
-// SECURITY: STORYBLOK_MANAGEMENT_TOKEN is read only from the env (op run).
+// SECURITY: STORYBLOK_MANAGEMENT_TOKEN is read only from the env (~/bin/op-sa run).
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { extname, resolve, basename } from "node:path";
@@ -250,7 +250,7 @@ function htmlToRichtext(html) {
 // ── Storyblok Management API ────────────────────────────────────────────────
 async function api(method, path, body) {
   const token = process.env.STORYBLOK_MANAGEMENT_TOKEN;
-  if (!token) throw new Error("STORYBLOK_MANAGEMENT_TOKEN missing (run under `op run`).");
+  if (!token) throw new Error("STORYBLOK_MANAGEMENT_TOKEN missing (run under `~/bin/op-sa run`).");
   const res = await fetch(`${API}${path}`, {
     method,
     headers: { Authorization: token, "Content-Type": "application/json" },
