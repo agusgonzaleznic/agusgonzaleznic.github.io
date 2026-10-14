@@ -116,7 +116,7 @@ export function reportTranslationBudget(label, stats) {
       `\n${label}: ${missing.length} string(s) have no cached translation and this build is not\n` +
         "allowed to pay for one, so those strings would render in English.\n\n" +
         "To fix: run a local build with DEEPL_API_KEY and ANTHROPIC_API_KEY set\n" +
-        "(op run --env-file ~/.env --no-masking -- npm run build), then commit the\n" +
+        "(~/bin/op-sa run --env-file ~/.env --no-masking -- npm run build), then commit the\n" +
         "updated scripts/.i18n-cache.json. Translation is then paid for once, ever.\n" +
         "Set the I18N_TRANSLATION repo variable to 'auto' to let a deploy pay instead.\n",
     );

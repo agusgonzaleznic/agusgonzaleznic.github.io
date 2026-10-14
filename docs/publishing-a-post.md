@@ -7,9 +7,9 @@ automated vs. what you do by hand.
 
 ```
 1. Write the article (Markdown or HTML).
-2. Import it:   op run --env-file="$HOME/.env" --no-masking -- node scripts/new-post.mjs my-post.md
+2. Import it:   ~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- node scripts/new-post.mjs my-post.md
 3. Review it in Storyblok, then click Publish.        → EN + FR/IT/PT go live (FR/IT/PT machine-translated)
-4. Review DE/ES (and optionally FR/IT/PT) locally:   op run --env-file="$HOME/.env" --no-masking -- node scripts/review-translations.mjs
+4. Review DE/ES (and optionally FR/IT/PT) locally:   ~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- node scripts/review-translations.mjs
    → edit in the browser, Save, then:  git add content/ src/i18n/catalogs/ scripts/.i18n-cache.json && git commit -S && git push   → reviewed versions go live
 ```
 
@@ -31,7 +31,9 @@ That's it. Everything below is detail.
 
 ## Prerequisites
 
-- Secrets come from 1Password via `op run --env-file="$HOME/.env" --no-masking -- <cmd>`.
+- Secrets come from 1Password via `~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- <cmd>`.
+  `op-sa` runs `op` as the 1Password service account, so no approval prompt appears;
+  plain `op run` still works through the 1Password app.
 - `~/.env` carries everything you need: `DEEPL_API_KEY`, `ANTHROPIC_API_KEY`,
   `STORYBLOK_MANAGEMENT_TOKEN` (importer), and `STORYBLOK_PUBLIC_TOKEN`; the
   review app **hard-requires** the public token and exits without it.
@@ -87,7 +89,7 @@ tags:                         # comma-separated; empty = auto-suggested
 ## Step 2: Import
 
 ```
-op run --env-file="$HOME/.env" --no-masking -- node scripts/new-post.mjs my-post.md
+~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- node scripts/new-post.mjs my-post.md
 ```
 
 This creates the **draft** story `blog/<slug>` in Storyblok and, along the way:
@@ -117,7 +119,7 @@ only reads `STORYBLOK_PUBLIC_TOKEN`, and `~/.env` wires that to the
 published-only prod token, so point it at the preview token explicitly:
 
 ```
-op run --env-file="$HOME/.env" --no-masking -- sh -c \
+~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- sh -c \
   'STORYBLOK_PUBLIC_TOKEN=$STORYBLOK_PREVIEW_TOKEN STORYBLOK_VERSION=draft npm run build'
 ```
 
@@ -128,7 +130,7 @@ remaining strings were translated by Claude directly instead of DeepL.
 ## Step 4: Review translations (local, no PRs)
 
 ```
-op run --env-file="$HOME/.env" --no-masking -- node scripts/review-translations.mjs
+~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- node scripts/review-translations.mjs
 #   --all              review all five locales (default: just the gated DE/ES)
 #   --domain blog      only blog posts (default loads pages + blog + UI strings)
 #   --post <slug>      only one article (filters the blog domain only)

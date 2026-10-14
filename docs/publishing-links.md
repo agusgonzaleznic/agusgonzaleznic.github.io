@@ -78,7 +78,7 @@ selected and preview at `https://localhost:8080/preview/pages/links`; it renders
 your draft live as you type. Start the dev server first:
 
 ```
-op run --env-file="$HOME/.env" --no-masking -- env VITE_HTTPS=true npm run dev
+~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- env VITE_HTTPS=true npm run dev
 ```
 
 The preview route additionally needs a **draft-capable token** in
@@ -92,7 +92,7 @@ variants are regenerated automatically.
 
 **Seeing it on the local build:** the local site bakes a *snapshot* at fetch time,
 so after publishing you must re-snapshot: restart `npm run dev`, or run
-`op run --env-file="$HOME/.env" --no-masking -- npm run fetch-pages`. A running dev
+`~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- npm run fetch-pages`. A running dev
 server does **not** pick up Storyblok edits on its own, and the build reads
 **published** content (give the CDN a few seconds after publishing).
 
