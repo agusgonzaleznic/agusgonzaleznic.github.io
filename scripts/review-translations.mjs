@@ -24,7 +24,7 @@
 //             so committed .po files are already safe from the automation).
 //
 // Run:
-//   op run --env-file="$HOME/.env" --no-masking -- node scripts/review-translations.mjs
+//   ~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- node scripts/review-translations.mjs
 //   ... --domain pages|blog|ui   review one domain (default: all three)
 //   ... --locale es|de           review one language (default: es + de)
 //   ... --all                    include fr/it/pt too
@@ -82,7 +82,7 @@ const fatal = (m) => { console.error(`review-translations: ${m}`); process.exit(
 const wantDomain = (d) => !onlyDomain || onlyDomain === d;
 
 const token = process.env.STORYBLOK_PUBLIC_TOKEN;
-if (!token) fatal("STORYBLOK_PUBLIC_TOKEN is required (run under `op run`).");
+if (!token) fatal("STORYBLOK_PUBLIC_TOKEN is required (run under `~/bin/op-sa run`).");
 
 // Translator is lazy: only built if we actually machine-translate a missing pair.
 let translator = null;
@@ -172,7 +172,7 @@ function assertNotEnglishSource(what, locale, pairs) {
     `refusing to save ${what}: all ${byEn.size} reviewable string(s) are byte-identical to the English source, `
     + `so this would publish English as a human-reviewed ${locale} translation and the build would serve it verbatim. `
     + "Nothing was written and the approval is unchanged. With no DEEPL_API_KEY every field is prefilled with the "
-    + "English source (badge `new · empty`), so either re-run under `op run` with a working key or type the translation in.",
+    + "English source (badge `new · empty`), so either re-run under `~/bin/op-sa run` with a working key or type the translation in.",
   );
 }
 
