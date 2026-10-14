@@ -54,7 +54,7 @@ export const Testimonials = ({ block }: { block?: TestimonialsBlock }) => {
   // one oversized gap. Stacked padding keeps the gap to the Services CTA above
   // compact. Testimonials renders only on /services.
   return (
-    <section id="testimonials" className={`${SECTION_PADDING_STACKED} bg-gradient-to-b from-background via-secondary/30 to-background`}>
+    <section id="testimonials" className={`${SECTION_PADDING_STACKED} bg-linear-to-b/srgb from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}

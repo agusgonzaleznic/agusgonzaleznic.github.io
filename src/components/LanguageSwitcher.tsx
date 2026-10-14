@@ -182,7 +182,7 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
       <nav
         aria-label={t`Language`}
         className={cn(
-          "absolute right-0 mt-2 min-w-[9rem] overflow-hidden rounded-md border border-border bg-popover py-1 text-popover-foreground shadow-md",
+          "absolute right-0 mt-2 min-w-36 overflow-hidden rounded-md border border-border bg-popover py-1 text-popover-foreground shadow-md",
           open ? "block" : "hidden",
         )}
       >

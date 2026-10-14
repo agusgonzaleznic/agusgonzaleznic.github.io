@@ -227,7 +227,7 @@ export const Navigation = () => {
           while this is rendered, and the Footer reserves bottom space so this
           never covers its language switcher at the page bottom. */}
       {showStickyCta && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden p-4 bg-gradient-to-t from-background via-background to-transparent">
+        <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden p-4 bg-linear-to-t/srgb from-background via-background to-transparent">
           <Button
             asChild
             size="lg"

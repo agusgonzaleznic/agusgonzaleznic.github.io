@@ -69,7 +69,7 @@ export const Philosophy = ({ block }: { block?: PhilosophyBlock }) => {
       }));
 
   return (
-    <section id="philosophy" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
+    <section id="philosophy" className={`${SECTION_PADDING} bg-linear-to-b/srgb from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
@@ -94,13 +94,13 @@ export const Philosophy = ({ block }: { block?: PhilosophyBlock }) => {
                 <div className="relative">
                   {/* Connecting line (except for last item) */}
                   {index < items.length - 1 && (
-                    <div className="absolute left-8 top-24 w-0.5 h-16 bg-gradient-to-b from-border to-transparent hidden md:block" />
+                    <div className="absolute left-8 top-24 w-0.5 h-16 bg-linear-to-b/srgb from-border to-transparent hidden md:block" />
                   )}
 
                   <div className="flex flex-col md:flex-row gap-6 md:gap-8 p-8 rounded-2xl bg-card border-2 border-border hover:border-accent/30 hover:shadow-lg transition-all duration-300">
                     {/* Icon */}
                     <div className="shrink-0">
-                      <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${item.colorClass} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                      <div className={`w-16 h-16 rounded-xl bg-linear-to-br/srgb ${item.colorClass} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                         <item.Icon className="w-8 h-8 text-accent" strokeWidth={1.5} />
                       </div>
                     </div>

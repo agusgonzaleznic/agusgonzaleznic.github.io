@@ -58,7 +58,7 @@ export const Impact = ({ block }: { block?: ImpactBlock }) => {
     : DEFAULT_STATS.map((s) => ({ Icon: s.icon, value: s.value, label: i18n._(s.label), description: i18n._(s.description) }));
 
   return (
-    <section id="impact" className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}>
+    <section id="impact" className={`${SECTION_PADDING} bg-linear-to-b/srgb from-background via-secondary/30 to-background`}>
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
           {/* Page header. The experience timeline leads the page */}
@@ -77,7 +77,7 @@ export const Impact = ({ block }: { block?: ImpactBlock }) => {
               >
                 {/* Connecting line */}
                 {index < timeline.length - 1 && (
-                  <div className="absolute left-4 md:left-24 top-12 w-0.5 h-full bg-gradient-to-b from-accent to-border" />
+                  <div className="absolute left-4 md:left-24 top-12 w-0.5 h-full bg-linear-to-b/srgb from-accent to-border" />
                 )}
 
                 <div className="flex flex-col md:flex-row gap-6 md:gap-8">

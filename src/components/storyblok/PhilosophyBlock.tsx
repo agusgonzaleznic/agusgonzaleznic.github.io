@@ -16,7 +16,7 @@ export const PhilosophyBlock = ({ blok }: PhilosophyBlockProps) => {
     <section
       {...editableProps(blok)}
       id="philosophy"
-      className={`${SECTION_PADDING} bg-gradient-to-b from-background via-secondary/30 to-background`}
+      className={`${SECTION_PADDING} bg-linear-to-b/srgb from-background via-secondary/30 to-background`}
     >
       <div className="container px-6">
         <div className="max-w-6xl mx-auto">
@@ -49,7 +49,7 @@ export const PhilosophyBlock = ({ blok }: PhilosophyBlockProps) => {
                   <div className="relative">
                     {/* Connecting line (except for last item) */}
                     {index < blok.principles!.length - 1 && (
-                      <div className="absolute left-8 top-24 w-0.5 h-16 bg-gradient-to-b from-border to-transparent hidden md:block" />
+                      <div className="absolute left-8 top-24 w-0.5 h-16 bg-linear-to-b/srgb from-border to-transparent hidden md:block" />
                     )}
                     <StoryblokComponent blok={principle} />
                   </div>

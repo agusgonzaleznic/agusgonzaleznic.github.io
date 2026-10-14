@@ -19,7 +19,7 @@ export const PrincipleItem = ({ blok }: PrincipleItemProps) => {
       {/* Icon */}
       {IconComponent && (
         <div className="shrink-0">
-          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+          <div className="w-16 h-16 rounded-xl bg-linear-to-br/srgb from-accent/20 to-accent/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
             <IconComponent className="w-8 h-8 text-accent" strokeWidth={1.5} />
           </div>
         </div>
