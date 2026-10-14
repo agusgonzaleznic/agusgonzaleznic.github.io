@@ -12,7 +12,8 @@
 // the upgrade: Preflight dropped `cursor: pointer` on buttons; converting the
 // site's own utilities to `@utility` re-sorted them, which let `transition-all`
 // and the stagger delays override `.hover-lift` on the service cards; and
-// sonner's runtime stylesheet, unlayered, outranks the toast utilities.
+// sonner's runtime stylesheet, unlayered, outranks the toast utilities. The
+// last test covers an older bug: the entrance-animated cards never lifted.
 //
 // Every assertion reads the BUILT site's computed values, so it holds whatever
 // the source looks like.
@@ -113,7 +114,33 @@ test(".hover-lift keeps its own transition over transition-all and the stagger d
   );
   assert.ok(got.length > 0, "no .hover-lift element on /services");
   for (const { property, delay } of got) {
-    assert.equal(property, "transform, box-shadow");
+    assert.equal(property, "translate, box-shadow");
     assert.equal(delay, "0s, 0s");
+  }
+});
+
+test("entrance-animated cards lift on hover like the rest", async () => {
+  // The entrance animation fills both ways, so after it lands the card keeps
+  // the last keyframe's transform, and an animation's value beats a declared
+  // one: a transform lift never moved these cards. The lift uses translate.
+  const { page } = await pageAt(browser, 1280, 900);
+  try {
+    await page.goto(BASE + "/services", { waitUntil: "load" });
+    await waitForHydration(page);
+    const card = page.locator(".hover-lift.animate-fade-in-up").first();
+    await card.scrollIntoViewIfNeeded();
+    // Test the landed card, not one mid-animation.
+    await card.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+    await page.mouse.move(0, 0);
+    const before = await card.evaluate((el) => el.getBoundingClientRect().top);
+    await card.hover();
+    const handle = await card.elementHandle();
+    const lifted = await page
+      .waitForFunction(([el, top]) => Math.abs(top - el.getBoundingClientRect().top - 4) < 0.5, [handle, before], { timeout: 3000 })
+      .then(() => true, () => false);
+    const after = await card.evaluate((el) => el.getBoundingClientRect().top);
+    assert.ok(lifted, `the card moved ${before - after}px on hover, expected 4px up`);
+  } finally {
+    await page.close();
   }
 });
