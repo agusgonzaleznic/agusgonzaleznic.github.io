@@ -29,7 +29,7 @@ Build time: Storyblok (content) + DeepL/Claude (translation pipeline) ──▶ 
 
 ## Tech stack
 
-- **Vite 7** + **React 18** + **TypeScript 5** (SWC).
+- **Vite 8** + **React 18** + **TypeScript 5** (SWC).
 - **Tailwind CSS 4** (CSS-first config in `src/index.css`) with **shadcn/ui** (Radix primitives), **lucide-react** icons.
 - **React Router 6** for routing; **react-helmet** for per-route metadata; **Lingui 6** for i18n.
 - **@storyblok/react** for CMS content.

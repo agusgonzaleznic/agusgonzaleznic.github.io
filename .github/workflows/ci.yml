@@ -123,7 +123,7 @@ jobs:
       # fails with TS2307 on files that are supposed to be absent. It runs
       # inside `npm run build` instead (after fetch, before the Vite builds),
       # which covers exactly the same PRs, since any TS change sets site=true.
-      # (The build compiles via esbuild and STRIPS types, so without this step
+      # (The build STRIPS types without checking them, so without this step
       # nothing type-checked this repo at all.)
       # BLOG_FIXTURE=1 makes fetch-blog use content/fixtures/blog-fixture.json
       # instead of writing an empty blog. PR CI cannot receive secrets, so without

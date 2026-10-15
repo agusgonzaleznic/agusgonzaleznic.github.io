@@ -44,7 +44,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
   build: {
@@ -61,28 +61,30 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         safari10: true, // Fix Safari 10 issues
       },
     },
-    // Optimize chunk splitting (client build only: manual chunks don't apply
-    // to the SSR build used for prerendering).
-    rollupOptions: isSsrBuild
+    // Optimize chunk splitting (client build only: chunk groups don't apply
+    // to the SSR build used for prerendering). Vite 8 bundles with Rolldown,
+    // which has no object form of manualChunks. A group also takes in the
+    // dependencies of its modules, so react-vendor must stay first: listed
+    // after radix-ui, React would land in the radix-ui chunk.
+    rolldownOptions: isSsrBuild
       ? {}
       : {
           output: {
-            manualChunks: {
-              // Split vendor chunks for better caching
-              "react-vendor": ["react", "react-dom", "react-router-dom"],
-              // No "storyblok" chunk: @storyblok/js lazy-imports its preview
-              // bridge, so Vite adds its preload helper to it, and a manual
-              // chunk would capture the helper and put the SDK on every page.
-              "radix-ui": [
-                "@radix-ui/react-accordion",
-                "@radix-ui/react-dialog",
-                "@radix-ui/react-dropdown-menu",
-                "@radix-ui/react-label",
-                "@radix-ui/react-popover",
-                "@radix-ui/react-select",
-                "@radix-ui/react-separator",
-                "@radix-ui/react-slot",
-                "@radix-ui/react-tabs",
+            codeSplitting: {
+              groups: [
+                // Split vendor chunks for better caching. react-router-dom only
+                // re-exports react-router, so both are named.
+                {
+                  name: "react-vendor",
+                  test: /[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom)[\\/]/,
+                },
+                // No "storyblok" chunk: @storyblok/js lazy-imports its preview
+                // bridge, so Vite adds its preload helper to it, and a manual
+                // chunk would capture the helper and put the SDK on every page.
+                {
+                  name: "radix-ui",
+                  test: /[\\/]node_modules[\\/]@radix-ui[\\/]react-(accordion|dialog|dropdown-menu|label|popover|select|separator|slot|tabs)[\\/]/,
+                },
               ],
             },
             // Add content hashing for better caching
