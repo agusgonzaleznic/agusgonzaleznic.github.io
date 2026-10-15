@@ -16,25 +16,27 @@ import {
   TrendingDown,
   Shield,
   Rocket,
-  Zap,
   Users,
-  Linkedin,
-  Github,
   Mail,
-  Calendar,
-  BookOpen,
   PenLine,
   Globe,
-  Youtube,
-  Twitter,
   X,
-  Instagram,
   Rss,
   Coffee,
   Link as LinkIcon,
   ExternalLink,
   type LucideIcon,
 } from "lucide-react";
+import {
+  Linkedin,
+  Github,
+  Youtube,
+  Twitter,
+  Instagram,
+  Zap,
+  Calendar,
+  BookOpen,
+} from "./pinned-icons";
 
 export const ICON_MAP: Record<string, LucideIcon> = {
   // Philosophy pillars
