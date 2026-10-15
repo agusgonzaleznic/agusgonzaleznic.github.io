@@ -6,7 +6,7 @@
 // <I18nProvider>, so no i18n object ever crosses the SSR boundary (Lingui's
 // instance is intentionally non-serialisable).
 
-import { i18n } from "@lingui/core";
+import { i18n, type Messages } from "@lingui/core";
 import { messages as enMessages } from "./catalogs/en.po";
 import { SOURCE_LOCALE } from "./locales";
 
@@ -17,6 +17,15 @@ i18n.load(SOURCE_LOCALE, enMessages);
 i18n.activate(SOURCE_LOCALE);
 
 export { i18n };
+
+// Lazy loaders for every catalog except the source locale, which is imported
+// statically above. Keeping en.po out of the lazy set keeps it in the client
+// entry chunk: Rolldown (Vite 8) emits a dynamic-import target as its own client
+// chunk even when the entry also imports it statically.
+const catalogLoaders = import.meta.glob<{ messages: Messages }>([
+  "./catalogs/*.po",
+  "!./catalogs/en.po",
+]);
 
 /**
  * Load a locale's catalog and activate it. On the client the `.po` import is a
@@ -29,7 +38,7 @@ export async function dynamicActivate(locale: string): Promise<void> {
     i18n.activate(SOURCE_LOCALE);
     return;
   }
-  const { messages } = await import(`./catalogs/${locale}.po`);
+  const { messages } = await catalogLoaders[`./catalogs/${locale}.po`]();
   i18n.load(locale, messages);
   i18n.activate(locale);
 }
