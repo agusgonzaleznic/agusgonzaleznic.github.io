@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
-import { TrendingDown, Zap, Shield, Users, Rocket, Target, type LucideIcon } from "lucide-react";
+import { TrendingDown, Shield, Users, Rocket, Target, type LucideIcon } from "lucide-react";
+import { Zap } from "@/lib/pinned-icons";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { msg } from "@lingui/core/macro";
 import type { MessageDescriptor } from "@lingui/core";

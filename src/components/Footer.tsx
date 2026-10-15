@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
-import { Mail, Linkedin, Github } from "lucide-react";
+import { Mail } from "lucide-react";
+import { Linkedin, Github } from "@/lib/pinned-icons";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LocaleLink } from "@/components/LocaleLink";

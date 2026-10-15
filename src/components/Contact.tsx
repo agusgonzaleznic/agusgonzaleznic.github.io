@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Mail, Send, Linkedin, Github } from "lucide-react";
+import { Mail, Send } from "lucide-react";
+import { Linkedin, Github } from "@/lib/pinned-icons";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import {
