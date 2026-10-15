@@ -70,7 +70,9 @@ export default defineConfig(({ mode, isSsrBuild }) => {
             manualChunks: {
               // Split vendor chunks for better caching
               "react-vendor": ["react", "react-dom", "react-router-dom"],
-              "storyblok": ["@storyblok/react"], // Separate Storyblok bundle
+              // No "storyblok" chunk: @storyblok/js lazy-imports its preview
+              // bridge, so Vite adds its preload helper to it, and a manual
+              // chunk would capture the helper and put the SDK on every page.
               "radix-ui": [
                 "@radix-ui/react-accordion",
                 "@radix-ui/react-dialog",
