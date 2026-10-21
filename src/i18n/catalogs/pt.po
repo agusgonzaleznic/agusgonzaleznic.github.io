@@ -842,7 +842,7 @@ msgstr "Prazo de Entrega Reduzido"
 
 #: src/components/HowIWork.tsx
 msgid "Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, ISO 27001, and GDPR work."
-msgstr "A resiliência e a conformidade como elementos de base da conceção, e não como considerações secundárias: um hábito adquirido ao longo de anos de trabalho com PCI-DSS, SOC 2, ISO 27001 e GDPR."
+msgstr "A resiliência e a conformidade como elementos de base da conceção, e não como considerações secundárias: um hábito adquirido ao longo de anos de trabalho com PCI-DSS, SOC 2, ISO 27001 e RGPD."
 
 #: src/components/Contact.tsx
 msgid "Response Time"

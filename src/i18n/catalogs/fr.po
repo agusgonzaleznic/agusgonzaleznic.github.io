@@ -842,7 +842,7 @@ msgstr "Réduction du lead time"
 
 #: src/components/HowIWork.tsx
 msgid "Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, ISO 27001, and GDPR work."
-msgstr "La résilience et la conformité comme paramètres de conception, et non comme des réflexions après coup : une habitude acquise au fil des années de travail sur PCI-DSS, SOC 2, ISO 27001 et GDPR."
+msgstr "La résilience et la conformité comme paramètres de conception, et non comme des réflexions après coup : une habitude acquise au fil des années de travail sur PCI-DSS, SOC 2, ISO 27001 et RGPD."
 
 #: src/components/Contact.tsx
 msgid "Response Time"
