@@ -20,16 +20,17 @@
 // TWO BUILD MODES, and conflating them is how the last change broke CI:
 //
 //   CMS build (a Storyblok token present, which is what deploy.yml runs): five
-//   page-data chunks, and /impact names the employer "Safe Labs GmbH (Web3)",
-//   a string that exists ONLY in the CMS.
+//   page-data chunks. The stats_subheading in the CMS uses a colon after
+//   "operator" ("operator: the same playbooks"), a string that exists ONLY
+//   in the seeded CMS data.
 //
 //   Tokenless build (`BLOG_FIXTURE=1 npm run build` with no token, which is what
 //   PR CI runs, deliberately, so a PR needs no secrets): fetch-pages writes empty
 //   page data on purpose, Vite emits NO page-data chunk, and every locale renders
-//   its hardcoded fallback, where src/components/Impact.tsx says plain
-//   "Safe Labs GmbH". That path is a real production path too, since it is what
-//   renders if the CMS is unreachable at build time, and until now nothing had
-//   ever exercised it in a browser.
+//   its hardcoded fallback, where src/components/Impact.tsx shows
+//   "Berlin-based engineering organisation". That path is a real production path
+//   too, since it is what renders if the CMS is unreachable at build time, and
+//   until now nothing had ever exercised it in a browser.
 //
 // Both modes therefore get a real assertion. Neither is skipped, because a
 // skipped test in the mode CI actually runs is not a test.
@@ -45,10 +46,10 @@ import { BASE, openBrowser, pageAt, waitForHydration } from "./helpers.mjs";
 // without this it reports no-undef and `npm run lint` fails on a correct file.
 /* global document */
 
-/** Present iff getPageContent() answered from Storyblok data. */
-const CMS_ONLY = "Safe Labs GmbH (Web3)";
+/** Present iff getPageContent() answered from Storyblok data (colon vs comma in fallback). */
+const CMS_ONLY = "Results from teams I've led as an operator: the same playbooks we'll work from";
 /** What src/components/Impact.tsx renders when it falls back. */
-const FALLBACK_ONLY = "Safe Labs GmbH";
+const FALLBACK_ONLY = "Berlin-based engineering organisation";
 
 // Directory form throughout: `vite preview` serves the English SPA shell with a
 // 200 for any clean extensionless path, so /de/impact would test that shell
