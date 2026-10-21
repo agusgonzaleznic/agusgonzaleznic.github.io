@@ -47,8 +47,8 @@ msgid "1. Controller"
 msgstr "1. Controller"
 
 #: src/components/Hero.tsx
-msgid "15+ years leading engineering teams"
-msgstr "15+ years leading engineering teams"
+msgid "22 years leading engineering teams"
+msgstr "22 years leading engineering teams"
 
 #: src/pages/Legal.tsx
 msgid "2. Hosting and Server Logs"
@@ -388,8 +388,8 @@ msgid "Every engagement names the result it should produce (delivery speed, rete
 msgstr "Every engagement names the result it should produce (delivery speed, retention, uptime), and we check that it did."
 
 #: src/pages/Index.tsx
-msgid "Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably. 15+ years of engineering leadership. Berlin & remote."
-msgstr "Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably. 15+ years of engineering leadership. Berlin & remote."
+msgid "Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably. 22 years of engineering leadership. Berlin & remote."
+msgstr "Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably. 22 years of engineering leadership. Berlin & remote."
 
 #: src/components/Services.tsx
 msgid "Executive Leadership Coaching"
@@ -539,8 +539,8 @@ msgid "I work with CTOs and VPs of Engineering, directors, engineering managers,
 msgstr "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role."
 
 #: src/components/About.tsx
-msgid "I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
-msgstr "I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
+msgid "I'm Agustin Gonzalez Nicolini. For 22 years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
+msgstr "I'm Agustin Gonzalez Nicolini. For 22 years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
 
 #: src/pages/BlogPost.tsx
 msgid "I'm Agustin: I coach engineering leaders, from first-time managers to CTOs."
@@ -667,8 +667,8 @@ msgid "Manager → Director: Scaling impact through others"
 msgstr "Manager → Director: Scaling impact through others"
 
 #: src/pages/About.tsx
-msgid "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3."
-msgstr "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3."
+msgid "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 22 years scaling teams across fintech, gaming, e-mobility, and Web3."
+msgstr "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 22 years scaling teams across fintech, gaming, e-mobility, and Web3."
 
 #: src/components/Navigation.tsx
 msgid "Menu"
@@ -704,8 +704,8 @@ msgid "My track record leading engineering orgs, and the results coaching delive
 msgstr "My track record leading engineering orgs, and the results coaching delivers: faster delivery, lower attrition, and teams that run without heroics."
 
 #: src/components/RelatedPages.tsx
-msgid "My track record: 15+ years leading engineering teams"
-msgstr "My track record: 15+ years leading engineering teams"
+msgid "My track record: 22 years leading engineering teams"
+msgstr "My track record: 22 years leading engineering teams"
 
 #: src/components/Contact.tsx
 msgid "Name *"
@@ -843,8 +843,8 @@ msgid "Reduced Lead Time"
 msgstr "Reduced Lead Time"
 
 #: src/components/HowIWork.tsx
-msgid "Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, and ISO 27001 work."
-msgstr "Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, and ISO 27001 work."
+msgid "Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, ISO 27001, and GDPR work."
+msgstr "Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, ISO 27001, and GDPR work."
 
 #: src/components/Contact.tsx
 msgid "Response Time"
@@ -859,8 +859,8 @@ msgid "Results from teams I've led as an operator, the same playbooks we'll work
 msgstr "Results from teams I've led as an operator, the same playbooks we'll work from"
 
 #: src/components/Impact.tsx
-msgid "Running infrastructure and security end to end for a Web3 platform."
-msgstr "Running infrastructure and security end to end for a Web3 platform."
+msgid "Running infrastructure and security end to end."
+msgstr "Running infrastructure and security end to end."
 
 #: src/components/HowIWork.tsx
 msgid "Security by Default"

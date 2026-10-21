@@ -12,7 +12,7 @@ const LABELS: Record<string, { to: string; label: MessageDescriptor }> = {
   about: { to: "/about", label: msg`My story, from Haedo to Berlin` },
   philosophy: { to: "/philosophy", label: msg`The three pillars behind my coaching` },
   services: { to: "/services", label: msg`Coaching formats for CTOs, VPs, and engineering managers` },
-  impact: { to: "/impact", label: msg`My track record: 15+ years leading engineering teams` },
+  impact: { to: "/impact", label: msg`My track record: 22 years leading engineering teams` },
   faq: { to: "/faq", label: msg`Common questions about fit, format, and how we start` },
   contact: { to: "/contact", label: msg`Book a free 30-minute intro call` },
 };

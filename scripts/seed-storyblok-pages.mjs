@@ -50,7 +50,7 @@ const PAGES = [
     seo_description: "",
     body: [{
       component: "hero_block",
-      badge: "15+ years leading engineering teams",
+      badge: "22 years leading engineering teams",
       subheading: "One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics.",
       cta_text: "How Coaching Works",
       industries_label: "Industries where I've led teams:",
@@ -62,7 +62,7 @@ const PAGES = [
   {
     slug: "about",
     seo_title: "About Agustin Gonzalez Nicolini | Engineering Leadership Coach",
-    seo_description: "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3.",
+    seo_description: "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 22 years scaling teams across fintech, gaming, e-mobility, and Web3.",
     body: [{
       component: "about_block",
       heading: "From Haedo to Berlin, One Engineering Team at a Time",
@@ -70,7 +70,7 @@ const PAGES = [
       footnote: "Based in Berlin, coaching engineering leaders remotely worldwide, in English or Spanish.",
       show_section: true,
       paragraphs: [
-        ti("I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."),
+        ti("I'm Agustin Gonzalez Nicolini. For 22 years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."),
         ti("I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security, and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck."),
       ],
     }],
@@ -97,7 +97,7 @@ const PAGES = [
         show_section: true,
         values: [
           { component: "value_item", icon: "Target", title: "Outcomes Over Optics", description: "Every engagement names the result it should produce (delivery speed, retention, uptime), and we check that it did." },
-          { component: "value_item", icon: "ShieldCheck", title: "Security by Default", description: "Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, and ISO 27001 work." },
+          { component: "value_item", icon: "ShieldCheck", title: "Security by Default", description: "Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, ISO 27001, and GDPR work." },
           { component: "value_item", icon: "MessagesSquare", title: "Direct, Kind Feedback", description: "You'll hear what I actually think, specifically and early. That candor is most of the value." },
           { component: "value_item", icon: "Wrench", title: "Practice Over Theory", description: "I only teach what I've run in production with real teams: no borrowed frameworks." },
         ],
@@ -161,7 +161,7 @@ const PAGES = [
       stats_subheading: "Results from teams I've led as an operator: the same playbooks we'll work from",
       show_section: true,
       timeline: [
-        { component: "timeline_item", period: "2025-Present", company: "Safe Labs GmbH (Web3)", role: "Head of Infrastructure & Security", achievement: "Running infrastructure and security end to end for a Web3 platform." },
+        { component: "timeline_item", period: "2025-Present", company: "Berlin-based engineering organisation", role: "Head of Infrastructure & Security", achievement: "Running infrastructure and security end to end." },
         { component: "timeline_item", period: "2022-2025", company: "JUCR GmbH (EV Charging)", role: "VP of Engineering", achievement: "Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime." },
         { component: "timeline_item", period: "2020-2022", company: "Wildlife Studios (Gaming)", role: "Cloud Security Manager", achievement: "Kept security controls stringent while game teams shipped features at full speed." },
         { component: "timeline_item", period: "2018-2021", company: "Ualá (FinTech)", role: "DevOps Lead", achievement: "Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout." },
@@ -187,7 +187,7 @@ const PAGES = [
       subheading: "Practical answers on fit, format, and how we'd start",
       show_section: true,
       faqs: [
-        { component: "faq_item", question: "Who is Agustin Gonzalez Nicolini?", answer: "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev; today I head infrastructure and security at a Web3 company and coach senior technology leaders one-on-one." },
+        { component: "faq_item", question: "Who is Agustin Gonzalez Nicolini?", answer: "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev, and I coach senior technology leaders one-on-one." },
         { component: "faq_item", question: "Who does Agustin coach?", answer: "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role." },
         { component: "faq_item", question: "What does engineering leadership coaching cover?", answer: "Whatever stands between you and a team that delivers: scaling and org design, stakeholder and C-suite communication, delivery speed and DORA metrics, DevOps and GitOps workflows, hiring and performance frameworks, incident readiness, and executive presence." },
         { component: "faq_item", question: "Does Agustin coach remotely?", answer: "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English or Spanish, whichever you think best in." },

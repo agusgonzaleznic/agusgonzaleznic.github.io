@@ -17,7 +17,7 @@ const DEFAULT_VALUES: { icon: LucideIcon; title: MessageDescriptor; description:
   {
     icon: ShieldCheck,
     title: msg`Security by Default`,
-    description: msg`Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, and ISO 27001 work.`,
+    description: msg`Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, ISO 27001, and GDPR work.`,
   },
   {
     icon: MessagesSquare,
