@@ -50,7 +50,7 @@ const PAGES = [
     seo_description: "",
     body: [{
       component: "hero_block",
-      badge: "15+ years leading engineering teams",
+      badge: "22 years leading engineering teams",
       subheading: "One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics.",
       cta_text: "How Coaching Works",
       industries_label: "Industries where I've led teams:",
@@ -62,7 +62,7 @@ const PAGES = [
   {
     slug: "about",
     seo_title: "About Agustin Gonzalez Nicolini | Engineering Leadership Coach",
-    seo_description: "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 15+ years scaling teams across fintech, gaming, e-mobility, and Web3.",
+    seo_description: "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 22 years scaling teams across fintech, gaming, e-mobility, and Web3.",
     body: [{
       component: "about_block",
       heading: "From Haedo to Berlin, One Engineering Team at a Time",
@@ -70,7 +70,7 @@ const PAGES = [
       footnote: "Based in Berlin, coaching engineering leaders remotely worldwide, in English or Spanish.",
       show_section: true,
       paragraphs: [
-        ti("I'm Agustin Gonzalez Nicolini. For 15+ years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."),
+        ti("I'm Agustin Gonzalez Nicolini. For 22 years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."),
         ti("I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security, and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck."),
       ],
     }],
@@ -97,7 +97,7 @@ const PAGES = [
         show_section: true,
         values: [
           { component: "value_item", icon: "Target", title: "Outcomes Over Optics", description: "Every engagement names the result it should produce (delivery speed, retention, uptime), and we check that it did." },
-          { component: "value_item", icon: "ShieldCheck", title: "Security by Default", description: "Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, and ISO 27001 work." },
+          { component: "value_item", icon: "ShieldCheck", title: "Security by Default", description: "Resilience and compliance as design inputs, not afterthoughts: a habit from years of PCI-DSS, SOC 2, ISO 27001, and GDPR work." },
           { component: "value_item", icon: "MessagesSquare", title: "Direct, Kind Feedback", description: "You'll hear what I actually think, specifically and early. That candor is most of the value." },
           { component: "value_item", icon: "Wrench", title: "Practice Over Theory", description: "I only teach what I've run in production with real teams: no borrowed frameworks." },
         ],

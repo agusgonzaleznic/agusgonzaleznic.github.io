@@ -57,7 +57,7 @@ export const Hero = ({ block }: { block?: HeroBlock }) => {
             className={`${SECTION_HEADER_MARGIN} flex items-center gap-3 text-xs md:text-sm font-medium uppercase tracking-wider text-muted-foreground animate-fade-in-up`}
           >
             <span className="h-0.5 w-8 shrink-0 bg-accent" aria-hidden="true" />
-            {block?.badge || <Trans>15+ years leading engineering teams</Trans>}
+            {block?.badge || <Trans>22 years leading engineering teams</Trans>}
           </p>
 
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
