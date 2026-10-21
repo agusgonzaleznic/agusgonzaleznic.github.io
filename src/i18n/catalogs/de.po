@@ -44,13 +44,13 @@ msgstr "<0>Schutz vor Spam und Missbrauch.</0> Bevor deine Nachricht angenommen 
 msgid "1. Controller"
 msgstr "1. Verantwortlicher"
 
-#: src/components/Hero.tsx
-msgid "22 years leading engineering teams"
-msgstr "22 Jahre Führung von Engineering-Teams"
-
 #: src/pages/Legal.tsx
 msgid "2. Hosting and Server Logs"
 msgstr "2. Hosting und Server-Logs"
+
+#: src/components/Hero.tsx
+msgid "22 years leading engineering teams"
+msgstr "22 Jahre Führung von Engineering-Teams"
 
 #: src/pages/Legal.tsx
 msgid "3. Contact Form"

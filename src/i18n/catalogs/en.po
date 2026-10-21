@@ -46,13 +46,13 @@ msgstr "<0>Spam and abuse protection.</0> Before your message is accepted, the f
 msgid "1. Controller"
 msgstr "1. Controller"
 
-#: src/components/Hero.tsx
-msgid "22 years leading engineering teams"
-msgstr "22 years leading engineering teams"
-
 #: src/pages/Legal.tsx
 msgid "2. Hosting and Server Logs"
 msgstr "2. Hosting and Server Logs"
+
+#: src/components/Hero.tsx
+msgid "22 years leading engineering teams"
+msgstr "22 years leading engineering teams"
 
 #: src/pages/Legal.tsx
 msgid "3. Contact Form"
