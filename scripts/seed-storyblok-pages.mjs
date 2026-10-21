@@ -161,7 +161,7 @@ const PAGES = [
       stats_subheading: "Results from teams I've led as an operator: the same playbooks we'll work from",
       show_section: true,
       timeline: [
-        { component: "timeline_item", period: "2025-Present", company: "Berlin-based engineering organisation", role: "Head of Infrastructure & Security", achievement: "Running infrastructure and security end to end." },
+        { component: "timeline_item", period: "2025-Present", company: "Safe Labs GmbH (Web3)", role: "Head of Infrastructure & Security", achievement: "Running infrastructure and security end to end for a Web3 platform." },
         { component: "timeline_item", period: "2022-2025", company: "JUCR GmbH (EV Charging)", role: "VP of Engineering", achievement: "Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime." },
         { component: "timeline_item", period: "2020-2022", company: "Wildlife Studios (Gaming)", role: "Cloud Security Manager", achievement: "Kept security controls stringent while game teams shipped features at full speed." },
         { component: "timeline_item", period: "2018-2021", company: "Ualá (FinTech)", role: "DevOps Lead", achievement: "Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout." },
@@ -187,7 +187,7 @@ const PAGES = [
       subheading: "Practical answers on fit, format, and how we'd start",
       show_section: true,
       faqs: [
-        { component: "faq_item", question: "Who is Agustin Gonzalez Nicolini?", answer: "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev, and I coach senior technology leaders one-on-one." },
+        { component: "faq_item", question: "Who is Agustin Gonzalez Nicolini?", answer: "I'm an engineering leader and leadership coach based in Berlin, Germany. I've led engineering teams at companies including Ualá, Wildlife Studios, JUCR, and Bdev; today I head infrastructure and security at a Web3 company and coach senior technology leaders one-on-one." },
         { component: "faq_item", question: "Who does Agustin coach?", answer: "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role." },
         { component: "faq_item", question: "What does engineering leadership coaching cover?", answer: "Whatever stands between you and a team that delivers: scaling and org design, stakeholder and C-suite communication, delivery speed and DORA metrics, DevOps and GitOps workflows, hiring and performance frameworks, incident readiness, and executive presence." },
         { component: "faq_item", question: "Does Agustin coach remotely?", answer: "Yes. I'm based in Berlin and coach leaders remotely worldwide. Sessions run in English or Spanish, whichever you think best in." },

@@ -857,8 +857,8 @@ msgid "Results from teams I've led as an operator, the same playbooks we'll work
 msgstr "Ergebnisse von Teams, die ich als Operator geführt habe: dieselben Playbooks, mit denen wir arbeiten werden"
 
 #: src/components/Impact.tsx
-msgid "Running infrastructure and security end to end."
-msgstr "Infrastruktur und Security end-to-end betrieben."
+msgid "Running infrastructure and security end to end for a Web3 platform."
+msgstr "Infrastruktur und Security end-to-end für eine Web3-Plattform betrieben."
 
 #: src/components/HowIWork.tsx
 msgid "Security by Default"
