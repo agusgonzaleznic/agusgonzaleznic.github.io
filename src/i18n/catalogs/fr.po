@@ -239,7 +239,7 @@ msgstr "Réduction des coûts liés au cloud"
 
 #: src/components/Impact.tsx
 msgid "Cloud Security Manager"
-msgstr "Responsable de la sécurité du cloud"
+msgstr "Responsable de la sécurité cloud"
 
 #: src/components/Testimonials.tsx
 msgid "Coaching conversations are confidential by default, so named endorsements will only ever appear here with a client's explicit sign-off."
@@ -303,7 +303,7 @@ msgstr "J'ai livré un système bancaire central sur une architecture entièreme
 
 #: src/components/Impact.tsx
 msgid "DevOps Lead"
-msgstr "DevOps Lead"
+msgstr "Responsable DevOps"
 
 #: src/components/Services.tsx
 msgid "DevOps/GitOps workflows & trunk-based development"
@@ -490,7 +490,7 @@ msgstr "La croissance par la clarté"
 
 #: src/components/Impact.tsx
 msgid "Head of Infrastructure & Security"
-msgstr "Head of Infrastructure & Security"
+msgstr "Directeur de l'infrastructure et de la sécurité"
 
 #: src/components/Services.tsx
 msgid "Hiring, leveling & performance frameworks"
@@ -593,7 +593,7 @@ msgstr "Responsable des infrastructures et de la sécurité"
 
 #: src/components/Impact.tsx
 msgid "Infrastructure & Security Lead, then VP of Engineering"
-msgstr "Responsable des infrastructures et de la sécurité, puis VP of Engineering"
+msgstr "Responsable des infrastructures et de la sécurité, puis VP Ingénierie"
 
 #: src/components/Services.tsx
 msgid "Interview prep for leadership roles"
@@ -806,6 +806,10 @@ msgstr "Des réponses concrètes sur l'adéquation, le format et la manière don
 #: src/components/HowIWork.tsx
 msgid "Practice Over Theory"
 msgstr "La pratique plutôt que la théorie"
+
+#: src/components/Impact.tsx
+msgid "Present"
+msgstr "aujourd'hui"
 
 #: src/components/CookieNotice.tsx
 msgid "Privacy notice"

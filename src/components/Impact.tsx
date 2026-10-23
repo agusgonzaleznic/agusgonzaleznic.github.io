@@ -20,6 +20,10 @@ const DEFAULT_STATS: { icon: LucideIcon; value: string; label: MessageDescriptor
   { icon: Target, value: "60%", label: msg`Faster Onboarding`, description: msg`Standardized processes and documentation a new hire can follow on day one` },
 ];
 
+// `period` stays locale-neutral in the CMS and the translator, so the one word
+// in it ("2025-Present") is localized here at render time.
+const PRESENT = msg`Present`;
+
 const DEFAULT_TIMELINE: { period: string; company: string; role: MessageDescriptor; achievement: MessageDescriptor }[] = [
   { period: "2025-Present", company: "Safe Labs GmbH", role: msg`Head of Infrastructure & Security`, achievement: msg`Running infrastructure and security end to end for a Web3 platform.` },
   { period: "2022-2024", company: "JUCR GmbH (EV Charging)", role: msg`Infrastructure & Security Lead, then VP of Engineering`, achievement: msg`Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime.` },
@@ -85,7 +89,7 @@ export const Impact = ({ block }: { block?: ImpactBlock }) => {
                   {/* Period badge */}
                   <div className="shrink-0 md:w-32">
                     <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-accent/10 border border-accent/20">
-                      <span className="text-sm font-medium text-accent">{item.period}</span>
+                      <span className="text-sm font-medium text-accent">{item.period.replace(/Present$/, i18n._(PRESENT))}</span>
                     </div>
                   </div>
 
