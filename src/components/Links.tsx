@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { LocaleLink } from "@/components/LocaleLink";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -58,7 +59,6 @@ const LinkRow = ({ link }: { link: LinkField }) => {
   if (!link.label || !url || !isSafeUrl(url)) return null;
   const internal = isInternal(url);
   const v = link.featured ? FEATURED : NEUTRAL;
-  const Icon = resolveLinkIcon(link.icon);
   // A custom uploaded logo overrides the icon. It's painted as a single-colour
   // CSS mask (bg-current), so it inherits the icon-wrap text colour and comes out
   // monochrome/on-theme regardless of the asset's own colours.
@@ -81,7 +81,9 @@ const LinkRow = ({ link }: { link: LinkField }) => {
       }}
     />
   ) : (
-    <Icon className="h-5 w-5" aria-hidden="true" />
+    // A static lucide icon picked by name from a module-level map, so
+    // createElement rather than a JSX tag the linter reads as a new component.
+    createElement(resolveLinkIcon(link.icon), { className: "h-5 w-5", "aria-hidden": "true" })
   );
   // ↗ signals "opens elsewhere" (external / new tab); → for an in-app route.
   const Arrow = internal ? ArrowRight : ArrowUpRight;

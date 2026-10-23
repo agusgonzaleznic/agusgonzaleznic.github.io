@@ -26,15 +26,33 @@ import { LocaleLink } from "@/components/LocaleLink";
 // leaves the browser. If storage is blocked (private mode), the choice is
 // honored in memory for the current session only (see src/lib/analytics.ts)
 // and the banner re-asks on the next visit. The
-// site is prerendered, so we render nothing on the server and reveal after
-// mount to avoid a hydration mismatch (and to keep the static HTML free of
-// the banner).
+// site is prerendered, so the stored choice is read as an external store whose
+// server snapshot is false: the static HTML never contains the banner, and React
+// reveals it right after hydration without a mismatch.
 const DISMISS_KEY = "privacy-notice-dismissed";
+
+const subscribeNever = () => () => {};
+const serverSnapshot = () => false;
+const consentNoticeNeeded = () => getConsent() === null;
+const infoNoticeNeeded = () => {
+  try {
+    return localStorage.getItem(DISMISS_KEY) !== "true";
+  } catch {
+    // Storage blocked (private mode / disabled): still show the notice.
+    return true;
+  }
+};
 
 export const CookieNotice = () => {
   const { t } = useLingui();
   const consentMode = isAnalyticsConfigured();
-  const [visible, setVisible] = useState(false);
+  const needed = useSyncExternalStore(
+    subscribeNever,
+    consentMode ? consentNoticeNeeded : infoNoticeNeeded,
+    serverSnapshot,
+  );
+  const [dismissed, setDismissed] = useState(false);
+  const visible = needed && !dismissed;
   // Navigation publishes whether the mobile sticky "Book a Session" CTA is
   // rendered; the banner only clears it (bottom-24) when it actually exists.
   const stickyCtaVisible = useSyncExternalStore(
@@ -44,19 +62,8 @@ export const CookieNotice = () => {
   );
 
   useEffect(() => {
-    if (consentMode) {
-      const consent = getConsent();
-      if (consent === null) setVisible(true);
-      // Returning visitor who already granted consent: load analytics now.
-      if (consent === "granted") loadAnalytics();
-      return;
-    }
-    try {
-      if (localStorage.getItem(DISMISS_KEY) !== "true") setVisible(true);
-    } catch {
-      // Storage blocked (private mode / disabled): still show the notice.
-      setVisible(true);
-    }
+    // Returning visitor who already granted consent: load analytics now.
+    if (consentMode && getConsent() === "granted") loadAnalytics();
   }, [consentMode]);
 
   const dismissInfo = () => {
@@ -65,18 +72,18 @@ export const CookieNotice = () => {
     } catch {
       // Storage blocked: dismiss for this session only.
     }
-    setVisible(false);
+    setDismissed(true);
   };
 
   const accept = () => {
     setConsent("granted");
     loadAnalytics();
-    setVisible(false);
+    setDismissed(true);
   };
 
   const decline = () => {
     setConsent("denied");
-    setVisible(false);
+    setDismissed(true);
   };
 
   if (!visible) return null;
