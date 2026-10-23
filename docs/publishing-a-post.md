@@ -8,7 +8,8 @@ automated vs. what you do by hand.
 ```
 1. Write the article (Markdown or HTML).
 2. Import it:   ~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- node scripts/new-post.mjs my-post.md
-3. Review it in Storyblok, then click Publish.        → EN + FR/IT/PT go live (FR/IT/PT machine-translated)
+3. Review it in Storyblok, fill the FR/IT/PT cache via a PR, then publish through the gate:
+                ~/bin/op-sa run --env-file ~/.env -- node scripts/publish-storyblok.mjs blog/my-post   → EN + FR/IT/PT go live
 4. Review DE/ES (and optionally FR/IT/PT) locally:   ~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- node scripts/review-translations.mjs
    → edit in the browser, Save, then:  git add content/ src/i18n/catalogs/ scripts/.i18n-cache.json && git commit -S && git push   → reviewed versions go live
 ```
@@ -106,12 +107,27 @@ metadata generation still call Claude when the key is present), `--no-prompt`,
 
 ## Step 3: Review in Storyblok and Publish
 
-Open the draft in Storyblok, skim it, adjust anything (including tags), then
-**Publish**. Publishing fires the rebuild webhook. On that build:
+Open the draft in Storyblok, skim it and adjust anything (including tags), but
+do not press **Publish** there. Publishing fires the rebuild webhook, which
+deploys main, and the deploy is cache-only: any string main's committed
+`scripts/.i18n-cache.json` cannot answer fails it. So the FR / IT / PT
+translations of a new or edited story reach the cache first (a local
+`fetch-blog` / `fetch-pages` run with the keys, merged as a PR), and the publish
+goes through the gate from a clean checkout of main:
+
+```
+~/bin/op-sa run --env-file ~/.env -- node scripts/publish-storyblok.mjs blog/my-post
+```
+
+It measures the drafts against main's cache with the deploy's own scripts and
+refuses, publishing nothing, on any cache miss, any stale DE/ES approval, a
+checkout that is not origin/main, or a deploy run still in flight. Otherwise it
+publishes through the Management API and waits for the deploy runs to finish
+green. `--check` measures without publishing. On that build:
 
 - **EN** goes live.
-- **FR / IT / PT** are machine-translated and go live immediately (shown with a
-  machine-translation disclosure).
+- **FR / IT / PT** go live from the cache (shown with a machine-translation
+  disclosure).
 - **DE / ES** do **not** appear yet: they're gated on your review (Step 4).
 
 Want to see the draft in the real site layout *before* publishing? The build
@@ -182,6 +198,7 @@ migration to in-Storyblok review is scoped and ready to revisit.
 ## The moving parts (reference)
 
 - `scripts/new-post.mjs`: importer (md/html → Storyblok draft) + proofread + glossary + tags.
+- `scripts/publish-storyblok.mjs`: publishes stories only when main's committed cache serves their drafts (decision in `scripts/lib/publish-gate.mjs`).
 - `scripts/review-translations.mjs`: unified local copy-review app (pages + blog + UI strings).
 - `scripts/lib/page-gate.mjs` + `content/pages/`, `content/page-approvals.json`: the marketing-page mirror of the blog gate.
 - `scripts/.i18n-cache.json`: committed translation cache (determinism + DeepL quota); `REGEN_LOCALES=fr,it,pt` on a build drops a locale's cache to force re-translation.
