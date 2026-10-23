@@ -4,7 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { refusals, staleApprovals, ACTIVE_RUN_STATES } from "./publish-gate.mjs";
+import { activeRuns, refusals, staleApprovals } from "./publish-gate.mjs";
 
 const SHA = "818e6a1bf92e6b90664e748d1b4c24dfbba85c95";
 const clean = { head: SHA, originMain: SHA, dirty: [], misses: [], stale: 0, activeRuns: [] };
@@ -47,8 +47,12 @@ test("refuses while any deploy run is active", () => {
   assert.equal(r.length, 2);
 });
 
-test("watches every non-final run state, not just queued and in_progress", () => {
-  assert.deepEqual([...ACTIVE_RUN_STATES].sort(), ["in_progress", "pending", "queued", "requested", "waiting"]);
+test("counts every run that is not completed, including states it has never seen", () => {
+  const runs = ["queued", "in_progress", "pending", "waiting", "requested", "some_new_state", "completed"].map(
+    (status, databaseId) => ({ databaseId, status }),
+  );
+  assert.deepEqual(activeRuns(runs).map((r) => r.status), ["queued", "in_progress", "pending", "waiting", "requested", "some_new_state"]);
+  assert.deepEqual(activeRuns([{ databaseId: 9, status: "completed" }]), []);
 });
 
 test("reads the stale-approval count from fetch-blog's warnings, across locales", () => {
