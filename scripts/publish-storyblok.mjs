@@ -21,7 +21,7 @@ import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ACTIVE_RUN_STATES, refusals, staleApprovals } from "./lib/publish-gate.mjs";
+import { activeRuns, refusals, staleApprovals } from "./lib/publish-gate.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SPACE_ID = "288632938663524";
@@ -71,10 +71,8 @@ async function resolveStory(ref) {
   return stories[0];
 }
 
-function activeRuns() {
-  return ACTIVE_RUN_STATES.flatMap((s) =>
-    JSON.parse(run("gh", ["run", "list", "--workflow", "deploy.yml", "--status", s, "--json", "databaseId,status"]).stdout),
-  );
+function listDeployRuns() {
+  return JSON.parse(run("gh", ["run", "list", "--workflow", "deploy.yml", "--limit", "50", "--json", "databaseId,status"]).stdout);
 }
 
 /** Run the deploy's fetch scripts against the drafts, cache-only and keyless. */
@@ -105,7 +103,7 @@ function gate() {
   const head = run("git", ["rev-parse", "HEAD"]).stdout.trim();
   const originMain = run("git", ["rev-parse", "origin/main"]).stdout.trim();
   const dirty = run("git", ["status", "--porcelain"]).stdout.split("\n").filter(Boolean).map((l) => l.slice(3));
-  return { head, originMain, dirty, ...measureDrafts(), activeRuns: activeRuns() };
+  return { head, originMain, dirty, ...measureDrafts(), activeRuns: activeRuns(listDeployRuns()) };
 }
 
 const stories = [];
@@ -129,6 +127,12 @@ if (checkOnly) {
 run("git", ["fetch", "--quiet", "origin", "main"]);
 if (run("git", ["rev-parse", "origin/main"]).stdout.trim() !== state.originMain) {
   console.error("publish-storyblok: REFUSED, origin/main moved during the check; run it again.");
+  process.exit(1);
+}
+// The measurement takes a minute or two; a deploy can start in that window.
+const lateRuns = activeRuns(listDeployRuns());
+if (lateRuns.length) {
+  console.error(`publish-storyblok: REFUSED, deploy run ${lateRuns.map((r) => r.databaseId).join(", ")} started during the check; nothing was published.`);
   process.exit(1);
 }
 

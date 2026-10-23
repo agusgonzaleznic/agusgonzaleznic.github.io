@@ -7,8 +7,17 @@
 // live must be answered by the cache of the commit that will build them. On
 // 2026-10-21 a publish ran ahead of its cache and turned main's deploy red.
 
-/** Deploy-run states that mean a run exists and has not finished. */
-export const ACTIVE_RUN_STATES = ["queued", "in_progress", "pending", "waiting", "requested"];
+/**
+ * The deploy runs that have not finished, from ONE listing of recent runs.
+ * Anything not `completed` counts (queued, in_progress, pending, waiting,
+ * requested, and any state GitHub adds later). Asking once per state does not
+ * work: a run flips between in_progress and queued between its jobs, so it can
+ * be missed by every one of the five queries. That let a publish through on
+ * 2026-10-23 while a deploy was running.
+ */
+export function activeRuns(runs) {
+  return runs.filter((r) => r.status !== "completed");
+}
 
 /** Count the article variants fetch-blog dropped for a stale approval hash. */
 export function staleApprovals(output) {
