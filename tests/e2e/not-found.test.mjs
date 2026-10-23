@@ -105,7 +105,9 @@ async function openNotFound(path) {
       // flat config dropped `/* eslint-env browser */`. globalThis is a plain
       // ES builtin, so this reads identically in the page and lints clean here.
       const doc = globalThis.document;
-      const root = doc.querySelector("#root")?.firstElementChild;
+      // React 19's renderToString puts image preload <link>s first in #root, and
+      // they never get a fiber, so probe the first rendered element after them.
+      const root = doc.querySelector("#root > :not(link)");
       if (!root || !Object.keys(root).some((k) => k.startsWith("__reactFiber$"))) return false;
       const main = doc.querySelector("main");
       return !!main && main.textContent.trimStart().startsWith("404");
