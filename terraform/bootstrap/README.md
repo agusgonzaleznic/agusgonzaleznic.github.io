@@ -59,11 +59,15 @@ any other main-branch job holding `id-token: write`, because declaring
 `environment:` **replaces** the ref form in the OIDC `sub` claim.
 
 `github-terraform-bootstrap` is **admin-equivalent and cannot be made
-otherwise**: it is the tier that decides who may do what. Its ceiling blocks
-persistence and lateral paths this module never needs (IAM users, access keys,
-SSO/Organizations roles, shedding its own boundary, deleting the state bucket);
-it does not pretend to contain a compromised *approved* run. The real control is
-the `terraform-bootstrap` environment's **required reviewer**. Compared with the
+otherwise**: it is the tier that decides who may do what. Its ceiling does not
+pretend to contain a compromised *approved* run, which can still widen the
+permissions of any existing CI role, up to `*`. It blocks the paths to a durable
+foothold: IAM users and access keys, SSO/Organizations roles, creating a role,
+rewriting any role's trust policy, setting or stripping any permissions
+boundary, editing its own grants (attaching `AdministratorAccess` to itself),
+opening the state bucket (bucket policy, ACL, ownership, replication), and
+deleting it. The real control is the `terraform-bootstrap` environment's
+**required reviewer**. Compared with the
 status quo this is a narrowing: the previous mechanism was a human holding full
 root-admin SSO credentials with no plan recorded anywhere.
 
@@ -133,6 +137,25 @@ Use `AWS_PROFILE=root-admin` locally only when:
   this circularity has no in-Terraform solution.
 - **CI locked itself out**: a change here broke the bootstrap roles' own trust
   or permissions. Nothing in CI can repair CI's identity.
+- **A change the ceiling denies CI**: a new or replaced `aws_iam_role`, any
+  `assume_role_policy` or `permissions_boundary` edit, the bootstrap role's own
+  `IAMFullAccess` attachment or state inline policy, the state bucket policy, or
+  the ceiling itself. The `Guard (break-glass changes)` step
+  (`guard-break-glass.sh`) fails the plan on these, so the gated apply never
+  starts. The order, which keeps main green:
+  1. Keep the link to the PR's first check run, where the guard fails on the
+     change: no later run will show it.
+  2. Run `terraform plan` locally on the PR's head commit and check it shows
+     only the PR's change; anything more means the branch is behind main's
+     bootstrap tier. Apply exactly that commit and record its SHA in the PR.
+     A later commit on the branch repeats this step.
+  3. Re-run the PR checks: the plan is now empty and the guard passes. Merge.
+     Main's bootstrap-detect has nothing to apply; the site apply still asks
+     for a `terraform-production` approval for a no-op plan (the workflow
+     triggers on `terraform/**`), which can be cancelled.
+  If the PR is dropped after the apply, main's next bootstrap-detect shows a
+  plan reverting the change and the guard fails it: the revert is break-glass
+  too, so it is visible, never silent.
 
 ## Wiring outputs into GitHub
 

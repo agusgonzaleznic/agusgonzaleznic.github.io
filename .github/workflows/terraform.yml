@@ -424,6 +424,15 @@ jobs:
           fi
           echo "OK: plan leaves aws_s3_bucket_versioning.terraform_state enabled and intact."
 
+      # The ceiling denies CI the changes that mint or retrust a principal,
+      # edit the bootstrap role's own grants, or open the state bucket
+      # (role-bootstrap-ci.tf). Fail the plan on them, so a reviewer is never
+      # asked to approve an apply that dies half-way. Mirrored in
+      # bootstrap-detect below.
+      - name: Guard (break-glass changes)
+        # Reuses plan.txt written by the plan step above. Do NOT plan again.
+        run: ./guard-break-glass.sh plan.txt
+
   bootstrap-detect:
     name: Bootstrap plan (main)
     # Runs UNGATED because it is read-only, and it exists so the reviewer sees
@@ -549,6 +558,13 @@ jobs:
             exit 1
           fi
           echo "OK: plan leaves aws_s3_bucket_versioning.terraform_state enabled and intact."
+
+      # Same guard as in bootstrap-plan above, see the reasoning there. Load-
+      # bearing here: a failure skips the gated apply instead of letting it die
+      # half-way on an explicit deny.
+      - name: Guard (break-glass changes)
+        # Reuses plan.txt written by the plan step above. Do NOT plan again.
+        run: ./guard-break-glass.sh plan.txt
 
   bootstrap-apply:
     name: Bootstrap apply (gated)
