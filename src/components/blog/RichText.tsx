@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from "react";
+import { Fragment, type JSX, type ReactNode } from "react";
 import {
   extractText,
   storyblokImage,
