@@ -10,7 +10,7 @@ import { SECTION_PADDING } from "@/lib/layout";
 // content. Heading/footnote fall back to their inline <Trans>; the paragraphs are
 // a list, so they fall back through these descriptors.
 const DEFAULT_PARAGRAPHS: MessageDescriptor[] = [
-  msg`I'm Agustin Gonzalez Nicolini. For 22 years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform.`,
+  msg`I'm Agustin Gonzalez Nicolini, with 20+ years in infrastructure and security. I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform.`,
   msg`I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security, and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck.`,
 ];
 

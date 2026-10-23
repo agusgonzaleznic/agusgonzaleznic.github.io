@@ -50,7 +50,7 @@ const PAGES = [
     seo_description: "",
     body: [{
       component: "hero_block",
-      badge: "22 years leading engineering teams",
+      badge: "20+ years in infrastructure and security",
       subheading: "One-on-one coaching for senior engineering leaders, from first-time managers to CTOs. We work on what you're measured by: delivery, retention, and an org that runs without heroics.",
       cta_text: "How Coaching Works",
       industries_label: "Industries where I've led teams:",
@@ -62,7 +62,7 @@ const PAGES = [
   {
     slug: "about",
     seo_title: "About Agustin Gonzalez Nicolini | Engineering Leadership Coach",
-    seo_description: "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 22 years scaling teams across fintech, gaming, e-mobility, and Web3.",
+    seo_description: "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin, with 20+ years in infrastructure and security across fintech, gaming, e-mobility, and Web3.",
     body: [{
       component: "about_block",
       heading: "From Haedo to Berlin, One Engineering Team at a Time",
@@ -70,7 +70,7 @@ const PAGES = [
       footnote: "Based in Berlin, coaching engineering leaders remotely worldwide, in English or Spanish.",
       show_section: true,
       paragraphs: [
-        ti("I'm Agustin Gonzalez Nicolini. For 22 years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."),
+        ti("I'm Agustin Gonzalez Nicolini, with 20+ years in infrastructure and security. I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."),
         ti("I advise C-suite and senior engineering leaders on cloud-native systems, DevOps transformation, and security, and I've likely sat through a version of whatever you're facing: the reorg, the audit, the outage review, the budget fight. Whether you're taking a startup through scale-up or restoring delivery discipline in an enterprise org, we build the systems and habits that let your team deliver without you as the bottleneck."),
       ],
     }],
@@ -162,8 +162,8 @@ const PAGES = [
       show_section: true,
       timeline: [
         { component: "timeline_item", period: "2025-Present", company: "Safe Labs GmbH (Web3)", role: "Head of Infrastructure & Security", achievement: "Running infrastructure and security end to end for a Web3 platform." },
-        { component: "timeline_item", period: "2022-2025", company: "JUCR GmbH (EV Charging)", role: "VP of Engineering", achievement: "Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime." },
-        { component: "timeline_item", period: "2020-2022", company: "Wildlife Studios (Gaming)", role: "Cloud Security Manager", achievement: "Kept security controls stringent while game teams shipped features at full speed." },
+        { component: "timeline_item", period: "2022-2024", company: "JUCR GmbH (EV Charging)", role: "Infrastructure & Security Lead, then VP of Engineering", achievement: "Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime." },
+        { component: "timeline_item", period: "2021-2022", company: "Wildlife Studios (Gaming)", role: "Cloud Security Manager", achievement: "Kept security controls stringent while game teams shipped features at full speed." },
         { component: "timeline_item", period: "2018-2021", company: "Ualá (FinTech)", role: "DevOps Lead", achievement: "Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout." },
         { component: "timeline_item", period: "2014-2018", company: "Bdev (HealthTech)", role: "Infrastructure & Security Lead", achievement: "Migrated on-premise infrastructure to AWS and implemented SOC 2 and ISO 27001 compliance." },
       ],

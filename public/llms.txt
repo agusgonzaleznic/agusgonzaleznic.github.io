@@ -4,8 +4,7 @@
 > from new engineering managers to CTOs, working from Berlin, Germany with
 > remote clients worldwide. He currently heads infrastructure and security
 > at Safe Labs GmbH (Web3), and his career spans fintech,
-> gaming, e-mobility (EV charging), healthtech, and web3, going back more
-> than fifteen years.
+> gaming, e-mobility (EV charging), healthtech, and web3, with 20+ years in infrastructure and security.
 
 Website: https://agusgonzaleznic.com · Contact: info@agusgonzaleznic.com ·
 Location: Berlin, Germany (remote coaching, worldwide) · Languages: English,
@@ -46,8 +45,9 @@ OKRs with DORA metrics; and sped up onboarding 60% by standardizing processes an
 documentation.
 
 **Experience:** Head of Infrastructure & Security at Safe Labs GmbH / web3
-(2025–present); VP of Engineering at JUCR GmbH / EV charging (2022–2025);
-Cloud Security Manager at Wildlife Studios / gaming (2020–2022); DevOps Lead at
+(2025–present); Infrastructure & Security Lead, then VP of Engineering, at JUCR GmbH / EV
+charging (2022–2024); Cloud Security Manager at Wildlife Studios / gaming
+(2021–2022); DevOps Lead at
 Ualá / fintech (2018–2021); and Infrastructure & Security Lead at Bdev /
 healthtech (2014–2018).
 
