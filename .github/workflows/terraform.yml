@@ -424,6 +424,45 @@ jobs:
           fi
           echo "OK: plan leaves aws_s3_bucket_versioning.terraform_state enabled and intact."
 
+      # The ceiling denies CI the changes that mint or retrust a principal,
+      # edit the bootstrap role's own grants, or open the state bucket
+      # (role-bootstrap-ci.tf). Fail the plan on them, so a reviewer is never
+      # asked to approve an apply that dies half-way. Mirrored in
+      # bootstrap-detect below.
+      - name: Guard (break-glass changes)
+        run: |
+          # Reuses plan.txt written by the plan step above. Do NOT plan again.
+          # Only the planned actions count: drift notes above the marker say
+          # what changed outside Terraform, not what CI would call.
+          sed -n '/^Terraform will perform the following actions:/,$p' plan.txt > actions.txt
+
+          # Headers look like "  # aws_iam_role.site_plan will be created".
+          # Destroying a role is allowed (DeleteRole), creating or replacing
+          # one is not (CreateRole).
+          grep -nE \
+            -e '^[[:space:]]*# aws_iam_role\.[^ ]+ (will be created|must be replaced)' \
+            -e '^[[:space:]]*# aws_iam_policy\.bootstrap_ceiling(\[[^]]*\])?[[:space:]]' \
+            -e '^[[:space:]]*# aws_iam_role_policy\.bootstrap_write_state(\[[^]]*\])?[[:space:]]' \
+            -e '^[[:space:]]*# aws_iam_role_policy_attachment\.bootstrap_write_iam(\[[^]]*\])?[[:space:]]' \
+            -e '^[[:space:]]*# aws_s3_bucket_policy\.terraform_state(\[[^]]*\])?[[:space:]]' \
+            -e '^[[:space:]]*# aws_s3_bucket_(acl|ownership_controls|replication_configuration)\.' \
+            actions.txt > hits.txt || true
+
+          # Trust and boundary edits on an existing role are in-place updates,
+          # so look inside "updated in-place" blocks only (a destroy block also
+          # lists assume_role_policy, and destroying is allowed).
+          awk '
+            /^[[:space:]]*# [^ ]+ (will be|must be)/ { addr = $2; upd = ($0 ~ /will be updated in-place/) }
+            upd && /^[[:space:]]*[~+-][[:space:]]+(assume_role_policy|permissions_boundary)[[:space:]]*=/ { print NR ": " addr ": " $0 }
+          ' actions.txt >> hits.txt
+
+          if [ -s hits.txt ]; then
+            cat hits.txt
+            echo "::error title=Break-glass change::This plan creates or replaces a role, edits a trust policy or permissions boundary, changes the bootstrap role's own grants, the state bucket policy, or the ceiling. agusgonzaleznic-bootstrap-ceiling denies those to CI, so the gated apply would fail half-way. Apply this commit locally with AWS_PROFILE=root-admin after reading the plan, then re-run the checks (terraform/bootstrap/README.md, Break-glass)."
+            exit 1
+          fi
+          echo "OK: nothing in this plan needs the break-glass apply."
+
   bootstrap-detect:
     name: Bootstrap plan (main)
     # Runs UNGATED because it is read-only, and it exists so the reviewer sees
@@ -549,6 +588,43 @@ jobs:
             exit 1
           fi
           echo "OK: plan leaves aws_s3_bucket_versioning.terraform_state enabled and intact."
+
+      # Same guard as in bootstrap-plan above, see the reasoning there. Load-
+      # bearing here: a failure skips the gated apply instead of letting it die
+      # half-way on an explicit deny.
+      - name: Guard (break-glass changes)
+        run: |
+          # Reuses plan.txt written by the plan step above. Do NOT plan again.
+          # Only the planned actions count: drift notes above the marker say
+          # what changed outside Terraform, not what CI would call.
+          sed -n '/^Terraform will perform the following actions:/,$p' plan.txt > actions.txt
+
+          # Headers look like "  # aws_iam_role.site_plan will be created".
+          # Destroying a role is allowed (DeleteRole), creating or replacing
+          # one is not (CreateRole).
+          grep -nE \
+            -e '^[[:space:]]*# aws_iam_role\.[^ ]+ (will be created|must be replaced)' \
+            -e '^[[:space:]]*# aws_iam_policy\.bootstrap_ceiling(\[[^]]*\])?[[:space:]]' \
+            -e '^[[:space:]]*# aws_iam_role_policy\.bootstrap_write_state(\[[^]]*\])?[[:space:]]' \
+            -e '^[[:space:]]*# aws_iam_role_policy_attachment\.bootstrap_write_iam(\[[^]]*\])?[[:space:]]' \
+            -e '^[[:space:]]*# aws_s3_bucket_policy\.terraform_state(\[[^]]*\])?[[:space:]]' \
+            -e '^[[:space:]]*# aws_s3_bucket_(acl|ownership_controls|replication_configuration)\.' \
+            actions.txt > hits.txt || true
+
+          # Trust and boundary edits on an existing role are in-place updates,
+          # so look inside "updated in-place" blocks only (a destroy block also
+          # lists assume_role_policy, and destroying is allowed).
+          awk '
+            /^[[:space:]]*# [^ ]+ (will be|must be)/ { addr = $2; upd = ($0 ~ /will be updated in-place/) }
+            upd && /^[[:space:]]*[~+-][[:space:]]+(assume_role_policy|permissions_boundary)[[:space:]]*=/ { print NR ": " addr ": " $0 }
+          ' actions.txt >> hits.txt
+
+          if [ -s hits.txt ]; then
+            cat hits.txt
+            echo "::error title=Break-glass change::This plan creates or replaces a role, edits a trust policy or permissions boundary, changes the bootstrap role's own grants, the state bucket policy, or the ceiling. agusgonzaleznic-bootstrap-ceiling denies those to CI, so the gated apply would fail half-way. Apply this commit locally with AWS_PROFILE=root-admin after reading the plan, then re-run the checks (terraform/bootstrap/README.md, Break-glass)."
+            exit 1
+          fi
+          echo "OK: nothing in this plan needs the break-glass apply."
 
   bootstrap-apply:
     name: Bootstrap apply (gated)

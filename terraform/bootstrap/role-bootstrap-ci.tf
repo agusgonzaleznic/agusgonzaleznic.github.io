@@ -42,9 +42,15 @@
 # wielding full root-admin SSO credentials with no plan recorded anywhere.
 #
 # The ceiling below therefore does not pretend to contain a compromised
-# approved run. It blocks the persistence and lateral-movement paths this
-# module never legitimately needs, so a mistake or a hijacked run cannot leave
-# a durable foothold behind.
+# approved run. What holds: such a run can still widen the PERMISSIONS of any
+# existing CI role, up to `*`. It cannot mint a principal (create a role),
+# change who may assume one (rewrite a trust policy), set or strip a
+# boundary, edit this role's own grants, or open the state bucket. Those
+# changes are rare (a few in the first month of this tier, none since) and go
+# through the break-glass apply; the guard step in terraform.yml fails the
+# plan before CI tries one. Not closed here: s3:PutLifecycleConfiguration and
+# s3:PutBucketVersioning stay allowed because this module manages them; the
+# versioning plan-text guard covers the second.
 ################################################################################
 
 locals {
@@ -105,14 +111,37 @@ data "aws_iam_policy_document" "bootstrap_ceiling" {
     resources = ["*"]
   }
 
-  # Makes the ceiling non-removable by the principal it constrains. Without
-  # these two, a boundary is advice rather than a limit.
+  # A durable foothold through IAM needs a principal an outsider can become:
+  # a new role, or an existing role whose trust was rewritten. Stripping a
+  # boundary from a Lambda exec role is the same class. The two halves only
+  # work together: denying CreateRole alone leaves retrusting an existing
+  # role open, and no condition key sees trust-policy content, so neither can
+  # be narrowed. Covers this role too, which keeps the ceiling non-removable
+  # by the principal it constrains.
   statement {
-    sid    = "DenyShedingOwnCeiling"
+    sid    = "DenyMintingOrRetrustingPrincipals"
     effect = "Deny"
     actions = [
+      "iam:CreateRole",
+      "iam:UpdateAssumeRolePolicy",
       "iam:PutRolePermissionsBoundary",
       "iam:DeleteRolePermissionsBoundary",
+    ]
+    resources = ["*"]
+  }
+
+  # The role's own grants are part of its ceiling in practice: with these
+  # allowed it attaches AdministratorAccess to itself and its identity policy
+  # stops meaning anything. Changing IAMFullAccess or the state inline policy
+  # is break-glass, like the ceiling itself.
+  statement {
+    sid    = "DenyEditingOwnGrants"
+    effect = "Deny"
+    actions = [
+      "iam:AttachRolePolicy",
+      "iam:DetachRolePolicy",
+      "iam:PutRolePolicy",
+      "iam:DeleteRolePolicy",
     ]
     resources = [local.bootstrap_role_arn]
   }
@@ -135,6 +164,24 @@ data "aws_iam_policy_document" "bootstrap_ceiling" {
     sid       = "DenyDeletingStateBucket"
     effect    = "Deny"
     actions   = ["s3:DeleteBucket"]
+    resources = [aws_s3_bucket.terraform_state.arn]
+  }
+
+  # Object access is scoped to bootstrap/* by the identity policy, but a
+  # bucket policy, an ACL (after re-enabling ACLs through ownership controls)
+  # or a replication rule can hand the site state, secrets included, to this
+  # role or to an outsider. The module sets the bucket policy and never
+  # touches ACLs, ownership or replication.
+  statement {
+    sid    = "DenyOpeningStateBucket"
+    effect = "Deny"
+    actions = [
+      "s3:PutBucketPolicy",
+      "s3:DeleteBucketPolicy",
+      "s3:PutBucketAcl",
+      "s3:PutBucketOwnershipControls",
+      "s3:PutReplicationConfiguration",
+    ]
     resources = [aws_s3_bucket.terraform_state.arn]
   }
 }
