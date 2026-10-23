@@ -140,10 +140,22 @@ Use `AWS_PROFILE=root-admin` locally only when:
 - **A change the ceiling denies CI**: a new or replaced `aws_iam_role`, any
   `assume_role_policy` or `permissions_boundary` edit, the bootstrap role's own
   `IAMFullAccess` attachment or state inline policy, the state bucket policy, or
-  the ceiling itself. The `Guard (break-glass changes)` step fails the plan on
-  these, so the gated apply never starts. Apply the PR's commit locally after
-  reading its plan, re-run the PR checks (the plan is then empty, so the guard
-  passes), and merge: main's run then has nothing to apply.
+  the ceiling itself. The `Guard (break-glass changes)` step
+  (`guard-break-glass.sh`) fails the plan on these, so the gated apply never
+  starts. The order, which keeps main green:
+  1. Keep the link to the PR's first check run, where the guard fails on the
+     change: no later run will show it.
+  2. Run `terraform plan` locally on the PR's head commit and check it shows
+     only the PR's change; anything more means the branch is behind main's
+     bootstrap tier. Apply exactly that commit and record its SHA in the PR.
+     A later commit on the branch repeats this step.
+  3. Re-run the PR checks: the plan is now empty and the guard passes. Merge.
+     Main's bootstrap-detect has nothing to apply; the site apply still asks
+     for a `terraform-production` approval for a no-op plan (the workflow
+     triggers on `terraform/**`), which can be cancelled.
+  If the PR is dropped after the apply, main's next bootstrap-detect shows a
+  plan reverting the change and the guard fails it: the revert is break-glass
+  too, so it is visible, never silent.
 
 ## Wiring outputs into GitHub
 
