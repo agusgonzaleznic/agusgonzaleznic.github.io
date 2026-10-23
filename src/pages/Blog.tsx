@@ -16,7 +16,7 @@ const Blog = () => {
   const posts = getAllPosts(locale);
 
   const title = t`Writing | Agustin Gonzalez Nicolini`;
-  const description = t`Notes on engineering leadership and the systems behind it, from fifteen years of running teams and infrastructure. By Agustin Gonzalez Nicolini.`;
+  const description = t`Notes on engineering leadership and the systems behind it, from 20+ years in infrastructure and security. By Agustin Gonzalez Nicolini.`;
 
   return (
     // Was a hand-rolled <Helmet> with title/description/canonical/og:type/
@@ -48,8 +48,8 @@ const Blog = () => {
               <header className={`${SECTION_HEADER_MARGIN} animate-fade-in-up`}>
                 <h1 className="mb-4 text-fluid-3xl font-bold"><Trans>Writing</Trans></h1>
                 <p className="text-fluid-lg leading-relaxed text-muted-foreground">
-                  <Trans>Notes from fifteen years of running engineering teams: leadership,
-                  infrastructure, and the occasional strong opinion. I publish when I
+                  <Trans>Notes from 20+ years in infrastructure and security: leadership,
+                  systems, and the occasional strong opinion. I publish when I
                   have something worth saying, not on a schedule.</Trans>
                 </p>
               </header>

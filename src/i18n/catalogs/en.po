@@ -51,8 +51,8 @@ msgid "2. Hosting and Server Logs"
 msgstr "2. Hosting and Server Logs"
 
 #: src/components/Hero.tsx
-msgid "22 years leading engineering teams"
-msgstr "22 years leading engineering teams"
+msgid "20+ years in infrastructure and security"
+msgstr "20+ years in infrastructure and security"
 
 #: src/pages/Legal.tsx
 msgid "3. Contact Form"
@@ -388,8 +388,8 @@ msgid "Every engagement names the result it should produce (delivery speed, rete
 msgstr "Every engagement names the result it should produce (delivery speed, retention, uptime), and we check that it did."
 
 #: src/pages/Index.tsx
-msgid "Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably. 22 years of engineering leadership. Berlin & remote."
-msgstr "Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably. 22 years of engineering leadership. Berlin & remote."
+msgid "Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably. 20+ years in infrastructure and security. Berlin & remote."
+msgstr "Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably. 20+ years in infrastructure and security. Berlin & remote."
 
 #: src/components/Services.tsx
 msgid "Executive Leadership Coaching"
@@ -539,8 +539,8 @@ msgid "I work with CTOs and VPs of Engineering, directors, engineering managers,
 msgstr "I work with CTOs and VPs of Engineering, directors, engineering managers, tech leads, and individual contributors preparing for their first leadership role."
 
 #: src/components/About.tsx
-msgid "I'm Agustin Gonzalez Nicolini. For 22 years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
-msgstr "I'm Agustin Gonzalez Nicolini. For 22 years I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
+msgid "I'm Agustin Gonzalez Nicolini, with 20+ years in infrastructure and security. I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
+msgstr "I'm Agustin Gonzalez Nicolini, with 20+ years in infrastructure and security. I've built and led multi-disciplinary teams across fintech, gaming, e-mobility, healthtech, and web3, shipping REST and GraphQL architectures on serverless and containerized cloud-native systems, including a core banking platform."
 
 #: src/pages/BlogPost.tsx
 msgid "I'm Agustin: I coach engineering leaders, from first-time managers to CTOs."
@@ -592,6 +592,10 @@ msgstr "Industries where I've led teams:"
 #: src/components/Impact.tsx
 msgid "Infrastructure & Security Lead"
 msgstr "Infrastructure & Security Lead"
+
+#: src/components/Impact.tsx
+msgid "Infrastructure & Security Lead, then VP of Engineering"
+msgstr "Infrastructure & Security Lead, then VP of Engineering"
 
 #: src/components/Services.tsx
 msgid "Interview prep for leadership roles"
@@ -667,8 +671,8 @@ msgid "Manager → Director: Scaling impact through others"
 msgstr "Manager → Director: Scaling impact through others"
 
 #: src/pages/About.tsx
-msgid "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 22 years scaling teams across fintech, gaming, e-mobility, and Web3."
-msgstr "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin. 22 years scaling teams across fintech, gaming, e-mobility, and Web3."
+msgid "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin, with 20+ years in infrastructure and security across fintech, gaming, e-mobility, and Web3."
+msgstr "Meet Agustin Gonzalez Nicolini: engineering leader turned coach in Berlin, with 20+ years in infrastructure and security across fintech, gaming, e-mobility, and Web3."
 
 #: src/components/Navigation.tsx
 msgid "Menu"
@@ -704,8 +708,8 @@ msgid "My track record leading engineering orgs, and the results coaching delive
 msgstr "My track record leading engineering orgs, and the results coaching delivers: faster delivery, lower attrition, and teams that run without heroics."
 
 #: src/components/RelatedPages.tsx
-msgid "My track record: 22 years leading engineering teams"
-msgstr "My track record: 22 years leading engineering teams"
+msgid "My track record: 20+ years in infrastructure and security"
+msgstr "My track record: 20+ years in infrastructure and security"
 
 #: src/components/Contact.tsx
 msgid "Name *"
@@ -716,12 +720,12 @@ msgid "Not sure which format fits your situation?"
 msgstr "Not sure which format fits your situation?"
 
 #: src/pages/Blog.tsx
-msgid "Notes from fifteen years of running engineering teams: leadership, infrastructure, and the occasional strong opinion. I publish when I have something worth saying, not on a schedule."
-msgstr "Notes from fifteen years of running engineering teams: leadership, infrastructure, and the occasional strong opinion. I publish when I have something worth saying, not on a schedule."
+msgid "Notes from 20+ years in infrastructure and security: leadership, systems, and the occasional strong opinion. I publish when I have something worth saying, not on a schedule."
+msgstr "Notes from 20+ years in infrastructure and security: leadership, systems, and the occasional strong opinion. I publish when I have something worth saying, not on a schedule."
 
 #: src/pages/Blog.tsx
-msgid "Notes on engineering leadership and the systems behind it, from fifteen years of running teams and infrastructure. By Agustin Gonzalez Nicolini."
-msgstr "Notes on engineering leadership and the systems behind it, from fifteen years of running teams and infrastructure. By Agustin Gonzalez Nicolini."
+msgid "Notes on engineering leadership and the systems behind it, from 20+ years in infrastructure and security. By Agustin Gonzalez Nicolini."
+msgstr "Notes on engineering leadership and the systems behind it, from 20+ years in infrastructure and security. By Agustin Gonzalez Nicolini."
 
 #: src/pages/Blog.tsx
 msgid "Nothing here yet"
@@ -1057,7 +1061,6 @@ msgstr "Verification failed. Please complete the challenge and try again."
 msgid "Verification isn't available right now: please email me directly at info@agusgonzaleznic.com."
 msgstr "Verification isn't available right now: please email me directly at info@agusgonzaleznic.com."
 
-#: src/components/Impact.tsx
 #: src/components/Testimonials.tsx
 msgid "VP of Engineering"
 msgstr "VP of Engineering"

@@ -22,8 +22,8 @@ const DEFAULT_STATS: { icon: LucideIcon; value: string; label: MessageDescriptor
 
 const DEFAULT_TIMELINE: { period: string; company: string; role: MessageDescriptor; achievement: MessageDescriptor }[] = [
   { period: "2025-Present", company: "Safe Labs GmbH", role: msg`Head of Infrastructure & Security`, achievement: msg`Running infrastructure and security end to end for a Web3 platform.` },
-  { period: "2022-2025", company: "JUCR GmbH (EV Charging)", role: msg`VP of Engineering`, achievement: msg`Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime.` },
-  { period: "2020-2022", company: "Wildlife Studios (Gaming)", role: msg`Cloud Security Manager`, achievement: msg`Kept security controls stringent while game teams shipped features at full speed.` },
+  { period: "2022-2024", company: "JUCR GmbH (EV Charging)", role: msg`Infrastructure & Security Lead, then VP of Engineering`, achievement: msg`Led the migration to multi-account AWS, unified an architecture spanning 5+ SaaS services, and sustained 99.99% uptime.` },
+  { period: "2021-2022", company: "Wildlife Studios (Gaming)", role: msg`Cloud Security Manager`, achievement: msg`Kept security controls stringent while game teams shipped features at full speed.` },
   { period: "2018-2021", company: "Ualá (FinTech)", role: msg`DevOps Lead`, achievement: msg`Delivered a core banking system on a fully serverless architecture, with PCI-DSS compliance and security hardening throughout.` },
   { period: "2014-2018", company: "Bdev (HealthTech)", role: msg`Infrastructure & Security Lead`, achievement: msg`Migrated on-premise infrastructure to AWS and implemented SOC 2 and ISO 27001 compliance.` },
 ];
