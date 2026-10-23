@@ -303,7 +303,7 @@ msgstr "Ho realizzato un sistema di core banking su un'architettura interamente 
 
 #: src/components/Impact.tsx
 msgid "DevOps Lead"
-msgstr "DevOps Lead"
+msgstr "Responsabile DevOps"
 
 #: src/components/Services.tsx
 msgid "DevOps/GitOps workflows & trunk-based development"
@@ -490,7 +490,7 @@ msgstr "Crescita attraverso la chiarezza"
 
 #: src/components/Impact.tsx
 msgid "Head of Infrastructure & Security"
-msgstr "Head of Infrastructure & Security"
+msgstr "Direttore Infrastrutture e Sicurezza"
 
 #: src/components/Services.tsx
 msgid "Hiring, leveling & performance frameworks"
@@ -593,7 +593,7 @@ msgstr "Responsabile Infrastrutture e Sicurezza"
 
 #: src/components/Impact.tsx
 msgid "Infrastructure & Security Lead, then VP of Engineering"
-msgstr "Responsabile Infrastrutture e Sicurezza, poi VP of Engineering"
+msgstr "Responsabile Infrastrutture e Sicurezza, poi VP Ingegneria"
 
 #: src/components/Services.tsx
 msgid "Interview prep for leadership roles"
@@ -806,6 +806,10 @@ msgstr "Risposte concrete su compatibilità, formato e su come inizieremmo"
 #: src/components/HowIWork.tsx
 msgid "Practice Over Theory"
 msgstr "La pratica prima della teoria"
+
+#: src/components/Impact.tsx
+msgid "Present"
+msgstr "oggi"
 
 #: src/components/CookieNotice.tsx
 msgid "Privacy notice"

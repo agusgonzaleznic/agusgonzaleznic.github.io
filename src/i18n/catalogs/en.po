@@ -809,6 +809,10 @@ msgstr "Practical answers on fit, format, and how we'd start"
 msgid "Practice Over Theory"
 msgstr "Practice Over Theory"
 
+#: src/components/Impact.tsx
+msgid "Present"
+msgstr "Present"
+
 #: src/components/CookieNotice.tsx
 msgid "Privacy notice"
 msgstr "Privacy notice"
