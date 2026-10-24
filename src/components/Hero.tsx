@@ -39,9 +39,10 @@ export const Hero = ({ block }: { block?: HeroBlock }) => {
 
       <div className={`container relative z-10 px-6 ${SECTION_PADDING}`}>
         <div className="max-w-6xl mx-auto">
-          {/* Running head. The credential is the masthead line of the page, set
-              over a thick-thin (Scotch) rule that spans BOTH grid columns, so
-              the mark sits beside the line instead of boxing it. Both columns
+          {/* Running head. The credential is the masthead line of the page, led
+              by a 32 x 2 px accent bar: a mark beside the line, not the
+              full-width thick-thin rule #142 drew, which #146 shortened because
+              it boxed the hero in. Both columns
               still start under this block, so
               items-start aligns the H1's first line with the top of the photo on
               its own and the image column's hardcoded 70px top offset is gone
