@@ -22,7 +22,7 @@
     <meta name="author" content="Agustin Gonzalez Nicolini" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="revisit-after" content="7 days" />
-    <meta name="theme-color" content="#FF6B4A" />
+    <meta name="theme-color" content="#DE3412" />
 
     <!--
       route-head markers: scripts/prerender.mjs replaces everything between
@@ -201,7 +201,7 @@
         keeps overriding it, as it did under v3, where it simply came later.
         Outside a layer, its `*{border-color}` beat every border utility and its
         tokens beat src/index.css. The tokens mirror the :root block there by
-        hand; keep them in step.
+        hand; scripts/assert-brand-tokens.mjs fails CI when one differs.
       */
       @layer properties, theme, base, components, utilities;
       @layer base{:root{--background:0 0% 98%;--foreground:220 15% 12%;--primary:220 15% 12%;--primary-foreground:0 0% 98%;--secondary:220 10% 92%;--accent:10 85% 47%;--accent-foreground:0 0% 100%;--muted-foreground:220 12% 38%;--border:220 10% 88%}*{border-color:hsl(var(--border))}body{background-color:hsl(var(--background));color:hsl(var(--foreground));font-family:Inter,"Inter Fallback",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}html{scroll-behavior:smooth}h1,h2,h3,h4,h5,h6{font-family:"Playfair Display","Playfair Display Fallback",Georgia,serif}#root{min-height:100vh}}

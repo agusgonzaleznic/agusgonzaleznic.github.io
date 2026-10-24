@@ -63,8 +63,18 @@ test("border utilities beat the shell's *{border-color} (form fields keep their 
   const got = await computed("/contact", "input[class*='border-input']", (sel) =>
     getComputedStyle(document.querySelector(sel)).borderTopColor,
   );
-  // hsl(220 10% 59%): the darker --input token, not the decorative --border.
-  assert.equal(got, "rgb(140, 147, 161)");
+  // hsl(220 10% 58%): the darker --input token, not the decorative --border.
+  assert.equal(got, "rgb(137, 144, 159)");
+});
+
+test("the accent glow is the accent token, not the retired 58% coral", async () => {
+  // --shadow-accent reads hsl(var(--accent) / 0.3) through Tailwind's shadow
+  // utility, which rewrites the colour into --tw-shadow-color; this reads what
+  // that compiles to. Until 2026-10-24 it was rgba(239, 87, 57, 0.3).
+  const got = await computed("/contact", "form button[type='submit'][class*='shadow-accent']", (sel) =>
+    getComputedStyle(document.querySelector(sel)).boxShadow,
+  );
+  assert.match(got, /rgba\(222, 52, 18, 0\.3\) 0px 8px 32px -8px/);
 });
 
 test("enabled buttons keep the pointer cursor Preflight no longer sets", async () => {

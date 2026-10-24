@@ -62,7 +62,15 @@
   --shadow-sm: 0 2px 8px -2px hsl(220 15% 12% / 0.08);
   --shadow-md: 0 8px 24px -8px hsl(220 15% 12% / 0.12);
   --shadow-lg: 0 16px 48px -12px hsl(220 15% 12% / 0.16);
-  --shadow-accent: 0 8px 32px -8px hsl(10 85% 58% / 0.3);
+  /* Tailwind's own geometry for xl and 2xl (the hero photo and the CMS About
+     image use them), in charcoal instead of its stock black. A shadow size not
+     defined here would paint black: scripts/assert-brand-tokens.mjs fails on it. */
+  --shadow-xl: 0 20px 25px -5px hsl(220 15% 12% / 0.1), 0 8px 10px -6px hsl(220 15% 12% / 0.1);
+  --shadow-2xl: 0 25px 50px -12px hsl(220 15% 12% / 0.25);
+  /* The accent glow reads the token, so it can never again keep a retired coral
+     (it held the pre-2026-08-20 58% until 2026-10-24). The charcoal shadows
+     above stay literal on purpose: --foreground flips to near-white in .dark. */
+  --shadow-accent: 0 8px 32px -8px hsl(var(--accent) / 0.3);
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -92,6 +100,10 @@
 
   If we ever want to remove these styles, we need to add an explicit border
   color utility to any element that depends on these defaults.
+
+  The colour is the --border token, not Tailwind's stock gray-200, which no
+  token defines. `* { border-border }` below already covers elements; this keeps
+  pseudo-elements on the token too.
 */
 @layer base {
   *,
@@ -99,13 +111,19 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    border-color: hsl(var(--border));
   }
 }
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL
-*/
+/* Definition of the design system. Every colour is defined here, as an HSL
+   token. Anything outside these blocks (index.html's pre-paint shell and
+   theme-color, the favicon, the squiggle's data URI, SVGs, components) must
+   use a token's colour: scripts/assert-brand-tokens.mjs fails CI otherwise,
+   and also holds the contrast floors below.
+
+   Contrast is measured against the real backgrounds: the page is #FAFAFA
+   (--background), cards are white. Ratios are WCAG 2.2 on the 8-bit colours
+   the browser paints. */
 
 @layer base {
   :root {
@@ -130,16 +148,21 @@ All colors MUST be HSL
 
     /* Muted tones */
     --muted: 220 10% 92%;
-    --muted-foreground: 220 12% 38%; /* Improved contrast: 7:1 ratio for WCAG AAA */
+    /* Secondary text only, never body copy: 6.34:1 on the page and 6.62:1 on
+       a card. That is AA, not the 7:1 AAA this comment used to claim. */
+    --muted-foreground: 220 12% 38%;
 
     /* Accent - electric coral.
        DARKENED 58% -> 47% for WCAG 1.4.3 AA (2026-08-20). Twelve first-party
        CTAs put white text on this colour (Navigation x3, Hero, Contact submit,
        Services x2, ServiceItem x2, Links card, CookieNotice, NotFound) and all
        of them use text-sm/font-medium (14px/500), which is NOT "large text", so
-       they need 4.5:1, not 3:1. At 58% the ratio was 3.44:1 and every one of
-       them failed. 47% gives 4.57:1 and 42% hover gives 5.51:1, at identical hue
+       they need 4.5:1, not 3:1. At 58% the ratio was 3.45:1 and every one of
+       them failed. 47% gives 4.56:1 and 42% hover gives 5.53:1, at identical hue
        and saturation so the brand still reads as the same coral.
+       As TEXT the coral clears AA only at large size: 4.56:1 on a card but
+       4.37:1 on the page. Coral text below 24px (18.7px bold) belongs in
+       --accent-hover, 5.30:1 on the page.
        Decorative uses (icons, glows, borders, --ring) only need 3:1 under
        1.4.11 and are comfortably fine at the darker value. Keeping ONE accent
        rather than adding a text-safe variant is deliberate: with 12 call sites a
@@ -148,8 +171,12 @@ All colors MUST be HSL
     --accent: 10 85% 47%;
     --accent-foreground: 0 0% 100%;
 
-    /* Accent hover state */
+    /* Accent hover state, and coral text below large size */
     --accent-hover: 10 85% 42%;
+
+    /* The accent gradient's end stop (burnt orange), used only with --accent
+       in --gradient-accent. 4.44:1 on the page: large text only. */
+    --accent-end: 20 80% 43%;
 
     /* Destructive */
     --destructive: 0 72% 51%;
@@ -159,24 +186,26 @@ All colors MUST be HSL
        --input is DARKER than --border on purpose (2026-08-20). WCAG 1.4.11
        wants a 3:1 boundary for user-interface components, and the form controls
        are the only consumers of border-input (Input, Textarea, Select, the
-       outline Button, InputOTP). At 88% the field edge was 1.33:1 against the
-       page, effectively invisible. 59% = 3.09:1. --border stays light because it
-       is decorative (card edges, separators), which 1.4.11 does not govern. */
+       outline Button, InputOTP). At 88% the field edge was 1.28:1 against the
+       page, effectively invisible. 59% then gave 3.09:1, but against white:
+       inputs are filled with --background, so the edge meets #FAFAFA on its
+       inside, where 59% is 2.96:1. 58% is 3.07:1 there and 3.20:1 on a card
+       (2026-10-24). --border stays light because it is decorative (card edges,
+       separators), which 1.4.11 does not govern. */
     --border: 220 10% 88%;
-    --input: 220 10% 59%;
+    --input: 220 10% 58%;
     --ring: 10 85% 47%; /* matches --accent */
 
     /* Border radius */
     --radius: 0.75rem;
 
-    /* Custom gradients */
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 98%), hsl(220 10% 96%));
-    /* Also used by .text-gradient-accent, which colours the hero H1 TEXT, so
-       both stops must meet contrast, not just look nice. The old lighter stop
-       hsl(20 80% 65%) was 2.43:1 against the page, failing even the 3:1
-       large-text floor on the most prominent text on the site. Both stops now
-       clear 4.5:1 (4.57:1 and 4.61:1). */
-    --gradient-accent: linear-gradient(135deg, hsl(10 85% 47%), hsl(20 80% 43%));
+    /* Colours the hero H1 TEXT through .text-gradient-accent, so both stops must
+       meet contrast, not just look nice. The old lighter stop hsl(20 80% 65%)
+       was 2.43:1 against the page, failing even the 3:1 large-text floor on the
+       most prominent text on the site. On the page the stops are 4.37:1 and
+       4.44:1: fine for the hero title, which is large text, and below AA for
+       anything smaller, so never put this gradient on text under 24px. */
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-end)));
 
     /* Shadows live in the @theme block above. */
 
@@ -392,7 +421,7 @@ All colors MUST be HSL
 
   /* Gradient text */
   .text-gradient-accent {
-    background: linear-gradient(135deg, hsl(10 85% 47%), hsl(20 80% 43%));
+    background: var(--gradient-accent);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -405,7 +434,8 @@ All colors MUST be HSL
      en) underline correctly, not just single-line ones (es/pt). Replaces the old
      absolute SVG, which only underlined the last line once a clause wrapped.
      Squiggle colour is hardcoded to --accent (10 85% 47% = #DE3412; identical in
-     light + dark) because a data-URI SVG can't read CSS variables. */
+     light + dark) because a data-URI SVG can't read CSS variables.
+     scripts/assert-brand-tokens.mjs fails CI if it stops being a token colour. */
   .underline-squiggle {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4C50 2 150 2 200 4' stroke='%23DE3412' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
