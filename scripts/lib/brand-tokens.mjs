@@ -1,10 +1,10 @@
 // The brand colour contract, as code: src/index.css owns every colour, and
 // anything outside its token blocks must match a token or fail the build.
 //
-// WHY. Before this existed, colours drifted wherever a value was copied out of
-// the tokens by hand: the favicon kept the coral from before the 2026-08-20
-// darkening, <meta name="theme-color"> carried a coral no token ever had, the
-// accent glow kept the retired 58% coral, and the stylesheet's contrast comments
+// WHY. Before this existed, colours drifted wherever one was written by hand
+// instead of read from the tokens: the favicon's coral (#E63B11) and the one in
+// <meta name="theme-color"> were never token values at all, the accent glow
+// kept the retired 58% coral, and the stylesheet's contrast comments
 // were measured against white while the page is #FAFAFA. Nothing failed,
 // because nothing compared them. scripts/assert-brand-tokens.mjs runs these
 // checks in CI; this module is the pure part, tested in brand-tokens.test.mjs.
