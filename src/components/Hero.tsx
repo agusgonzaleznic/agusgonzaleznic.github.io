@@ -97,7 +97,10 @@ export const Hero = ({ block }: { block?: HeroBlock }) => {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="border-2 hover:bg-secondary"
+                  // The variant hovers to white text on coral; this button hovers
+                  // to the light surface, where white is 1.20:1, so its label
+                  // turns charcoal instead.
+                  className="border-2 hover:bg-secondary hover:text-secondary-foreground"
                 >
                   <LocaleLink to="/services">
                     {block?.cta_text ?? <Trans>How Coaching Works</Trans>}

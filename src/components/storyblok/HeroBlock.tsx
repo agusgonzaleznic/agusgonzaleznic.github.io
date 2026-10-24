@@ -91,7 +91,9 @@ export const HeroBlock = ({ blok }: HeroBlockProps) => {
                     size="lg"
                     variant="outline"
                     onClick={handleSecondaryCTA}
-                    className="border-2 hover:bg-secondary"
+                    // Charcoal on hover: the variant's white hover text is 1.20:1
+                    // on the light surface this button hovers to.
+                    className="border-2 hover:bg-secondary hover:text-secondary-foreground"
                   >
                     {blok.secondary_cta_text}
                   </Button>

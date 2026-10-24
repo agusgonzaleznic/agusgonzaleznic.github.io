@@ -87,6 +87,29 @@ test("small coral text paints the deep coral, not the accent", async () => {
   assert.equal(got, "rgb(198, 46, 16)");
 });
 
+test("the hero's outline button keeps a readable label on hover", async () => {
+  // It swaps the outline variant's coral hover fill for the light surface, and
+  // until 2026-10-24 it kept the variant's white hover text: 1.20:1.
+  const { page } = await pageAt(browser, 1280, 900);
+  try {
+    await page.goto(BASE + "/", { waitUntil: "load" });
+    await waitForHydration(page);
+    const cta = page.locator("a[href*='services'][class*='hover:bg-secondary']").first();
+    await cta.scrollIntoViewIfNeeded();
+    await cta.hover();
+    // The label should stay charcoal throughout: wait for the fill, which proves
+    // the hover applied, then read the label. (With the bug it reads near-white.)
+    const filled = await page
+      .waitForFunction((el) => getComputedStyle(el).backgroundColor === "rgb(233, 234, 237)", await cta.elementHandle(), { timeout: 3000 })
+      .then(() => true, () => false);
+    const got = await cta.evaluate((el) => ({ color: getComputedStyle(el).color, fill: getComputedStyle(el).backgroundColor }));
+    assert.ok(filled, `the hover fill never landed: ${got.fill}`);
+    assert.equal(got.color, "rgb(26, 29, 35)", "the label must be charcoal on the light surface");
+  } finally {
+    await page.close();
+  }
+});
+
 test("enabled buttons keep the pointer cursor Preflight no longer sets", async () => {
   // The language switcher: an always-enabled type="button" in the nav. (The
   // contact submit button starts disabled until the spam check passes.)
