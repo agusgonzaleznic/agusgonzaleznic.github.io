@@ -43,14 +43,17 @@ const NEUTRAL = {
   iconWrap: "bg-secondary text-foreground",
   label: "font-medium text-foreground",
   desc: "text-muted-foreground",
+  // brand: coral-ok, the arrow is an icon.
   arrow: "text-muted-foreground transition-colors group-hover:text-accent",
 };
 const FEATURED = {
   card: "border border-transparent bg-accent text-accent-foreground shadow-accent hover:bg-accent-hover",
   // White square + accent-coloured glyph inverts the neutral look → high contrast on the button.
+  // brand: coral-ok, the glyph is an icon.
   iconWrap: "bg-accent-foreground text-accent",
   label: "font-semibold text-accent-foreground",
-  desc: "text-accent-foreground/80",
+  // Full white: at 80% the line was 3.37:1 on the coral, under AA.
+  desc: "text-accent-foreground",
   arrow: "text-accent-foreground",
 };
 
@@ -167,7 +170,7 @@ export const Links = ({ block }: { block?: LinksBlock }) => {
         <div className="mt-12 flex flex-col items-center gap-4">
           <LocaleLink
             to="/"
-            className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-accent hover:underline"
+            className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-accent-hover hover:underline"
           >
             agusgonzaleznic.com
           </LocaleLink>

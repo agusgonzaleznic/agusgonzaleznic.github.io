@@ -140,7 +140,7 @@ export const Services = ({ block }: { block?: ServicesBlock }) => {
 
                 <div className="mb-6">
                   <h2 className="text-2xl font-bold mb-2">{service.title}</h2>
-                  <p className="text-sm text-accent font-medium">{service.subtitle}</p>
+                  <p className="text-sm text-accent-hover font-medium">{service.subtitle}</p>
                 </div>
 
                 <p className="text-muted-foreground mb-6 leading-relaxed">

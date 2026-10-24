@@ -79,7 +79,7 @@ const NotFound = () => {
                     <li key={l.to}>
                       <LocaleLink
                         to={l.to}
-                        className="font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-accent hover:underline"
+                        className="font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-accent-hover hover:underline"
                       >
                         {l.label}
                       </LocaleLink>

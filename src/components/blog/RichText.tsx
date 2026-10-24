@@ -72,7 +72,7 @@ const classifyHref = (raw: string): { external: boolean } | null => {
 
 const PARAGRAPH_CLASS = "text-fluid-base leading-relaxed text-muted-foreground";
 const LINK_CLASS =
-  "text-accent underline underline-offset-4 decoration-accent/40 hover:decoration-accent transition-colors";
+  "text-accent-hover underline underline-offset-4 decoration-accent-hover/40 hover:decoration-accent-hover transition-colors";
 
 /**
  * Give a CMS-authored internal link the reader's locale.
@@ -203,7 +203,7 @@ const renderNode = (node: RichtextNode, key: number, ctx: Ctx): ReactNode => {
             <a
               href={`#${id}`}
               aria-label={t`Link to this section`}
-              className="ml-2 font-normal text-accent opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
+              className="ml-2 font-normal text-accent-hover opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
             >
               #
             </a>

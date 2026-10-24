@@ -756,7 +756,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                 <div className="space-y-4">
                   <a
                     href="mailto:info@agusgonzaleznic.com"
-                    className="flex items-center gap-3 text-muted-foreground hover:text-accent transition-colors group"
+                    className="flex items-center gap-3 text-muted-foreground hover:text-accent-hover transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
                       <Mail className="w-5 h-5" />
@@ -768,7 +768,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                     href="https://www.linkedin.com/in/agusgonzaleznic/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-muted-foreground hover:text-accent transition-colors group"
+                    className="flex items-center gap-3 text-muted-foreground hover:text-accent-hover transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
                       <Linkedin className="w-5 h-5" />
@@ -780,7 +780,7 @@ export const Contact = ({ block }: { block?: ContactBlock }) => {
                     href="https://github.com/agusgonzaleznic"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-muted-foreground hover:text-accent transition-colors group"
+                    className="flex items-center gap-3 text-muted-foreground hover:text-accent-hover transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
                       <Github className="w-5 h-5" />

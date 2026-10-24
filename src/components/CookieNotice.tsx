@@ -111,7 +111,7 @@ export const CookieNotice = () => {
                   loaded unless you accept; details are in the{" "}
                   <LocaleLink
                     to="/privacy"
-                    className="font-medium text-accent hover:underline"
+                    className="font-medium text-accent-hover hover:underline"
                   >
                     Privacy Policy
                   </LocaleLink>
@@ -148,7 +148,7 @@ export const CookieNotice = () => {
                   . Details are in the{" "}
                   <LocaleLink
                     to="/privacy"
-                    className="font-medium text-accent hover:underline"
+                    className="font-medium text-accent-hover hover:underline"
                   >
                     Privacy Policy
                   </LocaleLink>

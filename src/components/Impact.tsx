@@ -89,7 +89,7 @@ export const Impact = ({ block }: { block?: ImpactBlock }) => {
                   {/* Period badge */}
                   <div className="shrink-0 md:w-32">
                     <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-accent/10 border border-accent/20">
-                      <span className="text-sm font-medium text-accent">{item.period.replace(/Present$/, i18n._(PRESENT))}</span>
+                      <span className="text-sm font-medium text-accent-hover">{item.period.replace(/Present$/, i18n._(PRESENT))}</span>
                     </div>
                   </div>
 

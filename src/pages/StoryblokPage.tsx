@@ -196,7 +196,7 @@ export const StoryblokPage = ({ slug = "home" }: StoryblokPageProps) => {
       <Centered>
         <h1 className="text-2xl font-bold mb-4">Preview unavailable</h1>
         <p className="text-muted-foreground mb-6">{error || "The requested story could not be loaded."}</p>
-        <a href="/" className="text-accent hover:underline font-medium">
+        <a href="/" className="text-accent-hover hover:underline font-medium">
           Return to homepage
         </a>
       </Centered>
