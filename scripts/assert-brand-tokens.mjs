@@ -12,6 +12,9 @@
 //      is black, not charcoal): those colours belong to no token.
 //   5. The contrast floors of the brand kit hold on the colours the browser
 //      paints.
+//   6. No coral text below large size: `text-accent` (#DE3412, 4.37:1 on the
+//      page) paints only large text and icons; smaller coral text is
+//      `text-accent-hover` (#C62E10, 5.30:1).
 //
 // To change a colour, change its token in src/index.css, then whatever this
 // names. To add one, add a token first.
@@ -31,6 +34,7 @@ import {
   palette,
   parseTriplet,
   shellTokens,
+  smallCoralTextUses,
   stockPaletteUses,
   stockShadowUses,
   stylesheetTokens,
@@ -79,6 +83,7 @@ for (const [name, value] of Object.entries(shell)) {
 const kindOf = { ".css": "css", ".html": "html", ".svg": "svg", ".ts": "ts", ".tsx": "ts" };
 let scanned = 0;
 let literals = 0;
+let coralFiles = 0;
 for (const file of tracked) {
   const kind = kindOf[extname(file)];
   if (!kind) continue;
@@ -94,10 +99,15 @@ for (const file of tracked) {
     if (kind === "ts") {
       for (const f of stockShadowUses(text, shadows))
         fail(`${file}:${f.line}: ${f.text} is not in src/index.css's @theme, so it is Tailwind's stock black shadow`);
+      // 6. Small coral text.
+      if (/text-accent(?![\w-])/.test(text)) coralFiles++;
+      for (const f of smallCoralTextUses(text))
+        fail(`${file}:${f.line}: ${f.text} paints coral text below large size ("${f.classes}"); use text-accent-hover, or mark an icon with a \`brand: coral-ok\` comment`);
     }
   }
 }
 if (scanned < 20) fail(`scanned only ${scanned} files under src/, public/ and index.html; the file list is wrong`);
+if (coralFiles < 5) fail(`found text-accent in only ${coralFiles} files; the coral text check no longer reads the components`);
 
 // 3. The favicon.
 const images = icoImages(readFileSync(resolve(root, "public/favicon.ico")));
@@ -133,6 +143,7 @@ if (failures.length) {
 const lowest = floors.reduce((a, b) => (b.ratio - b.floor < a.ratio - a.floor ? b : a));
 console.log(
   `✓ assert-brand-tokens: ${pal.size} token colours; ${Object.keys(shell).length} shell tokens match; ` +
-    `${literals} colour literal(s) in ${scanned} files, all tokens; favicon ${images.map((i) => i.size).join("/")} on palette; ` +
+    `${literals} colour literal(s) in ${scanned} files, all tokens; coral text in ${coralFiles} files, large or icons only; ` +
+    `favicon ${images.map((i) => i.size).join("/")} on palette; ` +
     `${floors.length} contrast floors hold (tightest: --${lowest.fg} on --${lowest.bg}, ${lowest.ratio.toFixed(2)}:1 vs ${lowest.floor}:1).`,
 );

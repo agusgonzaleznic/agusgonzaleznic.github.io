@@ -195,6 +195,36 @@ export function stockShadowUses(text, defined) {
 }
 
 /**
+ * Coral text below large size. #DE3412 is 4.37:1 on the page, under the 4.5:1
+ * that text below 24px (18.7px bold) needs, so `text-accent`, in any variant
+ * (hover:, group-hover:) and at any alpha, may paint only large text and icons;
+ * smaller coral text is `text-accent-hover` (#C62E10, 5.30:1). A use passes when
+ * its class string also sets a large size without a breakpoint (text-2xl and up,
+ * text-fluid-2xl and up, or text-xl / text-fluid-xl with font-bold), or sizes an
+ * icon (w-N with h-N, or size-N), or when its line or the line above carries a
+ * `brand: coral-ok` comment saying why. Returns [{ line, text, classes }].
+ */
+export function smallCoralTextUses(text) {
+  const raw = text.split("\n");
+  const clean = blankTsComments(text);
+  const found = [];
+  for (const m of clean.matchAll(/(?<![\w:-])((?:[\w-]+:)*text-accent(?:\/\d+)?)(?![\w/-])/g)) {
+    // The class string around the use: class lists never hold quotes, braces or newlines.
+    const from = Math.max(...['"', "'", "`", "{", "}", "\n"].map((c) => clean.lastIndexOf(c, m.index))) + 1;
+    const ends = ['"', "'", "`", "{", "}", "$", "\n"].map((c) => clean.indexOf(c, m.index)).filter((i) => i !== -1);
+    const classes = clean.slice(from, ends.length ? Math.min(...ends) : clean.length).trim();
+    const has = (re) => re.test(` ${classes} `);
+    const large =
+      has(/\stext-(?:fluid-)?[2-9]xl\s/) || (has(/\stext-(?:fluid-)?xl\s/) && has(/\sfont-bold\s/));
+    const icon = has(/\ssize-\d/) || (has(/\sw-\d/) && has(/\sh-\d/));
+    const line = lineOf(clean, m.index);
+    const marked = /brand: coral-ok/.test(`${raw[line - 2] ?? ""}\n${raw[line - 1]}`);
+    if (!large && !icon && !marked) found.push({ line, text: m[1], classes });
+  }
+  return found;
+}
+
+/**
  * Pixels of a .ico whose images are 32-bit BMPs (the only kind this site ships).
  * Returns [{ size, pixels: [[r, g, b, a], ...] }]. Anything else throws, so a
  * new favicon in another format fails loudly instead of passing unchecked.
@@ -222,7 +252,10 @@ export function icoImages(buf) {
 /**
  * Contrast floors from the brand kit (WCAG 2.2): body copy 7:1, other text
  * below large size 4.5:1, large text and UI boundaries 3:1. Each pair is
- * [foreground token, background token, floor, what it is].
+ * [foreground, background, floor, what it is], where a side is a token
+ * ("accent"), a token at an alpha ("primary-foreground/80", painted over the
+ * background), or a tint on a ground ("accent/10 over background", the way
+ * Tailwind's bg-accent/10 lands on the page).
  */
 export const FLOORS = [
   ["foreground", "background", 7, "body copy on the page"],
@@ -234,22 +267,43 @@ export const FLOORS = [
   ["accent-foreground", "accent-hover", 4.5, "CTA label on the hover coral"],
   ["accent-hover", "background", 4.5, "coral text below large size, on the page"],
   ["accent-hover", "card", 4.5, "coral text below large size, on a card"],
+  ["accent-hover", "muted", 4.5, "coral text on a muted fill (the language menu's hovered item)"],
+  ["accent-hover", "accent/10 over background", 4.5, "coral text on the 10% coral tint (the period pills)"],
   ["accent", "background", 3, "coral at large size, icons and rules"],
   ["accent-end", "background", 3, "the gradient's end stop (large text only)"],
   ["ring", "background", 3, "the focus ring"],
   ["input", "background", 3, "a form field's edge against its own fill and the page"],
   ["input", "card", 3, "a form field's edge on a card"],
   ["primary-foreground", "primary", 4.5, "text on the charcoal band"],
+  ["primary-foreground/80", "primary", 4.5, "secondary text on the charcoal band"],
+  ["accent", "primary", 3, "a coral mark on the charcoal band, never text (the current language's underline)"],
   ["secondary-foreground", "secondary", 4.5, "text on a secondary fill"],
   ["destructive", "background", 4.5, "error text"],
   ["destructive-foreground", "destructive", 4.5, "text on an error fill"],
 ];
 
+/**
+ * The 8-bit colour one side of a floor paints: a token, or a token at an alpha
+ * composited over `under` or over its named ground. null when a token is missing.
+ */
+export function paint(root, spec, under) {
+  const [, name, pct, ground] = /^([a-z-]+)(?:\/(\d+))?(?: over ([a-z-]+))?$/.exec(spec) ?? [];
+  if (!root[name] || (ground && !root[ground])) return null;
+  const rgb = hslToRgb8(root[name]);
+  if (!pct) return rgb;
+  const base = ground ? hslToRgb8(root[ground]) : under;
+  if (!base) return null;
+  const a = Number(pct) / 100;
+  return rgb.map((c, i) => Math.round(a * c + (1 - a) * base[i]));
+}
+
 /** Every floor, measured on the 8-bit colours the browser paints. */
 export function floorResults(root) {
   return FLOORS.map(([fg, bg, floor, what]) => {
-    if (!root[fg] || !root[bg]) return { fg, bg, floor, what, ratio: NaN, ok: false, missing: true };
-    const ratio = contrast(hslToRgb8(root[fg]), hslToRgb8(root[bg]));
+    const back = paint(root, bg);
+    const front = back && paint(root, fg, back);
+    if (!front) return { fg, bg, floor, what, ratio: NaN, ok: false, missing: true };
+    const ratio = contrast(front, back);
     return { fg, bg, floor, what, ratio, ok: ratio >= floor };
   });
 }

@@ -73,7 +73,7 @@ export const Footer = () => {
                       <li key={link.to}>
                         <LocaleLink
                           to={link.to}
-                          className="text-primary-foreground/90 hover:text-accent transition-colors"
+                          className="text-primary-foreground/90 underline-offset-4 hover:text-primary-foreground hover:underline transition-colors"
                         >
                           {link.label}
                         </LocaleLink>
@@ -123,16 +123,18 @@ export const Footer = () => {
               <p>
                 <Trans>© {currentYear} Agustin Gonzalez Nicolini. All rights reserved.</Trans>
               </p>
+              {/* Coral text is only 3.70:1 on charcoal, so footer links brighten
+                  and underline on hover instead of turning coral. */}
               <div className="flex gap-6">
-                <LocaleLink to="/privacy" className="hover:text-accent transition-colors">
+                <LocaleLink to="/privacy" className="underline-offset-4 hover:text-primary-foreground hover:underline transition-colors">
                   <Trans>Privacy Policy</Trans>
                 </LocaleLink>
-                <LocaleLink to="/impressum" className="hover:text-accent transition-colors">
+                <LocaleLink to="/impressum" className="underline-offset-4 hover:text-primary-foreground hover:underline transition-colors">
                   <Trans>Impressum</Trans>
                 </LocaleLink>
                 {/* Crawlable locale links: renders nothing until >=2 locales
                     are published, so the English DOM is unchanged today. */}
-                <LanguageSwitcher />
+                <LanguageSwitcher tone="dark" />
               </div>
             </div>
           </div>

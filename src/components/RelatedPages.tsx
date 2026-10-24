@@ -48,7 +48,7 @@ export const RelatedPages = ({ page }: { page: keyof typeof RELATED }) => {
               <li key={link.to}>
                 <LocaleLink
                   to={link.to}
-                  className="group inline-flex items-center gap-2 font-medium text-foreground hover:text-accent transition-colors"
+                  className="group inline-flex items-center gap-2 font-medium text-foreground hover:text-accent-hover transition-colors"
                 >
                   {i18n._(link.label)}
                   <ArrowRight className="h-4 w-4 shrink-0 group-hover:translate-x-1 transition-transform" />

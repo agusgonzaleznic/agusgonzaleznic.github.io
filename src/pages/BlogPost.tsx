@@ -143,7 +143,7 @@ const BlogPostPage = () => {
               <header className="mb-10 animate-fade-in-up">
                 <LocaleLink
                   to="/blog/"
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-accent"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-accent-hover"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <Trans>All writing</Trans>
@@ -160,7 +160,7 @@ const BlogPostPage = () => {
                         href={post.original_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-accent underline-offset-4 hover:underline"
+                        className="text-accent-hover underline-offset-4 hover:underline"
                       >
                         Medium
                       </a>
@@ -210,13 +210,13 @@ const BlogPostPage = () => {
                     <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
                       <LocaleLink
                         to="/about"
-                        className="text-accent underline-offset-4 hover:underline"
+                        className="text-accent-hover underline-offset-4 hover:underline"
                       >
                         <Trans>My story, from Haedo to Berlin</Trans>
                       </LocaleLink>
                       <LocaleLink
                         to="/services"
-                        className="text-accent underline-offset-4 hover:underline"
+                        className="text-accent-hover underline-offset-4 hover:underline"
                       >
                         <Trans>Coaching formats for CTOs, VPs, and engineering managers</Trans>
                       </LocaleLink>

@@ -17,7 +17,7 @@ export const MachineTranslationNotice = ({ enUrl }: { enUrl: string }) => (
         This article was translated automatically.{" "}
         <a
           href={enUrl}
-          className="font-medium text-accent underline-offset-4 hover:underline"
+          className="font-medium text-accent-hover underline-offset-4 hover:underline"
         >
           Read the original in English
         </a>

@@ -148,7 +148,7 @@ export const Navigation = () => {
               {navLinks.map((link) =>
                 renderNavLink(
                   link,
-                  "text-sm font-medium text-muted-foreground hover:text-accent transition-colors",
+                  "text-sm font-medium text-muted-foreground hover:text-accent-hover transition-colors",
                 ),
               )}
               <Button
@@ -167,6 +167,7 @@ export const Navigation = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              // brand: coral-ok, the button holds only an icon.
               className="md:hidden p-2 text-foreground hover:text-accent transition-colors"
               aria-label={t`Toggle menu`}
               aria-expanded={isMobileMenuOpen}

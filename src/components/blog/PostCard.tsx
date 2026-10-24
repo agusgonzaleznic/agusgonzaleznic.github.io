@@ -22,7 +22,7 @@ export const PostCard = ({ post, index }: { post: BlogPost; index: number }) => 
       {post.excerpt && (
         <p className="text-sm leading-relaxed text-muted-foreground">{post.excerpt}</p>
       )}
-      <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent">
+      <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent-hover">
         <Trans>Read</Trans>
         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
       </span>

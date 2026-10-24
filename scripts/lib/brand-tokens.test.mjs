@@ -12,9 +12,11 @@ import {
   hexToRgb,
   hslToRgb8,
   icoImages,
+  paint,
   palette,
   parseTriplet,
   shellTokens,
+  smallCoralTextUses,
   stockPaletteUses,
   stockShadowUses,
   stylesheetTokens,
@@ -130,6 +132,30 @@ test("a shadow size the theme does not define is Tailwind's stock black", () => 
   assert.deepEqual(stockShadowUses(uses, defined).map((f) => f.text), ["shadow-2xl", "drop-shadow-md"]);
 });
 
+test("small coral text is found; large text, icons, the deep coral and marked icons are not", () => {
+  // The first four are the 2026-10-24 cases: the legal links, a nav hover, the
+  // period pill and a footer hover. The fifth is large only from md up.
+  const text = `<a className="text-accent underline underline-offset-2 hover:no-underline">
+    "text-sm font-medium text-muted-foreground hover:text-accent transition-colors",
+    <span className="text-sm font-medium text-accent/80">{period}</span>
+    \`text-primary-foreground/90 group-hover:text-accent \${delay}\`
+    <p className="md:text-2xl text-accent">
+    <p className="font-serif text-7xl font-bold text-accent md:text-8xl">404</p>
+    <h2 className="text-fluid-xl font-bold mb-3 group-hover:text-accent transition-colors">
+    <a className="text-xl font-serif font-bold text-foreground hover:text-accent">AGN</a>
+    <Check className="w-5 h-5 text-accent shrink-0" /> <Star className="size-4 text-accent" />
+    <a className="text-sm text-accent-hover hover:text-accent-hover bg-accent text-accent-foreground">
+    // brand: coral-ok, an icon.
+    arrow: "text-muted-foreground group-hover:text-accent",
+    /* a comment about text-accent is not a use */`;
+  assert.deepEqual(
+    smallCoralTextUses(text).map((f) => `${f.line} ${f.text}`),
+    ["1 text-accent", "2 hover:text-accent", "3 text-accent/80", "4 group-hover:text-accent", "5 text-accent"],
+  );
+  // text-xl is large only when bold.
+  assert.equal(smallCoralTextUses('"text-xl hover:text-accent"').length, 1);
+});
+
 /** A minimal .ico with one 2x1 32-bit BMP image: one coral pixel, one transparent. */
 function tinyIco([r, g, b, a] = [230, 59, 17, 255]) {
   const bmp = Buffer.alloc(40 + 8 + 4);
@@ -188,6 +214,18 @@ const ROOT = {
 test("contrast floors pass on the shipped palette", () => {
   const failed = floorResults(ROOT).filter((r) => !r.ok);
   assert.deepEqual(failed, []);
+});
+
+test("floors paint tints and alpha text the way the browser composites them", () => {
+  // bg-accent/10 on the page and text-primary-foreground/80 on charcoal.
+  assert.deepEqual(paint(ROOT, "accent/10 over background"), [247, 230, 227]);
+  assert.deepEqual(paint(ROOT, "primary-foreground/80", paint(ROOT, "primary")), [205, 206, 207]);
+  assert.equal(paint(ROOT, "accent/10"), null, "a tint needs a ground");
+  assert.equal(paint(ROOT, "nope/10 over background"), null);
+  const pill = floorResults(ROOT).find((r) => r.bg === "accent/10 over background");
+  // The deep coral period pill: 4.58:1, where #DE3412 was 3.77:1.
+  assert.ok(pill.ok && pill.ratio > 4.57 && pill.ratio < 4.58, String(pill.ratio));
+  assert.ok(contrast(hslToRgb8(ROOT.accent), paint(ROOT, "accent/10 over background")) < 3.8);
 });
 
 test("contrast floors fail when a token drifts or goes missing", () => {

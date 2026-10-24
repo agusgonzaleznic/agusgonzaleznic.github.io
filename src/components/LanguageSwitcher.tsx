@@ -31,9 +31,12 @@ import { cn } from "@/lib/utils";
 // variant="dropdown": compact trigger + collapsible menu (top nav; saves space).
 //   The menu's <a> anchors are ALWAYS in the DOM (only visually toggled), so the
 //   prerendered HTML stays crawlable exactly like the inline list.
-type Props = { className?: string; variant?: "inline" | "dropdown" };
+// tone="dark":        the inline row on the charcoal footer. Coral text is only
+//   3.70:1 on charcoal and slate 2.55:1, so the codes there are page-white and
+//   the current one is marked by a coral underline (a mark needs 3:1, not 4.5:1).
+type Props = { className?: string; variant?: "inline" | "dropdown"; tone?: "light" | "dark" };
 
-export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
+export const LanguageSwitcher = ({ className, variant = "inline", tone = "light" }: Props) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { t } = useLingui();
@@ -123,11 +126,22 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
   });
 
   if (variant === "inline") {
+    const onDark = tone === "dark";
     return (
       <nav aria-label={t`Language`} className={cn("flex items-center gap-3", className)}>
         {links.map(({ locale, isActive, href, name }) =>
           isActive ? (
-            <span key={locale} aria-current="true" lang={locale} className="text-sm font-medium text-accent">
+            <span
+              key={locale}
+              aria-current="true"
+              lang={locale}
+              className={cn(
+                "text-sm font-medium",
+                onDark
+                  ? "text-primary-foreground underline decoration-accent decoration-2 underline-offset-4"
+                  : "text-accent-hover",
+              )}
+            >
               {locale.toUpperCase()}
             </span>
           ) : (
@@ -137,7 +151,12 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
               lang={locale}
               hrefLang={locale}
               onClick={(e) => switchTo(e, locale, href)}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-accent"
+              className={cn(
+                "text-sm font-medium transition-colors",
+                onDark
+                  ? "text-primary-foreground/80 underline-offset-4 hover:text-primary-foreground hover:underline"
+                  : "text-muted-foreground hover:text-accent-hover",
+              )}
             >
               {/* The visible code stays the label so WCAG 2.5.3 holds (the
                   accessible name must contain the visible text); the endonym is
@@ -167,7 +186,7 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
         aria-haspopup="true"
         aria-expanded={open}
         aria-label={t`Change language`}
-        className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-accent"
+        className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-accent-hover"
       >
         <Globe className="h-4 w-4" aria-hidden="true" />
         <span>{current.toUpperCase()}</span>
@@ -192,7 +211,7 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
               key={locale}
               aria-current="true"
               lang={locale}
-              className="flex items-center justify-between gap-3 px-3 py-2 text-sm font-medium text-accent"
+              className="flex items-center justify-between gap-3 px-3 py-2 text-sm font-medium text-accent-hover"
             >
               {name}
               <Check className="h-4 w-4" aria-hidden="true" />
@@ -204,7 +223,7 @@ export const LanguageSwitcher = ({ className, variant = "inline" }: Props) => {
               lang={locale}
               hrefLang={locale}
               onClick={(e) => switchTo(e, locale, href)}
-              className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+              className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-accent-hover"
             >
               {name}
             </a>

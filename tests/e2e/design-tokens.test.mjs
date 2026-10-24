@@ -77,6 +77,16 @@ test("the accent glow is the accent token, not the retired 58% coral", async () 
   assert.match(got, /rgba\(222, 52, 18, 0\.3\) 0px 8px 32px -8px/);
 });
 
+test("small coral text paints the deep coral, not the accent", async () => {
+  // #DE3412 is 4.37:1 on the page, under AA for text this size; the legal links
+  // are 16px. brand:check keeps text-accent off small text; this proves that the
+  // class it asks for instead compiles to #C62E10 (5.30:1).
+  const got = await computed("/privacy", "main a[class*='text-accent-hover']", (sel) =>
+    getComputedStyle(document.querySelector(sel)).color,
+  );
+  assert.equal(got, "rgb(198, 46, 16)");
+});
+
 test("enabled buttons keep the pointer cursor Preflight no longer sets", async () => {
   // The language switcher: an always-enabled type="button" in the nav. (The
   // contact submit button starts disabled until the spam check passes.)
