@@ -177,6 +177,23 @@ export function stockPaletteUses(text) {
   return [...text.matchAll(re)].map((m) => ({ line: lineOf(text, m.index), text: m[0] }));
 }
 
+/** The `--shadow-*`, `--drop-shadow-*`, ... sizes src/index.css's @theme defines, e.g. "shadow-lg". */
+export function themeShadows(css) {
+  const theme = declarations(blockAfter(blankComments(css), /@theme\s*\{/));
+  return new Set(Object.keys(theme).filter((k) => /^(inset-|drop-|text-)?shadow-/.test(k)));
+}
+
+/**
+ * Shadow utilities whose size the site's theme does not define. Tailwind's own
+ * value is stock black, not the charcoal every site shadow uses.
+ */
+export function stockShadowUses(text, defined) {
+  const re = /\b((?:inset-|drop-|text-)?shadow-(?:2xs|xs|sm|md|lg|xl|2xl|inner))\b/g;
+  return [...text.matchAll(re)]
+    .filter((m) => !defined.has(m[1]))
+    .map((m) => ({ line: lineOf(text, m.index), text: m[1] }));
+}
+
 /**
  * Pixels of a .ico whose images are 32-bit BMPs (the only kind this site ships).
  * Returns [{ size, pixels: [[r, g, b, a], ...] }]. Anything else throws, so a

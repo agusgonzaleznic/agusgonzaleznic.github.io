@@ -7,8 +7,9 @@
 //      the squiggle's data URI, shadows, gradient stops, SVGs in public/, any
 //      hex or hsl() in a component) must be a token's colour.
 //   3. Every visible pixel of public/favicon.ico must be a token's colour.
-//   4. No Tailwind stock palette (bg-black, text-red-300, --color-gray-200):
-//      those colours belong to no token.
+//   4. No Tailwind stock palette (bg-black, text-red-300, --color-gray-200),
+//      and no shadow size the theme does not define (Tailwind's own shadow-xl
+//      is black, not charcoal): those colours belong to no token.
 //   5. The contrast floors of the brand kit hold on the colours the browser
 //      paints.
 //
@@ -31,7 +32,9 @@ import {
   parseTriplet,
   shellTokens,
   stockPaletteUses,
+  stockShadowUses,
   stylesheetTokens,
+  themeShadows,
   toHex,
 } from "./lib/brand-tokens.mjs";
 
@@ -43,6 +46,7 @@ const tracked = execFileSync("git", ["ls-files", "--", "src", "public", "index.h
 
 const css = read("src/index.css");
 const tokens = stylesheetTokens(css);
+const shadows = themeShadows(css);
 const pal = palette(tokens);
 const failures = [];
 const fail = (msg) => failures.push(msg);
@@ -87,6 +91,10 @@ for (const file of tracked) {
   }
   if (kind === "ts" || kind === "css") {
     for (const f of stockPaletteUses(text)) fail(`${file}:${f.line}: ${f.text} is Tailwind's stock palette, not a token`);
+    if (kind === "ts") {
+      for (const f of stockShadowUses(text, shadows))
+        fail(`${file}:${f.line}: ${f.text} is not in src/index.css's @theme, so it is Tailwind's stock black shadow`);
+    }
   }
 }
 if (scanned < 20) fail(`scanned only ${scanned} files under src/, public/ and index.html; the file list is wrong`);

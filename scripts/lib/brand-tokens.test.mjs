@@ -16,7 +16,9 @@ import {
   parseTriplet,
   shellTokens,
   stockPaletteUses,
+  stockShadowUses,
   stylesheetTokens,
+  themeShadows,
   toHex,
 } from "./brand-tokens.mjs";
 
@@ -114,6 +116,18 @@ test("stock Tailwind palette uses are found, token classes are not", () => {
     stockPaletteUses(text).map((f) => f.text),
     ["bg-black/80", "text-white", "text-red-300", "ring-offset-red-600", "--color-gray-200"],
   );
+});
+
+test("a shadow size the theme does not define is Tailwind's stock black", () => {
+  const css = `@theme {
+    --shadow-lg: 0 16px 48px -12px hsl(220 15% 12% / 0.16);
+    --shadow-accent: 0 8px 32px -8px hsl(var(--accent) / 0.3);
+    --radius-lg: var(--radius);
+  }`;
+  const defined = themeShadows(css);
+  assert.deepEqual([...defined].sort(), ["shadow-accent", "shadow-lg"]);
+  const uses = 'className="shadow-lg hover:shadow-2xl drop-shadow-md shadow-accent shadow-none"';
+  assert.deepEqual(stockShadowUses(uses, defined).map((f) => f.text), ["shadow-2xl", "drop-shadow-md"]);
 });
 
 /** A minimal .ico with one 2x1 32-bit BMP image: one coral pixel, one transparent. */
