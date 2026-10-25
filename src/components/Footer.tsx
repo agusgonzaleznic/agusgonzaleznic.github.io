@@ -58,7 +58,7 @@ export const Footer = () => {
 
             {/* Quick Links */}
             <div>
-              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider"><Trans>Quick Links</Trans></h4>
+              <h4 className="mb-4 font-sans text-xs md:text-sm font-medium uppercase tracking-wider text-primary-foreground/80"><Trans>Quick Links</Trans></h4>
               <div className="flex text-sm">
                 {quickLinkColumns.map((column, columnIndex) => (
                   <ul
@@ -86,7 +86,7 @@ export const Footer = () => {
 
             {/* Connect */}
             <div>
-              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider"><Trans>Connect</Trans></h4>
+              <h4 className="mb-4 font-sans text-xs md:text-sm font-medium uppercase tracking-wider text-primary-foreground/80"><Trans>Connect</Trans></h4>
               <div className="flex gap-3">
                 <a
                   href="https://www.linkedin.com/in/agusgonzaleznic"
