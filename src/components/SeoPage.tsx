@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useLingui } from "@lingui/react/macro";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, ogCardUrl } from "@/lib/site";
 import { localeFromPath, localizePath, LOCALE_META } from "@/i18n/locales";
 
 // react-helmet emits <script> children as raw innerHTML (it only escapes
@@ -117,12 +117,12 @@ export const SeoPage = ({
   const locale = localeFromPath(useLocation().pathname);
   const abs = (p: string) => `${SITE_URL}${localizePath(p, locale)}`;
   const canonical = abs(path);
-  // The link preview card (same asset the home page ships): one 1200 x 630 JPEG,
-  // the size LinkedIn and Facebook ask for and close to X's 2:1. No WebP: link
-  // previews on LinkedIn and Slack have failed on it. The alt is the card's own
-  // text, so it is the same everywhere.
-  const ogCard = `${SITE_URL}/og-card.jpg`;
-  const ogAlt = "Agustin Gonzalez Nicolini: 20+ years in infrastructure and security";
+  // The link preview card in the page's language (the home page ships the same
+  // one): a 1200 x 630 JPEG, the size LinkedIn and Facebook ask for and close to
+  // X's 2:1. No WebP: link previews on LinkedIn and Slack have failed on it. The
+  // alt is the card's own text, the hero's line in this locale.
+  const ogCard = ogCardUrl(locale);
+  const ogAlt = `${SITE_NAME}: ${t`20+ years in infrastructure and security`}`;
 
   const breadcrumbId = `${canonical}#breadcrumb`;
   const graph = {

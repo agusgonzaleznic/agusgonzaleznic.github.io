@@ -7,16 +7,20 @@
 // internal href, but og:image and twitter:image are absolute URLs in `content`
 // attributes, so a renamed or deleted image would ship unnoticed.
 //
+// Each locale has its own card, the hero's line translated, so a page must not
+// preview in another language.
+//
 // No browser and no server: these are file checks on the build output.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const dist = resolve(dirname(fileURLToPath(import.meta.url)), "../../dist");
 const SITE = "https://agusgonzaleznic.com/";
+const EN_ALT = "Agustin Gonzalez Nicolini: 20+ years in infrastructure and security";
 
 function htmlFiles(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
@@ -78,6 +82,32 @@ test("every page's preview image is a JPEG or PNG that ships, and the shared car
     assert.ok(["jpeg", "png"].includes(format(buf)), `/${path} is ${format(buf)}, not a JPEG or PNG`);
   }
   assert.deepEqual(jpegSize(readFileSync(join(dist, "og-card.jpg"))), { width: 1200, height: 630 });
+});
+
+// The card carries the hero's line, so it exists once per locale, and a page
+// previews in its own language: the home page through prerender's
+// localizeHomeHead, every other page through SeoPage or the blog fallback.
+test("each locale's pages preview that locale's card, with a translated alt", () => {
+  const seen = {};
+  for (const file of htmlFiles(dist)) {
+    const rel = relative(dist, file);
+    const locale = /^(de|es|fr|it|pt)\//.exec(rel)?.[1] ?? "en";
+    const card = `${SITE}og-card${locale === "en" ? "" : `.${locale}`}.jpg`;
+    const tags = metas(readFileSync(file, "utf-8"));
+    for (const t of tags.filter((t) => t.property === "og:image" || t.name === "twitter:image")) {
+      if (!t.content.includes("/og-card")) continue; // a blog post's own cover
+      assert.equal(t.content, card, `${rel}: ${t.property ?? t.name}`);
+      seen[locale] = (seen[locale] ?? 0) + 1;
+    }
+    const alt = tags.find((t) => t.property === "og:image:alt")?.content;
+    if (alt && locale !== "en") assert.notEqual(alt, EN_ALT, `${rel}: the card's alt is still English`);
+  }
+  // A wrong locale parse would see only "en" and pass everything above.
+  assert.deepEqual(Object.keys(seen).sort(), ["de", "en", "es", "fr", "it", "pt"]);
+  for (const locale of ["de", "es", "fr", "it", "pt"]) {
+    const buf = readFileSync(join(dist, `og-card.${locale}.jpg`));
+    assert.deepEqual(jpegSize(buf), { width: 1200, height: 630 }, `og-card.${locale}.jpg`);
+  }
 });
 
 test("the icons: a 16/32/48 px ICO, an SVG, and an opaque 180 px touch icon", () => {

@@ -21,7 +21,7 @@ import {
 import { storyblokImage } from "@/lib/richtext";
 import { getPostBody } from "@/lib/blog-body";
 import { CoverImage } from "@/components/blog/CoverImage";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, ogCardUrl } from "@/lib/site";
 import { LocaleLinksContext } from "@/i18n/locale-links";
 import {
   isAutoTranslated,
@@ -78,7 +78,7 @@ const BlogPostPage = () => {
   const published = toIsoUtc(postDate(post));
   const ogImage = post.cover_image
     ? storyblokImage(post.cover_image.filename, 1200, 630)
-    : `${SITE_URL}/og-card.jpg`;
+    : ogCardUrl(locale);
 
   const articleLd = {
     "@context": "https://schema.org",

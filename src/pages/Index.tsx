@@ -5,6 +5,7 @@ import { Navigation } from "@/components/Navigation";
 import { Hero, type HeroBlock } from "@/components/Hero";
 import { Footer } from "@/components/Footer";
 import { getPageContent, getBlock, type PagePreviewProps } from "@/lib/pages";
+import { ogCardUrl } from "@/lib/site";
 import { localeFromPath } from "@/i18n/locales";
 
 // The home page is now strictly the Hero. The former one-page sections (About,
@@ -35,13 +36,19 @@ const Index = ({ previewContent }: PagePreviewProps) => {
           index.html (prerender keeps the template head for "/", so a mismatch
           would flash on hydration). With Lingui, EN renders the msgid
           verbatim, so that contract holds; prefixed locales get the
-          translated head (prerender injects the same strings statically via
-          localizeHomeHead, so the rendered head matches in every locale). */}
+          translated head, link preview card and its alt included (prerender
+          injects the same strings statically via localizeHomeHead, so the
+          rendered head matches in every locale). */}
       <Helmet>
         <title>{t`Agustin Gonzalez Nicolini | Engineering Leadership Coach`}</title>
         <meta
           name="description"
           content={t`Executive coaching for CTOs, VPs, and engineering managers. Scale teams, cut lead time, ship reliably. 20+ years in infrastructure and security. Berlin & remote.`}
+        />
+        <meta property="og:image" content={ogCardUrl(locale)} />
+        <meta
+          property="og:image:alt"
+          content={`Agustin Gonzalez Nicolini: ${t`20+ years in infrastructure and security`}`}
         />
       </Helmet>
       <Navigation />

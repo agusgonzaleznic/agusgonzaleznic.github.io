@@ -51,6 +51,8 @@ msgid "2. Hosting and Server Logs"
 msgstr "2. Hosting and Server Logs"
 
 #: src/components/Hero.tsx
+#: src/components/SeoPage.tsx
+#: src/pages/Index.tsx
 msgid "20+ years in infrastructure and security"
 msgstr "20+ years in infrastructure and security"
 
