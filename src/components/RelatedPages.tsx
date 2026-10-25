@@ -40,7 +40,7 @@ export const RelatedPages = ({ page }: { page: keyof typeof RELATED }) => {
     <nav aria-label={t`Keep exploring`} className="border-t border-border bg-background">
       <div className="container px-6 py-10 md:py-12">
         <div className="max-w-3xl mx-auto text-center">
-          <p className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-6">
+          <p className="text-xs md:text-sm font-medium uppercase tracking-wider text-muted-foreground mb-6">
             {t`Keep exploring`}
           </p>
           <ul className="space-y-3">

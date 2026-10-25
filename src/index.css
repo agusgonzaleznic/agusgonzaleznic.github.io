@@ -265,6 +265,23 @@
     @apply font-serif;
   }
 
+  /* Page h1s inherited the body's 1.5 line-height (84 px at 56 px); the home h1
+     already set 1.25 with leading-tight. */
+  h1 {
+    @apply leading-tight;
+  }
+
+  /* One keyboard focus ring for everything focusable: 2 px coral outside a 2 px
+     gap, the ring Button, Input and Textarea draw with box-shadow. Without it
+     the wordmark, the nav, the footer and the language switcher showed the
+     browser's default outline. In the base layer, so a component's own
+     focus-visible utilities still win. Coral is 4.37:1 on the page and 3.70:1
+     on the charcoal footer, above the 3:1 a focus indicator needs. */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
   /* Tailwind 4's preflight gives buttons the default cursor; keep the pointer
      every button had under v3. */
   button:not(:disabled),

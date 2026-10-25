@@ -48,8 +48,8 @@ export const Hero = ({ block }: { block?: HeroBlock }) => {
               its own and the image column's hardcoded 70px top offset is gone
               (spelling that class here would be enough for Tailwind's text
               scanner to regenerate the rule, so it is described, not named).
-              Inter 500, NOT the font-bold used by the other eyebrows
-              (RelatedPages.tsx:43, Footer.tsx:60/88): Inter 700 ships but is
+              Inter 500, the weight of every eyebrow (the related-pages label and
+              the footer headings too), not 700: Inter 700 ships but is
               deliberately not preloaded (see index.html), and this line is above
               the fold. `||` not `??` so an emptied CMS field falls back to the
               catalog string instead of rendering an empty kicker under an orphan
