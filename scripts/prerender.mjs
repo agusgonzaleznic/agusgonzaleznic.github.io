@@ -644,7 +644,7 @@ function assertNoBrokenInternalLinks(distDir, emitted, allHtml) {
       const target = m[1].replace(/[?#].*$/, "");
       if (target === "") continue;
       const clean = target.replace(/^\/+|\/+$/g, "");
-      // A literal file (rss.xml, og-image.webp, llms.txt, 404.html …): it either
+      // A literal file (rss.xml, og-card.jpg, llms.txt, 404.html …): it either
       // exists on disk or it does not.
       if (/\.[a-zA-Z0-9]+$/.test(clean.split("/").pop() ?? "")) {
         if (!existsSync(join(distDir, clean))) {

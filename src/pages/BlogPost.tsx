@@ -78,7 +78,7 @@ const BlogPostPage = () => {
   const published = toIsoUtc(postDate(post));
   const ogImage = post.cover_image
     ? storyblokImage(post.cover_image.filename, 1200, 630)
-    : `${SITE_URL}/og-image.jpg`;
+    : `${SITE_URL}/og-card.jpg`;
 
   const articleLd = {
     "@context": "https://schema.org",

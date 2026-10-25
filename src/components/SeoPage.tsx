@@ -117,12 +117,12 @@ export const SeoPage = ({
   const locale = localeFromPath(useLocation().pathname);
   const abs = (p: string) => `${SITE_URL}${localizePath(p, locale)}`;
   const canonical = abs(path);
-  // og:image banner (same asset the home page ships). WebP first for modern
-  // clients + a JPEG fallback for unfurlers that don't render WebP (WhatsApp,
-  // legacy LinkedIn). The alt describes the banner, so it's the same everywhere.
-  const ogImageWebp = `${SITE_URL}/og-image.webp`;
-  const ogImageJpg = `${SITE_URL}/og-image.jpg`;
-  const ogAlt = "Agustin Gonzalez Nicolini | Engineering Leadership Coach";
+  // The link preview card (same asset the home page ships): one 1200 x 630 JPEG,
+  // the size LinkedIn and Facebook ask for and close to X's 2:1. No WebP: link
+  // previews on LinkedIn and Slack have failed on it. The alt is the card's own
+  // text, so it is the same everywhere.
+  const ogCard = `${SITE_URL}/og-card.jpg`;
+  const ogAlt = "Agustin Gonzalez Nicolini: 20+ years in infrastructure and security";
 
   const breadcrumbId = `${canonical}#breadcrumb`;
   const graph = {
@@ -155,22 +155,20 @@ export const SeoPage = ({
     ],
   };
 
-  // A CMS per-page image (if set) replaces the dual-format banner; otherwise the
-  // banner ships exactly as before. An array child is how react-helmet takes a
-  // dynamic set of head tags (same pattern as extraSchema below).
+  // A CMS per-page image (if set) replaces the card; otherwise the card ships as
+  // on the home page. An array child is how react-helmet takes a dynamic set of
+  // head tags (same pattern as extraSchema below).
   const ogImageMetas = ogImage
     ? [
         <meta key="ogi" property="og:image" content={ogImage} />,
         <meta key="ogia" property="og:image:alt" content={ogAlt} />,
       ]
     : [
-        <meta key="ogi" property="og:image" content={ogImageWebp} />,
-        <meta key="ogit" property="og:image:type" content="image/webp" />,
-        <meta key="ogiw" property="og:image:width" content="1500" />,
-        <meta key="ogih" property="og:image:height" content="500" />,
+        <meta key="ogi" property="og:image" content={ogCard} />,
+        <meta key="ogit" property="og:image:type" content="image/jpeg" />,
+        <meta key="ogiw" property="og:image:width" content="1200" />,
+        <meta key="ogih" property="og:image:height" content="630" />,
         <meta key="ogia" property="og:image:alt" content={ogAlt} />,
-        <meta key="ogij" property="og:image" content={ogImageJpg} />,
-        <meta key="ogijt" property="og:image:type" content="image/jpeg" />,
       ];
 
   return (
@@ -190,7 +188,7 @@ export const SeoPage = ({
         <meta name="twitter:creator" content="@agusgonzaleznic" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content={ogImage || ogImageWebp} />
+        <meta name="twitter:image" content={ogImage || ogCard} />
         <meta name="twitter:image:alt" content={ogAlt} />
         <script type="application/ld+json">{jsonLd(graph)}</script>
         {extraSchema.map((node, i) => (
