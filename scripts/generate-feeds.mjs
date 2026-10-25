@@ -118,7 +118,7 @@ function buildSitemap(posts, cfg) {
       <image:caption>Portrait of Agustin Gonzalez Nicolini, coach to CTOs, VPs of Engineering, and engineering managers worldwide</image:caption>
     </image:image>
     <image:image>
-      <image:loc>${SITE_URL}/og-image.webp</image:loc>
+      <image:loc>${SITE_URL}/og-card.jpg</image:loc>
       <image:title>Engineering leadership and executive coaching: agusgonzaleznic.com preview</image:title>
     </image:image>`;
 
