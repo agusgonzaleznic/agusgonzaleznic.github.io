@@ -214,20 +214,23 @@ function replaceExactlyOnce(html, re, replacement, what, locale) {
 // page. The human-readable title/description now localize too: Index.tsx emits
 // them through Lingui, so this per-locale render's helmet output carries the
 // translated (and already HTML-escaped) strings; inject them into all seven
-// title/description tags of the static block. English never runs this (its
-// helmet text is byte-identical to the template anyway).
+// title/description tags of the static block. The link preview card and its
+// alt come the same way, into the og: and twitter: image tags. English never
+// runs this (its helmet text is byte-identical to the template anyway).
 function localizeHomeHead(html, locale, helmet) {
   const meta = LOCALE_META[locale];
   const homeUrl = `${SITE_URL}${localizePath("/", locale)}`;
 
   // react-helmet output is already HTML-escaped; extract and inject verbatim.
   const title = helmet.title.toString().replace(/<[^>]*>/g, "").trim();
-  const description = helmet.meta
-    .toString()
-    .match(/<meta[^>]*name="description"[^>]*content="([^"]*)"/)?.[1];
-  if (!title || !description) {
+  const helmetMeta = helmet.meta.toString();
+  const metaContent = (re) => helmetMeta.match(re)?.[1];
+  const description = metaContent(/<meta[^>]*name="description"[^>]*content="([^"]*)"/);
+  const ogImage = metaContent(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"/);
+  const ogImageAlt = metaContent(/<meta[^>]*property="og:image:alt"[^>]*content="([^"]*)"/);
+  if (!title || !description || !ogImage || !ogImageAlt) {
     throw new Error(
-      `localizeHomeHead(${locale}): could not extract localized title/description from the helmet output.`,
+      `localizeHomeHead(${locale}): could not extract localized title/description/og:image/og:image:alt from the helmet output.`,
     );
   }
 
@@ -239,6 +242,10 @@ function localizeHomeHead(html, locale, helmet) {
     ["og:description", /(<meta property="og:description" content=")[^"]*(")/, description],
     ["twitter:title", /(<meta name="twitter:title" content=")[^"]*(")/, title],
     ["twitter:description", /(<meta name="twitter:description" content=")[^"]*(")/, description],
+    ["og:image", /(<meta property="og:image" content=")[^"]*(")/, ogImage],
+    ["og:image:alt", /(<meta property="og:image:alt" content=")[^"]*(")/, ogImageAlt],
+    ["twitter:image", /(<meta name="twitter:image" content=")[^"]*(")/, ogImage],
+    ["twitter:image:alt", /(<meta name="twitter:image:alt" content=")[^"]*(")/, ogImageAlt],
     // These five were plain .replace() calls on exact English literals until they
     // joined this loop. String.replace is silent when it matches nothing, so any
     // edit to index.html's head (reformatting an attribute, changing the site
