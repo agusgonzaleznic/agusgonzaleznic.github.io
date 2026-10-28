@@ -214,8 +214,9 @@ function buildLlmsTxt(posts, templatePath) {
 
   const entries = posts.map((post) => {
     // llmstxt.org file-list format: "- [name](url): notes". Escape ] in titles
-    // so it can't break out of the link text.
-    const title = String(post.title).replace(/\]/g, "\\]");
+    // so it can't break out of the link text, and \ too, so a title ending in a
+    // backslash can't escape the closing bracket.
+    const title = String(post.title).replace(/[\\\]]/g, "\\$&");
     const excerpt = String(post.excerpt).replace(/\s+/g, " ").trim();
     return `- [${title}](${SITE_URL}/blog/${post.slug}/)${excerpt ? `: ${excerpt}` : ""}`;
   });
