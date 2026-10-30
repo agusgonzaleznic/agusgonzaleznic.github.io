@@ -434,7 +434,7 @@ if (!file) {
   process.exit(1);
 }
 
-let raw = readFileSync(resolve(file), "utf8");
+const raw = readFileSync(resolve(file), "utf8");
 let { data, body } = parseFrontmatter(raw);
 const ext = extname(file).toLowerCase();
 // Whether the SOURCE FILE specified a date, captured before autofill invents
@@ -445,7 +445,7 @@ const hadExplicitDate = Boolean(data.published_date);
 await autofillFrontmatter(data, toHtml(body, ext));
 await promptMissing(data, basename(file, ext));
 
-({ data, body, raw } = await runSourceChecks({ file, data, body, raw, dryRun }));
+({ data, body } = await runSourceChecks({ file, data, body, raw, dryRun }));
 
 const richtext = htmlToRichtext(toHtml(body, ext));
 
