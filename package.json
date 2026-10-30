@@ -26,8 +26,8 @@
     "test:e2e": "node scripts/e2e.mjs"
   },
   "dependencies": {
-    "@lingui/core": "6.10.0",
-    "@lingui/react": "6.10.0",
+    "@lingui/core": "6.10.1",
+    "@lingui/react": "6.10.1",
     "@radix-ui/react-accordion": "1.3.1",
     "@radix-ui/react-alert-dialog": "1.2.1",
     "@radix-ui/react-aspect-ratio": "1.2.0",
@@ -78,10 +78,10 @@
   "devDependencies": {
     "@anthropic-ai/sdk": "0.134.0",
     "@eslint/js": "10.0.1",
-    "@lingui/cli": "6.10.0",
-    "@lingui/format-po": "6.10.0",
+    "@lingui/cli": "6.10.1",
+    "@lingui/format-po": "6.10.1",
     "@lingui/swc-plugin": "6.7.1",
-    "@lingui/vite-plugin": "6.10.0",
+    "@lingui/vite-plugin": "6.10.1",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "24.12.2",
     "@types/react": "19.3.0",
