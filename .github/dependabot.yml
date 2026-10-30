@@ -11,7 +11,8 @@
 version: 2
 updates:
   # Minor and patch updates arrive as one grouped pull request. Each major
-  # arrives on its own, since a major can need a migration.
+  # arrives on its own, since a major can need a migration, except the pair
+  # below.
   - package-ecosystem: npm
     directory: /
     schedule:
@@ -19,6 +20,16 @@ updates:
     cooldown:
       default-days: 7
     groups:
+      # A major of @eslint/js requires the same major of eslint as a peer, so
+      # on its own it cannot install (October 2026: #209 failed until #212
+      # landed). Their majors arrive together. Dependabot puts an update in the
+      # first group it matches, so this group stays above the next one.
+      eslint-majors:
+        patterns:
+          - "eslint"
+          - "@eslint/js"
+        update-types:
+          - major
       npm-minor-and-patch:
         update-types:
           - minor
