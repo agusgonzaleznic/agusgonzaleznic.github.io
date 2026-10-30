@@ -107,7 +107,7 @@
     "vite-plugin-mkcert": "2.1.0"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
+    "*.{js,jsx,mjs,ts,tsx}": [
       "eslint --fix --max-warnings 0"
     ]
   },
