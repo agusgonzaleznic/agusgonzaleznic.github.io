@@ -37,6 +37,7 @@ export function loadTagMap(path) {
       `tag-i18n: ${path} exists but is not valid JSON (${e.message}). ` +
         "Refusing to treat it as empty: that would overwrite every existing tag " +
         "translation on the next save. Restore it from git.",
+      { cause: e },
     );
   }
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {

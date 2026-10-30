@@ -60,6 +60,7 @@ export function loadPageApprovals(path) {
       `page-gate: ${path} exists but is not valid JSON (${e.message}). ` +
         "Refusing to treat it as empty: that would silently unpublish every " +
         "reviewed translation. Restore it from git.",
+      { cause: e },
     );
   }
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
