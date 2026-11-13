@@ -15,6 +15,7 @@
 // project's input set fails here instead of turning into a green no-op.
 
 import { spawnSync } from "node:child_process";
+import { createRequire } from "node:module";
 
 // Minimum input files per project. Deliberately loose: this is a canary for
 // "the project resolved to nothing", not a coverage metric to keep updating.
@@ -25,6 +26,23 @@ const PROJECTS = [
 
 const tsc = (args) =>
   spawnSync("npx", ["tsc", ...args], { encoding: "utf8", shell: false });
+
+// `tsc` must be TypeScript 7 from the `@typescript/native` alias. The
+// `typescript` name is TypeScript 6 (@typescript/typescript6), kept for
+// typescript-eslint, and its dependency @typescript/old ships a `tsc` too: npm
+// links the first one it reaches, and "native" sorts before "old". Should that
+// order ever change, the check would quietly run TypeScript 6, so compare the
+// binary's version with the package that is meant to provide it.
+const require = createRequire(import.meta.url);
+const expected = `Version ${require("@typescript/native/package.json").version}`;
+const actual = (tsc(["--version"]).stdout || "").trim();
+if (actual !== expected) {
+  console.error(
+    `\n✖ typecheck: \`npx tsc\` reports "${actual}", expected "${expected}" from @typescript/native.\n` +
+      "  node_modules/.bin/tsc points at the wrong package; reinstall with `npm ci`.\n",
+  );
+  process.exit(1);
+}
 
 let failed = false;
 
