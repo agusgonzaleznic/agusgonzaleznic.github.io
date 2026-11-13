@@ -86,6 +86,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/react-helmet": "6.1.11",
+    "@typescript/native": "npm:typescript@7.0.2",
     "@vitejs/plugin-react-swc": "4.3.3",
     "beasties": "0.5.5",
     "eslint": "10.14.0",
@@ -100,7 +101,7 @@
     "postcss": "8.5.32",
     "tailwindcss": "4.3.4",
     "terser": "5.51.2",
-    "typescript": "5.9.3",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "8.72.1",
     "vite": "8.3.6",
     "vite-plugin-mkcert": "2.1.0"
