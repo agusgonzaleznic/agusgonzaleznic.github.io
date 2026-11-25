@@ -105,7 +105,7 @@ jobs:
     if: needs.changes.outputs.site == 'true'
     # Pinned to a commit SHA (not @main) so a mutable branch ref can't be used to
     # inject malicious workflow steps. Update the SHA deliberately on upgrade.
-    uses: agusgonzaleznic/github-reusable-workflows/.github/workflows/vite-ci.yml@473236e155063a434af75d7da22312a2b6f27e54 # v1.6.0
+    uses: agusgonzaleznic/github-reusable-workflows/.github/workflows/vite-ci.yml@0938feb26149788717c639af3d1cf1f3a96ca2c8 # v1.12.0
     with:
       node-version: '22'
       install-command: 'npm ci'
