@@ -19,6 +19,13 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    # typescript-eslint 8.73.0 adds an optional peer on @typescript/native for
+    # TypeScript 7.1 builds. Ours is the 7.0.2 alias, so npm 10 (Node 22, what CI
+    # and the deploy run) reads the lock as out of sync and npm ci fails
+    # (November 2026: #230). Hold it until @typescript/native moves to 7.1.
+    ignore:
+      - dependency-name: "typescript-eslint"
+        versions: [">=8.73.0"]
     groups:
       # A major of @eslint/js requires the same major of eslint as a peer, so
       # on its own it cannot install (October 2026: #209 failed until #212
