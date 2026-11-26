@@ -1,0 +1,3677 @@
+{
+  "slug": "three-keys-one-vault",
+  "full_slug": "blog/three-keys-one-vault",
+  "title": "Drei Keys, ein Vault: ein Self-Custody-Setup für Einsteiger, das den Verlust eines Geräts übersteht",
+  "excerpt": "Eine einzige Seed Phrase ist nur einen schlechten Tag von Null entfernt. Hier ist das Self-Custody-Setup aus drei Geräten und 2-von-3, das ich für etwa 600 € aufgebaut habe, Button für Button, Fehler inklusive.",
+  "body": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Eine Seed Phrase ist nur einen schlechten Tag von null entfernt",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Die meisten Kryptobestände hängen an einer einzigen Liste von 24 Wörtern. Verlierst du die Liste, ist das Geld weg. Lässt jemand sie abfotografieren, gehört es ihm. Dafür braucht es nicht mal einen ausgeklügelten Angriff: Ein Hausbrand, ein Einbruch oder eine überzeugende Phishing-Mail reichen schon.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Ich wollte nicht, dass meine Ersparnisse von einem Stück Papier abhängen, also habe ich mir etwas Robusteres gebaut. Um das Geld zu bewegen, das wirklich zählt, braucht es jetzt ",
+            "type": "text"
+          },
+          {
+            "text": "zwei von drei Hardware-Geräten",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ", von drei verschiedenen Herstellern. Ich kann eines verlieren, eines kann gestohlen oder sogar kompromittiert werden, und nichts Schlimmes passiert. Ich ersetze es einfach.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Das Ganze hat mich rund 600 € an Hardware gekostet. Es dauerte ein paar Nachmittage, und Programmieren ist nicht nötig. Ich sage dir bei jedem Schritt, welches Gerät du nehmen und welchen Knopf du drücken musst, und am Ende gehe ich mit dir die fünf Fehler durch, die ich unterwegs gemacht habe, damit du sie dir sparen kannst.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "blockquote",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Das ist mein persönliches Setup, keine Finanzberatung. Lies jeden Bildschirm, bevor du irgendetwas bestätigst.",
+                "type": "text"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Das Konzept: drei Konten, drei Aufgaben",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Bevor du Hardware anfasst, hilft es, die grobe Form zu kennen. Dein Geld landet an drei Orten, und jeder hat genau eine Aufgabe.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "image",
+        "attrs": {
+          "alt": "Diagram: Signers A, B and C feed the Vault (2 of 3, Ethereum only, 85-95%), which tops up Ledger Daily (5-15%), which funds Hot (max 200 EUR)",
+          "src": "https://a.storyblok.com/f/288632938663524/1400x820/babdf590a5/three-keys-design.png",
+          "title": ""
+        }
+      },
+      {
+        "type": "bullet_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Der Vault",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " hält den Großteil, 85–95 %. Es ist ein ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Safe{Wallet}",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://app.safe.global",
+                          "uuid": null,
+                          "anchor": null,
+                          "custom": {},
+                          "target": "_blank",
+                          "linktype": "url"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "text": " Multisig auf Ethereum, und nichts verlässt ihn ohne Signaturen von zwei der drei Hardware-Geräte.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Ledger Daily",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " hält 5–15 % für den alltäglichen DeFi-Kram. Es ist ein gewöhnliches Konto auf einer Hardware-Wallet, von dem also ein einzelnes Gerät ausgeben kann.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Hot",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " ist ein ganz normales MetaMask-Konto mit höchstens 200 €, um Neues auszuprobieren. Dieses Geld behandle ich als bereits verloren.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Die drei Geräte, die den Vault bewachen, stammen von drei verschiedenen Herstellern. Signer A ist ein Ledger Nano X und bleibt zu Hause. Signer B ist eine Keycard, eine Smartcard, die du über ein kleines Gadget namens Keycard Shell benutzt; eine Kopie bleibt zu Hause, eine identische Reserve liegt woanders. Signer C ist ein Trezor Safe 7, und der ist nie zu Hause.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Die Signer auf drei Firmen zu verteilen bedeutet: Ein Bug in der Firmware einer Firma kann immer nur einen davon erreichen. Und weil je zwei Signer den dritten ersetzen können, wird der Verlust eines Geräts zur Besorgung statt zur Katastrophe.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Zwei Regeln ziehen sich durch alles, was folgt. Eine Recovery Phrase berührt niemals einen Computer oder ein Handy: nicht getippt, nicht fotografiert, nicht „verschlüsselt“ in einem Passwortmanager gespeichert. Und du prüfst jede Transaktion auf dem Display des Geräts selbst, nie nur im Browser.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Was du brauchst (etwa 600 €)",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Zuerst eine Regel: Kauf Hardware Wallets ",
+            "type": "text"
+          },
+          {
+            "text": "nur im eigenen Shop des Herstellers",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ". Ein auf einem Marktplatz gekauftes Gerät wurde womöglich geöffnet und manipuliert, bevor es bei dir ankam.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "bullet_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Ledger Nano X",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", etwa 150 € von ledger.com. Das ist Signer A, und darauf liegt auch dein Ledger Daily Account.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Keycard Shell",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", 129 € von keycard.tech. Damit kann eine Keycard per QR-Code signieren, und zwei Keycards liegen in der Box.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Trezor Safe 7",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", etwa 250 € von trezor.io. Signer C, von einem dritten Hersteller.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Zwei Metall-Seed-Backups",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", etwa die Cryptosteel Capsule Solo, je rund 100–120 €. Papier brennt; Stahl nicht.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Eine feuerfeste Dokumententasche",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", unter 30 €, für die Geräte, die du zu Hause hast.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Zwei YubiKeys",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", zum Beispiel ein 5C NFC und ein 5C Nano, je etwa 55–65 € von yubico.com. Sie machen deine Logins phishing-sicher.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Du willst außerdem einen Passwortmanager mit Platz für einen separaten Vault (ich nutze 1Password), einen Laptop mit Webcam und ein Exchange-Konto. Ich nutze ",
+            "type": "text"
+          },
+          {
+            "text": "Kraken",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ": Sie ist in der EU unter MiCA lizenziert, unterstützt YubiKeys und kann ihre Liste an Auszahlungsadressen einfrieren, was später noch eine große Rolle spielt.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Die Preise sind vom September 2026.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Teil 1: Das Fundament absichern (30 Minuten)",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Hardware-Wallets sind nur so sicher wie die Accounts drumherum, also habe ich genau da angefangen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Erstens: ",
+            "type": "text"
+          },
+          {
+            "text": "YubiKeys kommen auf alles.",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " Ein YubiKey ist ein kleiner USB-Key, den du zum Einloggen antippst, und er lässt sich nicht phishen: Eine gefälschte Website bekommt schlicht keine Antwort von ihm. So fügst du deinen zu 1Password hinzu:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "ordered_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Klick auf 1Password.com oben rechts auf deinen Namen und geh zu ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Manage Account → More Actions → Manage Two-Factor Authentication",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "1Password will zuerst eine eingerichtete Authenticator-App. Mach das und druck den Textcode aus, der dir angezeigt wird.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Klick auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Add a Security Key",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", steck deinen ersten YubiKey ein und tipp ihn an, wenn er blinkt. Dann dasselbe mit dem zweiten.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Lade dein ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Emergency Kit",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " herunter und druck es aus. Dieser Ausdruck wird später an einem anderen Ort aufbewahrt.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Füge beide YubiKeys zu deinem E-Mail-Account, deinem Apple- oder Google-Account und allem anderen Wichtigen hinzu und schalte SMS-Codes überall ab, wo eine Seite es dir erlaubt.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Einen Key trage ich am Schlüsselbund bei mir, den anderen habe ich zu Hause als Backup.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Als Nächstes legst du in 1Password einen Vault nur dafür an, mit dem Namen ",
+            "type": "text"
+          },
+          {
+            "text": "Crypto",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ". Deine PINs, Seriennummern und Adressen kommen dorthin. Eine Recovery Phrase niemals.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Dann legst du ein Browser-Profil nur für Krypto an. In Chrome, Brave oder Edge klickst du auf das Profilsymbol, wählst ",
+            "type": "text"
+          },
+          {
+            "text": "Hinzufügen",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " und nennst es ",
+            "type": "text"
+          },
+          {
+            "text": "Crypto",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ". MetaMask wird die einzige Extension darin sein. Setze ein Lesezeichen auf ",
+            "type": "text"
+          },
+          {
+            "text": "app.safe.global",
+            "type": "text",
+            "marks": [
+              {
+                "type": "code"
+              }
+            ]
+          },
+          {
+            "text": " und öffne sie immer nur über dieses Lesezeichen: Gefälschte Safe- und MetaMask-Seiten gibt es überall, und ein Lesezeichen lässt sich nicht per Typosquatting fälschen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Zuletzt machst du Kraken dicht. Erledige das mindestens einen Tag, bevor du etwas abheben musst, denn Kraken hält Auszahlungen nach einer Sicherheitsänderung 24 Stunden lang zurück.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "ordered_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "In Kraken gehst du zu ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Settings → Security → Sign-in 2FA → Add a Passkey",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Wähle ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Use a different passkey",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", dann ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Use a phone, tablet or security key",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und tippe mit deinem YubiKey. Wiederhole das für den zweiten Key.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Auf derselben Seite richtest du einen ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Master Key",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " mit einem deiner YubiKeys ein. Du brauchst ihn später, um das Address Freeze zu lösen.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Immer noch auf dieser Seite aktivierst du ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Funding 2FA",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " mit einer ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Authenticator App",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Kraken akzeptiert für Auszahlungen keine YubiKeys, nur App-Codes.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Teil 2: Signer A, der Ledger Nano X (45 Minuten)",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Der Nano X erledigt zwei Aufgaben: Er ist Signer A für den Vault und beherbergt dein Ledger-Daily-Konto.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Mein nagelneuer Nano X begrüßte mich in dem Moment, als ich ihn einsteckte, mit einem Akku-Fehler. Falls deiner das Gleiche macht, keine Panik. Neue Geräte kommen oft mit leerem Akku. Lass ihn 20 Minuten eingesteckt, halte dann beide Tasten gedrückt, öffne das ",
+            "type": "text"
+          },
+          {
+            "text": "Control Center",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " und wähle ",
+            "type": "text"
+          },
+          {
+            "text": "Power Off",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ", dann startet er von selbst neu. Wo wir gerade dabei sind: Ledger hat keinen Telefon-Support, jede „Ledger-Telefonnummer“, die du online findest, gehört also einem Betrüger.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "ordered_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Installiere ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Ledger Wallet",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " (früher hieß es Ledger Live) von ledger.com. Wähle ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Set up a new Ledger → Nano X",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und lass die Echtheitsprüfung des Geräts durchlaufen.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Wähle auf dem Nano X ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Set up as new device",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und wähle eine ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "8-stellige PIN",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Drei falsche PINs löschen das Gerät, genau das willst du.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Erstelle in 1Password eine Notiz namens ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "„Ledger Nano X (Signer A)“",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " mit der Seriennummer und dem PIN. Die Adressen kommen später.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Das Gerät zeigt dir jetzt 24 Wörter an. Schreib sie auf die Papierkarte aus der Box und bestätige sie dann am Gerät, wenn es dich dazu auffordert.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Nimm eine deiner Metallkapseln und markiere sie mit ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "„A“",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Nur der Buchstabe, kein Markenname. Stanze die 24 Wörter hinein, gleiche das Metall mit dem Papier ab und vernichte dann das Papier.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Ledger Wallet bietet dir ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Ledger Recover",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " an. Überspring das.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Es bietet dir außerdem ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Enable sync",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " an. Überspring das auch; es gibt keinen Grund, warum deine Account-Liste auf Ledgers Servern liegen sollte.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Klick auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "My Ledger",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " (das Profil-Icon oben rechts), installiere alle Firmware-Updates und installiere dann die ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Ethereum (ETH)",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "-App.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Zurück am Gerät hältst du beide Tasten gedrückt, öffnest ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Control Center",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und setzt ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Bluetooth",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " bis ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Disable",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Ab hier läuft alles über das USB-C-Kabel.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Teil 3: MetaMask und die Falle, die in einem Dropdown versteckt ist (20 Minuten)",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "MetaMask ist die Brücke zwischen deinen Geräten und Websites. Die Keys, auf die es ankommt, hält es nie.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "ordered_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Installiere in deinem Crypto-Browserprofil MetaMask von metamask.io und wähle ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Create a new wallet",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Dieses Software-Konto ist deine ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Hot",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "-Wallet.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "MetaMask nennt es „Account 1“. Benenne es ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Hot",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " sofort um: Klick auf den Kontonamen, dann ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "⋮ → Account details",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und auf das Stift-Symbol. Warum, siehst du gleich.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Jetzt zum Ledger, mit einer Warnung, die ich mir damals gewünscht hätte: ",
+            "type": "text"
+          },
+          {
+            "text": "nicht",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " hier „Create a new wallet“ oder „Import a wallet“ verwenden. Beide legen Software-Konten an, und du fängst am Ende von vorne an, so wie ich.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "ordered_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Klick auf den Kontonamen, dann ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Add wallet → Hardware wallet → Ledger → Continue",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Gib am Nano X deine PIN ein und öffne die ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Ethereum (ETH)",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "-App.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "MetaMask zeigt eine Liste von Adressen mit einem Dropdown darüber. ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Bevor du irgendwas ankreuzt: Stell das Dropdown von „Ledger Live“ auf „BIP44 Standard“ um.",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Hake die ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "ersten beiden Zeilen",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " an und klick auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Unlock",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Benenne die zwei neuen Accounts um: ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Ledger 1",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " wird zu ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "„Ledger Daily“",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Ledger 2",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " wird zu ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "„Signer A“",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Kopier beide Adressen in die 1Password-Notiz, zusammen mit der Zeile ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Derivation path: BIP44 Standard",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "image",
+        "attrs": {
+          "alt": "Sketch of the MetaMask path dropdown: the default Ledger Live is crossed out, BIP44 Standard is ticked; a table shows account 1 has the same address under both, account 2 does not",
+          "src": "https://a.storyblok.com/f/288632938663524/1400x760/5d868a410d/three-keys-derivation-path.png",
+          "title": ""
+        }
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Schritt 3 ist der hinterhältige. Jede Option in diesem Dropdown macht aus denselben 24 Wörtern ",
+            "type": "text"
+          },
+          {
+            "text": "unterschiedliche Adressen",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ". Die erste Adresse ist bei „Ledger Live“ und „BIP44 Standard“ zufällig identisch, die zweite aber nicht. Wählst du also die falsche, sieht alles bestens aus, bis zu dem Tag, an dem dein Signer A verschwunden zu sein scheint. Einmal wählen, aufschreiben und nie wieder ändern.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Teil 4: Signer B, eine Keycard in einer Keycard Shell (45 Minuten)",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Eine Keycard ist eine Smartcard etwa in Bankkartengröße. Der Key lebt auf der Karte selbst, und die Shell liefert Display, Tastatur und Kamera, die sie zum Signieren braucht. Was mir am besten gefällt: Die Shell wird zum Signieren nie an deinen Computer angeschlossen. Sie kommuniziert über QR-Codes.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Du erstellst zwei identische Karten: ",
+            "type": "text"
+          },
+          {
+            "text": "B",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ", das zu Hause bleibt, und ",
+            "type": "text"
+          },
+          {
+            "text": "B-spare",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ", das außer Haus kommt.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "ordered_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Drücke auf den oberen Teil der Rückabdeckung des Shell, schiebe sie nach unten, lege die Batterie ein und schließe sie wieder.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Lege die erste Karte aus der Box ein, Chip nach oben. Das Shell schaltet sich von selbst ein.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Wenn du aufgefordert wirst, eine ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Keycard-PIN zu erstellen",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", gib zweimal eine ein.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Erstelle in 1Password eine Notiz namens ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "„Keycard B (Signer B)“",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " mit dieser PIN.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Wähle ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Add key pair → Generate new → 24 words",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", und lass jegliche Passphrase leer.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Schreibe die Wörter auf Papier und bestätige sie auf dem Shell.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Markiere deine zweite Metallkapsel mit ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "„B“",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", punze die Wörter ein, lies das Metall zurück und vernichte das Papier.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Benenne die Karte um unter ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Settings → Keycard → Rename",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und nennst es ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "B",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Prüfe unter shell.keycard.tech/verify, ob die Shell echt ist, und aktualisiere sie dann unter shell.keycard.tech/update.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Lege die zweite Karte ein und gib ihr die ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "gleiche PIN",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Geh dann zu ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Add key pair → Import",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", tippe die 24 Wörter von Metall B ein und benenne diese Karte um in ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "B-spare",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Leg jetzt Karte B zurück in die Shell und verbinde sie mit MetaMask. Geh in MetaMask zu ",
+            "type": "text"
+          },
+          {
+            "text": "Add wallet → Hardware wallet → QR-based → Continue",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ". Wähle auf der Shell ",
+            "type": "text"
+          },
+          {
+            "text": "Connect software wallet → Ethereum",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " und halte deren Bildschirm vor deine Webcam. Hake ",
+            "type": "text"
+          },
+          {
+            "text": "nur die erste Zeile",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " an, benenne das neue Konto in ",
+            "type": "text"
+          },
+          {
+            "text": "„Signer B“",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " um und kopiere seine Adresse in 1Password.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Teil 5: Signer C, der Trezor Safe 7 (30 Minuten)",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Der Trezor ist dein dritter Signer, und der, der nicht zu Hause bleibt. Du kannst ihn einrichten, noch bevor die Keycard Shell überhaupt ankommt.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "ordered_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Installiere ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Trezor Suite",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " von trezor.io. Prüfe, ob das Siegel auf der Verpackung intakt ist, verbinde den Trezor per USB-C und lass Suite die Firmware installieren und den Echtheitscheck durchführen.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Wähle ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Create new wallet",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", klicke auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Wallet backup type",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und wähle ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "24-word wallet",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Die Voreinstellung ist ein 20-Wort-Backup, das ein Ledger nicht wiederherstellen kann, während 24 Wörter all deine Seeds in einem Standardformat halten.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Schreibe die Wörter auf die Karte aus der Box, bestätige sie auf dem Gerät und lege eine PIN fest.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Zerstöre die Karte.",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Gehe auf dem Gerät zu ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Settings → Bluetooth",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und schalte es auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Off",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Gehe in MetaMask zu ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Add wallet → Hardware wallet → Trezor → Continue",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Falls ein Pfad-Dropdown auftaucht, steht dort bereits BIP44 Standard, also lass es in Ruhe. Hake ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "nur die erste Zeile",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " an und benenne das Konto um in ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "„Signer C“",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Erstelle in 1Password eine Notiz namens ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "„Trezor Safe 7 (Signer C)“",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " mit der PIN, der Adresse und der Zeile ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Backup: none, by design",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Nein, Schritt 4 ist kein Tippfehler. Signer C hat ",
+            "type": "text"
+          },
+          {
+            "text": "überhaupt kein Backup",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ", ganz bewusst. An jedem Aufbewahrungsort liegt bereits ein Seed oder ein Gerät, ein Backup von C müsste sich also einen Ort mit einem anderen Signer teilen. Falls der Trezor jemals den Geist aufgibt, signieren Signer A und B eine einzige Transaktion, um einen neuen einzuspielen. Genau dafür ist ein 2-of-3 da.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Teil 6: Den Vault in Safe{Wallet} anlegen (1 Stunde)",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Eine Regel bringt diesen Teil zum Klicken: Wer gerade mit Safe{Wallet} verbunden ist, zahlt das Gas. In diesem Setup ist das immer ",
+            "type": "text"
+          },
+          {
+            "text": "Signer A",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ", also zahlt Signer A und Signer A führt aus, während die anderen beiden immer nur signieren und nie einen Cent halten. Auch die Reihenfolge ändert sich nie. ",
+            "type": "text"
+          },
+          {
+            "text": "Der andere Signer erstellt die Transaktion und signiert sie, und Signer A bestätigt zuletzt und führt aus.",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "image",
+        "attrs": {
+          "alt": "Flow: 1. Signer B creates and signs on the Keycard Shell by QR, 2. Safe{Wallet} holds the signature, 3. Signer A confirms, executes and pays gas, 4. Ethereum: success. On every device screen check recipient, amount, network and safeTxHash",
+          "src": "https://a.storyblok.com/f/288632938663524/1400x700/395f729eef/three-keys-signing-flow.png",
+          "title": ""
+        }
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Leg zunächst etwa 60 € in ETH auf Signer A. Wenn dein Kraken-Konto neu ist, verifiziere deine Identität, zahl Euro per SEPA ein (",
+            "type": "text"
+          },
+          {
+            "text": "Transfer → Deposit → EUR",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ") und kauf ETH (",
+            "type": "text"
+          },
+          {
+            "text": "Buy → ETH",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": "). Geh dann zu ",
+            "type": "text"
+          },
+          {
+            "text": "Transfer → Withdraw → Ethereum (ETH)",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ", klick auf das Feld ",
+            "type": "text"
+          },
+          {
+            "text": "To",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " und wähle ",
+            "type": "text"
+          },
+          {
+            "text": "Add new withdrawal address",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ". Setz ",
+            "type": "text"
+          },
+          {
+            "text": "Network",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " bis ",
+            "type": "text"
+          },
+          {
+            "text": "Ethereum",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ", gib ihm ein Label ",
+            "type": "text"
+          },
+          {
+            "text": "Signer A",
+            "type": "text",
+            "marks": [
+              {
+                "type": "code"
+              }
+            ]
+          },
+          {
+            "text": " und füge die Adresse ein. Überweise zuerst 10 €, prüfe, ob sie in MetaMask auftauchen, und schick dann den Rest.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Als Nächstes aktivierst du Blind Signing, nur vorerst. Beim Erstellen eines Safe und beim Signieren von Safe-Transaktionen werden Daten gesendet, die der Nano X nicht vollständig decodieren kann, also verweigert er das, es sei denn, du erlaubst es. Öffne auf dem Nano X die App ",
+            "type": "text"
+          },
+          {
+            "text": "Ethereum (ETH)",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " und geh zu ",
+            "type": "text"
+          },
+          {
+            "text": "Settings → Blind signing → Enabled",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": ". Am Ende dieses Teils schaltest du es wieder aus.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Jetzt kannst du den Safe erstellen:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "ordered_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Öffne dein ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "app.safe.global",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " Lesezeichen. Der Startbildschirm hat zwei Tabs, und ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Safe Pro",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " ist das Produkt für Teams, also wähle ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "My accounts",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Dann wähle ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Connect wallet → MetaMask",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und wähle ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Signer A",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Safe{Wallet} fordert dich eventuell auf, ein oder zwei Sign-in-Nachrichten zu signieren. Bestätige sie nur, wenn der Nano X lesbaren Text zeigt, der ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "app.safe.global",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " erwähnt. Wenn du nur einen Hash, einen Betrag oder das Wort „permit“ siehst, lehne ab.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Lege ein neues Safe-Konto an, nenne es ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Vault",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und stell das Netzwerk auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Ethereum",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Signer A ist bereits eingetragen. Klicke ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Add new signer",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und füge Signer B ein, dann wiederhole das für Signer C. Prüfe die ersten vier und letzten vier Zeichen jeder Adresse gegen deine 1Password-Notizen.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Setze den Schwellenwert auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "2 von 3",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", klicke auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Next",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", dann ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Pay now",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und bestätige auf dem Nano X.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Vertraue dem Vault erst, wenn sich jeder Signer bewährt hat. Ich habe 20 € von Signer A hineingeschickt und das Geld in zwei Abhebungen wieder herausgeholt:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "bullet_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Zuerst signiert B und A führt aus.",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " Wechsle MetaMask zu Signer B, öffne ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "New transaction → Send tokens",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und schicke 10 € an Signer A. Merke dir den ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "safeTxHash",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " auf dem Review-Screen, dann klicke ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Sign",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Scanne den QR-Code von MetaMask mit dem Shell, prüfe Empfänger, Betrag und Hash auf dem Display des Shell, bestätige und halte den Antwort-QR des Shell vor deine Webcam. Zum Schluss wechsle zu Signer A, öffne ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Transactions → Queue",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " an und klick auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Confirm",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " mit ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Transaktion ausführen",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " angehakt, und vergleiche den Hash auf dem Nano X, bevor du bestätigst.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Dann signiert C und A führt aus.",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " Dasselbe nochmal, nur dass der Trezor signiert und der Betrag ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Max",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " ist. Das ist der einzige Test des Trezor, bevor er aus dem Spiel geht, also überspring ihn nicht.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Sobald beide ",
+            "type": "text"
+          },
+          {
+            "text": "Success",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " anzeigen, stell blind signing wieder auf ",
+            "type": "text"
+          },
+          {
+            "text": "Disabled",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " am Nano X. Installier dann die Safe{Wallet} Mobile App und füg den Vault als beobachteten Account hinzu, damit jede Transaktion, die du nicht selbst gestartet hast, dein Handy aufleuchten lässt.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Teil 7: Verschieb das Geld, dann frier die Exchange ein (1 Stunde)",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Geld fließt in diesem Setup nur in eine Richtung: von deiner Bank zu Kraken, von Kraken zum Vault oder zum Ledger Daily, und vom Ledger Daily zum Hot. Nichts geht je direkt von Kraken zum Hot.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "image",
+        "attrs": {
+          "alt": "Flow: Bank to Kraken by SEPA; Kraken, locked by its Global Settings Lock, sends only to Signer A (gas), the Vault (85-95%) and Ledger Daily (5-15%), all on Ethereum; Ledger Daily funds Hot",
+          "src": "https://a.storyblok.com/f/288632938663524/1400x800/0c036e7299/three-keys-money-flow.png",
+          "title": ""
+        }
+      },
+      {
+        "type": "ordered_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Füg bei Kraken zwei weitere Auszahlungsadressen hinzu, genauso wie du Signer A hinzugefügt hast: ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Ledger Daily",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Vault",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "code"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", beide mit dem Netzwerk auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Ethereum",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Beim Vault ist das besonders wichtig, denn er existiert nur auf Ethereum. ETH, die du auf irgendein anderes Netzwerk an diese Adresse schickst, ist weg.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Schick je 20 € an beide und prüf, dass es ankommt: der Vault in Safe{Wallet}, das Ledger Daily in MetaMask.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Verschieb den Rest, wobei ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "85–95 % in den Vault gehen und 5–15 % ins Ledger Daily",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ".",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Füll den Hot vom Ledger Daily aus in MetaMask auf und halt ihn unter 200 €.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Jetzt frierst du Kraken ein: Geh zu ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Settings → Security → Global Settings Lock",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", setz die Wartezeit auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "72 Stunden",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", klicke auf ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Enable",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und tipp deinen YubiKey an.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Dieser letzte Schritt ist der stille Held des ganzen Setups. Mit aktiviertem Lock kann niemand eine neue Auszahlungsadresse zu deinem Kraken-Konto hinzufügen, nicht mal jemand, der deine Login-Daten geklaut hat. Dein Geld kann immer nur an die drei Adressen gehen, die du gespeichert hast. Wenn du selbst etwas ändern willst, entsperrst du es mit deinem YubiKey oder wartest die 72 Stunden ab.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Teil 8: Wo alles liegt",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Eine Regel entscheidet über all das: ",
+            "type": "text"
+          },
+          {
+            "text": "an keinem Ort liegen jemals zwei Recovery Phrases.",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " Ein Gerät gilt als geschützt, weil es sich nach zu vielen falschen PINs selbst löscht oder sperrt. Metall und Papier nicht.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "image",
+        "attrs": {
+          "alt": "Three houses. Home: Nano X (A), card B, Keycard Shell, spare cards. Offsite 1: Trezor (C) and metal A. Offsite 2: card B-spare, metal B and the printed 1Password kit. No place holds two recovery phrases.",
+          "src": "https://a.storyblok.com/f/288632938663524/1400x760/8509ed6154/three-keys-storage-map.png",
+          "title": ""
+        }
+      },
+      {
+        "type": "bullet_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Zu Hause, im Fire Bag:",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " der Nano X (A), Karte B, die Shell, die leeren Ersatzkarten und der Backup-YubiKey.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Offsite 1",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", bei einem Verwandten, dem du vertraust, oder in einem Bankschließfach: der Trezor (C) und Metall A.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Offsite 2",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", in einem Büroschließfach oder bei einer zweiten Person, der du vertraust: Karte B-Ersatz, Metall B sowie das ausgedruckte 1Password Emergency Kit und der Authenticator-Code.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Es lohnt sich, die Rechnung zu prüfen. Nehmen wir an, dein Zuhause brennt ab: Offsite 1 und 2 geben dir immer noch Signer C plus Karte B-Ersatz als Signer B, macht zwei. Nehmen wir an, jemand raubt Offsite 1 aus: Er bekommt ein gesperrtes Gerät und einen Seed, zusammen also ein einziger Signer, und er bräuchte zwei.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Versiegel jedes Offsite-Set in einem Umschlag, der nichts weiter als „A“ oder „B“ trägt. Schreib dann eine ",
+            "type": "text"
+          },
+          {
+            "text": "Location map",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " Notiz in 1Password mit den echten Orten. Sie enthält keine Secrets, nur Orte, und genau deshalb kannst du sie gefahrlos mit jemandem teilen, dem du vertraust.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Es gibt einen ehrlichen Kompromiss. Mit zwei Signern zu Hause könnte jemand, der dich bei dir zu Hause dazu zwingt, das Threshold erreichen. Wenn dich das mehr beunruhigt, als der Komfort wert ist, bewahre auch Karte B außer Haus auf und signiere im Büro.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Teil 9: Damit leben",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Ein Setup, das du nie anfasst, verrottet langsam. Vier kleine Gewohnheiten halten meins am Laufen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Geld aus dem Vault zu bewegen, etwa um Ledger Daily aufzufüllen, ist derselbe Tanz wie der Test: Blind Signing an, Signer B erstellt und signiert auf der Shell, Signer A bestätigt und führt aus, Blind Signing aus. Vergleiche jedes Mal den Hash auf beiden Bildschirmen, und lass Blind Signing nie an, während Ledger Daily mit anderen Sites verbunden ist.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Einmal im Quartal verbringe ich etwa 15 Minuten mit ein paar Checks. Ich widerrufe alte Token Approvals für Ledger Daily und Hot auf revoke.cash, öffne ",
+            "type": "text"
+          },
+          {
+            "text": "Vault → Settings → Setup",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " in Safe{Wallet}, um zu bestätigen, dass Signer und Threshold noch mit meiner 1Password-Notiz übereinstimmen, und logge mich mit jedem YubiKey irgendwo ein, um zu prüfen, dass beide noch funktionieren.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Einmal im Jahr mache ich eine Restore-Übung. Ich stelle Metall A auf einem Ersatzgerät wieder her, etwa einem alten Ledger, prüfe, ob die erste Adresse zu Ledger Daily passt, und lösche das Ersatzgerät wieder. Dann hole ich Karte B-spare, prüfe, ob ihre Adresse zu Signer B passt, und lege sie zurück. Ein Backup, das du nie wiederhergestellt hast, ist eine Hoffnung, kein Backup.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Falls ein Signer je verloren geht, gestohlen oder kompromittiert wird, handle innerhalb von 24 Stunden, und befolge vor allem eine Regel: ",
+            "type": "text"
+          },
+          {
+            "text": "der Ersatz bekommt einen brandneuen Seed.",
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "text": " Es ist verlockend, die alten 24 Wörter auf einem frischen Gerät wiederherzustellen, weil es schneller geht. Aber wenn das alte Gerät kompromittiert war, ist es sein Seed vielleicht auch, und die Wiederherstellung würde denselben offengelegten Key direkt zurück in deinen Vault holen.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Ich habe das am eigenen Leib gelernt, als mein Nano X zurück an Ledger musste. Die Reihenfolge, die funktioniert hat:",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "ordered_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Rette zuerst Ledger Daily.",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " Er läuft auf demselben Seed wie Signer A und braucht keine zweite Signatur, ist also am stärksten exponiert. Ich habe den alten Seed gerade lange genug auf den neuen Nano X zurückgespielt, um alles in den Vault zu schicken, plus 10 € Gas an den Trezor, und ihn dann gelöscht.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Gib dem neuen Device einen neuen Seed",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " und punche ihn in Metall A anstelle der alten Wörter.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Tausch den Signer im Vault.",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " In Safe{Wallet}, ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Settings → Setup",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " hat ein ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Replace signer",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "-Icon neben jedem Signer. Signer B erstellt und signiert den Tausch auf dem Shell, und Signer C bestätigt und führt ihn aus, mit dem Gas, das du gerade geschickt hast.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Beweise, dass das neue Device funktioniert",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " mit einer kleinen Auszahlung, die es ausführt, und fülle Ledger Daily auf dieselbe Weise wieder auf.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Aktualisiere Krakens gespeicherte Adressen",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ", denn die alten gehören jetzt zu einem ausgemusterten Seed.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Und was auch passiert: Update nur über die offiziellen Apps und warte nach einem Release eine Woche, außer es ist ein Security-Fix. Kein echtes Unternehmen schickt dir eine E-Mail mit der Bitte, dein Wallet zu updaten, zu migrieren oder zu „verifizieren“. Ledger-Kunden bekamen 2026 sogar gefälschte „Quantum Security Update“-Briefe per Post.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Die Fehler, die ich gemacht habe, damit du sie dir sparen kannst",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Ich bin meinen eigenen Notizen gefolgt und bin trotzdem fünfmal gestolpert. Jeder einzelne hat mich Zeit gekostet, und der mit dem Derivation Path hätte mich Geld kosten können.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "ordered_list",
+        "content": [
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Ich habe ein Software-Wallet erstellt, statt das Ledger zu verbinden.",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " MetaMasks „Create a new wallet“ sitzt direkt neben der Hardware-Option, und ich habe auf die falsche geklickt. Ich musste das MetaMask-Profil löschen und von vorn anfangen. Achte bei jedem Hardware-Account auf das kleine Device-Badge.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Ich hätte fast den „Ledger Live“-Pfad akzeptiert.",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " Er ist die Voreinstellung im Dropdown, und Account #1 sieht unter beiden Optionen identisch aus. Account #2 nicht.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Ich hatte „Account 1“ mit „Ledger 1“ verwechselt.",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " Benenne die Hot Wallet gleich beim Erstellen um, dann kann das nicht passieren.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Mein Trezor hat mir 20 Wörter gegeben statt 24.",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " Die 24-Wörter-Option versteckt sich hinter ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "Wallet backup type",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": ". Da noch kein Geld auf dem Gerät war, hat das Zurücksetzen und Neuanfangen nur ein paar Minuten gedauert.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list_item",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "Ich konnte nicht finden, wo man bei Kraken eine Auszahlungsadresse hinzufügt.",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": " Sie ist nicht auf der Auszahlungsseite selbst. Sie steckt im ",
+                    "type": "text"
+                  },
+                  {
+                    "text": "To",
+                    "type": "text",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "-Feld.",
+                    "type": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "text": "Das war's",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Du hast jetzt einen Vault, der ein verlorenes Gerät, einen Wohnungseinbruch und ein abgephishtes Passwort übersteht, jeder Key auf Hardware, jedes Backup in Stahl. Das Einrichten kostet einen Nachmittag oder zwei, und es gesund zu halten ein paar Minuten pro Quartal.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Wenn du dir einen baust, fang klein an. Pack einen Betrag rein, dessen Verlust du verschmerzen kannst, lebe einen Monat damit und bewege erst dann den Rest.",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Hinweis: Das ist meine persönliche Empfehlung fürs Setup, keine Firmenvorgabe und keine Finanzberatung.",
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "cover_image": {
+    "id": 245786230539305,
+    "alt": "Hand-drawn sketch: three keys labelled A Ledger, B Keycard and C Trezor point at a vault that needs 2 of 3",
+    "name": "",
+    "focus": "",
+    "title": "",
+    "filename": "https://a.storyblok.com/f/288632938663524/1400x700/4f939bb28f/three-keys-hero.png",
+    "copyright": "",
+    "fieldtype": "asset",
+    "is_external_url": false
+  },
+  "published_date": "2026-11-26 09:00",
+  "first_published_at": "2026-11-26T12:51:14.381Z",
+  "published_at": "2026-11-26T16:52:03.960Z",
+  "original_url": "",
+  "seo_title": "Drei Keys, ein Vault: ein Multisig-Self-Custody-Setup",
+  "seo_description": "Ein Self-Custody-Setup für Einsteiger: drei Hardware Wallets, ein 2-von-3 Safe Multisig, etwa 600 € und kein Coding. Der Verlust eines Geräts wird zur Besorgung, nicht zur Katastrophe.",
+  "canonical_override": "",
+  "tag_list": [
+    "Crypto",
+    "Hardware Wallets",
+    "Multisig",
+    "Security",
+    "Self-Custody"
+  ],
+  "uuid": "a5dffefc-eea0-4b7c-bb8c-92fcb1083919"
+}

@@ -3,46 +3,42 @@
     "de": {
       "status": "approved",
       "sourceHash": "201078d0266521acfb34cfc8",
-      "provenance": "grandfathered-mt",
-      "reviewedAt": null,
-      "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
+      "provenance": "human-reviewed",
+      "reviewedAt": "2026-11-26T17:27:05.207Z"
     },
     "es": {
       "status": "approved",
       "sourceHash": "201078d0266521acfb34cfc8",
-      "provenance": "grandfathered-mt",
-      "reviewedAt": null,
-      "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
+      "provenance": "human-reviewed",
+      "reviewedAt": "2026-11-26T17:27:05.207Z"
     }
   },
   "f0382ea8-64ea-47dd-bc92-8887a3238cb1": {
     "de": {
       "status": "approved",
       "sourceHash": "2db8632b568d811ffb0aab4f",
-      "provenance": "grandfathered-mt",
-      "reviewedAt": null,
-      "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
+      "provenance": "human-reviewed",
+      "reviewedAt": "2026-11-26T17:27:05.207Z"
     },
     "es": {
       "status": "approved",
       "sourceHash": "2db8632b568d811ffb0aab4f",
-      "provenance": "grandfathered-mt",
-      "reviewedAt": null,
-      "note": "Pre-gate machine translation, live before the gate existed; not natively reviewed. Re-review when convenient."
+      "provenance": "human-reviewed",
+      "reviewedAt": "2026-11-26T17:27:05.207Z"
     }
   },
   "817959ca-c56c-454e-9566-0e537ad1a659": {
     "de": {
       "status": "approved",
       "sourceHash": "346ae481c35979419e0afd0d",
-      "provenance": "auto-mt",
-      "reviewedAt": "2026-07-20T14:18:14.474Z"
+      "provenance": "human-reviewed",
+      "reviewedAt": "2026-11-26T17:27:05.207Z"
     },
     "es": {
       "status": "approved",
       "sourceHash": "346ae481c35979419e0afd0d",
-      "provenance": "auto-mt",
-      "reviewedAt": "2026-07-20T14:18:14.474Z"
+      "provenance": "human-reviewed",
+      "reviewedAt": "2026-11-26T17:27:05.207Z"
     },
     "fr": {
       "status": "approved",
@@ -61,6 +57,20 @@
       "sourceHash": "346ae481c35979419e0afd0d",
       "provenance": "human-reviewed",
       "reviewedAt": "2026-07-20T14:18:14.474Z"
+    }
+  },
+  "a5dffefc-eea0-4b7c-bb8c-92fcb1083919": {
+    "de": {
+      "status": "approved",
+      "sourceHash": "f4adf38bfbbe0b5f8302acc3",
+      "provenance": "human-reviewed",
+      "reviewedAt": "2026-11-26T17:27:05.207Z"
+    },
+    "es": {
+      "status": "approved",
+      "sourceHash": "f4adf38bfbbe0b5f8302acc3",
+      "provenance": "human-reviewed",
+      "reviewedAt": "2026-11-26T17:27:05.207Z"
     }
   }
 }
