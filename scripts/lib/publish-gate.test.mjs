@@ -4,7 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { activeRuns, refusals, staleApprovals } from "./publish-gate.mjs";
+import { activeRuns, outOfDateApprovals, refusals, staleApprovals } from "./publish-gate.mjs";
 
 const SHA = "818e6a1bf92e6b90664e748d1b4c24dfbba85c95";
 const clean = { head: SHA, originMain: SHA, dirty: [], misses: [], stale: 0, activeRuns: [] };
@@ -38,7 +38,7 @@ test("refuses any cache miss and names the locales", () => {
   assert.match(r[0], /^3 draft string\(s\).*\(fr 2, pt 1\)/);
 });
 
-test("refuses a stale DE/ES approval", () => {
+test("refuses a stale review-gated approval", () => {
   assert.match(refusals({ ...clean, stale: 2 })[0], /stale approval/);
 });
 
@@ -62,4 +62,16 @@ test("reads the stale-approval count from fetch-blog's warnings, across locales"
     "::warning title=Stale translation approval::2 es article variant(s) were dropped\n";
   assert.equal(staleApprovals(out), 3);
   assert.equal(staleApprovals("✓ fetch-blog: 3 reviewed post(s)\n"), 0);
+});
+
+test("an auto locale's out-of-date approval is counted apart and never refuses", () => {
+  // Two different warning titles on purpose: a stale approval in an auto locale
+  // falls back to machine translation and must not block a publish, while a
+  // stale review-gated one drops the page and must.
+  const out =
+    "::warning title=Approved translation out of date::2 de article(s) fell back\n" +
+    "::warning title=Approved translation out of date::1 es article(s) fell back\n";
+  assert.equal(outOfDateApprovals(out), 3);
+  assert.equal(staleApprovals(out), 0);
+  assert.equal(outOfDateApprovals("::warning title=Stale translation approval::4 de article variant(s)\n"), 0);
 });

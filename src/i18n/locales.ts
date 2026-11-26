@@ -10,10 +10,12 @@
 // site chrome + marketing pages emitted. All six are currently published.
 //
 // BLOG articles have a FINER, per-(article × locale) gate on top of this
-// (content/i18n-approvals.json): DE/ES article variants are emitted only when
-// their translation has been reviewed + approved; FR/IT/PT articles translate
-// automatically at build time (with a machine-translation disclosure). English
-// is the source and always emits. See scripts/fetch-blog.mjs + prerender.mjs.
+// (scripts/lib/blog-gate.mjs): every other locale translates automatically at
+// build time (with a machine-translation disclosure), and a translation that
+// was reviewed + approved in content/i18n-approvals.json is served verbatim
+// without the disclosure. Until 2026-11-26 DE/ES were emitted only after
+// review. English is the source and always emits. See scripts/fetch-blog.mjs +
+// prerender.mjs.
 
 export const SOURCE_LOCALE = "en" as const;
 
@@ -45,12 +47,12 @@ export const LOCALE_META: Record<Locale, { name: string; dir: "ltr" | "rtl"; ogL
 export const PUBLISHED_LOCALES: readonly Locale[] = ["en", "de", "es", "fr", "it", "pt"];
 
 /**
- * Locales whose blog articles are machine-translated (DeepL + LLM), not natively
- * reviewed, so a disclosure notice is shown on those articles. DE/ES are
- * human-gated (see scripts/lib/blog-gate.mjs) and carry no notice. Keep this in
- * sync with AUTO_LOCALES in scripts/lib/blog-gate.mjs (build side).
+ * Locales whose blog articles are machine-translated (DeepL + LLM) unless a
+ * reviewed translation exists. The disclosure notice shows on those articles
+ * when the post is not `human_reviewed` (see BlogPost.tsx). Keep this in sync
+ * with AUTO_LOCALES in scripts/lib/blog-gate.mjs (build side).
  */
-export const AUTO_TRANSLATED_LOCALES: readonly Locale[] = ["fr", "it", "pt"];
+export const AUTO_TRANSLATED_LOCALES: readonly Locale[] = ["de", "es", "fr", "it", "pt"];
 
 /** Is `l` a machine-translated (auto) locale that discloses it to readers? */
 export const isAutoTranslated = (l: string): boolean =>

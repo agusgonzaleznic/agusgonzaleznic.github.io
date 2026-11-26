@@ -9,7 +9,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, writeFileSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -19,6 +19,7 @@ import {
   approvedGatedLocales,
   approvedLocalesFor,
   enSourceHash,
+  isHumanReviewed,
   loadApprovals,
 } from "./blog-gate.mjs";
 
@@ -145,7 +146,9 @@ test("a stale stored hash excludes that locale, which is the demotion path", () 
       es: { status: "approved", sourceHash: "0".repeat(24) },
     },
   };
-  assert.deepEqual(approvedGatedLocales(PINNED, approvals), ["de"]);
+  // The shipped gated list is empty (since 2026-11-26), so name the locales:
+  // this tests the demotion mechanism, which stays available for a gated locale.
+  assert.deepEqual(approvedGatedLocales(PINNED, approvals, ["de", "es"]), ["de"]);
 });
 
 test("enSourceHash is stable across calls and independent of key order", () => {
@@ -232,38 +235,86 @@ test("source locale always emits, even with nothing approved and nothing publish
   assert.deepEqual(approvedLocalesFor(post(), {}, []), ["en"]);
 });
 
-test("auto locales emit when published; gated locales do not without approval", () => {
-  const out = approvedLocalesFor(post(), {}, ALL);
+// The policy in force until 2026-11-26, kept so the gate mechanism stays tested
+// while the shipped REVIEW_GATED_LOCALES is empty.
+const GATED_POLICY = { auto: ["fr", "it", "pt"], gated: ["de", "es"] };
+
+test("shipped policy: every non-source locale auto-publishes, none is review-gated", () => {
+  // The owner's decision of 2026-11-26: new posts ship in every language at once
+  // and review follows. Pinned so a revert is a visible, deliberate test change.
+  assert.deepEqual(REVIEW_GATED_LOCALES, []);
+  assert.deepEqual([...AUTO_LOCALES].sort(), ALL.filter((l) => l !== "en").sort());
+});
+
+test("shipped policy: all published locales emit with no approval at all", () => {
+  assert.deepEqual(approvedLocalesFor(post(), {}, ALL).sort(), [...ALL].sort());
+});
+
+test("shipped policy: a STALE approval does not withhold an auto locale", () => {
+  // Editing the English after review must not take the page down: the build
+  // falls back to machine translation (with the notice) instead.
+  const p = post();
+  const edited = { ...p, title: "Edited after review" };
+  const out = approvedLocalesFor(edited, approve(p, ["de", "es"]), ALL);
+  assert.ok(out.includes("de") && out.includes("es"), "stale de/es must still emit");
+});
+
+test("AUTO_LOCALES matches AUTO_TRANSLATED_LOCALES in src/i18n/locales.ts", () => {
+  // Build side (this module) and render side (the notice) are two lists that
+  // must agree; a locale on only one side either loses its notice or its page.
+  const ts = readFileSync(new URL("../../src/i18n/locales.ts", import.meta.url), "utf8");
+  const m = ts.match(/AUTO_TRANSLATED_LOCALES[^=]*=\s*\[([^\]]*)\]/);
+  assert.ok(m, "AUTO_TRANSLATED_LOCALES not found in locales.ts");
+  const rendered = [...m[1].matchAll(/"([a-z]{2})"/g)].map((x) => x[1]);
+  assert.deepEqual(rendered.sort(), [...AUTO_LOCALES].sort());
+});
+
+test("gate mechanism: auto locales emit; gated locales do not without approval", () => {
+  const out = approvedLocalesFor(post(), {}, ALL, "en", GATED_POLICY);
   assert.deepEqual(out.sort(), ["en", "fr", "it", "pt"].sort());
-  for (const l of REVIEW_GATED_LOCALES) assert.ok(!out.includes(l), `${l} must need approval`);
+  for (const l of GATED_POLICY.gated) assert.ok(!out.includes(l), `${l} must need approval`);
 });
 
 test("PUBLISHED_LOCALES is a hard ceiling: an approved locale that is not published stays out", () => {
   const p = post();
-  const out = approvedLocalesFor(p, approve(p, ["de"]), ["en", "fr"]);
+  const out = approvedLocalesFor(p, approve(p, ["de"]), ["en", "fr"], "en", GATED_POLICY);
   assert.deepEqual(out.sort(), ["en", "fr"].sort());
+  assert.deepEqual(approvedLocalesFor(p, {}, ["en", "fr"]).sort(), ["en", "fr"].sort());
 });
 
-test("an approved+fresh gated locale emits", () => {
+test("gate mechanism: an approved+fresh gated locale emits", () => {
   const p = post();
-  assert.ok(approvedLocalesFor(p, approve(p, ["de"]), ALL).includes("de"));
+  assert.ok(approvedLocalesFor(p, approve(p, ["de"]), ALL, "en", GATED_POLICY).includes("de"));
 });
 
-test("a STALE approval is demoted (source edited after review)", () => {
+test("gate mechanism: a STALE approval is demoted (source edited after review)", () => {
   const p = post();
   const approvals = approve(p, ["de", "es"]);
   const edited = { ...p, title: "Edited after review" };
-  const out = approvedLocalesFor(edited, approvals, ALL);
+  const out = approvedLocalesFor(edited, approvals, ALL, "en", GATED_POLICY);
   assert.ok(!out.includes("de"), "stale de must be withheld");
   assert.ok(!out.includes("es"), "stale es must be withheld");
   assert.ok(out.includes("en"), "source still emits");
 });
 
+test("only a human-reviewed approval drops the machine-translation notice", () => {
+  // The manifest approves machine translation too ("grandfathered-mt" for copy
+  // live before the gate, "auto-mt"). Those must keep the notice, or a page
+  // that nobody reviewed would read as reviewed.
+  assert.equal(isHumanReviewed({ status: "approved", provenance: "human-reviewed" }), true);
+  for (const provenance of ["grandfathered-mt", "auto-mt", "HUMAN-REVIEWED", "", undefined]) {
+    assert.equal(isHumanReviewed({ status: "approved", provenance }), false, `provenance=${String(provenance)}`);
+  }
+  assert.equal(isHumanReviewed(undefined), false);
+});
+
 test("status must be exactly 'approved'", () => {
   const p = post();
   const hash = enSourceHash(p);
+  // Control: the exact status does publish, so the loop below can fail.
+  assert.deepEqual(approvedGatedLocales(p, { [p.uuid]: { de: { status: "approved", sourceHash: hash } } }, ["de"]), ["de"]);
   for (const status of ["pending", "rejected", "APPROVED", "", undefined]) {
-    const out = approvedGatedLocales(p, { [p.uuid]: { de: { status, sourceHash: hash } } });
+    const out = approvedGatedLocales(p, { [p.uuid]: { de: { status, sourceHash: hash } } }, ["de"]);
     assert.ok(!out.includes("de"), `status=${String(status)} must not publish`);
   }
 });

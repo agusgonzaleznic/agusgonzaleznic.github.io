@@ -1,10 +1,10 @@
 import { Trans } from "@lingui/react/macro";
 import { Languages } from "lucide-react";
 
-// Honest disclosure shown on machine-translated (FR/IT/PT) blog articles: the
-// copy is auto-translated (DeepL + LLM post-edit), not natively reviewed. Links
-// to the English original. Rendered in the reader's language via <Trans>.
-// DE/ES articles are human-gated and never show this. See BlogPost.tsx +
+// Honest disclosure shown on machine-translated blog articles: the copy is
+// auto-translated (DeepL + LLM post-edit), not natively reviewed. Links to the
+// English original. Rendered in the reader's language via <Trans>. A reviewed
+// translation (post.human_reviewed) never shows this. See BlogPost.tsx +
 // src/i18n/locales.ts (isAutoTranslated).
 export const MachineTranslationNotice = ({ enUrl }: { enUrl: string }) => (
   <div

@@ -2,15 +2,23 @@
 //
 // PUBLISHED_LOCALES (src/i18n/locales.ts) is the coarse, site-wide switch. On
 // top of it, blog ARTICLES have a fine gate:
-//   - DE/ES (REVIEW_GATED_LOCALES): a variant is emitted only when its
-//     translation has been reviewed + approved in content/i18n-approvals.json
-//     AND the stored sourceHash still matches the current English content
-//     (editing the English auto-demotes a stale translation until re-reviewed).
-//     Reviewed content is served verbatim from content/translations/; the
-//     build never re-translates it, so it is fully deterministic and needs no
-//     API key.
-//   - FR/IT/PT (AUTO_LOCALES): auto-translated at build time (DeepL + LLM
-//     post-edit), disclosed to readers as machine translation.
+//   - AUTO_LOCALES (DE/ES/FR/IT/PT since 2026-11-26): machine-translated at
+//     build time (DeepL + LLM post-edit) and disclosed to readers as machine
+//     translation. A post whose translation is approved in
+//     content/i18n-approvals.json, with a sourceHash that still matches the
+//     current English, is served verbatim from content/translations/ instead.
+//     That file drops the disclosure only when its provenance is
+//     "human-reviewed" (isHumanReviewed); "grandfathered-mt" and "auto-mt"
+//     files are still machine translation and keep it. Review is optional and
+//     can happen after publishing.
+//   - REVIEW_GATED_LOCALES (none since 2026-11-26; DE/ES until then): a variant
+//     is emitted ONLY when it is approved + hash-fresh, so editing the English
+//     withholds a stale translation until it is re-reviewed. Kept so a locale
+//     can be moved back without rebuilding the mechanism. Moving one back is
+//     four edits, all pinned by blog-gate.test.mjs: add it here, and remove it
+//     from AUTO_LOCALES, AUTO_LOCALE_MODE and AUTO_TRANSLATED_LOCALES
+//     (src/i18n/locales.ts). Adding it here alone gates nothing, because the
+//     auto list would still emit it.
 //   - English is the source and always emits.
 //
 // fetch-blog.mjs bakes the resulting `approved_locales` onto each English post
@@ -21,17 +29,21 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 
-/** Locales that require per-article native review before a variant is emitted. */
-export const REVIEW_GATED_LOCALES = ["de", "es"];
+/**
+ * Locales that require per-article native review before a variant is emitted.
+ * Empty since 2026-11-26: DE/ES moved to AUTO_LOCALES at the owner's request,
+ * so new posts ship in every language and review can follow.
+ */
+export const REVIEW_GATED_LOCALES = [];
 /** Locales auto-translated at build time (disclosed as machine translation). */
-export const AUTO_LOCALES = ["fr", "it", "pt"];
+export const AUTO_LOCALES = ["de", "es", "fr", "it", "pt"];
 
 // Per-locale mode for the auto-translated locales. Flip any to "hold" to pull
 // that locale's articles back to the English fallback (no /{locale}/ variant
 // emitted, no hreflang/sitemap entry), e.g. if unreviewed machine translation
 // is ever judged too risky for the brand. One-line change, no other edits.
 // (Keep the "auto" set in sync with AUTO_TRANSLATED_LOCALES in src/i18n/locales.ts.)
-export const AUTO_LOCALE_MODE = { fr: "auto", it: "auto", pt: "auto" };
+export const AUTO_LOCALE_MODE = { de: "auto", es: "auto", fr: "auto", it: "auto", pt: "auto" };
 
 // Richtext node types whose text is NOT translated: a translator never retypes a
 // code sample, and richtext-translate skips these subtrees for that reason.
@@ -138,11 +150,26 @@ export function loadApprovals(path) {
   return parsed;
 }
 
-/** Review-gated locales that are approved AND hash-fresh for this English post. */
-export function approvedGatedLocales(post, approvals) {
+/**
+ * Is this approval a person's translation, so the page may drop the
+ * machine-translation notice? Only review-translations.mjs writes
+ * "human-reviewed"; the manifest also holds "grandfathered-mt" (machine
+ * translation live before the gate existed) and "auto-mt" entries, which are
+ * approved for publishing but are still machine translation.
+ */
+export function isHumanReviewed(entry) {
+  return entry?.provenance === "human-reviewed";
+}
+
+/**
+ * Review-gated locales that are approved AND hash-fresh for this English post.
+ * `gated` defaults to the shipped policy; tests pass a list so the mechanism
+ * stays exercised while the shipped list is empty.
+ */
+export function approvedGatedLocales(post, approvals, gated = REVIEW_GATED_LOCALES) {
   const hash = enSourceHash(post);
   const entry = approvals[post.uuid] ?? {};
-  return REVIEW_GATED_LOCALES.filter((loc) => {
+  return gated.filter((loc) => {
     const e = entry[loc];
     return e && e.status === "approved" && e.sourceHash === hash;
   });
@@ -173,14 +200,22 @@ function hasExternalCanonical(post) {
  * between canonical pages, so the cluster was inert at best; the translations
  * could never rank, and they diluted the signal for the original. One page with
  * one honest canonical is the whole intent of setting an override.
+ *
+ * `policy` defaults to the shipped lists; tests pass their own.
  */
-export function approvedLocalesFor(post, approvals, publishedLocales, sourceLocale = "en") {
+export function approvedLocalesFor(
+  post,
+  approvals,
+  publishedLocales,
+  sourceLocale = "en",
+  { auto = AUTO_LOCALES, gated = REVIEW_GATED_LOCALES } = {},
+) {
   const published = new Set(publishedLocales);
   const out = [sourceLocale];
   if (hasExternalCanonical(post)) return out;
-  for (const loc of AUTO_LOCALES) {
+  for (const loc of auto) {
     if (published.has(loc) && AUTO_LOCALE_MODE[loc] === "auto") out.push(loc);
   }
-  for (const loc of approvedGatedLocales(post, approvals)) if (published.has(loc)) out.push(loc);
+  for (const loc of approvedGatedLocales(post, approvals, gated)) if (published.has(loc)) out.push(loc);
   return [...new Set(out)];
 }

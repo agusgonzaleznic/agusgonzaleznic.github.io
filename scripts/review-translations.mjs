@@ -8,8 +8,8 @@
 //
 // LANGUAGES: English is the source (left column). By default you review only the
 // two languages you actually speak: Argentinian Spanish (es) and German (de).
-// French/Italian/Portuguese stay machine-translated and are never shown unless
-// you pass --all. A locale selector in the header filters the view live.
+// French/Italian/Portuguese are never shown unless you pass --all. A locale
+// selector in the header filters the view live.
 //
 // REVIEW-LOCK: Save writes the reviewed copy to the repo AND stamps an approval
 // with a sourceHash, so the build serves it VERBATIM and the GitHub Actions
@@ -27,7 +27,7 @@
 //   ~/bin/op-sa run --env-file="$HOME/.env" --no-masking -- node scripts/review-translations.mjs
 //   ... --domain pages|blog|ui   review one domain (default: all three)
 //   ... --locale es|de           review one language (default: es + de)
-//   ... --all                    include fr/it/pt too
+//   ... --all                    include fr/it/pt too (all five auto-translate; review is optional)
 //   ... --post <slug>            just one blog article
 //   ... --port <n>               (default 4477)
 //
@@ -75,7 +75,13 @@ const onlyPost = opt("--post", null);
 const onlyDomain = opt("--domain", null); // pages | blog | ui | null(all)
 const onlyLocale = opt("--locale", null); // es | de | null(all reviewed)
 // The languages the owner reviews. en is the source; es+de by default (--all adds fr/it/pt).
-let locales = flag("--all") ? [...REVIEW_GATED_LOCALES, ...AUTO_LOCALES] : [...REVIEW_GATED_LOCALES];
+// A fixed list, not REVIEW_GATED_LOCALES: since 2026-11-26 no locale is gated
+// (DE/ES publish as machine translation first), but these are still the two he
+// reads and reviews afterwards.
+const OWNER_REVIEW_LOCALES = ["es", "de"];
+let locales = flag("--all")
+  ? [...new Set([...OWNER_REVIEW_LOCALES, ...REVIEW_GATED_LOCALES, ...AUTO_LOCALES])]
+  : [...new Set([...OWNER_REVIEW_LOCALES, ...REVIEW_GATED_LOCALES])];
 if (onlyLocale) locales = locales.filter((l) => l === onlyLocale);
 
 const fatal = (m) => { console.error(`review-translations: ${m}`); process.exit(1); };
@@ -143,11 +149,12 @@ function writeJsonAtomic(path, text) {
 // reviewed file and no translator is prefilled with the ENGLISH text and badged
 // `source: "empty"` (buildBlogItems), and an untouched Save then wrote that
 // English article to content/translations/<uuid>.<locale>.json stamped
-// status:"approved", provenance:"human-reviewed" with a fresh sourceHash. For a
-// REVIEW_GATED locale the build serves that file VERBATIM, so a full English
-// article ships under /de/ or /es/, in the sitemap and in every locale's
-// hreflang, with no machine-translation disclosure (that covers AUTO_LOCALES
-// only) and nothing for the build to detect.
+// status:"approved", provenance:"human-reviewed" with a fresh sourceHash. The
+// build serves an approved, hash-fresh file VERBATIM in EVERY locale and marks it
+// human_reviewed, so a full English article ships under /de/ (or any locale), in
+// the sitemap and in every locale's hreflang, with the machine-translation
+// disclosure suppressed and nothing for the build to detect. Hence the guard
+// covers every non-source locale, not only review-gated ones.
 //
 // The rule is WHOLE-PAYLOAD, never per-field, because plenty of strings are
 // legitimately identical in every language: "Blog", "FAQ", "DevOps Lead", brand
@@ -163,7 +170,7 @@ function writeJsonAtomic(path, text) {
 // distinct strings, i.e. exactly the textareas the reviewer saw. Comparison is
 // byte-exact: only the untouched prefill matches, and any real edit clears it.
 function assertNotEnglishSource(what, locale, pairs) {
-  if (!REVIEW_GATED_LOCALES.includes(locale)) return;
+  if (locale === "en") return;
   const byEn = new Map();
   for (const { en, value } of pairs) if (!byEn.has(en)) byEn.set(en, value);
   if (byEn.size < 2) return;
