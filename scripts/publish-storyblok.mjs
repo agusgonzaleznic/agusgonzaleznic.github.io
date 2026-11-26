@@ -8,7 +8,7 @@
 // WHY. A publish deploys main (see scripts/lib/publish-gate.mjs). This runs the
 // deploy's own fetch scripts, cache-only and keyless, against the DRAFT copy
 // from a checkout that must be exactly origin/main, and refuses on any cache
-// miss, any stale DE/ES approval, or any deploy run still in flight. Only then
+// miss, any stale review-gated approval, or any deploy run still in flight. Only then
 // does it publish, and it then waits for the deploy runs the publish creates.
 //
 // Draft mode reads every story's draft, not only the ones named here, so an
@@ -21,7 +21,7 @@ import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { activeRuns, refusals, staleApprovals } from "./lib/publish-gate.mjs";
+import { activeRuns, outOfDateApprovals, refusals, staleApprovals } from "./lib/publish-gate.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SPACE_ID = "288632938663524";
@@ -95,7 +95,7 @@ function measureDrafts() {
     output += `${r.stdout}${r.stderr}`;
   }
   const misses = existsSync(report) ? JSON.parse(readFileSync(report, "utf8")).flatMap((r) => r.missing ?? []) : [];
-  return { misses, stale: staleApprovals(output) };
+  return { misses, stale: staleApprovals(output), outOfDate: outOfDateApprovals(output) };
 }
 
 function gate() {
@@ -113,6 +113,12 @@ console.log(`publish-storyblok: ${stories.map((s) => `${s.full_slug} (${s.id})`)
 const state = gate();
 const no = refusals(state);
 console.log(`  main ${state.originMain.slice(0, 7)}, ${state.misses.length} miss(es), ${state.stale} stale approval(s), ${state.activeRuns.length} active deploy run(s)`);
+if (state.outOfDate) {
+  console.log(
+    `  note: ${state.outOfDate} approved translation(s) will be replaced by machine translation (with the notice), ` +
+      "because the English changed after approval. Re-review them in review-translations.mjs to restore them.",
+  );
+}
 if (no.length) {
   console.error("publish-storyblok: REFUSED, nothing was published:");
   for (const reason of no) console.error(`  - ${reason}`);

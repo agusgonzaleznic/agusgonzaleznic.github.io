@@ -170,9 +170,9 @@ const BlogPostPage = () => {
                 )}
               </header>
 
-              {/* Disclose machine translation on FR/IT/PT articles; link the
-                  English original (root path). DE/ES are human-gated → no notice. */}
-              {isAutoTranslated(locale) && (
+              {/* Disclose machine translation; link the English original (root
+                  path). A reviewed translation (human_reviewed) shows no notice. */}
+              {isAutoTranslated(locale) && !post.human_reviewed && (
                 <MachineTranslationNotice enUrl={`/blog/${post.slug}/`} />
               )}
 

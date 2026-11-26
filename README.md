@@ -59,7 +59,7 @@ The reasoning behind these choices is in [`docs/architecture.md`](docs/architect
 | Load a third-party script at page load | Cloudflare Turnstile loads only when someone interacts with the contact form |
 | Request fonts from anywhere else | Inter and Playfair Display are self-hosted in `public/fonts/` with `font-display: optional` |
 | Relay contact mail through a third party | The Lambda sends through SESv2 directly |
-| Publish every translation by itself | German and Spanish appear only after I've reviewed them. French, Italian and Portuguese publish automatically and say they are machine translated |
+| Hide that a translation is machine-made | Every translated article says it was machine translated until I've reviewed it; a reviewed article is served as I wrote it |
 
 ---
 
@@ -148,11 +148,11 @@ published as of 14 November 2026.
 | Language | URL | How its content reaches readers |
 |---|---|---|
 | English | `/` | Source, always published |
-| German | `/de/` | Review-gated: a variant is emitted only after I approve it, and only while it still matches the English source |
-| Spanish | `/es/` | Review-gated, like German |
-| French | `/fr/` | Translated at build time, with a machine translation notice on articles |
-| Italian | `/it/` | Translated at build time, with a notice |
-| Portuguese | `/pt/` | Translated at build time, with a notice |
+| German | `/de/` | Translated at build time, with a machine translation notice on articles; once I review an article, my version is served instead, without the notice |
+| Spanish | `/es/` | Like German |
+| French | `/fr/` | Like German |
+| Italian | `/it/` | Like German |
+| Portuguese | `/pt/` | Like German |
 
 - **Interface strings** go through Lingui catalogs in `src/i18n/catalogs/`. The `.po` files are the
   committed source of truth.
@@ -386,8 +386,9 @@ the plan needs secrets that Dependabot-triggered workflows can't read.
 | Understand why something is built the way it is | [`docs/architecture.md`](docs/architecture.md) |
 | Change or run the infrastructure | [`terraform/README.md`](terraform/README.md) |
 
-Publishing a post ends in Storyblok's Publish button, which triggers the pipeline above. German and
-Spanish go live only after I review them in the local review app and commit the result.
+Publishing a post ends in Storyblok's Publish button, which triggers the pipeline above. Every
+language goes live at once as machine translation; reviewing one later in the local review app and
+committing the result replaces it with my version.
 
 ---
 

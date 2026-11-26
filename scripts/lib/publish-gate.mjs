@@ -27,6 +27,19 @@ export function staleApprovals(output) {
 }
 
 /**
+ * Count the approved translations fetch-blog replaced with machine translation
+ * because the English changed after approval (an auto locale's stale approval).
+ * Not a refusal: the page still ships, with the notice. Reported so a publish
+ * never swaps an approved translation out without saying so. The warning title
+ * differs from the one staleApprovals reads, on purpose.
+ */
+export function outOfDateApprovals(output) {
+  let n = 0;
+  for (const m of output.matchAll(/::warning title=Approved translation out of date::(\d+) /g)) n += Number(m[1]);
+  return n;
+}
+
+/**
  * Every reason the publish must not happen. An empty list means go.
  * @param {{ head: string, originMain: string, dirty: string[], misses: {locale: string, source: string}[],
  *           stale: number, activeRuns: {databaseId: number, status: string}[] }} s
@@ -43,7 +56,7 @@ export function refusals({ head, originMain, dirty, misses, stale, activeRuns })
     const split = [...byLocale].sort().map(([l, n]) => `${l} ${n}`).join(", ");
     out.push(`${misses.length} draft string(s) are missing from main's cache (${split}); fill the cache and merge it first`);
   }
-  if (stale) out.push(`${stale} reviewed DE/ES article variant(s) have a stale approval hash and would drop off the site`);
+  if (stale) out.push(`${stale} review-gated article variant(s) have a stale approval hash and would drop off the site`);
   for (const r of activeRuns) out.push(`deploy run ${r.databaseId} is ${r.status}; wait for the queue to drain`);
   return out;
 }

@@ -27,6 +27,7 @@ import {
   REVIEW_GATED_LOCALES,
   approvedLocalesFor,
   enSourceHash,
+  isHumanReviewed,
   loadApprovals,
 } from "./lib/blog-gate.mjs";
 import { fetchPublishedPosts } from "./lib/storyblok-fetch.mjs";
@@ -141,13 +142,15 @@ function pruneLocaleData(keep) {
 
 // Build-time localization of the blog, writing src/generated/blog-data.<locale>.json.
 // Two policies (see scripts/lib/blog-gate.mjs), gated on PUBLISHED_LOCALES:
-//   - Review-gated locales (DE/ES): served VERBATIM from committed reviewed
-//     content (content/translations/<uuid>.<locale>.json) for approved+fresh
-//     posts only. No translation, no API key needed, fully deterministic.
-//   - Auto locales (FR/IT/PT): translated at build via DeepL (+ optional LLM
-//     post-edit). KEYLESS → no machine translation, but an approved + fresh
-//     reviewed file is still served verbatim (no key needed for a file read);
-//     every other post falls back to English.
+//   - Review-gated locales (none since 2026-11-26; DE/ES until then): served
+//     VERBATIM from committed reviewed content
+//     (content/translations/<uuid>.<locale>.json) for approved+fresh posts
+//     only. No translation, no API key needed, fully deterministic.
+//   - Auto locales (DE/ES/FR/IT/PT): an approved + fresh reviewed file is
+//     served verbatim; every other post is translated at build via DeepL
+//     (+ optional LLM post-edit). KEYLESS → no machine translation, reviewed
+//     files are still served (no key needed for a file read), and every other
+//     post falls back to English.
 // English (blog-data.json) is written by writeOutput() before this runs; each
 // post already carries its baked `approved_locales`.
 
@@ -156,9 +159,17 @@ function pruneLocaleData(keep) {
 // dates, urls) are stale if the story changed after review. Always take those
 // from the CURRENT English story so every locale, reviewed or auto, stays in
 // sync. (tag_list is global in Storyblok: one set of tags shared by all locales.)
-function withCurrentGlobals(reviewedObj, post) {
+//
+// `human_reviewed` marks the result as a person's translation, so BlogPost.tsx
+// hides the machine-translation notice for it. It follows the approval's
+// provenance, not its status: "grandfathered-mt" and "auto-mt" files are
+// approved for publishing but are still machine translation, so they keep the
+// notice. Nothing else sets the flag, so a machine-translated or
+// English-fallback post never carries it.
+function withCurrentGlobals(reviewedObj, post, approval) {
   return {
     ...reviewedObj,
+    human_reviewed: isHumanReviewed(approval),
     tag_list: post.tag_list,
     cover_image: post.cover_image,
     published_date: post.published_date,
@@ -199,11 +210,22 @@ function localizePostTags(arr, locale, tagMap) {
 async function writeAutoLocale(locale, posts, approvals, tagMap, translator) {
   const localized = [];
   let reviewed = 0;
+  const stale = [];
+  const missingFiles = [];
   for (const post of posts) {
     const appr = approvals[post.uuid]?.[locale];
     const file = resolve(reviewedDir, `${post.uuid}.${locale}.json`);
-    if (appr?.status === "approved" && appr.sourceHash === enSourceHash(post) && existsSync(file)) {
-      localized.push(withCurrentGlobals(JSON.parse(readFileSync(file, "utf-8")), post));
+    const fresh = appr?.status === "approved" && appr.sourceHash === enSourceHash(post);
+    // An approval whose hash no longer matches means the English changed after
+    // review. The page still ships, machine-translated and with the notice, but
+    // the approved copy is no longer what readers see. Not free either: that
+    // article's strings for this locale are usually not in the cache (they were
+    // never machine-translated), so a cache-only deploy needs them filled first.
+    if (appr?.status === "approved" && !fresh) stale.push(post.uuid);
+    // Approved and fresh, yet the file is gone: same silent fallback, so say it.
+    if (fresh && !existsSync(file)) missingFiles.push(post.uuid);
+    if (fresh && existsSync(file)) {
+      localized.push(withCurrentGlobals(JSON.parse(readFileSync(file, "utf-8")), post, appr));
       reviewed += 1;
     } else if (translator) {
       localized.push((await translateStories([post], locale, translator))[0]);
@@ -221,12 +243,30 @@ async function writeAutoLocale(locale, posts, approvals, tagMap, translator) {
   );
   writeClientSplit(locale, localized);
   const notes = [];
-  if (reviewed) notes.push(`${reviewed} reviewed`);
+  if (reviewed) notes.push(`${reviewed} from content/translations`);
   if (!translator) notes.push(`${localized.length - reviewed} English fallback`);
   console.log(
     `✓ fetch-blog: ${localized.length} post(s) → src/generated/${blogDataFilename(locale)}` +
       `${notes.length ? ` (${notes.join(", ")})` : ""}`,
   );
+  if (stale.length) {
+    console.log(
+      `::warning title=Approved translation out of date::${stale.length} ${locale} article(s) ` +
+        "fell back to machine translation because the English changed after review",
+    );
+    console.warn(
+      `  ⚠ fetch-blog: ${locale} approval is stale for ${stale.length} post(s); serving machine\n` +
+        "    translation with the notice. Re-review them, or re-point the hash if only formatting changed:",
+    );
+    for (const uuid of stale) console.warn(`      ${uuid}`);
+  }
+  if (missingFiles.length) {
+    console.log(
+      `::warning title=Approved translation file missing::${missingFiles.length} ${locale} article(s) ` +
+        "are approved in content/i18n-approvals.json but have no file in content/translations/",
+    );
+    for (const uuid of missingFiles) console.warn(`      ${uuid}`);
+  }
 }
 
 async function translateBlog(posts) {
@@ -234,9 +274,10 @@ async function translateBlog(posts) {
   const tagMap = loadTagMap(tagMapPath);
   const manifest = loadApprovals(approvalsPath);
 
-  // Review-gated locales: assemble from committed reviewed content. A post is
-  // included only when its approved_locales set contains the locale (approved +
-  // hash-fresh); pending / held / stale variants are simply omitted.
+  // Review-gated locales (none since 2026-11-26): assemble from committed
+  // reviewed content. A post is included only when its approved_locales set
+  // contains the locale (approved + hash-fresh); pending / held / stale variants
+  // are simply omitted.
   for (const locale of REVIEW_GATED_LOCALES) {
     if (!published.includes(locale)) continue;
     const reviewed = [];
@@ -262,7 +303,7 @@ async function translateBlog(posts) {
           `fetch-blog: ${post.uuid} is approved for "${locale}" but ${file} is missing.`,
         );
       }
-      reviewed.push(withCurrentGlobals(JSON.parse(readFileSync(file, "utf-8")), post));
+      reviewed.push(withCurrentGlobals(JSON.parse(readFileSync(file, "utf-8")), post, manifest[post.uuid]?.[locale]));
     }
     localizePostTags(reviewed, locale, tagMap);
     writeFileSync(
@@ -287,7 +328,7 @@ async function translateBlog(posts) {
     }
   }
 
-  // Auto locales (FR/IT/PT): translate at build time.
+  // Auto locales (DE/ES/FR/IT/PT): translate at build time.
   const targets = published.filter((l) => AUTO_LOCALES.includes(l));
   if (posts.length === 0 || targets.length === 0) return;
   // Cache-only still has to walk every string, because answering them from the
@@ -304,7 +345,7 @@ async function translateBlog(posts) {
     // PUBLISHED_LOCALES + AUTO_LOCALE_MODE, never from these files).
     console.log(
       "  fetch-blog: DEEPL_API_KEY not set, skipping auto blog translation " +
-        "(FR/IT/PT fall back to English apart from reviewed posts).",
+        "(auto locales fall back to English apart from reviewed posts).",
     );
     for (const locale of targets) {
       await writeAutoLocale(locale, posts, manifest, tagMap, null);
@@ -356,7 +397,7 @@ async function translateBlog(posts) {
         `${failures ? `, ${failures} call(s) failed` : ""}.`,
     );
     // Those counts sit in a collapsed step log under a green tick, so a pass that
-    // failed WHOLESALE (revoked key, lapsed billing) shipped FR/IT/PT copy that
+    // failed WHOLESALE (revoked key, lapsed billing) shipped auto-locale copy that
     // bypassed the entire voice standard with no CI signal at all. Annotate in
     // ADDITION to the line above, so the counts stay in the log either way.
     //
@@ -370,7 +411,7 @@ async function translateBlog(posts) {
       // string behind those calls shipped raw.
       console.log(
         `::warning title=LLM post-edit degraded::${failures} of ${calls} post-edit call(s) failed, ` +
-          "so the FR/IT/PT strings behind them shipped as raw DeepL. Re-run with REGEN_LOCALES=fr,it,pt.",
+          "so the locale strings behind them shipped as raw DeepL. Re-run with REGEN_LOCALES for those locales.",
       );
     }
   }

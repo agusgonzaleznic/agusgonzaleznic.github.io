@@ -82,9 +82,11 @@ jobs:
             #                       nothing downstream would notice failing
             # scripts/lib is NOT denylisted (it sets site=true too, since the
             # build imports it), but it must also run its own suite: blog-gate
-            # decides which locale pages exist at all.
+            # decides which locale pages exist at all. src/i18n/locales.ts runs it
+            # too: blog-gate.test.mjs holds its AUTO_TRANSLATED_LOCALES equal to
+            # blog-gate's AUTO_LOCALES.
             case "$f" in
-              terraform/contact-lambda-src/*|terraform/cdn-function/*|terraform/alert-relay-src/*|scripts/lib/*) tests=true ;;
+              terraform/contact-lambda-src/*|terraform/cdn-function/*|terraform/alert-relay-src/*|scripts/lib/*|src/i18n/locales.ts) tests=true ;;
             esac
             case "$f" in
               terraform/*|*.md|.env.example|.gitignore|LICENSE|.github/workflows/terraform.yml) : ;;

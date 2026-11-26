@@ -48,6 +48,12 @@ export interface BlogPost {
   approved_locales?: string[];
   /** Baked by fetch-blog so the index route never needs the article bodies. */
   reading_minutes?: number;
+  /**
+   * True when this locale's copy is a person's reviewed translation, served
+   * verbatim from content/translations/. Set only by fetch-blog's
+   * withCurrentGlobals; absent on machine translation and on English.
+   */
+  human_reviewed?: boolean;
 }
 
 const rawPosts = (Array.isArray(blogIndex) ? blogIndex : []) as Partial<BlogPost>[];
@@ -97,6 +103,8 @@ const normalize = (p: Partial<BlogPost>): BlogPost => ({
   // type alone would be undefined at runtime for all of them.
   reading_minutes: Math.max(1, p.reading_minutes ?? 1),
   uuid: p.uuid ?? "",
+  // Strictly true: anything else (absent, a stray string) keeps the notice.
+  human_reviewed: p.human_reviewed === true,
 });
 
 /** Best available publish date for a post, as the raw source string. */
@@ -169,7 +177,8 @@ export function getAllPosts(locale: string = SOURCE_LOCALE): BlogPost[] {
     // Only articles that actually have a page in this locale. Without this the
     // locale index listed the English fallback for every article (rawFor()
     // falls back to blog-data.json when blog-data.<locale>.json is absent), so
-    // holding a locale (AUTO_LOCALE_MODE="hold", or a withdrawn DE/ES approval)
+    // holding a locale (AUTO_LOCALE_MODE="hold", or a withdrawn approval for a
+    // review-gated locale)
     // left /{locale}/blog advertising PostCards that linked to pages prerender
     // had deliberately not emitted. Every one of those links was a 404.
     .filter((p) => emittedIn(p, locale))

@@ -99,11 +99,19 @@ hreflang `x-default`. The full URL model lives in `src/i18n/locales.ts`.
 - **Two-level publish gating.** `PUBLISHED_LOCALES` (`src/i18n/locales.ts`) is the
   coarse site-wide switch iterated by prerender, sitemap, hreflang, and the language
   switcher. Per-article, `scripts/lib/blog-gate.mjs` is the single source of policy:
-  **DE/ES are review-gated**: a variant is emitted only when human-approved in
-  `content/i18n-approvals.json` *and* the stored `sourceHash` still matches the
-  English source (editing English auto-demotes the translation until re-reviewed);
-  **FR/IT/PT auto-translate** at build and carry a machine-translation disclosure.
-  `AUTO_LOCALE_MODE` is a one-line per-locale kill switch back to English.
+  **all five non-source locales auto-translate** at build and carry a
+  machine-translation disclosure. A translation that is approved in
+  `content/i18n-approvals.json` *and* whose stored `sourceHash` still matches the
+  English source is served verbatim instead; it drops the disclosure (flag
+  `human_reviewed`) only when its `provenance` is `human-reviewed`, because the
+  manifest also approves machine translation (`grandfathered-mt`, `auto-mt`).
+  Editing the English falls that article back to fresh machine translation
+  until it is re-reviewed. Until 2026-11-26 DE/ES were **review-gated** (emitted
+  only once approved); `REVIEW_GATED_LOCALES` is kept, empty, so a locale can be
+  moved back (four edits, listed in the module header). `AUTO_LOCALE_MODE` is a
+  one-line per-locale kill switch back to English. `AUTO_LOCALES` and
+  `AUTO_TRANSLATED_LOCALES` are held equal by a unit test in
+  `scripts/lib/blog-gate.test.mjs`.
   Marketing pages mirror this at whole-page granularity (`scripts/lib/page-gate.mjs`).
 - **hreflang reciprocity.** An article's `approved_locales` drives all three of:
   which `/{locale}/` variants prerender emits, which hreflang alternates each
@@ -258,7 +266,6 @@ Things with no enforcing check (change one, change the other):
 
 | This | Must match | Where |
 |---|---|---|
-| `AUTO_LOCALES` | `AUTO_TRANSLATED_LOCALES` (MT disclosure) | `scripts/lib/blog-gate.mjs` ↔ `src/i18n/locales.ts` |
 | `PAGE_NON_TEXT` (review app) | `NON_TEXT_FIELDS` (translator + hash) | `scripts/review-translations.mjs` ↔ `scripts/lib/page-translate.mjs` |
 | `PAGE_CACHE_SALT` (`pages-v1`) | same constant in the seeder | `scripts/fetch-pages.mjs` ↔ `scripts/seed-storyblok-pages.mjs` |
 | seeder `PAGES` copy | the published Storyblok stories | `scripts/seed-storyblok-pages.mjs` ↔ the CMS |
@@ -274,7 +281,8 @@ copy had drifted and a re-run would have de-whitelisted the Links Block). Its
 now opt-in behind `--write-stories` while priming the cache stays the default. And
 `enSourceHash` is pinned by a fixture in `scripts/lib/blog-gate.test.mjs`: if that
 test fails the canonical form changed, and every stored hash has to be re-pointed
-in the same commit or the DE and ES article variants stop being emitted.
+in the same commit or every approved translation falls back to machine
+translation, which also needs those articles' strings in the cache.
 | Route table (`AppRoutes`) | `routes` array | `src/App.tsx` ↔ `scripts/prerender.mjs` |
 | `MAX_BODY_BYTES` (client) | `MAX_BODY_BYTES` (Lambda) | `src/components/Contact.tsx` ↔ `terraform/contact-lambda-src/index.mjs` |
 | Pre-paint shell tokens (`--accent`, `--border`, ...) | `:root` tokens | `index.html` inline `<style>` ↔ `src/index.css` |
