@@ -6,6 +6,13 @@
     "it": "Comunicazione",
     "pt": "Comunicação"
   },
+  "Crypto": {
+    "de": "Crypto",
+    "es": "Crypto",
+    "fr": "Crypto",
+    "it": "Crypto",
+    "pt": "Crypto"
+  },
   "Engineering Management": {
     "de": "Engineering Management",
     "es": "Gestión de Ingeniería",
@@ -33,6 +40,13 @@
     "fr": "GitHub Actions",
     "it": "GitHub Actions",
     "pt": "GitHub Actions"
+  },
+  "Hardware Wallets": {
+    "de": "Hardware Wallets",
+    "es": "Hardware Wallets",
+    "fr": "Portefeuilles Matériels",
+    "it": "Hardware Wallet",
+    "pt": "Hardware Wallets"
   },
   "immobilienscout24": {
     "de": "ImmobilienScout24",
@@ -62,6 +76,13 @@
     "it": "Leadership",
     "pt": "Leadership"
   },
+  "Multisig": {
+    "de": "Multisig",
+    "es": "Multisig",
+    "fr": "Multisig",
+    "it": "Multisig",
+    "pt": "Multisig"
+  },
   "open-source": {
     "de": "Open Source",
     "es": "Open Source",
@@ -82,6 +103,20 @@
     "fr": "Sécurité Psychologique",
     "it": "Sicurezza Psicologica",
     "pt": "Segurança Psicológica"
+  },
+  "Security": {
+    "de": "Security",
+    "es": "Seguridad",
+    "fr": "Sécurité",
+    "it": "Sicurezza",
+    "pt": "Segurança"
+  },
+  "Self-Custody": {
+    "de": "Self-Custody",
+    "es": "Autocustodia",
+    "fr": "Auto-conservation",
+    "it": "Self-Custody",
+    "pt": "Autocustódia"
   },
   "terraform": {
     "de": "Terraform",
